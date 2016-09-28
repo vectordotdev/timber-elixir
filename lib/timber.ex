@@ -1,0 +1,2 @@
+defmodule Timber do
+end
