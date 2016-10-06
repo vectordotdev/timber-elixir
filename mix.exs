@@ -36,7 +36,8 @@ defmodule Timber.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       preferred_cli_env: preferred_cli_env(),
-      test_coverage: test_coverage()
+      test_coverage: test_coverage(),
+      dialyzer: dialyzer()
     ]
   end
 
@@ -51,6 +52,7 @@ defmodule Timber.Mixfile do
   # and are not distributed with the package.
   def application do
     [
+      env: env(),
       applications: apps(Mix.env)
     ]
   end
@@ -62,7 +64,16 @@ defmodule Timber.Mixfile do
 
   # Default list of applications to be loaded regardless
   # of Mix environment
-  defp apps(), do: [:logger]
+  defp apps(), do: [:poison, :logger]
+
+  # The environment to be configured by default
+  defp env() do
+    [
+      timber: [
+        transport: Timber.Transports.IODevice
+      ]
+    ]
+  end
 
   # Compiler paths switched on the Mix environment
   #
@@ -90,6 +101,13 @@ defmodule Timber.Mixfile do
   defp test_coverage() do
     [
       tool: ExCoveralls
+    ]
+  end
+
+  # Dialyzer configuration
+  defp dialyzer() do
+    [
+      plt_add_deps: true
     ]
   end
 
@@ -135,8 +153,9 @@ defmodule Timber.Mixfile do
       {:credo, "~> 0.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
       {:earmark, "~> 1.0", only: [:dev, :docs]},
-      {:ex_doc, "~> 0.13", only: [:dev, :docs]},
+      {:ex_doc, "~> 0.14", only: [:dev, :docs]},
       {:excoveralls, "~> 0.5", only: [:test]},
+      {:plug, "~> 1.2", optional: true},
       {:poison, "~> 2.2.0"},
     ]
   end
