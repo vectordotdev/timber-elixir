@@ -5,6 +5,8 @@ defmodule Timber.Plug do
 
   @behaviour Plug
 
+  alias Timber.Contexts.{HTTPRequestContext, HTTPResponseContext}
+
   @spec init(Plug.opts) :: Plug.opts
   def init(opts) do
     opts
@@ -14,13 +16,23 @@ defmodule Timber.Plug do
   def call(conn, _opts) do
     host = conn.host
     port = conn.port
-    scheme = Atom.to_string(conn.scheme)
+    scheme = conn.scheme
     method = conn.method
     path = conn.request_path
     headers = conn.req_headers
     query_params = conn.query_params
 
-    Timber.add_http_request_context(host, port, scheme, method, path, headers, query_params)
+    context = %HTTPRequestContext{
+      host: host,
+      port: port,
+      scheme: scheme,
+      method: method,
+      path: path,
+      headers: headers,
+      query_params: query_params
+    }
+
+    Timber.add_context(context)
 
     Plug.Conn.register_before_send(conn, &add_response_context/1)
   end
@@ -31,7 +43,13 @@ defmodule Timber.Plug do
     headers = conn.resp_headers
     status = Plug.Conn.Status.code(conn.status)
 
-    Timber.add_http_response_context(bytes, headers, status)
+    context = %HTTPResponseContext{
+      bytes: bytes,
+      headers: headers,
+      status: status
+    }
+
+    Timber.add_context(context)
 
     conn
   end

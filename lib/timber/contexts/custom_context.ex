@@ -3,8 +3,8 @@ defmodule Timber.Contexts.CustomContext do
   A custom context can be specified by the user that is specific to the system
   being logged.
 
-  To add a custom context to the context stack, you should call
-  `Timber.add_custom_context/2`.
+  You can use a custom context to track contextual information relevant to your
+  system that is not one of the commonly supported contexts for Timber.
   """
 
   @type t :: %__MODULE__{

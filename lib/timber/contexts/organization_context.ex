@@ -3,8 +3,9 @@ defmodule Timber.Contexts.OrganizationContext do
   The organization context tracks the organization of the currently
   authenticated user
 
-  To add an organization contex to the stack, you should call
-  `Timber.add_organization_context/2`.
+  You will want to add this context at the time you determine
+  the organization a user belongs to, typically in the authentication
+  flow.
   """
 
   @type t :: %__MODULE__{

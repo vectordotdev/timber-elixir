@@ -2,10 +2,8 @@ defmodule Timber.Contexts.HTTPRequestContext do
   @moduledoc """
   The HTTP request context tracks incoming HTTP requests
 
-  To manually add an HTTP request to the stack, you should use the
-  `Timber.add_http_request_context/7` function. However, Timber can
-  automatically add them to the stack if you use a `Plug` based
-  framework through the `Timber.Plug`.
+  Timber can automatically add incoming HTTP requests to the stack if
+  you use a `Plug` based framework through the `Timber.Plug`.
   """
 
   @type t :: %__MODULE__{
@@ -14,11 +12,13 @@ defmodule Timber.Contexts.HTTPRequestContext do
     method: method,
     path: String.t,
     port: pos_integer,
-    scheme: String.t,
+    scheme: scheme,
     query_params: %{String.t => String.t},
   }
 
   @type method :: :connect | :delete | :get | :head | :options | :post | :put | :trace
+
+  @type scheme :: :https | :http
 
   @type header :: {String.t, String.t}
 

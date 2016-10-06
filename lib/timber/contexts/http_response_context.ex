@@ -2,10 +2,8 @@ defmodule Timber.Contexts.HTTPResponseContext do
   @moduledoc """
   The HTTP response context tracks outgoing HTTP responses.
 
-  To manually add an HTTP response to the stack, you should use the
-  `Timber.add_http_response_context/3` function. However, Timber can
-  automatically add them to the stack if you use a `Plug` based framework
-  through the `Timber.Plug`.
+  Timber can automatically add responses to the context stack if you
+  use a `Plug` based framework through `Timber.Plug`.
   """
 
   @type t :: %__MODULE__{

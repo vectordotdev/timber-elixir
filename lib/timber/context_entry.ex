@@ -63,6 +63,17 @@ defmodule Timber.ContextEntry do
     }
   end
 
+  @spec type_for_data(context_data) :: context_type
+  def type_for_data(%Contexts.CustomContext{}), do: :custom
+  def type_for_data(%Contexts.ExceptionContext{}), do: :exception
+  def type_for_data(%Contexts.HTTPRequestContext{}), do: :http_request
+  def type_for_data(%Contexts.HTTPResponseContext{}), do: :http_response
+  def type_for_data(%Contexts.OrganizationContext{}), do: :organization
+  def type_for_data(%Contexts.SQLQueryContext{}), do: :sql_query
+  def type_for_data(%Contexts.ServerContext{}), do: :server
+  def type_for_data(%Contexts.TemplateRenderContext{}), do: :template_render
+  def type_for_data(%Contexts.UserContext{}), do: :user
+
   @doc """
   Presents the context the way it should be encoded. The log ingestion system for Timber
   expects contexts to be encoded such that their type is the key holding the context

@@ -2,10 +2,9 @@ defmodule Timber.Contexts.ExceptionContext do
   @moduledoc """
   The exception context is used to track exceptions.
 
-  To manually add an exception context to the stack, you should use the
-  `Timber.add_exception_context/3` function. However, Timber can
-  automatically keep track of errors reported by the VM, so it should
-  be uneccessary to call it manually.
+  Timber can automatically keep track of errors reported by the VM by hooking
+  into the SASL reporting system to collect exception information, so it should
+  be unnecessary to track exceptions manually.
   """
 
   @type t :: %__MODULE__{
