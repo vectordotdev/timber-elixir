@@ -19,7 +19,7 @@ defmodule Timber.Plug do
     scheme = conn.scheme
     method = conn.method
     path = conn.request_path
-    headers = conn.req_headers
+    headers = HTTPRequestContext.headers_from_list(conn.req_headers)
     query_params = conn.query_params
 
     context = %HTTPRequestContext{
@@ -40,8 +40,8 @@ defmodule Timber.Plug do
   @spec add_response_context(Plug.Conn.t) :: Plug.Conn.t
   defp add_response_context(conn) do
     bytes = :erlang.byte_size(conn.resp_body)
-    headers = conn.resp_headers
     status = Plug.Conn.Status.code(conn.status)
+    headers = HTTPResponseContext.headers_from_list(conn.resp_headers)
 
     context = %HTTPResponseContext{
       bytes: bytes,

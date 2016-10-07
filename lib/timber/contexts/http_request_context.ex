@@ -8,7 +8,7 @@ defmodule Timber.Contexts.HTTPRequestContext do
 
   @type t :: %__MODULE__{
     host: String.t,
-    headers: [header],
+    headers: headers,
     method: method,
     path: String.t,
     port: pos_integer,
@@ -20,13 +20,46 @@ defmodule Timber.Contexts.HTTPRequestContext do
 
   @type scheme :: :https | :http
 
-  @type header :: {String.t, String.t}
-
-  @type response :: %{
-    bytes: non_neg_integer,
-    headers: [header],
-    status: pos_integer
+  @type headers :: %{
+    content_type: String.t,
+    remote_addr: String.t,
+    referrer: String.t,
+    request_id: String.t,
+    user_agent: String.t
   }
 
   defstruct [:host, :headers, :method, :path, :port, :scheme, :query_params]
+
+  @recognized_headers ~w(
+    content-type
+    referrer
+    user-agent
+    x-forwarded-for
+    x-request-id
+  )
+
+  @doc """
+  Takes a list of two-element tuples representing HTTP request headers and
+  returns a map of the recognized headers Timber handles
+  """
+  @spec headers_from_list([{String.t, String.t}]) :: headers
+  def headers_from_list(headers) do
+    Enum.filter_map(headers, &header_filter/1, &header_to_keyword/1)
+    |> Enum.into(%{})
+  end
+
+  @spec headers_from_list({String.t, String.t}) :: boolean
+  defp header_filter({name, _}) when name in @recognized_headers, do: true
+  defp header_filter(_), do: false
+
+  @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
+  defp header_to_keyword({"x-forwarded-for", ip}), do: {:remote_addr, ip}
+  defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
+  defp header_to_keyword({name, value}), do: {String.to_existing_atom(name), value}
+
+  @spec method_from_string(String.t) :: method
+  def method_from_string(method) do
+    String.downcase(method)
+    |> String.to_existing_atom()
+  end
 end
