@@ -17,10 +17,14 @@ defmodule Timber.Plug do
     host = conn.host
     port = conn.port
     scheme = conn.scheme
-    method = conn.method
     path = conn.request_path
     headers = HTTPRequestContext.headers_from_list(conn.req_headers)
     query_params = conn.query_params
+
+    method =
+      conn.method
+      |> String.downcase()
+      |> String.to_existing_atom()
 
     context = %HTTPRequestContext{
       host: host,
