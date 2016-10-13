@@ -57,7 +57,7 @@ that you want to use the `IODevice` transport without timestamps (since Heroku a
 
 ```elixir
 config :timber, :transport, Timber.Transports.IODevice
-config :timber, :transport_config, timestamps: false
+config :timber, :transport_config, print_timestamps: false
 ```
 
 Separately, you'll need to add your unique log drain URL to Heroku for your application:

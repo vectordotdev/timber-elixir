@@ -169,7 +169,7 @@ defmodule Timber.Logger do
   # is modified by changing the state.
   @spec configure(Keyword.t, t) :: t
   defp configure(options, state) do
-    new_transport_state = state.transport.configure(options, state.transport_state)
+    {:ok, new_transport_state} = state.transport.configure(options, state.transport_state)
     level = Keyword.get(options, :level)
 
     %__MODULE__{state | transport_state: new_transport_state, min_level: level}

@@ -36,6 +36,15 @@ defmodule Timber.Transports.IODevice do
   perform.
 
   _Defaults to 100._
+
+  ### `print_timestamps`
+
+  When `true` (default), the timestamp for the log will be output at the front
+  of the statement.
+
+  When `false`, the timestamp will be suppressed. This is only useful in situations
+  where the log will be written to an evented IO service that automatically adds
+  timestamps for incoming data, like Heroku Logplex.
   """
 
   @behaviour Timber.Transport
@@ -43,12 +52,16 @@ defmodule Timber.Transports.IODevice do
   alias Timber.LogEntry
   alias __MODULE__.BadDeviceError
 
+  @default_max_buffer_size 100
+  @default_print_timestamps true
+
   @typep t :: %__MODULE__{
     ref: reference | nil,
     device: nil | IO.device,
     output: nil | IO.chardata,
     buffer_size: non_neg_integer,
     max_buffer_size: pos_integer,
+    print_timestamps: boolean,
     buffer: [] | [IO.chardata]
   }
 
@@ -56,7 +69,8 @@ defmodule Timber.Transports.IODevice do
             ref: nil,
             output: nil,
             buffer_size: 0,
-            max_buffer_size: 100,
+            max_buffer_size: @default_max_buffer_size,
+            print_timestamps: @default_print_timestamps,
             buffer: []
 
   @doc false
@@ -97,8 +111,12 @@ defmodule Timber.Transports.IODevice do
 
   @doc false
   @spec configure(Keyword.t, t) :: {:ok, t}
-  def configure(_options, state) do
-    {:ok, state}
+  def configure(options, state) do
+    max_buffer_size = Keyword.get(options, :max_buffer_size, 100)
+    print_timestamps = Keyword.get(options, :print_timestamps, true)
+
+    new_state = %{ state | max_buffer_size: max_buffer_size, print_timestamps: print_timestamps}
+    {:ok, new_state}
   end
 
   @doc false
@@ -113,7 +131,14 @@ defmodule Timber.Transports.IODevice do
 
     encoded_context = LogEntry.to_json_string!(log_entry, only: [:context])
 
-    output = [timestamp, " [", level_b, "] ", message, " @timberio ", encoded_context, "\n"]
+    msg_chardata = ["[", level_b, "] ", message, " @timberio ", encoded_context, "\n"]
+
+    output =
+      if state.print_timestamps do
+        [ timestamp, " " | msg_chardata ]
+      else
+        msg_chardata
+      end
 
     cond do
       is_nil(ref) ->
