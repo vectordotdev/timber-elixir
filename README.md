@@ -81,16 +81,25 @@ as simple as possible so that you can get up-and-running with very little work.
 
 Plug, and frameworks like Phoenix which are based on it, can provide information to Timber about
 HTTP requests and repsonses if you insert the `Timber.Plug` plug into your pipeline. The most
-simple example is adding it to a Phoenix router:
+simple example is adding it to a pipeline in a Phoenix router:
 
 ```elixir
 defmodule MyApp.Router do
   use MyApp.Web, :router
-  plug Timber.Plug
 
-  # ... your routes here ...
+  pipeline :logging do
+    plug Timber.Plug
+  end
+
+  scope "/api", MyApp do
+    pipe_through :logging
+  end
 end
 ```
+
+Any of your scopes piped through the `:logging` pipeline will now have their
+context automatically collected by Timber. You can also add Timber to an
+existing pipeline or pass multiple pipeliness to `Phoenix.Router.pipe_through/1`.
 
 ### Additional Contexts
 

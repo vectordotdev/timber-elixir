@@ -28,15 +28,20 @@ defmodule Timber.Plug do
 
   Phoenix's flexibility means there are multiple points in the plug pipeline
   where the `Timber.Plug` can be inserted. The recommended place is in
-  your router, but if you have more complex needs you can also place the plug
-  in an endpoint, a Phoenix pipeline, or a controller.
+  a `:logging` pipeline in your router, but if you have more complex needs
+  you can also place the plug in an endpoint or a controller.
 
-  ```
+  ```elixir
   defmodule MyApp.Router do
     use MyApp.Web, :router
-    plug Timber.Plug
 
-    # define your pipelines and routes
+    pipeline :logging do
+      plug Timber.Plug
+    end
+
+    scope "/api", MyApp do
+      pipe_through :logging
+    end
   end
   ```
 
