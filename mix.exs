@@ -10,7 +10,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "0.1.0"
+  @version "0.1.1"
 
   # Project manifest for Mix
   #
@@ -134,7 +134,8 @@ defmodule Timber.Mixfile do
       main: "readme",
       logo: "doc_assets/logo.png",
       extras: [
-        "README.md": [title: "README"]
+        "README.md": [title: "README"],
+        "LICENSE.md": [title: "LICENSE"]
       ]
     ]
   end
