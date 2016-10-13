@@ -120,7 +120,7 @@ defmodule Timber.Mixfile do
       name: :timber,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       maintainers: ["Ben Johnson", "David Antaramian"],
-      licenses: ["Timber Technologies License"],
+      licenses: ["MIT"],
       links: %{
         "GitHub" => @source_url
       }
@@ -132,6 +132,7 @@ defmodule Timber.Mixfile do
     [
       source_ref: "v#{@version}",
       main: "readme",
+      logo: "doc_assets/logo.png",
       extras: [
         "README.md": [title: "README"]
       ]
