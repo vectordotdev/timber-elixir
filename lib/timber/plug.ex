@@ -140,7 +140,9 @@ defmodule Timber.Plug do
 
   @spec add_response_context(Plug.Conn.t) :: Plug.Conn.t
   defp add_response_context(conn) do
-    bytes = :erlang.byte_size(conn.resp_body)
+    # The response body typing is iodata; it should not be assumed
+    # to be a binary
+    bytes = IO.iodata_length(conn.resp_body)
     status = Plug.Conn.Status.code(conn.status)
     headers = HTTPResponseContext.headers_from_list(conn.resp_headers)
 

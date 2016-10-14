@@ -66,6 +66,40 @@ defmodule Timber.PlugTest do
       assert http_response.headers == %{}
       assert http_response.status == 200
     end
+
+    test "correctly calculates HTTPResponse byte size when using iolist" do
+      # Weird formatting courtesy of IEx
+      # The following is iodata that when converted to a binary become:
+      #
+      # "{\"errors\":[{\"message\":\"internal server error :*(\",\"key\":\"internal\",\"category\":\"server\"}]}"
+      #
+      # which has a byte size of 89 bytes
+      response_body =
+        [123,
+         [[34, ["errors"], 34], 58,
+          [91,
+           [[123,
+             [[34, ["message"], 34], 58, [34, ["internal server error :*("], 34], 44,
+              [34, ["key"], 34], 58, [34, ["internal"], 34], 44, [34, ["category"], 34],
+              58, [34, ["server"], 34]], 125]], 93]], 125]
+
+      generate_conn(:get, [])
+      |> Timber.Plug.call([])
+      |> Plug.Conn.send_resp(200, response_body)
+
+      metadata = Logger.metadata()
+      timber_context = Keyword.get(metadata, :timber_context, [])
+
+      assert length(timber_context) == 2
+
+      http_response =
+        timber_context
+        |> Enum.reverse()
+        |> List.first()
+        |> Map.get(:data)
+
+      assert http_response.bytes == 89
+    end
   end
 
   defp generate_conn(:get, opts) do
