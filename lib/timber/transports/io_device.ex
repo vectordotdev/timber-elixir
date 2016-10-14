@@ -28,6 +28,25 @@ defmodule Timber.Transports.IODevice do
 
   The following options are available when configuring the IODevice logger:
 
+  #### `colorize`
+  
+  When `true`, the log level will be printed in a corresponding color using
+  ANSI console control characters to help identify it.
+  
+  When `false`, the log level will be printed out as standard text.
+
+  _Defaults to `true`._
+
+  #### `hide_context`
+  
+  When `true`, the contextual information that is used by Timber will be hidden
+  on the log lines using ANSI console control characters.
+
+  When `false`, the contextual information will be printed out as standard
+  text.
+
+  _Defaults to `true`._
+
   #### `max_buffer_size`
   
   The maximum number of log entries that the log event buffer will hold until
@@ -35,23 +54,27 @@ defmodule Timber.Transports.IODevice do
   accomodate your system's IO capability versus the amount of logging you
   perform.
 
-  _Defaults to 100._
+  _Defaults to `100`._
 
   ### `print_timestamps`
 
-  When `true` (default), the timestamp for the log will be output at the front
+  When `true`, the timestamp for the log will be output at the front
   of the statement.
 
   When `false`, the timestamp will be suppressed. This is only useful in situations
   where the log will be written to an evented IO service that automatically adds
   timestamps for incoming data, like Heroku Logplex.
+
+  _Defaults to `true`._
   """
 
   @behaviour Timber.Transport
 
-  alias Timber.LogEntry
+  alias Timber.{LogEntry, Logger}
   alias __MODULE__.BadDeviceError
 
+  @default_hide_context true
+  @default_colorize true
   @default_max_buffer_size 100
   @default_print_timestamps true
 
@@ -61,6 +84,8 @@ defmodule Timber.Transports.IODevice do
     output: nil | IO.chardata,
     buffer_size: non_neg_integer,
     max_buffer_size: pos_integer,
+    colorize: boolean,
+    hide_context: boolean,
     print_timestamps: boolean,
     buffer: [] | [IO.chardata]
   }
@@ -69,6 +94,8 @@ defmodule Timber.Transports.IODevice do
             ref: nil,
             output: nil,
             buffer_size: 0,
+            colorize: @default_colorize,
+            hide_context: @default_hide_context,
             max_buffer_size: @default_max_buffer_size,
             print_timestamps: @default_print_timestamps,
             buffer: []
@@ -112,10 +139,18 @@ defmodule Timber.Transports.IODevice do
   @doc false
   @spec configure(Keyword.t, t) :: {:ok, t}
   def configure(options, state) do
-    max_buffer_size = Keyword.get(options, :max_buffer_size, 100)
-    print_timestamps = Keyword.get(options, :print_timestamps, true)
+    colorize = Keyword.get(options, :colorize, @default_colorize)
+    hide_context = Keyword.get(options, :hide_context, @default_hide_context)
+    max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
+    print_timestamps = Keyword.get(options, :print_timestamps, @default_print_timestamps)
 
-    new_state = %{ state | max_buffer_size: max_buffer_size, print_timestamps: print_timestamps}
+    new_state = %{ state |
+      colorize: colorize,
+      hide_context: hide_context,
+      max_buffer_size: max_buffer_size,
+      print_timestamps: print_timestamps
+    }
+
     {:ok, new_state}
   end
 
@@ -127,11 +162,15 @@ defmodule Timber.Transports.IODevice do
     buffer_size = state.buffer_size
     max_buffer_size = state.max_buffer_size
 
-    level_b = Atom.to_string(level)
+    level_b = colorize_log_level(level, state.colorize)
 
-    encoded_context = LogEntry.to_json_string!(log_entry, only: [:context])
+    context =
+      log_entry
+      |> LogEntry.to_json_string!(only: [:context])
+      |> wrap_context()
+      |> conceal_log_context(state.hide_context)
 
-    msg_chardata = ["[", level_b, "] ", message, " @timberio ", encoded_context, "\n"]
+    msg_chardata = ["[", level_b, "] ", message, context, "\n"]
 
     output =
       if state.print_timestamps do
@@ -158,6 +197,31 @@ defmodule Timber.Transports.IODevice do
         {:ok, new_state}
     end
   end
+
+  @spec wrap_context(IO.chardata) :: IO.chardata
+  defp wrap_context(context) do
+    [" @timberio ", context]
+  end
+
+  @spec colorize_log_level(Logger.level, boolean) :: IO.chardata
+  defp colorize_log_level(level_a, false), do: Atom.to_string(level_a)
+  defp colorize_log_level(level_a, true) do
+    color = log_level_color(level_a)
+    level_b = Atom.to_string(level_a)
+
+    [color, level_b]
+    |> IO.ANSI.format(true)
+  end
+
+  @spec log_level_color(Logger.level) :: atom
+  defp log_level_color(:debug), do: :cyan
+  defp log_level_color(:warn), do: :yellow
+  defp log_level_color(:error), do: :red
+  defp log_level_color(_), do: :normal
+
+  @spec conceal_log_context(IO.chardata, boolean) :: IO.chardata
+  defp conceal_log_context(context, false), do: context
+  defp conceal_log_context(context, true), do: IO.ANSI.format([:conceal, context], true)
 
   @spec write_buffer(IO.chardata, t) :: t
   defp write_buffer(output, state) do
