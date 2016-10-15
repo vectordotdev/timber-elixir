@@ -155,6 +155,7 @@ defmodule Timber.Mixfile do
       {:credo, "~> 0.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
       {:earmark, "~> 1.0", only: [:dev, :docs]},
+      {:ecto, "~> 2.0", optional: true},
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
       {:excoveralls, "~> 0.5", only: [:test]},
       {:plug, "~> 1.2", optional: true},
