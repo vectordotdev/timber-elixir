@@ -101,6 +101,24 @@ Any of your scopes piped through the `:logging` pipeline will now have their
 context automatically collected by Timber. You can also add Timber to an
 existing pipeline or pass multiple pipeliness to `Phoenix.Router.pipe_through/1`.
 
+### Ecto
+
+Timber can collect information about the queries Ecto runs if you declare
+Timber as one of Ecto's loggers. This only requires a minor configuration
+change:
+
+```elixir
+config :my_app, MyApp.Repo,
+  loggers: [{Timber.Ecto, :add_context, []}, {Ecto.LogEntry, :log, []}]
+```
+
+Now any query information will be added to your context information.
+
+The `:loggers` configuration key is a special feature from Ecto that
+informs listed "loggers" of query events. Timber won't actually write
+out a log, it will just capture the context information for future
+logs.
+
 ### Additional Contexts
 
 For everything that we don't provide a context plugin for, we try to make it simple to add
