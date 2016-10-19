@@ -4,7 +4,7 @@ defmodule Timber.Transports.IODevice do
   `stdout` (default; see below) or any other IODevice of your choice
 
   ## Default Output
-  
+
   The suggestion above is that the default configuration of this
   transport will log to `stdout` by default. This is true in most
   cases, but it is misleadingly generic. The output will actually be
@@ -15,7 +15,7 @@ defmodule Timber.Transports.IODevice do
   that would make it redirect output elsewhere.
 
   ## Synchronicity
-  
+
   The IODevice transport will output messages asynchronously to the IO device
   using standard BEAM process messaging. After sending output to be written,
   the transport will begin buffering all new log events. When the remote IO
@@ -29,16 +29,16 @@ defmodule Timber.Transports.IODevice do
   The following options are available when configuring the IODevice logger:
 
   #### `colorize`
-  
+
   When `true`, the log level will be printed in a corresponding color using
   ANSI console control characters to help identify it.
-  
+
   When `false`, the log level will be printed out as standard text.
 
   _Defaults to `true`._
 
   #### `hide_context`
-  
+
   When `true`, the contextual information that is used by Timber will be hidden
   on the log lines using ANSI console control characters.
 
@@ -48,7 +48,7 @@ defmodule Timber.Transports.IODevice do
   _Defaults to `true`._
 
   #### `max_buffer_size`
-  
+
   The maximum number of log entries that the log event buffer will hold until
   the transport switchs to synchronous mode. This value should be tuned to
   accomodate your system's IO capability versus the amount of logging you
@@ -77,6 +77,7 @@ defmodule Timber.Transports.IODevice do
   @default_colorize true
   @default_max_buffer_size 100
   @default_print_timestamps true
+  @context_delimiter " @timber.io "
 
   @typep t :: %__MODULE__{
     ref: reference | nil,
@@ -200,7 +201,7 @@ defmodule Timber.Transports.IODevice do
 
   @spec wrap_context(IO.chardata) :: IO.chardata
   defp wrap_context(context) do
-    [" @timberio ", context]
+    [@context_delimiter, context]
   end
 
   @spec colorize_log_level(Logger.level, boolean) :: IO.chardata
@@ -335,7 +336,7 @@ defmodule Timber.Transports.IODevice do
       Attempted to open file for writing at the path
 
       #{path}
-      
+
       but the file could not be opened or created.
       """
     end
@@ -345,7 +346,7 @@ defmodule Timber.Transports.IODevice do
       Attempted to open file for writing at the path
 
       #{path}
-      
+
       but the current filesystem permissions do not allow this
       """
     end
@@ -355,7 +356,7 @@ defmodule Timber.Transports.IODevice do
       Attempted to open file for writing at the path
 
       #{path}
-      
+
       but the path specified is a directory according to the filesystem
       """
     end
@@ -365,7 +366,7 @@ defmodule Timber.Transports.IODevice do
       Attempted to open file for writing at the path
 
       #{path}
-      
+
       but the filesystem has indicated there is no space available to write
       """
     end
