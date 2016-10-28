@@ -53,9 +53,11 @@ defmodule Timber.Contexts.HTTPRequestContext do
   defp header_filter(_), do: false
 
   @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
+  defp header_to_keyword({"content-type", content_type}), do: {:content_type, content_type}
+  defp header_to_keyword({"referrer", referrer}), do: {:referrer, referrer}
+  defp header_to_keyword({"user-agent", user_agent}), do: {:user_agent, user_agent}
   defp header_to_keyword({"x-forwarded-for", ip}), do: {:remote_addr, ip}
   defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
-  defp header_to_keyword({name, value}), do: {String.to_existing_atom(name), value}
 
   @spec method_from_string(String.t) :: method
   def method_from_string(method) do
