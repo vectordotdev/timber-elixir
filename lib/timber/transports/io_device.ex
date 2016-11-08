@@ -167,7 +167,7 @@ defmodule Timber.Transports.IODevice do
 
     context =
       log_entry
-      |> LogEntry.to_json_string!(only: [:context])
+      |> LogEntry.to_json_string!(only: [:dt, :level, :event, :context])
       |> wrap_context()
       |> conceal_log_context(state.hide_context)
 

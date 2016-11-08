@@ -1,4 +1,4 @@
-defmodule Timber.Contexts.TemplateRenderContext do
+defmodule Timber.Events.TemplateRenderEvent do
   @moduledoc """
   Tracks the time to render a template
   """

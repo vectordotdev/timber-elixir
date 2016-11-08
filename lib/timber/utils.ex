@@ -5,6 +5,20 @@ defmodule Timber.Utils do
   alias Timber.Logger
 
   @doc """
+  Drops any `nil` values from the given map
+
+  Only applies to the root level of the map
+  """
+  @spec drop_nil_values(map) :: map
+  def drop_nil_values(map) do
+    Enum.reject(map, fn
+      {_k, nil} -> true
+      _ -> false
+    end)
+    |> Enum.into(%{})
+  end
+
+  @doc """
   Returns the current date and time in UTC including fractional portions of a second
   """
   @spec now() :: Logger.timestamp

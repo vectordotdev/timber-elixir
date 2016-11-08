@@ -1,12 +1,13 @@
-defmodule Timber.Contexts.HTTPResponseContext do
+defmodule Timber.Events.HTTPResponseEvent do
   @moduledoc """
-  The HTTP response context tracks outgoing HTTP responses.
+  The HTTP response event tracks outgoing HTTP responses.
 
-  Timber can automatically add responses to the context stack if you
+  Timber can automatically track response events  if you
   use a `Plug` based framework through `Timber.Plug`.
   """
 
   @type t :: %__MODULE__{
+    description: String.t,
     bytes: non_neg_integer,
     headers: headers,
     status: pos_integer
@@ -20,7 +21,7 @@ defmodule Timber.Contexts.HTTPResponseContext do
     location: String.t
   }
 
-  defstruct [:bytes, :headers, :status]
+  defstruct [:description, :bytes, :headers, :status]
 
   @recognized_headers ~w(
     cache_control
@@ -29,6 +30,12 @@ defmodule Timber.Contexts.HTTPResponseContext do
     content_type
     location
   )
+
+  def new(opts) do
+    event = struct(__MODULE__, opts)
+    description = "Responded with #{event.status} and a body of #{event.bytes} bytes"
+    %__MODULE__{event | description: description}
+  end
 
   @doc """
   Takes a list of two-element tuples representing HTTP response headers and
