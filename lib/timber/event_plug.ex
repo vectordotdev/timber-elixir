@@ -126,7 +126,7 @@ defmodule Timber.EventPlug do
 
   @spec log_response_event(Plug.Conn.t) :: Plug.Conn.t
   defp log_response_event(conn) do
-    opts = conn.private.opts
+    opts = conn.private.timber_opts
     log_level = Keyword.get(opts, :log_level, :info)
     # The response body typing is iodata; it should not be assumed
     # to be a binary
