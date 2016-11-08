@@ -14,7 +14,7 @@ defmodule Timber.Ecto do
   event to `Ecto.LogEntry.log/1`. It is recommended you keep that entry in
   the list since it actually writes a log about the query.
 
-  The tuple for Timber's context collector is `{Timber.Ecto, :add_context, []}`.
+  The tuple for Timber's context collector is `{Timber.Ecto, :log, []}`.
   Many applications will have only one repository named `Repo`, which
   makes adding this easy. For example, to add it to the repository
   `MyApp.Repo`:
@@ -41,6 +41,11 @@ defmodule Timber.Ecto do
 
   alias Timber.Events.SQLQueryEvent
 
+  @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
+  def log(event) do
+    log(event, :debug)
+  end
+
   @doc """
   Takes an `Ecto.LogEntry` struct and adds it to the Timber context
 
@@ -50,7 +55,7 @@ defmodule Timber.Ecto do
   which is then logged.
   """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
-  def log(%Ecto.LogEntry{query: query, query_time: time_native} = entry) do
+  def log(%Ecto.LogEntry{query: query, query_time: time_native} = entry, level) do
     query_text = resolve_query(query, entry)
     # The time is given in native units which the VM determines. We have
     # to convert them to the desired unit
@@ -61,7 +66,7 @@ defmodule Timber.Ecto do
       time_ms: time_ms
     )
 
-    Logger.log(event.description, timber_event: event)
+    Logger.log(level, event.description, timber_event: event)
 
     entry
   end
