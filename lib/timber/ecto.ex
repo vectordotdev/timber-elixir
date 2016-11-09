@@ -17,7 +17,7 @@ defmodule Timber.Ecto do
   you will want to make sure it isn't in the list when using this
   event collector.
 
-  The tuple for Timber's context collector is `{Timber.Ecto, :log, []}`.
+  The tuple for Timber's event collector is `{Timber.Ecto, :log, []}`.
   Many applications will have only one repository named `Repo`, which
   makes adding this easy. For example, to add it to the repository
   `MyApp.Repo`:
@@ -49,18 +49,22 @@ defmodule Timber.Ecto do
 
   alias Timber.Events.SQLQueryEvent
 
+  @doc """
+  Identical to log/2 except that it uses a default level of `:debug`
+  """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
   def log(event) do
     log(event, :debug)
   end
 
   @doc """
-  Takes an `Ecto.LogEntry` struct and adds it to the Timber context
+  Takes an `Ecto.LogEntry` struct and logs it as a `Timber.Event.SQLQueryEvent`
+  event at the designated level
 
   This function is designed to be called from Ecto's built-in logging
   system (see the module's documentation). It takes an `Ecto.LogEntry`
   entry struct and parses it into a `Timber.Event.SQLQueryEvent`
-  which is then logged.
+  which is then logged at the designated level.
   """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
   def log(%Ecto.LogEntry{query: query, query_time: time_native} = entry, level) do

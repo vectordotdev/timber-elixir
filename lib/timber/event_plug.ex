@@ -1,6 +1,6 @@
 defmodule Timber.EventPlug do
   @moduledoc """
-  Automatically captures context information about HTTP requests
+  Automatically logs metadata information about HTTP requests
   and responses in Plug-based frameworks like Phoenix.
 
   Whether you use Plug by itself or as part of a framework like Phoenix,
@@ -58,7 +58,7 @@ defmodule Timber.EventPlug do
   event if an exception is raised. This is because of how the error
   handler works in practice. In order to capture information about the
   response, Timber registers a callback to be used before Plug actually
-  sends the response. Plug stores this context information on the
+  sends the response. Plug stores this information on the
   connection struct. When an exception is raised, the methodology used
   by the error handler will reset the conn to the state it was first
   accepted by the router.
