@@ -90,12 +90,16 @@ defmodule Timber.ContextPlug do
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
   def call(conn, opts) do
     request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
-    request_id = PlugUtils.get_request_id(conn, request_id_header)
 
-    %HTTPRequestContext{
-      request_id: request_id
-    }
-    |> Timber.add_context()
+    case PlugUtils.get_request_id(conn, request_id_header) do
+      [{_, request_id}] ->
+        %HTTPRequestContext{
+          request_id: request_id
+        }
+        |> Timber.add_context()
+      [] ->
+        :ok
+    end
 
     conn
   end
