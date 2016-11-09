@@ -122,13 +122,13 @@ defmodule Timber.EventPlug do
     Logger.log(log_level, event.description, timber_event: event)
 
     Plug.Conn.put_private(conn, :timber_opts, opts)
-    |> Plug.Conn.put_private(conn, :timber_start, start)
+    |> Plug.Conn.put_private(:timber_start, start)
     |> Plug.Conn.register_before_send(&log_response_event/1)
   end
 
   @spec log_response_event(Plug.Conn.t) :: Plug.Conn.t
   defp log_response_event(conn) do
-    stop = System.monotoic_time()
+    stop = System.monotonic_time()
     start = conn.private.timber_start
     elapsed_time = stop - start
     time_ms = System.convert_time_unit(elapsed_time, :native, :milliseconds)
