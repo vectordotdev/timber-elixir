@@ -1,15 +1,14 @@
-defmodule Timber.Contexts.UserContext do
+defmodule Timber.Contexts.ProcessContext do
   @moduledoc """
-  Tracks a user
+  Tracks process information
   """
 
   @type t :: %__MODULE__{
     id: String.t,
-    name: String.t,
-    email: String.t
+    description: String.t
   }
 
-  defstruct [:id, :name, :email]
+  defstruct [:id, :description]
 
   def new(opts) do
     struct(__MODULE__, opts)

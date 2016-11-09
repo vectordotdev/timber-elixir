@@ -10,24 +10,25 @@ defmodule Timber.LogEntry do
   log entry appropriately.
 
   Each log entry consists of the log message, its level, the timestamp
-  it was logged at, and a context stack that represents the context of
-  this process. The context stack acts like a chronological record.
+  it was logged at, a context map, and an optional event.
   See the main `Timber` module for more information.
   """
 
-  alias Timber.ContextEntry
+  alias Timber.Context
   alias Timber.Logger
+  alias Timber.Event
+  alias Timber.Utils
 
-  @type context_stack :: [ContextEntry.t] | []
 
   @type t :: %__MODULE__{
     dt: IO.chardata,
     level: Logger.level,
     message: Logger.message,
-    context: context_stack
+    context: Context.t,
+    event: Event.t | nil
   }
 
-  defstruct context: [], dt: nil, level: nil, message: nil
+  defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil
 
   @doc """
   Creates a new `LogEntry` struct
@@ -39,13 +40,17 @@ defmodule Timber.LogEntry do
   """
   @spec new(Logger.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
-    io_timestamp = Timber.Utils.format_timestamp(timestamp)
+    io_timestamp =
+      Timber.Utils.format_timestamp(timestamp)
+      |> IO.chardata_to_string()
 
-    context = Keyword.get(metadata, :timber_context, [])
+    context = Keyword.get(metadata, :timber_context, %{})
+    event = Keyword.get(metadata, :timber_event, nil)
 
     %__MODULE__{
       dt: io_timestamp,
       level: level,
+      event: event,
       message: message,
       context: context
     }
@@ -60,10 +65,10 @@ defmodule Timber.LogEntry do
   """
   @spec to_json_string!(t, Keyword.t) :: iodata | no_return
   def to_json_string!(log_entry, options) do
-    # Reformats the context stack so that the contexts
-    # can be properly interpreted by the system
-    context = Enum.map(log_entry.context, &ContextEntry.context_for_encoding/1)
-    log_entry = Map.put(log_entry, :context, context)
+    # Reformats the event so that the event 
+    # can be properly interpreted by the log ingester
+    event = Event.event_for_encoding(log_entry.event)
+    log_entry = %__MODULE__{log_entry | event: event}
 
     only = Keyword.get(options, :only, false)
 
@@ -71,8 +76,9 @@ defmodule Timber.LogEntry do
       if only do
         Map.take(log_entry, only)
       else
-        log_entry
+        Map.from_struct(log_entry)
       end
+      |> Utils.drop_nil_values()
 
     Poison.encode_to_iodata!(value_to_encode)
   end

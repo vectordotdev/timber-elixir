@@ -10,20 +10,16 @@ defmodule Timber do
   ## The Context Stack
   """
 
-  alias Timber.ContextEntry
+  alias Timber.Context
 
   @doc """
   Adds a context entry to the stack
   """
-  @spec add_context(ContextEntry.context_data) :: :ok
+  @spec add_context(Context.context_data) :: :ok
   def add_context(data) do
-    type = ContextEntry.type_for_data(data)
-
-    c = ContextEntry.new(Timber.Utils.now(), type, data)
-
     current_metadata = Elixir.Logger.metadata()
-    current_context = Keyword.get(current_metadata, :timber_context, [])
-    new_context = current_context ++ [c]
+    current_context = Keyword.get(current_metadata, :timber_context, %{})
+    new_context = Context.add_context(current_context, data)
 
     Elixir.Logger.metadata([timber_context: new_context])
   end

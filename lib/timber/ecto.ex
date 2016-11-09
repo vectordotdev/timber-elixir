@@ -2,68 +2,83 @@ defmodule Timber.Ecto do
   @moduledoc """
   Timber integration for Ecto
 
-  Timber can hook into Ecto's logging system to gather contextual
-  data about queries including the text of the query and the time
-  it took to execute.
+  Timber can hook into Ecto's logging system to gather information
+  about queries including the text of the query and the time
+  it took to execute. This information is then logged as a
+  `Timber.Events.SQLQueryEvent`.
 
-  To install Timber's context collector, you only need to modify the
+  To install Timber's Ecto event collector, you only need to modify the
   application configuration on a per-repository basis. Each repository
   has a configuration key `:loggers` that accepts a list of three element
-  tuples where each tuple describes a log event consumer. The default list
-  is `[{Ecto.LogEntry, :log, []}]` which tells the repository to log every
-  event to `Ecto.LogEntry.log/1`. It is recommended you keep that entry in
-  the list since it actually writes a log about the query.
+  tuples where each tuple describes a log event consumer. If you do not
+  have a `:loggers` key specified, Ecto uses the default list of
+  `[{Ecto.LogEntry, :log, []}]` which tells the repository to log every
+  event to `Ecto.LogEntry.log/1`. In order to avoid duplicate logging,
+  you will want to make sure it isn't in the list when using this
+  event collector.
 
-  The tuple for Timber's context collector is `{Timber.Ecto, :add_context, []}`.
+  The tuple for Timber's event collector is `{Timber.Ecto, :log, []}`.
   Many applications will have only one repository named `Repo`, which
   makes adding this easy. For example, to add it to the repository
   `MyApp.Repo`:
 
   ```elixir
   config :my_app, MyApp.Repo,
-    loggers: [{Timber.Ecto, :add_context, []}, {Ecto.LogEntry, :log, []}]
+    loggers: [{Timber.Ecto, :log, []}]
   ```
 
-  If you have set Ecto to log every query in production, you will need
-  to make sure that Timber appears _before_ the standard Ecto entry.
-  That way when Ecto writes a log, it will include the context that Timber
-  has gathered.
+  By default, queries are logged at the `:debug` level. If you want
+  to use a custom level, simple add it to the list of arguments.
+  For example, to log every query at the `:info` level:
+
+
+  ```elixir
+  config :my_app, MyApp.Repo,
+    loggers: [{Timber.Ecto, :log, [:info]}]
+  ```
 
   ### Timing
 
-  The time reported in the context is the amount of time the query
+  The time reported in the event is the amount of time the query
   took to execute on the database, as measured by Ecto. It does not
   include the time that the query spent in the pool's queue or the
   time spent decoding the response from the database.
   """
 
-  alias Timber.Contexts.SQLQueryContext
+  require Logger
+
+  alias Timber.Events.SQLQueryEvent
 
   @doc """
-  Takes an `Ecto.LogEntry` struct and adds it to the Timber context
+  Identical to log/2 except that it uses a default level of `:debug`
+  """
+  @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
+  def log(event) do
+    log(event, :debug)
+  end
+
+  @doc """
+  Takes an `Ecto.LogEntry` struct and logs it as a `Timber.Event.SQLQueryEvent`
+  event at the designated level
 
   This function is designed to be called from Ecto's built-in logging
   system (see the module's documentation). It takes an `Ecto.LogEntry`
-  entry struct and parses it into a `Timber.Contexts.SQLQueryContext`
-  which is then added to the context stack.
-
-  This function does not replace the log writing strategy provided
-  by `Ecto.LogEntry.log/1` and `Ecto.LogEntry.log/2`. It only serves
-  as a way to add the contextual information about the query to the
-  Timber context stack.
+  entry struct and parses it into a `Timber.Event.SQLQueryEvent`
+  which is then logged at the designated level.
   """
-  @spec add_context(Ecto.LogEntry.t) :: Ecto.LogEntry.t
-  def add_context(%Ecto.LogEntry{query: query, query_time: time_native} = entry) do
+  @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
+  def log(%Ecto.LogEntry{query: query, query_time: time_native} = entry, level) do
     query_text = resolve_query(query, entry)
     # The time is given in native units which the VM determines. We have
     # to convert them to the desired unit
     time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
 
-    %SQLQueryContext{
+    event = SQLQueryEvent.new(
       sql: query_text,
       time_ms: time_ms
-    }
-    |> Timber.add_context()
+    )
+
+    Logger.log(level, event.description, timber_event: event)
 
     entry
   end
