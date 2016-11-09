@@ -2,17 +2,20 @@ defmodule Timber.Ecto do
   @moduledoc """
   Timber integration for Ecto
 
-  Timber can hook into Ecto's logging system to gather event
+  Timber can hook into Ecto's logging system to gather information
   about queries including the text of the query and the time
-  it took to execute.
+  it took to execute. This information is then logged as a
+  `Timber.Events.SQLQueryEvent`.
 
-  To install Timber's event collector, you only need to modify the
+  To install Timber's Ecto event collector, you only need to modify the
   application configuration on a per-repository basis. Each repository
   has a configuration key `:loggers` that accepts a list of three element
-  tuples where each tuple describes a log event consumer. The default list
-  is `[{Ecto.LogEntry, :log, []}]` which tells the repository to log every
-  event to `Ecto.LogEntry.log/1`. It is recommended you keep that entry in
-  the list since it actually writes a log about the query.
+  tuples where each tuple describes a log event consumer. If you do not
+  have a `:loggers` key specified, Ecto uses the default list of
+  `[{Ecto.LogEntry, :log, []}]` which tells the repository to log every
+  event to `Ecto.LogEntry.log/1`. In order to avoid duplicate logging,
+  you will want to make sure it isn't in the list when using this
+  event collector.
 
   The tuple for Timber's context collector is `{Timber.Ecto, :log, []}`.
   Many applications will have only one repository named `Repo`, which
@@ -24,14 +27,19 @@ defmodule Timber.Ecto do
     loggers: [{Timber.Ecto, :log, []}]
   ```
 
-  If you have set Ecto to log every query in production, you will need
-  to make sure that Timber appears _before_ the standard Ecto entry.
-  That way when Ecto writes a log, it will include the context that Timber
-  has gathered.
+  By default, queries are logged at the `:debug` level. If you want
+  to use a custom level, simple add it to the list of arguments.
+  For example, to log every query at the `:info` level:
+
+
+  ```elixir
+  config :my_app, MyApp.Repo,
+    loggers: [{Timber.Ecto, :log, [:info]}]
+  ```
 
   ### Timing
 
-  The time reported in the context is the amount of time the query
+  The time reported in the event is the amount of time the query
   took to execute on the database, as measured by Ecto. It does not
   include the time that the query spent in the pool's queue or the
   time spent decoding the response from the database.
