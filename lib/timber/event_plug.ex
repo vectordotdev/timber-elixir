@@ -90,6 +90,7 @@ defmodule Timber.EventPlug do
   """
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
   def call(conn, opts) do
+    start = System.monotonic_time()
     log_level = Keyword.get(opts, :log_level, :info)
     request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
     request_id = PlugUtils.get_request_id(conn, request_id_header)
@@ -121,13 +122,20 @@ defmodule Timber.EventPlug do
     Logger.log(log_level, event.description, timber_event: event)
 
     Plug.Conn.put_private(conn, :timber_opts, opts)
+    |> Plug.Conn.put_private(conn, :timber_start, start)
     |> Plug.Conn.register_before_send(&log_response_event/1)
   end
 
   @spec log_response_event(Plug.Conn.t) :: Plug.Conn.t
   defp log_response_event(conn) do
+    stop = System.monotoic_time()
+    start = conn.private.timber_start
+    elapsed_time = stop - start
+    time_ms = System.convert_time_unit(elapsed_time, :native, :milliseconds)
+
     opts = conn.private.timber_opts
     log_level = Keyword.get(opts, :log_level, :info)
+
     # The response body typing is iodata; it should not be assumed
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
@@ -137,7 +145,8 @@ defmodule Timber.EventPlug do
     event = HTTPResponseEvent.new(
       bytes: bytes,
       headers: headers,
-      status: status
+      status: status,
+      time_ms: time_ms
     )
 
     Logger.log(log_level, event.description, timber_event: event)

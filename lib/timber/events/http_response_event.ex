@@ -10,7 +10,8 @@ defmodule Timber.Events.HTTPResponseEvent do
     description: String.t,
     bytes: non_neg_integer,
     headers: headers,
-    status: pos_integer
+    status: pos_integer,
+    time_ms: non_neg_integer
   }
 
   @type headers :: %{
@@ -33,7 +34,7 @@ defmodule Timber.Events.HTTPResponseEvent do
 
   def new(opts) do
     event = struct(__MODULE__, opts)
-    description = "Responded with #{event.status} and a body of #{event.bytes} bytes"
+    description = "Sent #{event.status} in #{event.time_ms}ms"
     %__MODULE__{event | description: description}
   end
 
