@@ -41,7 +41,11 @@ defmodule Timber.Events.HTTPRequestEvent do
 
   def new(opts) do
     event = struct(__MODULE__, opts)
-    description = "Received request for #{event.path}"
+    method =
+      event.method
+      |> Atom.to_string()
+      |> String.upcase()
+    description = "#{method} #{event.path}"
 
     %__MODULE__{event | description: description}
   end
