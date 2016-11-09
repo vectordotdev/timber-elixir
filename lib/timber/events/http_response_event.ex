@@ -22,7 +22,7 @@ defmodule Timber.Events.HTTPResponseEvent do
     location: String.t
   }
 
-  defstruct [:description, :bytes, :headers, :status]
+  defstruct [:description, :bytes, :headers, :status, :time_ms]
 
   @recognized_headers ~w(
     cache_control
