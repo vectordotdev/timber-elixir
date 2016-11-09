@@ -23,7 +23,7 @@ defmodule Timber.Event do
     value =
       event
       |> Map.from_struct()
-      |> Map.drop(:description)
+      |> Map.drop([:description])
       |> Utils.drop_nil_values()
 
     %{
