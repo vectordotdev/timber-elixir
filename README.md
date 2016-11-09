@@ -9,13 +9,16 @@
 **Note: Timber is in alpha testing, if interested in joining, please visit http://timber.io**
 
 [Timber](http://timber.io) is a different kind of logging platform; it goes beyond traditional
-logging by enriching your logs with application level context, turning them into rich, structured
+logging by enriching your logs with application level metadata, turning them into rich, structured
 events without altering the essence of logging. See for yourself at [timber.io](http://timber.io).
 
 Timber for Elixir works with the standard Elixir Logger system. No wrappers. No jury-rigging.
 No need to rewrite all your log statements. Just call `Logger.info` (or whichever level you
 prefer) and Logger will coordinate everything else with Timber. Even better, Timber will
 work alongside any other Elixir Logger backend you have installed.
+
+When you want to get more advanced, Timber offers simple ways to record more
+detailed information about what's going on in your application.
 
 ## Installation
 
@@ -71,7 +74,14 @@ and `<app-name>` with the name of the application on Heroku.
 
 You're done!
 
-## Improving the Context
+## Events and Context
+
+Timber is a beautiful way to view your logs, but we make logs even more helpful
+by allowing you to encode specific metadata alongside your log statements. We
+separate this metadata into events and context. Events are attached to single
+log statements and represent some specific action that has taken place, like
+receiving an HTTP request or completing a SQL query. Context, on the other hand,
+is attached to all log statements such as the currently authenticated user.
 
 Out of the box, Timber knows how to collect some specific information about your system, like
 Phoenix and Plug HTTP requests, but it needs to be wired into the right places. We make this
@@ -80,15 +90,26 @@ as simple as possible so that you can get up-and-running with very little work.
 ### Plug & Phoenix
 
 Plug, and frameworks like Phoenix which are based on it, can provide information to Timber about
-HTTP requests and repsonses if you insert the `Timber.Plug` plug into your pipeline. The most
-simple example is adding it to a pipeline in a Phoenix router:
+HTTP requests and repsonses. It is up to you whether you want to collect event
+information, contextual information, or both.
+
+The `Timber.ContextPlug` plug will add the request ID for the incoming HTTP
+request to your log context. This way, any log lines written while processing
+the HTTP request can be filtered.
+
+The `Timber.EventPlug` plug will log incoming HTTP requests and their responses
+automatically. This will include header information, request path, query params,
+time-to-respond, and more.
+
+You only need to add the plug you want to use (or both) to the appropriate pipeline:
 
 ```elixir
 defmodule MyApp.Router do
   use MyApp.Web, :router
 
   pipeline :logging do
-    plug Timber.Plug
+    plug Timber.ContextPlug
+    plug Timber.EventPlug
   end
 
   scope "/api", MyApp do
@@ -98,8 +119,11 @@ end
 ```
 
 Any of your scopes piped through the `:logging` pipeline will now have their
-context automatically collected by Timber. You can also add Timber to an
+context and/or events automatically collected by Timber. You can also add Timber to an
 existing pipeline or pass multiple pipeliness to `Phoenix.Router.pipe_through/1`.
+
+Note: If you use both, it's recommended that the `Timber.ContextPlug` be called
+first.
 
 ### Ecto
 
@@ -109,21 +133,25 @@ change:
 
 ```elixir
 config :my_app, MyApp.Repo,
-  loggers: [{Timber.Ecto, :add_context, []}, {Ecto.LogEntry, :log, []}]
+  loggers: [{Timber.Ecto, :log, []}]
 ```
 
-Now any query information will be added to your context information.
-
 The `:loggers` configuration key is a special feature from Ecto that
-informs listed "loggers" of query events. Timber won't actually write
-out a log, it will just capture the context information for future
-logs.
+informs listed "loggers" of query events. By default, Timber will log an event every
+time you make a query. This log occurs at the `:debug` level, but you can easily
+customize it to the level of your choice:
 
-### Additional Contexts
+```elixir
+config :my_app, MyApp.Repo,
+  loggers: [{Timber.Ecto, :log, [:info]}]
+```
 
-For everything that we don't provide a context plugin for, we try to make it simple to add
-more context to your application logs. We have a number of structure contexts which we
-predefine, but you can also use the freeform `CustomContext` type to define your own.
+### Additional Events and Contexts
 
-For more information, make sure to checkout [the documentation]().
+For everything that we don't provide a plugin for, we try to make it simple to add
+more information to your application logs. We have a number of events and
+contexts predefined, but you can also use the freeform `CustomContext` type to
+define your own.
+
+For more information, make sure to checkout [the documentation](https://hexdocs.pm/timber/).
 
