@@ -56,11 +56,12 @@ on consumer demand.
 ### Heroku Logplex
 
 If you deploy to Heroku, it's very simple to get started. You'll need to declare in your application configuration
-that you want to use the `IODevice` transport without timestamps (since Heroku adds timestamps automatically).
+that you want to use the `IODevice` transport. You can choose to do this only in
+production, leaving your development environment printing to the standard console.
+.
 
 ```elixir
 config :timber, :transport, Timber.Transports.IODevice
-config :timber, :transport_config, print_timestamps: false
 ```
 
 Separately, you'll need to add your unique log drain URL to Heroku for your application:
@@ -73,6 +74,16 @@ Make sure to replace `<timber-api-key>` with your Timber API key (found on your 
 and `<app-name>` with the name of the application on Heroku.
 
 You're done!
+
+If you decide to use Timber in your local development environment, you will want
+to turn on the `print_timestamps` and `print_log_level` options so you can see
+your logs nicely in your terminal window:
+
+```
+config :timber, :transport_config,
+  print_timestamps: false,
+  print_log_level: false
+```
 
 ## Events and Context
 
