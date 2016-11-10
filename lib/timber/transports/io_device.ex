@@ -56,6 +56,18 @@ defmodule Timber.Transports.IODevice do
 
   _Defaults to `100`._
 
+  #### `print_log_level`
+  
+  When `true`, the log level is printed in brackets as part of your log message.
+
+  When `false`, the log level is not printed.
+
+  Regardless of the setting used, the log level will be recorded as part of Timber's
+  metadata. Setting this to `false` is recommended for production usage if you only
+  use Timber for viewing logs.
+
+  _Defaults to `false`._
+
   ### `print_timestamps`
 
   When `true`, the timestamp for the log will be output at the front
@@ -65,7 +77,11 @@ defmodule Timber.Transports.IODevice do
   where the log will be written to an evented IO service that automatically adds
   timestamps for incoming data, like Heroku Logplex.
 
-  _Defaults to `true`._
+  Regardless of the setting used, the timestamp will be recorded as part of Timber's
+  metadata. Setting this to `false` is recommended for production usage if you only
+  use Timber for viewing logs.
+
+  _Defaults to `false`._
   """
 
   @behaviour Timber.Transport
@@ -76,7 +92,8 @@ defmodule Timber.Transports.IODevice do
   @default_hide_context true
   @default_colorize true
   @default_max_buffer_size 100
-  @default_print_timestamps true
+  @default_print_log_level false
+  @default_print_timestamps false
   @context_delimiter " @timber.io "
 
   @typep t :: %__MODULE__{
@@ -87,6 +104,7 @@ defmodule Timber.Transports.IODevice do
     max_buffer_size: pos_integer,
     colorize: boolean,
     hide_context: boolean,
+    print_log_level: boolean,
     print_timestamps: boolean,
     buffer: [] | [IO.chardata]
   }
@@ -98,6 +116,7 @@ defmodule Timber.Transports.IODevice do
             colorize: @default_colorize,
             hide_context: @default_hide_context,
             max_buffer_size: @default_max_buffer_size,
+            print_log_level: @default_print_log_level,
             print_timestamps: @default_print_timestamps,
             buffer: []
 
@@ -143,12 +162,14 @@ defmodule Timber.Transports.IODevice do
     colorize = Keyword.get(options, :colorize, @default_colorize)
     hide_context = Keyword.get(options, :hide_context, @default_hide_context)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
+    print_log_level = Keyword.get(options, :print_log_level, @default_print_log_level)
     print_timestamps = Keyword.get(options, :print_timestamps, @default_print_timestamps)
 
     new_state = %{ state |
       colorize: colorize,
       hide_context: hide_context,
       max_buffer_size: max_buffer_size,
+      print_log_level: print_log_level,
       print_timestamps: print_timestamps
     }
 
@@ -171,14 +192,10 @@ defmodule Timber.Transports.IODevice do
       |> wrap_context()
       |> conceal_log_context(state.hide_context)
 
-    msg_chardata = ["[", level_b, "] ", message, context, "\n"]
-
     output =
-      if state.print_timestamps do
-        [ timestamp, " " | msg_chardata ]
-      else
-        msg_chardata
-      end
+      [message, context, "\n"]
+      |> add_log_level(level_b, state.print_log_level)
+      |> add_timestamp(timestamp, state.print_timestamps)
 
     cond do
       is_nil(ref) ->
@@ -202,6 +219,18 @@ defmodule Timber.Transports.IODevice do
   @spec wrap_context(IO.chardata) :: IO.chardata
   defp wrap_context(context) do
     [@context_delimiter, context]
+  end
+
+  @spec add_timestamp(IO.chardata, IO.chardata, boolean) :: IO.chardata
+  defp add_timestamp(message, _, false), do: message
+  defp add_timestamp(message, timestamp, true) do
+    [timestamp, " " |  message]
+  end
+
+  @spec add_log_level(IO.chardata, IO.charadata, boolean) :: IO.chardata
+  defp add_log_level(message, _, false), do: message
+  defp add_log_level(message, log_level, true) do
+    ["[", log_level, "] " | message ]
   end
 
   @spec colorize_log_level(Logger.level, boolean) :: IO.chardata
