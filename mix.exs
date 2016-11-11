@@ -160,7 +160,7 @@ defmodule Timber.Mixfile do
       {:excoveralls, "~> 0.5", only: [:test]},
       {:plug, "~> 1.2", optional: true},
       {:phoenix, "~> 1.2", optional: true},
-      {:poison, "~> 2.2.0"},
+      {:poison, "~> 2.0 or ~> 3.0"},
     ]
   end
 end
