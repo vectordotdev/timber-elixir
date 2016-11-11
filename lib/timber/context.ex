@@ -11,7 +11,7 @@ defmodule Timber.Context do
 
   @type context_data ::
     Contexts.CustomContext.t        |
-    Contexts.HTTPRequestContext.t   |
+    Contexts.HTTPContext.t   |
     Contexts.OrganizationContext.t  |
     Contexts.ProcessContext.t       |
     Contexts.ServerContext.t        |
@@ -19,7 +19,7 @@ defmodule Timber.Context do
 
   @type t :: %{
     optional(:custom) => Context.CustomContext.m,
-    optional(:http_request) => Context.HTTPRequestContext.m,
+    optional(:http_request) => Context.HTTPContext.m,
     optional(:organization) => Context.OrganizationContext.m,
     optional(:process) => Context.ProcessContext.m,
     optional(:server) => Context.ServerContext.m,
@@ -49,7 +49,7 @@ defmodule Timber.Context do
 
   @spec type_for_data(context_data) :: atom
   defp type_for_data(%Contexts.CustomContext{}), do: :custom
-  defp type_for_data(%Contexts.HTTPRequestContext{}), do: :http_request
+  defp type_for_data(%Contexts.HTTPContext{}), do: :http
   defp type_for_data(%Contexts.OrganizationContext{}), do: :organization
   defp type_for_data(%Contexts.ProcessContext{}), do: :process
   defp type_for_data(%Contexts.ServerContext{}), do: :server

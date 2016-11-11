@@ -68,7 +68,7 @@ defmodule Timber.ContextPlug do
 
   require Logger
 
-  alias Timber.Contexts.HTTPRequestContext
+  alias Timber.Contexts.HTTPContext
   alias Timber.PlugUtils
 
   @doc """
@@ -93,7 +93,7 @@ defmodule Timber.ContextPlug do
 
     case PlugUtils.get_request_id(conn, request_id_header) do
       [{_, request_id}] ->
-        %HTTPRequestContext{
+        %HTTPContext{
           request_id: request_id
         }
         |> Timber.add_context()
