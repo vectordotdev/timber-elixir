@@ -136,6 +136,35 @@ existing pipeline or pass multiple pipeliness to `Phoenix.Router.pipe_through/1`
 Note: If you use both, it's recommended that the `Timber.ContextPlug` be called
 first.
 
+### Phoenix Controllers & Templates
+
+Timber can also log additional information about Phoenix controllers and
+templates using the instrumentation tools built right into Phoenix. All you need
+to do is add `Timber.PhoenixInstrumenter` to the list of `:instrumenters` in
+your endpoint configuration:
+
+```elixir
+config :my_app, MyApp.Endpoint,
+  http: [port: 4001],
+  root: Path.dirname(__DIR__),
+  instrumenters: [Timber.PhoenixInstrumenter],
+  pubsub: [name: MyApp.PubSub,
+           adapter: Pheonix.PubSub.PG2]
+```
+
+You will need to recompile Phoenix using `mix deps.compile phoenix` for this
+change to take effect. If you see duplicate output, try turning off Phoenix's
+default logging by modifying the `controller` definition block in `MyApp.Web`
+to add the `log: false` option:
+
+```elixir
+def controller do
+  quote do
+    use Phoenix.Controller, log: false
+  end
+end
+```
+
 ### Ecto
 
 Timber can collect information about the queries Ecto runs if you declare
