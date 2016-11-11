@@ -159,6 +159,7 @@ defmodule Timber.Mixfile do
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
       {:excoveralls, "~> 0.5", only: [:test]},
       {:plug, "~> 1.2", optional: true},
+      {:phoenix, "~> 1.2", optional: true},
       {:poison, "~> 2.2.0"},
     ]
   end
