@@ -34,8 +34,8 @@ defmodule Timber.Events.HTTPRequestEvent do
   @recognized_headers ~w(
     content-type
     referrer
+    remote-addr
     user-agent
-    x-forwarded-for
     x-request-id
   )
 
@@ -68,7 +68,7 @@ defmodule Timber.Events.HTTPRequestEvent do
   defp header_to_keyword({"content-type", content_type}), do: {:content_type, content_type}
   defp header_to_keyword({"referrer", referrer}), do: {:referrer, referrer}
   defp header_to_keyword({"user-agent", user_agent}), do: {:user_agent, user_agent}
-  defp header_to_keyword({"x-forwarded-for", ip}), do: {:remote_addr, ip}
+  defp header_to_keyword({"remote-addr", ip}), do: {:remote_addr, ip}
   defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
 
   @spec method_from_string(String.t) :: method

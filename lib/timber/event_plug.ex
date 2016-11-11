@@ -94,14 +94,16 @@ defmodule Timber.EventPlug do
     log_level = Keyword.get(opts, :log_level, :info)
     request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
     request_id = PlugUtils.get_request_id(conn, request_id_header)
+    client_ip = PlugUtils.get_client_ip(conn)
+    remote_addr = {"remote-addr", client_ip}
 
-    headers_with_request_id = request_id ++ conn.req_headers
+    request_headers = [request_id, remote_addr | conn.req_headers]
 
     host = conn.host
     port = conn.port
     scheme = conn.scheme
     path = conn.request_path
-    headers = HTTPRequestEvent.headers_from_list(headers_with_request_id)
+    headers = HTTPRequestEvent.headers_from_list(request_headers)
     query_params = conn.query_params
 
     method =

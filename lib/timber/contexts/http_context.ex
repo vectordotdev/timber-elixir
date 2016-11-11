@@ -1,4 +1,4 @@
-defmodule Timber.Contexts.HTTPEvent do
+defmodule Timber.Contexts.HTTPContext do
   @moduledoc """
   The HTTP context tracks information about an HTTP request currently
   being handled
@@ -8,12 +8,14 @@ defmodule Timber.Contexts.HTTPEvent do
   """
 
   @type t :: %__MODULE__{
-    request_id: String.t | nil
+    request_id: String.t | nil,
+    remote_addr: String.t | nil
   }
 
   @type m :: %{
-    optional(:request_id) => String.t
+    optional(:request_id) => String.t,
+    optional(:remote_addr) => String.t
   }
 
-  defstruct [:request_id]
+  defstruct [:request_id, :remote_addr]
 end
