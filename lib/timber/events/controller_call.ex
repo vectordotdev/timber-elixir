@@ -1,4 +1,4 @@
-defmodule Timber.Events.ControllerCall do
+defmodule Timber.Events.ControllerCallEvent do
   @moduledoc """
   Represents a controller being called
   """

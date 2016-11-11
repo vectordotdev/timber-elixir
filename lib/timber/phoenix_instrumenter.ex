@@ -71,7 +71,7 @@ defmodule Timber.PhoenixInstrumenter do
 
   require Logger
   
-  alias Timber.Events.ControllerCall
+  alias Timber.Events.ControllerCallEvent
   alias Timber.Events.TemplateRenderEvent
 
   @doc false
@@ -88,7 +88,7 @@ defmodule Timber.PhoenixInstrumenter do
     # Phoenix actions are always 2 arity function
     action = action_name <> "/2"
 
-    event = ControllerCall.new(
+    event = ControllerCallEvent.new(
       action: action,
       controller: controller
     )

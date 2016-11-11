@@ -3,6 +3,7 @@ defmodule Timber.Event do
   alias Timber.{Events, Utils}
 
   @type t ::
+    Evnets.ControllerCallEvent  |
     Events.ExceptionEvent       |
     Events.HTTPRequestEvent     |
     Events.HTTPResponseEvent    |
@@ -31,6 +32,7 @@ defmodule Timber.Event do
     }
   end
 
+  def key_for_event(%Events.ControllerCallEvent{}), do: :controller_call
   def key_for_event(%Events.ExceptionEvent{}), do: :exception
   def key_for_event(%Events.HTTPRequestEvent{}), do: :http_request
   def key_for_event(%Events.HTTPResponseEvent{}), do: :http_response
