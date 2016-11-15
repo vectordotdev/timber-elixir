@@ -10,7 +10,7 @@ defmodule Timber.Contexts.HTTPContext do
   @type t :: %__MODULE__{
     method: String.t,
     path: String.t,
-    request_id: String.t,
+    request_id: String.t | nil,
     remote_addr: String.t | nil
   }
 
