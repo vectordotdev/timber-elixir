@@ -88,7 +88,7 @@ defmodule Timber.ContextPlug do
   Adds the Request ID to the Timber context data
   """
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
-  def call(%Plug.Conn{method: method, path: path} = conn, opts) do
+  def call(%Plug.Conn{method: method, request_path: request_path} = conn, opts) do
     request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
     remote_addr = PlugUtils.get_client_ip(conn)
     request_id =
@@ -99,7 +99,7 @@ defmodule Timber.ContextPlug do
 
     %HTTPContext{
       method: method,
-      path: path,
+      path: request_path,
       request_id: request_id,
       remote_addr: remote_addr
     }
