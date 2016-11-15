@@ -84,9 +84,8 @@ defmodule Timber.Logger do
   @spec init(Elixir.Timber.Logger) :: {:ok, t}
   def init(__MODULE__) do
     transport = get_transport()
-    transport_config = get_transport_config()
 
-    {:ok, transport_state} = transport.init(transport_config)
+    {:ok, transport_state} = transport.init()
 
     state = %__MODULE__{
       transport: transport,
@@ -207,12 +206,5 @@ defmodule Timber.Logger do
   @spec get_transport() :: module
   defp get_transport() do
     Application.get_env(:timber, :transport)
-  end
-
-  # Gets the transport configuration by looking up the value in the Application
-  # configuration
-  @spec get_transport_config() :: Keyword.t
-  defp get_transport_config() do
-    Application.get_env(:timber, :transport_config, [])
   end
 end

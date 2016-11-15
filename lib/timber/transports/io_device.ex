@@ -24,6 +24,31 @@ defmodule Timber.Transports.IODevice do
   size, the transport will switch to simulated synchronous mode, blocking
   until the IO device sends a response about the last write operation.
 
+  ## Configuration Recommendations: Development vs. Production
+  
+  In a standard Elixir project, you will probably have different configuration files
+  for your development and production setups. These configuration files typically
+  take the form of `config/dev.exs` and `config/prod.exs` which override defaults set
+  in `config/config.exs`.
+  
+  Timber's defaults are production ready, but the production settings also assume that
+  you'll be viewing the logs through the Timber console, so they forego some niceties
+  that help when developing locally. Therefore, to help with local development, we
+  recommended this configuration for your `:dev` environment:
+
+  ```
+  # config/dev.exs
+
+  config :timber, :io_device,
+    colorize: true,
+    format: :logfmt,
+    print_timestamps: true
+    print_log_level: true
+  ```
+
+  This will configure Timber to output logs in logfmt instead of JSON, print the log
+  level and timestamps, and colorize the logs.
+
   ## Transport Configuration Options
 
   The following options are available when configuring the IODevice logger:
@@ -37,15 +62,19 @@ defmodule Timber.Transports.IODevice do
 
   _Defaults to `true`._
 
-  #### `hide_context`
+  #### `format`
+  
+  Determines the output format to use. Even though the Timber service is designed
+  to receive log metadata in JSON format, it's not the prettiest format to look at when
+  you're developing locally. Therefore, we let you print the metadata in logfmt locally
+  to make it easier on the eyes.
 
-  When `true`, the contextual information that is used by Timber will be hidden
-  on the log lines using ANSI console control characters.
+  Valid values:
 
-  When `false`, the contextual information will be printed out as standard
-  text.
+    - `:json`
+    - `:logfmt` (not supported in production)
 
-  _Defaults to `true`._
+  _Defaults to `:json`._
 
   #### `max_buffer_size`
 
@@ -68,7 +97,21 @@ defmodule Timber.Transports.IODevice do
 
   _Defaults to `false`._
 
-  ### `print_timestamps`
+  #### `print_metadata`
+
+  The Timber metadata contains additional information about your log lines, but this
+  can become unwieldy in local development scenarios.
+
+  When `true`, the Timber metadata is printed out at the end of the log line (starting
+  with the indicator "timber.io").
+
+  When `false`, the Timber metadata is not printed.
+
+  Note: This should _always_ be `true` in production.
+
+  _Defaults to `true`._
+
+  #### `print_timestamps`
 
   When `true`, the timestamp for the log will be output at the front
   of the statement.
@@ -89,12 +132,13 @@ defmodule Timber.Transports.IODevice do
   alias Timber.{LogEntry, Logger}
   alias __MODULE__.BadDeviceError
 
-  @default_hide_context true
   @default_colorize true
   @default_max_buffer_size 100
+  @default_format :json
   @default_print_log_level false
+  @default_print_metadata true
   @default_print_timestamps false
-  @context_delimiter " @timber.io "
+  @metadata_delimiter " @timber.io "
 
   @typep t :: %__MODULE__{
     ref: reference | nil,
@@ -103,8 +147,9 @@ defmodule Timber.Transports.IODevice do
     buffer_size: non_neg_integer,
     max_buffer_size: pos_integer,
     colorize: boolean,
-    hide_context: boolean,
+    format: :json | :logfmt,
     print_log_level: boolean,
+    print_metadata: boolean,
     print_timestamps: boolean,
     buffer: [] | [IO.chardata]
   }
@@ -114,20 +159,29 @@ defmodule Timber.Transports.IODevice do
             output: nil,
             buffer_size: 0,
             colorize: @default_colorize,
-            hide_context: @default_hide_context,
+            format: @default_format,
             max_buffer_size: @default_max_buffer_size,
             print_log_level: @default_print_log_level,
+            print_metadata: @default_print_metadata,
             print_timestamps: @default_print_timestamps,
             buffer: []
 
   @doc false
-  @spec init(Keyword.t) :: {:ok, t}
-  def init(config) do
-    filename = Keyword.get(config, :file, :no_file)
+  @spec init() :: {:ok, t}
+  def init() do
+    init_config = get_init_config()
+    filename = Keyword.get(init_config, :file, :no_file)
 
     with {:ok, device} <- get_device(filename),
-         {:ok, state} <- configure(config, %__MODULE__{device: device}),
+         {:ok, state} <- configure(init_config, %__MODULE__{device: device}),
          do: {:ok, state}
+  end
+
+  # Gets the transport configuration by looking up the value in the Application
+  # configuration
+  @spec get_init_config() :: Keyword.t
+  defp get_init_config() do
+    Application.get_env(:timber, :io_device, [])
   end
 
   @spec get_device(String.t | :no_file) :: {:ok, IO.device} | {:error, Exception.t}
@@ -160,16 +214,18 @@ defmodule Timber.Transports.IODevice do
   @spec configure(Keyword.t, t) :: {:ok, t}
   def configure(options, state) do
     colorize = Keyword.get(options, :colorize, @default_colorize)
-    hide_context = Keyword.get(options, :hide_context, @default_hide_context)
+    format = Keyword.get(options, :format, @default_format)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
     print_log_level = Keyword.get(options, :print_log_level, @default_print_log_level)
+    print_metadata = Keyword.get(options, :print_metadata, @default_print_metadata)
     print_timestamps = Keyword.get(options, :print_timestamps, @default_print_timestamps)
 
     new_state = %{ state |
       colorize: colorize,
-      hide_context: hide_context,
+      format: format,
       max_buffer_size: max_buffer_size,
       print_log_level: print_log_level,
+      print_metadata: print_metadata,
       print_timestamps: print_timestamps
     }
 
@@ -186,14 +242,17 @@ defmodule Timber.Transports.IODevice do
 
     level_b = colorize_log_level(level, state.colorize)
 
-    context =
-      log_entry
-      |> LogEntry.to_json_string!(only: [:dt, :level, :event, :context])
-      |> wrap_context()
-      |> conceal_log_context(state.hide_context)
+    metadata =
+      if state.print_metadata do
+        log_entry
+        |> LogEntry.to_string!(state.format, only: [:dt, :level, :event, :context])
+        |> wrap_metadata()
+      else
+        []
+      end
 
     output =
-      [message, context, "\n"]
+      [message, metadata, "\n"]
       |> add_log_level(level_b, state.print_log_level)
       |> add_timestamp(timestamp, state.print_timestamps)
 
@@ -216,9 +275,9 @@ defmodule Timber.Transports.IODevice do
     end
   end
 
-  @spec wrap_context(IO.chardata) :: IO.chardata
-  defp wrap_context(context) do
-    [@context_delimiter, context]
+  @spec wrap_metadata(IO.chardata) :: IO.chardata
+  defp wrap_metadata(metadata) do
+    [@metadata_delimiter, metadata]
   end
 
   @spec add_timestamp(IO.chardata, IO.chardata, boolean) :: IO.chardata
@@ -248,10 +307,6 @@ defmodule Timber.Transports.IODevice do
   defp log_level_color(:warn), do: :yellow
   defp log_level_color(:error), do: :red
   defp log_level_color(_), do: :normal
-
-  @spec conceal_log_context(IO.chardata, boolean) :: IO.chardata
-  defp conceal_log_context(context, false), do: context
-  defp conceal_log_context(context, true), do: IO.ANSI.format([:conceal, context], true)
 
   @spec write_buffer(IO.chardata, t) :: t
   defp write_buffer(output, state) do
