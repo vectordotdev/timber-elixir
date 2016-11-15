@@ -1,7 +1,7 @@
 defmodule Timber.PlugUtils do
   @doc """
   Fetches the request ID from the connection using the given header name
-  
+
   The request ID may be added to the connection in a number of ways which
   complicates how we retrieve it. It is usually set by calling the
   Plug.RequestId module on the connection which sets a request ID only
@@ -10,15 +10,15 @@ defmodule Timber.PlugUtils do
   generates a request ID, that request ID is only present in the response
   headers. The request headers should always take precedent in
   this function, though.
-  
+
   This function will return either a single element list containing a two-element
   tuple of the form:
-  
+
     {"x-request-id", "myrequestid91391"}
-  
+
   or an empty list. This normalizes the expectation of the header name for
   future processing.
-  
+
   Note: Plug.RequestId will change an existing request ID if
   it doesn't think the request ID is valid. See
   [request_id.ex](https://github.com/elixir-lang/plug/blob/v1.2.2/lib/plug/request_id.ex#L62).
