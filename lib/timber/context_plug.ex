@@ -99,6 +99,8 @@ defmodule Timber.ContextPlug do
       end
 
     %HTTPContext{
+      method: method,
+      path: path,
       request_id: request_id,
       remote_addr: remote_addr
     }
