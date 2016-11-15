@@ -76,13 +76,18 @@ and `<app-name>` with the name of the application on Heroku.
 You're done!
 
 If you decide to use Timber in your local development environment, you will want
-to turn on the `print_timestamps` and `print_log_level` options so you can see
-your logs nicely in your terminal window:
+to turn on the `colorize`, `print_timestamps`, and `print_log_level` options so
+you can see your logs nicely in your terminal window. It will also help to
+set `format` to `:logfmt`:
 
 ```
-config :timber, :transport_config,
-  print_timestamps: false,
-  print_log_level: false
+# config/dev.exs
+
+config :timber, :io_device,
+  colorize: true,
+  format: :logfmt,
+  print_timestamps: true
+  print_log_level: true
 ```
 
 ## Events and Context
