@@ -18,7 +18,10 @@ defmodule Timber.LogEntry do
   alias Timber.Logger
   alias Timber.Event
   alias Timber.Utils
+  alias Timber.LogfmtEncoder
 
+
+  @type format :: :json | :logfmt
 
   @type t :: %__MODULE__{
     dt: IO.chardata,
@@ -57,14 +60,14 @@ defmodule Timber.LogEntry do
   end
 
   @doc """
-  Encodes the log event to a JSON document
+  Encodes the log event to a string
 
   ## Options
   
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
-  @spec to_json_string!(t, Keyword.t) :: iodata | no_return
-  def to_json_string!(log_entry, options) do
+  @spec to_string!(t, format, Keyword.t) :: IO.chardata
+  def to_string!(log_entry, format, options) do
     # Reformats the event so that the event 
     # can be properly interpreted by the log ingester
     event = Event.event_for_encoding(log_entry.event)
@@ -80,6 +83,30 @@ defmodule Timber.LogEntry do
       end
       |> Utils.drop_nil_values()
 
-    Poison.encode_to_iodata!(value_to_encode)
+    encode!(format, value_to_encode)
+  end
+
+  @spec encode!(format, map) :: IO.chardata
+  defp encode!(:json, value) do
+    Poison.encode_to_iodata!(value)
+  end
+
+  # The logfmt encoding will actually use a pretty-print style
+  # of encoding rather than converting the data structure directly to
+  # logfmt
+  defp encode!(:logfmt, value) do
+    context =
+      case Map.get(value, :context) do
+        nil -> []
+        val -> [?\n, ?\t, "Context: ", LogfmtEncoder.encode!(val)]
+      end
+
+    event =
+      case Map.get(value, :event) do
+        nil -> []
+        val -> [?\n, ?\t, "Event: ", LogfmtEncoder.encode!(val)]
+      end
+
+    [context, event]
   end
 end

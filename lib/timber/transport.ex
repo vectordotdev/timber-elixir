@@ -27,12 +27,12 @@ defmodule Timber.Transport do
   @callback flush(state) :: state
 
   @doc """
-  Initializes the transport with the provided configuration
+  Initializes the transport
 
   The transport is expected to start any necessary processes at this point. References
   to other processes should be kept in the state which is then returned.
   """
-  @callback init(Keyword.t) :: {:ok, state} | no_return
+  @callback init() :: {:ok, state} | no_return
 
   @doc """
   Writes a log message to the transport

@@ -13,6 +13,8 @@ defmodule Timber.Utils do
   def drop_nil_values(map) do
     Enum.reject(map, fn
       {_k, nil} -> true
+      {_k, []} -> true
+      {_k, m} when is_map(m) and map_size(m) == 0 -> true
       _ -> false
     end)
     |> Enum.into(%{})

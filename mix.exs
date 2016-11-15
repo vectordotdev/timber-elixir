@@ -69,9 +69,7 @@ defmodule Timber.Mixfile do
   # The environment to be configured by default
   defp env() do
     [
-      timber: [
-        transport: Timber.Transports.IODevice
-      ]
+      transport: Timber.Transports.IODevice,
     ]
   end
 
