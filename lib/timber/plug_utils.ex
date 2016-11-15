@@ -53,10 +53,4 @@ defmodule Timber.PlugUtils do
     |> :inet.ntoa()
     |> List.to_string()
   end
-
-  @spec get_method(Plug.Conn.t) :: String.t | nil
-  def get_method(%Plug.Conn{method: method}), do: method
-
-  @spec get_path(Plug.Conn.t) :: String.t | nil
-  def get_path(%Plug.Conn{path: path}), do: path
 end
