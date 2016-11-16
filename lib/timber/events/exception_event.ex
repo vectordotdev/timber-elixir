@@ -4,7 +4,8 @@ defmodule Timber.Events.ExceptionEvent do
 
   Timber can automatically keep track of errors reported by the VM by hooking
   into the SASL reporting system to collect exception information, so it should
-  be unnecessary to track exceptions manually.
+  be unnecessary to track exceptions manually. See `Timber.ErrorLogger` for
+  more details.
   """
 
   @type stacktrace_entry :: {
@@ -46,24 +47,16 @@ defmodule Timber.Events.ExceptionEvent do
     {name, ""}
   end
 
-  defp transform_error(%{__exception__: true, __struct__: module_name} = error) do
-    name =
-      module_name
-      |> List.wrap()
-      |> Module.concat()
-      |> Atom.to_string()
+  defp transform_error(%{__exception__: true, __struct__: module} = error) do
+    name = module_name(module)
 
     msg = Exception.message(error)
 
     {name, msg}
   end
 
-  defp transform_stacktrace({module_name, function_name, arity, fileinfo}) do
-    module_name =
-      module_name
-      |> List.wrap()
-      |> Module.concat()
-      |> Atom.to_string()
+  defp transform_stacktrace({module, function_name, arity, fileinfo}) do
+    module_name = module_name(module)
 
     function_name = Atom.to_string(function_name)
 
@@ -96,5 +89,12 @@ defmodule Timber.Events.ExceptionEvent do
     else
       :bad_descriptor
     end
+  end
+
+  defp module_name(module) do
+    module
+    |> List.wrap()
+    |> Module.concat()
+    |> Atom.to_string()
   end
 end
