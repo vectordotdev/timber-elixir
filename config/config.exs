@@ -5,9 +5,6 @@ use Mix.Config
 
 config :logger, :utc_log, true
 config :logger, :handle_otp_reports, false
-config :logger, :handle_sasl_reports, true
-
-  #config :kernel, :error_logger, {:file, "errors.log"}
 
 config :logger, backends: [Timber.Logger]
 config :timber, transport: Timber.Transports.IODevice
