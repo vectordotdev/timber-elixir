@@ -52,6 +52,7 @@ defmodule Timber.Mixfile do
   # and are not distributed with the package.
   def application do
     [
+      mod: {Timber, []},
       env: env(),
       applications: apps(Mix.env)
     ]
@@ -60,6 +61,7 @@ defmodule Timber.Mixfile do
   # List of applications to be loaded for the specified
   # Mix environment.
   defp apps(:test), do: apps()
+  defp apps(:dev), do: apps()
   defp apps(_), do: apps()
 
   # Default list of applications to be loaded regardless

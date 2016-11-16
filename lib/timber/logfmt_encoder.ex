@@ -15,7 +15,7 @@ defmodule Timber.LogfmtEncoder do
 
   defp encode_pair({key, values}, acc) when is_list(values) do
     Enum.reduce(values, acc, fn (value, a)->
-      add_key_value(key, value, a)
+      encode_pair({key, value}, a)
     end)
   end
 
@@ -24,10 +24,22 @@ defmodule Timber.LogfmtEncoder do
   end
 
   defp add_key_value(key, value, []) do
-    [to_string(key), ?=, to_string(value)]
+    [to_bin(key), ?=, to_bin(value)]
   end
 
   defp add_key_value(key, value, acc) do
-    [to_string(key), ?=, to_string(value), ?\s | acc]
+    [to_bin(key), ?=, to_bin(value), ?\s | acc]
+  end
+
+  defp to_bin(value) when is_binary(value) do
+    if String.contains?(value, " ") do
+      [?", value, ?"]
+    else
+      value
+    end
+  end
+
+  defp to_bin(value) do
+    to_string(value)
   end
 end
