@@ -77,11 +77,26 @@ defmodule Timber.ErrorLogger do
     {:ok, state}
   end
 
-  def handle_event({:error_report, _gl, _report}, state) do
+  def handle_event({:error_report, _gl, {_pid, :crash_report, [error_report | _neighbors]}}, state) do
+    error_info = Keyword.get(error_report, :error_info)
+
+    case handle_error_info(error_info) do
+      {:ok, event} ->
+        context =
+          error_report
+          |> Keyword.get(:dictionary)
+          |> handle_process_dictionary()
+
+        Logger.error(event.description, [timber_context: context, timber_event: event])
+      {:error, _} ->
+        # do nothing
+        :ok
+    end
+
     {:ok, state}
   end
 
-  def handle_event({:error, _gl, {_process, _msg, [_pid, {error, stacktrace}]}}, state) do
+  def handle_event({:error, _gl, {_process, _msg_fmt, [_pid, {error, stacktrace}]}}, state) do
     event = ExceptionEvent.new(error, stacktrace)
     Logger.error(event.description, timber_event: event)
 
@@ -90,5 +105,39 @@ defmodule Timber.ErrorLogger do
 
   def handle_event(_event, state) do
     {:ok, state}
+  end
+
+  defp handle_error_info({_type, error, stacktrace}) when is_list(stacktrace) do
+    e = ExceptionEvent.new(error, stacktrace)
+    {:ok, e}
+  end
+
+  defp handle_error_info({_type, {error, stacktrace}, _stack}) when is_list(stacktrace) do
+    e = ExceptionEvent.new(error, stacktrace)
+    {:ok, e}
+  end
+
+  defp handle_error_info(_) do
+    {:error, :no_info}
+  end
+
+  @spec handle_process_dictionary(any) :: map
+  defp handle_process_dictionary([]) do
+    %{}
+  end
+
+  defp handle_process_dictionary(dictionary) when is_list(dictionary) do
+    with {:ok, {true, metadata}} <- Keyword.get(dictionary, :logger_metadata),
+         {:ok, context} <- Keyword.get(metadata, :timber_context)
+    do
+      context
+    else
+      _ ->
+        %{}
+    end
+  end
+
+  defp handle_process_dictionary(_) do
+    %{}
   end
 end
