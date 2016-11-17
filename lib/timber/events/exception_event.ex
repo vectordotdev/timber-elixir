@@ -7,8 +7,7 @@ defmodule Timber.Events.ExceptionEvent do
   be unnecessary to track exceptions manually. See `Timber.ErrorLogger` for
   more details.
   """
-
-  @type stacktrace_entry :: {
+@type stacktrace_entry :: {
     module,
     atom,
     arity,
@@ -44,7 +43,7 @@ defmodule Timber.Events.ExceptionEvent do
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)
-    {name, ""}
+    {name, name}
   end
 
   defp transform_error(%{__exception__: true, __struct__: module} = error) do
