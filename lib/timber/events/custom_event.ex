@@ -1,10 +1,10 @@
 defmodule Timber.Events.CustomEvent do
   @moduledoc """
-  Allows for custom events that aren't covered elsewhere
+  Allows for custom events that aren't covered elsewhere.
 
   Custom events can be used to encode information about events that are central
   to your line of business like receiving credit card payments, adding products
-  to a card, saving a draft of a post, or ghanging a user's password.
+  to a card, saving a draft of a post, or changing a user's password.
 
   Custom events take a `name` and a map of `data`. You can choose either strings
   or atoms as keys, and values can contain nested maps. The only requirement is
@@ -15,10 +15,11 @@ defmodule Timber.Events.CustomEvent do
   """
 
   @type t :: %__MODULE__{
-    name: String.t | nil,
+    name: String.t,
     data: map | nil
   }
 
+  @enforce_keys [:name]
   defstruct [
     :data,
     :name
