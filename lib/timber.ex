@@ -10,7 +10,8 @@ defmodule Timber do
   ## The Context Stack
   """
 
-  alias Timber.{Context, Events}
+  alias Timber.{Context}
+  alias Timber.Events.CustomEvent
 
   @doc """
   Adds a context entry to the stack
@@ -27,8 +28,8 @@ defmodule Timber do
   @doc """
   Creates a custom Timber event. Shortcut for `Timber.Events.CustomEvent.new/1`.
   """
-  @spec event(Keyword.t) :: Timber.Events.CustomEvent.t
-  defdelegate event(opts), to: Events.CustomEvent, as: :new
+  @spec event(Keyword.t) :: CustomEvent.t
+  defdelegate event(opts), to: CustomEvent, as: :new
 
   @doc """
   Starts a timer for timing custom events. This timer can then be passed
