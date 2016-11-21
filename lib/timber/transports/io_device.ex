@@ -62,6 +62,20 @@ defmodule Timber.Transports.IODevice do
 
   _Defaults to `true`._
 
+  #### `escape_new_lines`
+  
+  When `true`, new lines characters are escaped as `\\n`.
+
+  When `false`, new lines characters are left alone.
+
+  This circumvents issues with output devices (like Heroku Logplex) that will tranform
+  line breaks into multiple log lines.
+
+  When the IODevice transport is initialized, it will check for the environment
+  variable `HEROKU`. If the environment variable is present, this will be set to
+  `true`. Otherwise, this defaults to `false`. Setting the value in your application
+  configuration will always override the initialized setting..
+
   #### `format`
   
   Determines the output format to use. Even though the Timber service is designed
@@ -134,6 +148,7 @@ defmodule Timber.Transports.IODevice do
 
   @default_colorize true
   @default_max_buffer_size 100
+  @default_escape_new_lines false
   @default_format :json
   @default_print_log_level false
   @default_print_metadata true
@@ -147,6 +162,7 @@ defmodule Timber.Transports.IODevice do
     buffer_size: non_neg_integer,
     max_buffer_size: pos_integer,
     colorize: boolean,
+    escape_new_lines: boolean,
     format: :json | :logfmt,
     print_log_level: boolean,
     print_metadata: boolean,
@@ -159,6 +175,7 @@ defmodule Timber.Transports.IODevice do
             output: nil,
             buffer_size: 0,
             colorize: @default_colorize,
+            escape_new_lines: @default_escape_new_lines,
             format: @default_format,
             max_buffer_size: @default_max_buffer_size,
             print_log_level: @default_print_log_level,
@@ -181,7 +198,14 @@ defmodule Timber.Transports.IODevice do
   # configuration
   @spec get_init_config() :: Keyword.t
   defp get_init_config() do
-    Application.get_env(:timber, :io_device, [])
+    heroku_env = System.get_env("HEROKU")
+    heroku? = !is_nil(heroku_env)
+    
+    init_env = [escape_new_lines: heroku?]
+
+    env = Application.get_env(:timber, :io_device, [])
+
+    Keyword.merge(init_env, env)
   end
 
   @spec get_device(String.t | :no_file) :: {:ok, IO.device} | {:error, Exception.t}
@@ -214,6 +238,7 @@ defmodule Timber.Transports.IODevice do
   @spec configure(Keyword.t, t) :: {:ok, t}
   def configure(options, state) do
     colorize = Keyword.get(options, :colorize, @default_colorize)
+    escape_new_lines = Keyword.get(options, :escape_new_lines, @default_escape_new_lines)
     format = Keyword.get(options, :format, @default_format)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
     print_log_level = Keyword.get(options, :print_log_level, @default_print_log_level)
@@ -222,6 +247,7 @@ defmodule Timber.Transports.IODevice do
 
     new_state = %{ state |
       colorize: colorize,
+      escape_new_lines: escape_new_lines,
       format: format,
       max_buffer_size: max_buffer_size,
       print_log_level: print_log_level,
@@ -251,10 +277,14 @@ defmodule Timber.Transports.IODevice do
         []
       end
 
-    output =
-      [message, metadata, "\n"]
+    line_output =
+      [message, metadata]
       |> add_log_level(level_b, state.print_log_level)
       |> add_timestamp(timestamp, state.print_timestamps)
+      |> escape_new_lines(state.escape_new_lines)
+
+    # Prevents the final new line from being escaped
+    output = [line_output, ?\n]
 
     cond do
       is_nil(ref) ->
@@ -307,6 +337,13 @@ defmodule Timber.Transports.IODevice do
   defp log_level_color(:warn), do: :yellow
   defp log_level_color(:error), do: :red
   defp log_level_color(_), do: :normal
+
+  @spec escape_new_lines(IO.chardata, boolean) :: IO.chardata
+  defp escape_new_lines(msg, false), do: msg
+  defp escape_new_lines(msg, true) do
+    to_string(msg)
+    |> String.replace(<< ?\n :: utf8 >>, << ?\\ :: utf8, ?n :: utf8 >>)
+  end
 
   @spec write_buffer(IO.chardata, t) :: t
   defp write_buffer(output, state) do

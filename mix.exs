@@ -10,7 +10,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "0.3.2"
+  @version "0.4.1"
 
   # Project manifest for Mix
   #
@@ -52,6 +52,7 @@ defmodule Timber.Mixfile do
   # and are not distributed with the package.
   def application do
     [
+      mod: {Timber, []},
       env: env(),
       applications: apps(Mix.env)
     ]
@@ -60,6 +61,7 @@ defmodule Timber.Mixfile do
   # List of applications to be loaded for the specified
   # Mix environment.
   defp apps(:test), do: apps()
+  defp apps(:dev), do: apps()
   defp apps(_), do: apps()
 
   # Default list of applications to be loaded regardless

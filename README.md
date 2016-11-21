@@ -30,7 +30,7 @@ def application do
 end
 
 def deps do
-  [{:timber, "~> 0.2"}]
+  [{:timber, "~> 0.4"}]
 end
 ```
 
