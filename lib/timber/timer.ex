@@ -7,8 +7,8 @@ defmodule Timber.Timer do
   def start(), do: System.monotonic_time()
 
   @doc false
-  # Converts the native monotonic returned when calling `start/0` to
-  # milliseconds with the specified precision.
+  # Determines the duration passed since the timer passed. `timer` should
+  # be the value returned when calling `start/0`.
   def duration_ms(timer, precision \\ @precision) do
     difference = System.monotonic_time() - timer
     difference
