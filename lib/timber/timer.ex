@@ -17,5 +17,5 @@ defmodule Timber.Timer do
     |> Float.round(precision)
   end
 
-  def divide_by_milliseconds(time), do: time / 1_000_000
+  defp divide_by_milliseconds(time), do: time / 1_000_000
 end
