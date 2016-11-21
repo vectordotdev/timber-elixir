@@ -10,11 +10,12 @@ defmodule Timber.Timer do
   # Converts the native monotonic returned when calling `start/0` to
   # milliseconds with the specified precision.
   def duration_ms(timer, precision \\ @precision) do
-    start_nanoseconds = System.convert_time_unit(timer, :native, :nanoseconds)
-    end_nanoseconds = System.convert_time_unit(System.monotonic_time(), :native, :nanoseconds)
-
-    # Convert to milliseconds with a precision
-    time_ms = (start_nanoseconds - end_nanoseconds) / 1_000_000 # convert to milliseconds
-    time_ms = Float.round(time_ms, precision)
+    difference = timer - System.monotonic_time()
+    difference
+    |> System.convert_time_unit(:native, :nanoseconds)
+    |> divide_by_milliseconds()
+    |> Float.round(precision)
   end
+
+  def divide_by_milliseconds(time), do: time / 1_000_000
 end
