@@ -16,13 +16,15 @@ defmodule Timber.Events.CustomEvent do
 
   @type t :: %__MODULE__{
     name: String.t,
-    data: map | nil
+    data: map | nil,
+    time_ms: float() | nil
   }
 
   @enforce_keys [:name]
   defstruct [
     :data,
-    :name
+    :name,
+    :time_ms
   ]
 
   @doc ~S"""
