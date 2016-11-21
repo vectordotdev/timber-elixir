@@ -54,7 +54,7 @@ defmodule Timber.Events.CustomEvent do
   """
   @spec new(Keyword.t) :: t
   def new([timer: timer] = opts) do
-    time_ms = System.monotonic_time() - timer
+    time_ms = (System.monotonic_time() - timer) / 1_000_000 # convert to milliseconds
     opts
     |> Keyword.delete(:timer)
     |> Keyword.put(:time_ms, time_ms)
