@@ -12,7 +12,7 @@ defmodule Timber do
 
   use Application
 
-  alias Timber.Context
+  alias Timber.{Context, Timer}
   alias Timber.Events.CustomEvent
 
   @doc """
@@ -49,8 +49,7 @@ defmodule Timber do
 
   """
   @spec start_timer() :: integer()
-  def start_timer(),
-    do: System.monotonic_time()
+  defdelegate start_timer(), to: Timer, as: :start
 
   @doc false
   # Handles the application callback start/2

@@ -14,6 +14,8 @@ defmodule Timber.Events.CustomEvent do
   the metadata. See the documentation for `new/1`.
   """
 
+  alias Timber.Timer
+
   @type t :: %__MODULE__{
     name: String.t,
     data: map | nil,
@@ -52,16 +54,18 @@ defmodule Timber.Events.CustomEvent do
     iex> Logger.info("Received payment", timber_event: event)
 
   """
-  @spec new(Keyword.t) :: t
-  def new([timer: timer] = opts) do
-    time_ms = (System.monotonic_time() - timer) / 1_000_000 # convert to milliseconds
-    opts
-    |> Keyword.delete(:timer)
-    |> Keyword.put(:time_ms, time_ms)
-    |> new()
-  end
-
   def new(opts) do
-    struct(__MODULE__, opts)
+    timer = Keyword.get(opts, :timer)
+    new_opts =
+      if timer do
+        time_ms = Timer.duration_ms(timer)
+        opts
+        |> Keyword.delete(:timer)
+        |> Keyword.put(:time_ms, time_ms)
+      else
+        opts
+      end
+
+    struct(__MODULE__, new_opts)
   end
 end
