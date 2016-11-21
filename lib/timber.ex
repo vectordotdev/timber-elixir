@@ -46,6 +46,7 @@ defmodule Timber do
     iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
     iex> Logger.info("Received payment", timber_event: event)
     :ok
+
   """
   @spec start_timer() :: integer()
   def start_timer(),
