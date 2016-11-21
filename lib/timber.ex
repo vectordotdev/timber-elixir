@@ -10,7 +10,7 @@ defmodule Timber do
   ## The Context Stack
   """
 
-  alias Timber.Context
+  alias Timber.{Context, Events}
 
   @doc """
   Adds a context entry to the stack
@@ -23,4 +23,28 @@ defmodule Timber do
 
     Elixir.Logger.metadata([timber_context: new_context])
   end
+
+  @doc """
+  Creates a custom Timber event. Shortcut for `Timber.Events.CustomEvent.new/1`.
+  """
+  @spec event(Keyword.t) :: Timber.Events.CustomEvent.t
+  defdelegate event(opts), to: Events.CustomEvent, as: :new
+
+  @doc """
+  Starts a timer for timing custom events. This timer can then be passed
+  to `Timber.event/1` for inclusion in the event.
+
+  ## Examples
+
+    iex> require Logger
+    iex> timer = Timber.start_timer()
+    iex> # ... code to time ...
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
+    iex> Logger.info("Received payment", timber_event: event)
+    :ok
+  """
+  @spec start_timer() :: integer()
+  def start_timer(),
+    do: System.monotonic_time()
 end

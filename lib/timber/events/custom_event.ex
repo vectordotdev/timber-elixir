@@ -30,17 +30,37 @@ defmodule Timber.Events.CustomEvent do
   @doc ~S"""
   Creates a new custom event
 
-  ```
-  event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-  event = CustomEvent.new(name: :payment_received, data: event_data)
-
-  Logger.info("Received payment", timber_event: event)
-  ```
-
   Note: You cannot use tuples in your data structure. Trying to include them
   will cause an encoding error.
+
+  ## Examples
+
+  Basic example:
+
+    iex> require Logger
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> event = Timber.event(name: :payment_received, data: event_data)
+    iex> Logger.info("Received payment", timber_event: event)
+
+  With timing:
+
+    iex> require Logger
+    iex> timer = Timber.start_timing()3
+    iex> # ... code to time ...
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> event = CustomEvent.new(name: :payment_received, data: event_data, timer: timer)
+    iex> Logger.info("Received payment", timber_event: event)
+
   """
   @spec new(Keyword.t) :: t
+  def new([timer: timer] = opts) do
+    time_ms = System.monotonic_time() - timer
+    opts
+    |> Keyword.delete(:timer)
+    |> Keyword.put(:time_ms, time_ms)
+    |> new()
+  end
+
   def new(opts) do
     struct(__MODULE__, opts)
   end
