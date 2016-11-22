@@ -31,7 +31,7 @@ defmodule Timber.Utils do
     time = {now.hour, now.minute, now.second, now.microsecond}
     {date, time}
   end
-  
+
   @doc """
   Formats a timestamp to the format `YYYY-MM-DDTHH:MM:SS.SSSSSSZ` as chardata
 
@@ -42,7 +42,7 @@ defmodule Timber.Utils do
   given by the Elixir `Logger` library, the fractional seconds are represented
   to three decimal places. When formatting the time as microseconds, the
   fractional seconds are represented to six decimal places.
-  
+
   In some cases, the time keeping library may indicate that the microseconds
   have no precision. In this case, the fractional seconds will be left off
   entirely, resulting in the following format: `YYYY-MM-DDTHH:MM:SSZ`.
@@ -82,6 +82,17 @@ defmodule Timber.Utils do
   @spec format_time(Logger.time) :: IO.chardata
   defp format_time({hours, minutes, seconds, _}) do
     [pad2(hours), ?:, pad2(minutes), ?:, pad2(seconds)]
+  end
+
+  @doc """
+  Returns a string representation of the module name with the `Elixir.` prefix stripped.
+  """
+  def module_name(module) do
+    module
+    |> List.wrap()
+    |> Module.concat()
+    |> Atom.to_string()
+    |> String.replace_leading("Elixir.", "")
   end
 
   # These padding functions are based on the original functions in

@@ -55,8 +55,8 @@ defmodule Timber.Events.CustomEvent do
   }
 
   @doc false
-  defmacro __using__(opts) do
-    quote bind_quoted: [opts: opts] do
+  defmacro __using__(_opts) do
+    quote do
       def new(opts) do
         timer = Keyword.get(opts, :timer)
         opts =

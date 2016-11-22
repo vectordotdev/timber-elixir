@@ -46,7 +46,7 @@ defmodule Timber.Event do
     {time_ms, data} = Map.pop(data, :time_ms)
 
     %{custom: %{
-      name: name,
+      name: Utils.module_name(name),
       data: Map.from_struct,
       time_ms: time_ms
     }}
