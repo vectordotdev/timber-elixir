@@ -17,9 +17,9 @@ defmodule Timber.Events.CustomEvent do
     iex> event_data = %{_name: :payment_received, _time_ms: 45.6, customer_id: "xiaus1934", amount: 1900, currency: "USD"}
     iex> Logger.info("Received payment", timber_event: event_data)
 
-  Note that `_name` is **required** and `_time_ms` is optional. The above adheres to Timber's
-  no lock-in / no code debt promise. But if you're going to log events throughout your app,
-  we recommend doing so with more structure:
+  Note that `_name` and `_time_ms` are optional. The above adheres to Timber's no lock-in /
+  no code debt promise. But if you're going to log events throughout your app, we recommend doing
+  so with more structure:
 
     iex> require Logger
     iex> timer = Timber.start_timing() # optional
@@ -28,7 +28,7 @@ defmodule Timber.Events.CustomEvent do
     iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
     iex> Logger.info("Received payment", timber_event: event)
 
-  And lastly, if you're like us at Timber, you can alternatively define structs for each event,
+  Alternatively, if you're like us at Timber, you can define structs for each event,
   similar to exceptions:
 
     iex> require Logger
