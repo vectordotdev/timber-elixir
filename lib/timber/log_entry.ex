@@ -1,6 +1,6 @@
 defmodule Timber.LogEntry do
   @moduledoc """
-  The LogEntry module formalizes the structure of every log entry
+  The LogEntry module formalizes the structure of every log entry.
 
   When a log is produced, it is converted to this intermediary form
   by the `Timber.Logger` module before being passed on to the desired
@@ -59,10 +59,6 @@ defmodule Timber.LogEntry do
     }
   end
 
-  defp do_new(io_timestamp, level, event, message, context) do
-
-  end
-
   @doc """
   Encodes the log event to a string
 
@@ -74,7 +70,10 @@ defmodule Timber.LogEntry do
   def to_string!(log_entry, format, options) do
     # Reformats the event so that the event
     # can be properly interpreted by the log ingester
-    event = Event.event_for_encoding(log_entry.event)
+    event =
+      log_entry.event
+      |> Event.event_for_encoding()
+      |> Utils.drop_nil_values()
     log_entry = %__MODULE__{log_entry | event: event}
 
     only = Keyword.get(options, :only, false)

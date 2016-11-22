@@ -9,20 +9,28 @@ defmodule Timber.Events.CustomEvent do
   Event data can include anything that adheres to the `Poison.Encoder` protocol.
   That is, anything that can be encoded to JSON, including nested maps.
 
-  Let's take a look at a basic example:
+  ## Examples
+
+  Basic example:
 
     iex> require Logger
-    iex> defmodule PaymentReceivedEvent do
-    iex>   use Timber.Events.CustomEvent
-    iex>   defstruct [:customer_id, :amount, :currency]
-    iex> end
-    iex> event = PaymentReceivedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD")
-    iex> Logger.info("Payment received", timber_event: event)
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> event = Timber.event(name: :payment_received, data: event_data)
+    iex> Logger.info("Received payment", timber_event: event)
 
-  The resulting log line will be augmented with your event data and Timber will
-  display the event with same name as your module.
+  With timing: (automatically calculate the time_ms attribute)
 
-  You can also add timing details to your events:
+    iex> require Logger
+    iex> timer = Timber.start_timing()
+    iex> # ... code to time ...
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
+    iex> Logger.info("Received payment", timber_event: event)
+
+  A more advanced example:
+
+  At Timber we like to define and structure our events, similar to how we define exceptions.
+  As a result, you can also do:
 
     iex> require Logger
     iex> defmodule PaymentReceivedEvent do
@@ -34,24 +42,22 @@ defmodule Timber.Events.CustomEvent do
     iex> event = PaymentReceivedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD", timer: timer)
     iex> Logger.info("Received payment", timber_event: event)
 
+  In the above example, the struct name, `PaymentReceivedEvent`, will be used as the custom event
+  name.
   """
 
   alias Timber.Timer
 
   @type t :: %__MODULE__{
     name: String.t,
-    data: map | nil,
+    data: map() | nil,
     time_ms: float() | nil
   }
 
   @doc false
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      @behaviour Timber.Events.CustomEvent
-
       def new(opts) do
-        opts = Keyword.put(opts, :__timber_custom_event__, true)
-
         timer = Keyword.get(opts, :timer)
         opts =
           if timer do
@@ -65,22 +71,8 @@ defmodule Timber.Events.CustomEvent do
 
         struct(__MODULE__, opts)
       end
-
-      def data(_event) do
-        %{}
-      end
-
-      def name(event) do
-        __MODULE__
-        |> List.wrap()
-        |> Module.concat()
-        |> Atom.to_string()
-      end
     end
   end
-
-  @callback data(t) :: map()
-  @callback name(t) :: String.t
 
   @enforce_keys [:name]
   defstruct [
@@ -89,11 +81,28 @@ defmodule Timber.Events.CustomEvent do
     :time_ms
   ]
 
-  def new(%{__struct__: module, __timber_custom_event__: true} = event) do
-    %__MODULE__{
-      data: module.data(event),
-      name: module.name(event),
-      time_ms: Map.get(event, :time_ms, nil)
-    }
+  @doc ~S"""
+  Creates a new custom event. See the module docs for `Timber.Events.CustomEvent` for examples.
+
+  ## Options
+
+  - `:name` - The name of the event
+  - `:data` - A map of data. Anything that can be JSON encoded, include nested maps.
+  - `:timer` - The result from `Timer.Timer.start()`. We'll automatically calculate the duration
+               in milliseconds in a 4 decimal precision.
+  """
+  def new(opts) do
+    timer = Keyword.get(opts, :timer)
+    new_opts =
+      if timer do
+        time_ms = Timer.duration_ms(timer)
+        opts
+        |> Keyword.delete(:timer)
+        |> Keyword.put(:time_ms, time_ms)
+      else
+        opts
+      end
+
+    struct(__MODULE__, new_opts)
   end
 end
