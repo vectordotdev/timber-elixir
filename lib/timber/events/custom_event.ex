@@ -28,7 +28,7 @@ defmodule Timber.Events.CustomEvent do
     iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
     iex> Logger.info("Received payment", timber_event: event)
 
-  Alternatively, if you're like us at Timber, you can define structs for each event,
+  Alternatively, if you're like us at Timber, you'll want to define structs for each event,
   similar to exceptions:
 
     iex> require Logger
