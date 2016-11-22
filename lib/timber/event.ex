@@ -41,15 +41,24 @@ defmodule Timber.Event do
     do: event_to_map(:template_render, event)
 
   # Converts any struct into a custom event
-  def event_for_encoding(%{__struct__: name} = struct) do
-    data = Map.from_struct(struct)
-    {time_ms, data} = Map.pop(data, :time_ms)
+  def event_for_encoding(%{__struct__: module} = struct) do
+    struct
+    |> Map.from_struct()
+    |> Map.put_new_lazy(:_name, fn -> Utils.module_name(module) end)
+    |> event_for_encoding()
+  end
 
-    %{custom: %{
-      name: Utils.module_name(name),
-      data: Map.from_struct,
-      time_ms: time_ms
-    }}
+  # Converts any map into a custom event
+  def event_for_encoding(data) when is_map(data) do
+    {name, data} = Map.pop_lazy(data, :_name, fn -> Utils.module_name(module) end)
+    {time_ms, data} = Map.pop(data, :_time_ms)
+    %{
+      custom: %{
+        name: name,
+        data: data,
+        time_ms: time_ms
+      }
+    }
   end
 
   defp event_to_map(key, event) do

@@ -18,4 +18,16 @@ defmodule Timber.Timer do
   end
 
   defp divide_by_milliseconds(time), do: time / 1_000_000
+
+  def convert_to_time_ms(opts, timer_key, time_ms_key) do
+    timer = Keyword.get(opts, timer_key)
+    if timer do
+      time_ms = Timer.duration_ms(timer)
+      opts
+      |> Keyword.delete(timer_key)
+      |> Keyword.put(time_ms_key, time_ms)
+    else
+      opts
+    end
+  end
 end
