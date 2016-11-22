@@ -16,7 +16,7 @@ defmodule Timber.Events.CustomEvent do
     iex>   use Timber.Events.CustomEvent
     iex>   defstruct [:customer_id, :amount, :currency]
     iex> end
-    iex> event = PaymentReceivedEvent.new()
+    iex> event = PaymentReceivedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD")
     iex> Logger.info("Payment received", timber_event: event)
 
   The resulting log line will be augmented with your event data and Timber will
@@ -31,7 +31,7 @@ defmodule Timber.Events.CustomEvent do
     iex> end
     iex> timer = Timber.start_timing()
     iex> # ... code to time ...
-    iex> event = PaymentReceivedEvent.new(timer: timer)
+    iex> event = PaymentReceivedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD", timer: timer)
     iex> Logger.info("Received payment", timber_event: event)
 
   """
