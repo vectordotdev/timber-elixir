@@ -22,7 +22,7 @@ defmodule Timber.Timer do
   def convert_to_time_ms(opts, timer_key, time_ms_key) do
     timer = Keyword.get(opts, timer_key)
     if timer do
-      time_ms = Timer.duration_ms(timer)
+      time_ms = duration_ms(timer)
       opts
       |> Keyword.delete(timer_key)
       |> Keyword.put(time_ms_key, time_ms)

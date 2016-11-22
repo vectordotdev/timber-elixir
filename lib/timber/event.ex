@@ -50,7 +50,7 @@ defmodule Timber.Event do
 
   # Converts any map into a custom event
   def event_for_encoding(data) when is_map(data) do
-    {name, data} = Map.pop_lazy(data, :_name, fn -> Utils.module_name(module) end)
+    {name, data} = Map.pop(data, :_name)
     {time_ms, data} = Map.pop(data, :_time_ms)
     %{
       custom: %{
