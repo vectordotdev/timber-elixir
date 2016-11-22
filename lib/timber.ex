@@ -13,7 +13,6 @@ defmodule Timber do
   use Application
 
   alias Timber.{Context, Timer}
-  alias Timber.Events.CustomEvent
 
   @doc """
   Adds a context entry to the stack
@@ -26,12 +25,6 @@ defmodule Timber do
 
     Elixir.Logger.metadata([timber_context: new_context])
   end
-
-  @doc """
-  Creates a custom Timber event. Shortcut for `Timber.Events.CustomEvent.new/1`.
-  """
-  @spec event(Keyword.t) :: CustomEvent.t
-  defdelegate event(opts), to: CustomEvent, as: :new
 
   @doc """
   Starts a timer for timing custom events. This timer can then be passed

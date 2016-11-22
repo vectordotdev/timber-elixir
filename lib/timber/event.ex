@@ -13,7 +13,7 @@ defmodule Timber.Event do
 
   @doc """
   Presents the event the way it should be encoded. The log ingestion system for Timber
-  expectes events to be encoded such that their type is the key holding the event
+  expects events to be encoded such that their type is the key holding the event
   specific data.
   """
   def event_for_encoding(nil) do

@@ -28,7 +28,7 @@ defmodule Timber.LogEntry do
     level: Logger.level,
     message: Logger.message,
     context: Context.t,
-    event: Event.t | nil
+    event: struct() | nil
   }
 
   defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil
@@ -59,16 +59,20 @@ defmodule Timber.LogEntry do
     }
   end
 
+  defp do_new(io_timestamp, level, event, message, context) do
+
+  end
+
   @doc """
   Encodes the log event to a string
 
   ## Options
-  
+
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
-    # Reformats the event so that the event 
+    # Reformats the event so that the event
     # can be properly interpreted by the log ingester
     event = Event.event_for_encoding(log_entry.event)
     log_entry = %__MODULE__{log_entry | event: event}
