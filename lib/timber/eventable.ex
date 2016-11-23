@@ -35,6 +35,18 @@ defprotocol Timber.Eventable do
   a stronger contract with any downstream consumers. Such as graphing on the Timber interface,
   alerts, BI tools, etc.
 
+  ## Timing events
+
+  Any of the above examples can pass a `:time_ms` key. This is a special key that Timber
+  (and other systems) can use to make assumptions about your data and enhance your experience.
+  An example:
+
+    iex> require Logger
+    iex> timer = Timber.Timer.start()
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> time_ms = Timber.Timer.duration_ms(timer)
+    iex> Logger.info("Payment rejected", timber_event: %{name: :payment_rejected, data: event_data, time_ms: time_ms})
+
   ### Pro tip!
 
   We recommend defining a `message(t) :: String.t` method or a `message` attribute.

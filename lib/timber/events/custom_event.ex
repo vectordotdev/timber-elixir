@@ -52,15 +52,6 @@ defmodule Timber.Events.CustomEvent do
   """
   @spec new(Keyword.t) :: t
   def new(opts) do
-    timer = Keyword.get(opts, :timer)
-    if timer do
-      time_ms = Timer.duration_ms(timer)
-      opts
-      |> Keyword.delete(:timer)
-      |> Keyword.put(:time_ms, time_ms)
-    else
-      opts
-    end
     struct(__MODULE__, opts)
   end
 
