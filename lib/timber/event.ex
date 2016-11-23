@@ -45,45 +45,37 @@ defprotocol Timber.Event do
 end
 
 defimpl Timber.Event, for: Timber.Events.ControllerCallEvent do
-  def to_event(event),
-    do: %{controller_call: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.CustomEvent do
-  def to_event(event),
-    do: %{custom: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.ExceptionEvent do
-  def to_event(event),
-    do: %{exception: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.HTTPRequestEvent do
-  def to_event(event),
-    do: %{http_request: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.HTTPResponseEvent do
-  def to_event(event),
-    do: %{http_response: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.SQLQueryEvent do
-  def to_event(event),
-    do: %{sql_query: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Timber.Events.TemplateRenderEvent do
-  def to_event(event),
-    do: %{template_render: Map.from_struct(event)}
+  def to_event(event), do: event
 end
 
 defimpl Timber.Event, for: Map do
   def to_event(%{name: name, data: data} = event) do
     # Only grab the values we support and then convert to a CustomEvent.
     %Timber.Events.CustomEvent{name: name, data: data, time_ms: Map.get(event, :time_ms, nil)}
-    |> Timber.Event.to_event()
   end
 end
 
@@ -99,6 +91,5 @@ defimpl Timber.Event, for: Any do
     {time_ms, data} = Map.pop(data, :time_ms)
 
     %Timber.Events.CustomEvent{name: name, data: data, time_ms: time_ms}
-    |> Timber.Event.to_event()
   end
 end

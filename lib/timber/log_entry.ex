@@ -49,10 +49,7 @@ defmodule Timber.LogEntry do
     context = Keyword.get(metdata, :timber_context, %{})
     event = case Keyword.get(metadata, :timber_event, nil) do
       nil -> nil
-      data ->
-        data
-        |> Event.to_event()
-        |> Utils.drop_nil_values()
+      data -> Event.to_event(data)
     end
 
     %__MODULE__{
@@ -73,13 +70,28 @@ defmodule Timber.LogEntry do
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
+    # Convert to a map for encoding.
+    map = Map.from_struct(log_entry)
+
+    # Key the event in a form that the Timber API expects.
+    map = Map.get(map, :event, nil) do
+      nil -> map
+      event ->
+        event_map =
+          event
+          |> Map.from_struct()
+          |> Util.drop_nil_values()
+        keyed_event = %{event_key(event) => event_map}
+        Map.put(map, :event, keyed_event)
+    end
+
     only = Keyword.get(options, :only, false)
 
     value_to_encode =
       if only do
-        Map.take(log_entry, only)
+        Map.take(map, only)
       else
-        Map.from_struct(log_entry)
+        map
       end
       |> Utils.drop_nil_values()
 
