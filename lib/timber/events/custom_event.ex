@@ -47,6 +47,8 @@ defmodule Timber.Events.CustomEvent do
 
   defmacro __using__(_opts) do
     quote do
+      alias Timber.Timer
+
       def new(opts) when is_list(opts) do
         timer = Keyword.get(opts, :timer)
         if timer do
