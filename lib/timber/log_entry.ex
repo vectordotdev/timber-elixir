@@ -17,6 +17,7 @@ defmodule Timber.LogEntry do
   alias Timber.Context
   alias Timber.Logger
   alias Timber.Event
+  alias Timber.Events
   alias Timber.Utils
   alias Timber.LogfmtEncoder
 
@@ -46,7 +47,7 @@ defmodule Timber.LogEntry do
       Timber.Utils.format_timestamp(timestamp)
       |> IO.chardata_to_string()
 
-    context = Keyword.get(metdata, :timber_context, %{})
+    context = Keyword.get(metadata, :timber_context, %{})
     event = case Keyword.get(metadata, :timber_event, nil) do
       nil -> nil
       data -> Event.to_event(data)
@@ -74,16 +75,17 @@ defmodule Timber.LogEntry do
     map = Map.from_struct(log_entry)
 
     # Key the event in a form that the Timber API expects.
-    map = Map.get(map, :event, nil) do
-      nil -> map
-      event ->
-        event_map =
-          event
-          |> Map.from_struct()
-          |> Util.drop_nil_values()
-        keyed_event = %{key_for_event(event) => event_map}
-        Map.put(map, :event, keyed_event)
-    end
+    map =
+      case Map.get(map, :event, nil) do
+        nil -> map
+        event ->
+          event_map =
+            event
+            |> Map.from_struct()
+            |> Utils.drop_nil_values()
+          keyed_event = %{key_for_event(event) => event_map}
+          Map.put(map, :event, keyed_event)
+      end
 
     only = Keyword.get(options, :only, false)
 

@@ -7,7 +7,7 @@ defmodule Timber.Timer do
   Starts a timer for timing code execution. This timer can then be passed
   to `Timber.Timer.duration_ms/1`.
 
-  ## Examples
+  ## Example
 
     iex> timer = Timber.Timer.start_timer()
     iex> # ... code to time ...

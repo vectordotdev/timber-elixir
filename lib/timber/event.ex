@@ -90,7 +90,7 @@ defimpl Timber.Event, for: Any do
   def to_event(%{__struct__: module} = struct) do
     name =
       module
-      |> Utils.module_name()
+      |> Timber.Utils.module_name()
       |> String.replace_suffix("Event", "")
 
     data = Map.from_struct(struct)
