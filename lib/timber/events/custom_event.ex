@@ -25,17 +25,21 @@ defmodule Timber.Events.CustomEvent do
 
   alias Timber.Timer
 
+  @behaviour Timber.Event
+
   @type t :: %__MODULE__{
     name: String.t,
     data: map() | nil,
-    time_ms: float() | nil
+    time_ms: float() | nil,
+    message: String.t
   }
 
   @enforce_keys [:name]
   defstruct [
     :data,
     :name,
-    :time_ms
+    :time_ms,
+    :message
   ]
 
   @doc ~S"""
@@ -59,4 +63,11 @@ defmodule Timber.Events.CustomEvent do
     end
     struct(__MODULE__, opts)
   end
+
+  def message(%{message: message}) when is_binary(message),
+    do: message
+  def message(%{name: name, time_ms: time_ms}) when is_float(time_ms),
+    do: "#{name} in #{time_ms}ms"
+  def message(%{name: name}),
+    do: "#{name}"
 end

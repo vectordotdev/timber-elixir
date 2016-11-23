@@ -12,7 +12,7 @@ defmodule Timber do
 
   use Application
 
-  alias Timber.{Context, Timer}
+  alias Timber.Context
   alias Timber.Events.CustomEvent
 
   @doc """

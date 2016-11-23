@@ -16,7 +16,7 @@ defmodule Timber.LogEntry do
 
   alias Timber.Context
   alias Timber.Logger
-  alias Timber.Event
+  alias Timber.Eventable
   alias Timber.Events
   alias Timber.Utils
   alias Timber.LogfmtEncoder
@@ -50,7 +50,7 @@ defmodule Timber.LogEntry do
     context = Keyword.get(metadata, :timber_context, %{})
     event = case Keyword.get(metadata, :timber_event, nil) do
       nil -> nil
-      data -> Event.to_event(data)
+      data -> Eventable.to_event(data)
     end
 
     %__MODULE__{

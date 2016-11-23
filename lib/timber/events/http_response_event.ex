@@ -6,6 +6,8 @@ defmodule Timber.Events.HTTPResponseEvent do
   use a `Plug` based framework through `Timber.Plug`.
   """
 
+  @behaviour Timber.Event
+
   @type t :: %__MODULE__{
     bytes: non_neg_integer,
     headers: headers,

@@ -8,6 +8,8 @@ defmodule Timber.Events.ExceptionEvent do
   more details.
   """
 
+  @behaviour Timber.Event
+
   @type stacktrace_entry :: {
     module,
     atom,
@@ -30,7 +32,7 @@ defmodule Timber.Events.ExceptionEvent do
   defstruct [:backtrace, :name, :message]
 
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
-  def new(error, stacktrace) do
+  def new(error, stacktrace \\ []) do
     {name, message} = transform_error(error)
     backtrace = Enum.map(stacktrace, &transform_stacktrace/1)
     %__MODULE__{

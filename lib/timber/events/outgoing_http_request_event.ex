@@ -13,6 +13,8 @@ defmodule Timber.Events.OutgoingHTTPRequest do
 
   """
 
+  @behaviour Timber.Event
+
   @type t :: %__MODULE__{
     scheme: String.t,
     method: String.t,
