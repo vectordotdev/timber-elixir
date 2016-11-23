@@ -33,16 +33,36 @@ defmodule Timber.Events.CustomEvent do
 
     iex> require Logger
     iex> defmodule PaymentFailedEvent do
+    iex>   use Timber.Events.CustomEvent
     iex>   defstruct [:customer_id, :amount, :currency, :_time_ms]
     iex> end
-    iex> event = %PaymentFailedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD", _time_ms: 45.6}
+    iex> timer = Timber.Timer.start() # optional
+    iex> # ... code to time ...
+    iex> event = PaymentFailedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD", timer: timer)
     iex> Logger.info("Payment failed", timber_event: event)
 
   `PaymentReceived`, will be used as the event name unless a `_name` attribute is supplied. Note
   that `Event` suffixes are removed.
   """
 
-  alias Timber.{Timer, Utils}
+  defmacro __using__(_opts) do
+    quote do
+      def new(opts) when is_list(opts) do
+        timer = Keyword.get(opts, :timer)
+        if timer do
+          time_ms = Timer.duration_ms(timer)
+          opts
+          |> Keyword.delete(:timer)
+          |> Keyword.put(:_time_ms, time_ms)
+        else
+          opts
+        end
+        struct(__MODULE__, opts)
+      end
+    end
+  end
+
+  alias Timber.Timer
 
   @type t :: %__MODULE__{
     name: String.t,
