@@ -23,8 +23,6 @@ defmodule Timber.Events.CustomEvent do
 
   """
 
-  alias Timber.Timer
-
   @behaviour Timber.Event
 
   @type t :: %__MODULE__{
