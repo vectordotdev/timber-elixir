@@ -38,9 +38,16 @@ defprotocol Timber.Event do
 
   """
 
-  @type event_type :: :controller_call
-  @type t :: %{event_type => map()}
+  @type t ::
+    Events.ControllerCallEvent  |
+    Events.CustomEvent          |
+    Events.ExceptionEvent       |
+    Events.HTTPRequestEvent     |
+    Events.HTTPResponseEvent    |
+    Events.SQLQueryEvent        |
+    Events.TemplateRenderEvent
 
+  @spec to_event(any()) :: t
   def to_event(data)
 end
 

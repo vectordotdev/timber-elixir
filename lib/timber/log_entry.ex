@@ -81,7 +81,7 @@ defmodule Timber.LogEntry do
           event
           |> Map.from_struct()
           |> Util.drop_nil_values()
-        keyed_event = %{event_key(event) => event_map}
+        keyed_event = %{key_for_event(event) => event_map}
         Map.put(map, :event, keyed_event)
     end
 
@@ -97,6 +97,14 @@ defmodule Timber.LogEntry do
 
     encode!(format, value_to_encode)
   end
+
+  defp key_for_event(%Events.ControllerCallEvent{}), do: :controller_call
+  defp key_for_event(%Events.CustomEvent{}), do: :custom
+  defp key_for_event(%Events.ExceptionEvent{}), do: :exception
+  defp key_for_event(%Events.HTTPRequestEvent{}), do: :http_request
+  defp key_for_event(%Events.HTTPResponseEvent{}), do: :http_response
+  defp key_for_event(%Events.SQLQueryEvent{}), do: :sql_query
+  defp key_for_event(%Events.TemplateRenderEvent{}), do: :template_render
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(:json, value) do
