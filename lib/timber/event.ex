@@ -1,71 +1,104 @@
-defmodule Timber.Event do
-  alias Timber.{Events, Utils}
+defprotocol Timber.Event do
+  @moduledoc """
+  Converts a data structure to a map that the Timber API can understand. This is the heart
+  of how custom events are implemented. Any data structure passed in the `:timber_event`
+  Logger metadata key must implement this.
 
-  @type t ::
-    Events.ControllerCallEvent  |
-    Events.CustomEvent          |
-    Events.ExceptionEvent       |
-    Events.HTTPRequestEvent     |
-    Events.HTTPResponseEvent    |
-    Events.SQLQueryEvent        |
-    Events.TemplateRenderEvent
+  ## Basic map example
 
-  @doc """
-  Presents the event the way it should be encoded. The log ingestion system for Timber
-  expects events to be encoded such that their type is the key holding the event
-  specific data.
+    iex> require Logger
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> Logger.info("Payment rejected", timber_event: %{name: :payment_rejected, data: event_data})
+
+  This is the simplest example, and demonstrates Timber's no lock-in / no code debt promise.
+  Note that this map is simple being converted to a `Timber.Events.CustomEvent`. Please see that
+  module for field explanations.
+
+  ## Using Timber.Events.CustomEvent
+
+    iex> require Logger
+    iex> event = Timber.Events.CustomEvent.new(name: :payment_rejected, data: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"})
+    iex> Logger.info("Payment rejected", timber_event: event)
+
+  This adds a little more structure to logging events.
+
+  ## Using your own structured events
+
+    iex> require Logger
+    iex> defmodule PaymentRejectedEvent do
+    iex>   @derive Timber.Event
+    iex>   defstruct [:customer_id, :amount, :currency]
+    iex> end
+    iex> event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> Logger.info("Payment rejected", timber_event: event)
+
+  At Timber, we prefer this method, it follows suit with how we define exceptions, and it creates
+  a stronger contract. There are a number of down stream consumers that use these events. Such as
+  graphing on the Timber interface, alerts, and other BI tools.
+
   """
-  def event_for_encoding(nil),
-    do: nil
 
-  def event_for_encoding(%Events.ControllerCallEvent{} = event),
-    do: event_to_map(:controller_call, event)
+  @type event_type :: :controller_call
+  @type t :: %{event_type => map()}
 
-  def event_for_encoding(%Events.CustomEvent{} = event),
-    do: event_to_map(:custom, event)
+  def to_event(data)
+end
 
-  def event_for_encoding(%Events.ExceptionEvent{} = event),
-    do: event_to_map(:exception, event)
+defimpl Timber.Event, for: Timber.Events.ControllerCallEvent do
+  def to_event(event),
+    do: %{controller_call: Map.from_struct(event)}
+end
 
-  def event_for_encoding(%Events.HTTPRequestEvent{} = event),
-    do: event_to_map(:http_request, event)
+defimpl Timber.Event, for: Timber.Events.CustomEvent do
+  def to_event(event),
+    do: %{custom: Map.from_struct(event)}
+end
 
-  def event_for_encoding(%Events.HTTPResponseEvent{} = event),
-    do: event_to_map(:http_response, event)
+defimpl Timber.Event, for: Timber.Events.ExceptionEvent do
+  def to_event(event),
+    do: %{exception: Map.from_struct(event)}
+end
 
-  def event_for_encoding(%Events.SQLQueryEvent{} = event),
-    do: event_to_map(:sql_query, event)
+defimpl Timber.Event, for: Timber.Events.HTTPRequestEvent do
+  def to_event(event),
+    do: %{http_request: Map.from_struct(event)}
+end
 
-  def event_for_encoding(%Events.TemplateRenderEvent{} = event),
-    do: event_to_map(:template_render, event)
+defimpl Timber.Event, for: Timber.Events.HTTPResponseEvent do
+  def to_event(event),
+    do: %{http_response: Map.from_struct(event)}
+end
 
-  # Converts any struct into a custom event
-  def event_for_encoding(%{__struct__: module} = struct) do
-    struct
-    |> Map.from_struct()
-    |> Map.put_new_lazy(:_name, fn ->
+defimpl Timber.Event, for: Timber.Events.SQLQueryEvent do
+  def to_event(event),
+    do: %{sql_query: Map.from_struct(event)}
+end
+
+defimpl Timber.Event, for: Timber.Events.TemplateRenderEvent do
+  def to_event(event),
+    do: %{template_render: Map.from_struct(event)}
+end
+
+defimpl Timber.Event, for: Map do
+  def to_event(%{name: name, data: data} = event) do
+    # Only grab the values we support and then convert to a CustomEvent.
+    %Timber.Events.CustomEvent{name: name, data: data, time_ms: Map.get(event, :time_ms, nil)}
+    |> Timber.Event.to_event()
+  end
+end
+
+defimpl Timber.Event, for: Any do
+  def to_event(%{__struct__: module} = struct) do
+    name =
       module
       |> Utils.module_name()
       |> String.replace_suffix("Event", "")
-    end)
-    |> event_for_encoding()
-  end
 
-  # Converts any map into a custom event
-  def event_for_encoding(data) when is_map(data) do
-    {name, data} = Map.pop(data, :_name)
-    {time_ms, data} = Map.pop(data, :_time_ms)
-    %{
-      custom: %{
-        name: name,
-        data: data,
-        time_ms: time_ms
-      }
-    }
-  end
+    data = Map.from_struct(struct)
 
-  defp event_to_map(key, event) do
-    value = Map.from_struct(event)
-    %{key => value}
+    {time_ms, data} = Map.pop(data, :time_ms)
+
+    %Timber.Events.CustomEvent{name: name, data: data, time_ms: time_ms}
+    |> Timber.Event.to_event()
   end
 end

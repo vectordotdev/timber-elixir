@@ -6,63 +6,22 @@ defmodule Timber.Events.CustomEvent do
   to your line of business like receiving credit card payments, adding products
   to a card, saving a draft of a post, or changing a user's password.
 
-  Event data can include anything that adheres to the `Poison.Encoder` protocol.
-  That is, anything that can be encoded to JSON, including nested maps.
+  ## Fields
+
+    * `name` - This is the name of your event. This can be anything that adheres
+      to the `String.Chars' protocol. It will be used to identify this event on the Timber
+      interface. Example: `:my_event` or or `MyEvent`. At Timber we like to reserve CamelCase
+      events for actual modules and snake_case events for inline events.
+    * `data` - A map of data. This can be anything that implemented the `Poison.Encoder`
+      protocol. That is, anything that can be JSON encoded. example: `%{key: "value"}`
+    * `time_ms` - A fractional float represented the execution time in milliseconds.
+      example: `45.6`
 
   ## Examples
 
-  Basic example:
+  Please see `Timber.Event` for examples on passing custom event information.
 
-    iex> require Logger
-    iex> event = %{_name: :payment_failed, _time_ms: 45.6, customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    iex> Logger.info("Payment failed", timber_event: event)
-
-  Note that `_name` and `_time_ms` are optional. The above adheres to Timber's no lock-in /
-  no code debt promise. But if you're going to log events throughout your app, we recommend doing
-  so with more structure:
-
-    iex> require Logger
-    iex> timer = Timber.Timer.start() # optional
-    iex> # ... code to time ...
-    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    iex> event = Timber.event(name: :payment_failed, data: event_data, timer: timer)
-    iex> Logger.info("Payment failed", timber_event: event)
-
-  Alternatively, if you're like us at Timber, you'll want to define structures for each event,
-  similar to exceptions:
-
-    iex> require Logger
-    iex> defmodule PaymentFailedEvent do
-    iex>   use Timber.Events.CustomEvent
-    iex>   defstruct [:customer_id, :amount, :currency, :_time_ms]
-    iex> end
-    iex> timer = Timber.Timer.start() # optional
-    iex> # ... code to time ...
-    iex> event = PaymentFailedEvent.new(customer_id: "xiaus1934", amount: 1900, currency: "USD", timer: timer)
-    iex> Logger.info("Payment failed", timber_event: event)
-
-  `PaymentReceived`, will be used as the event name unless a `_name` attribute is supplied. Note
-  that `Event` suffixes are removed.
   """
-
-  defmacro __using__(_opts) do
-    quote do
-      alias Timber.Timer
-
-      def new(opts) when is_list(opts) do
-        timer = Keyword.get(opts, :timer)
-        if timer do
-          time_ms = Timer.duration_ms(timer)
-          opts
-          |> Keyword.delete(:timer)
-          |> Keyword.put(:_time_ms, time_ms)
-        else
-          opts
-        end
-        struct(__MODULE__, opts)
-      end
-    end
-  end
 
   alias Timber.Timer
 
@@ -80,14 +39,14 @@ defmodule Timber.Events.CustomEvent do
   ]
 
   @doc ~S"""
-  Creates a new custom event. See the module docs for `Timber.Events.CustomEvent` for examples.
+  Creates a new custom event. Takes any of the fields described in the module docs as keys.
 
-  ## Options
+  ## Additional options
 
-  - `:name` - The name of the event
-  - `:data` - A map of data. Anything that can be JSON encoded, include nested maps.
-  - `:timer` - The timer returned when calling `Timber.Timer.start()`.
+    * `timer` - The value returned when calling `Timber.Timer.start()`. By passing this
+      `time_ms` will automatically be set for you.
   """
+  @spec new(Keyword.t) :: t
   def new(opts) do
     timer = Keyword.get(opts, :timer)
     if timer do

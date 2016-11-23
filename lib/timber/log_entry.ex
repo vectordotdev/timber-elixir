@@ -27,7 +27,7 @@ defmodule Timber.LogEntry do
     level: Logger.level,
     message: Logger.message,
     context: Context.t,
-    event: struct() | nil
+    event: Event.t | nil
   }
 
   defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil
@@ -46,8 +46,14 @@ defmodule Timber.LogEntry do
       Timber.Utils.format_timestamp(timestamp)
       |> IO.chardata_to_string()
 
-    context = Keyword.get(metadata, :timber_context, %{})
-    event = Keyword.get(metadata, :timber_event, nil)
+    context = Keyword.get(metdata, :timber_context, %{})
+    event = case Keyword.get(metadata, :timber_event, nil) do
+      nil -> nil
+      data ->
+        data
+        |> Event.to_event()
+        |> Utils.drop_nil_values()
+    end
 
     %__MODULE__{
       dt: io_timestamp,
@@ -67,14 +73,6 @@ defmodule Timber.LogEntry do
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
-    # Reformats the event so that the event
-    # can be properly interpreted by the log ingester
-    event =
-      log_entry.event
-      |> Event.event_for_encoding()
-      |> Utils.drop_nil_values()
-    log_entry = %__MODULE__{log_entry | event: event}
-
     only = Keyword.get(options, :only, false)
 
     value_to_encode =

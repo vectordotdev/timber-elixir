@@ -7,12 +7,13 @@ defmodule Timber.Events.ExceptionEvent do
   be unnecessary to track exceptions manually. See `Timber.ErrorLogger` for
   more details.
   """
-@type stacktrace_entry :: {
+
+  @type stacktrace_entry :: {
     module,
     atom,
     arity,
     [file: IO.chardata, line: non_neg_integer] | []
- }
+  }
 
   @type backtrace_entry :: %{
     function: String.t,
