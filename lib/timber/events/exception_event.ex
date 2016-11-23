@@ -7,12 +7,15 @@ defmodule Timber.Events.ExceptionEvent do
   be unnecessary to track exceptions manually. See `Timber.ErrorLogger` for
   more details.
   """
-@type stacktrace_entry :: {
+
+  @behaviour Timber.Event
+
+  @type stacktrace_entry :: {
     module,
     atom,
     arity,
     [file: IO.chardata, line: non_neg_integer] | []
- }
+  }
 
   @type backtrace_entry :: %{
     function: String.t,
@@ -22,24 +25,26 @@ defmodule Timber.Events.ExceptionEvent do
 
   @type t :: %__MODULE__{
     backtrace: [backtrace_entry] | [],
-    description: String.t,
     name: String.t,
     message: String.t
   }
 
-  defstruct [:backtrace, :description, :name, :message]
+  defstruct [:backtrace, :name, :message]
 
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
-  def new(error, stacktrace) do
+  def new(error, stacktrace \\ []) do
     {name, message} = transform_error(error)
     backtrace = Enum.map(stacktrace, &transform_stacktrace/1)
     %__MODULE__{
       name: name,
-      description: message,
       message: message,
       backtrace: backtrace
     }
   end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{message: message}),
+    do: message
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)
@@ -48,9 +53,7 @@ defmodule Timber.Events.ExceptionEvent do
 
   defp transform_error(%{__exception__: true, __struct__: module} = error) do
     name = module_name(module)
-
     msg = Exception.message(error)
-
     {name, msg}
   end
 

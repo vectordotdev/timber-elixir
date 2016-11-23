@@ -12,7 +12,7 @@ defmodule Timber do
 
   use Application
 
-  alias Timber.{Context, Timer}
+  alias Timber.Context
   alias Timber.Events.CustomEvent
 
   @doc """
@@ -32,24 +32,6 @@ defmodule Timber do
   """
   @spec event(Keyword.t) :: CustomEvent.t
   defdelegate event(opts), to: CustomEvent, as: :new
-
-  @doc """
-  Starts a timer for timing custom events. This timer can then be passed
-  to `Timber.event/1` for inclusion in the event.
-
-  ## Examples
-
-    iex> require Logger
-    iex> timer = Timber.start_timer()
-    iex> # ... code to time ...
-    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    iex> event = Timber.event(name: :payment_received, data: event_data, timer: timer)
-    iex> Logger.info("Received payment", timber_event: event)
-    :ok
-
-  """
-  @spec start_timer() :: integer()
-  defdelegate start_timer(), to: Timer, as: :start
 
   @doc false
   # Handles the application callback start/2

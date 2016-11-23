@@ -70,7 +70,7 @@ defmodule Timber.PhoenixInstrumenter do
   """
 
   require Logger
-  
+
   alias Timber.Events.ControllerCallEvent
   alias Timber.Events.TemplateRenderEvent
 
@@ -93,7 +93,7 @@ defmodule Timber.PhoenixInstrumenter do
       controller: controller
     )
 
-    Logger.log(log_level, event.description, timber_event: event)
+    Logger.log(log_level, ControllerCallEvent.message(event), timber_event: event)
 
     :ok
   end
@@ -123,7 +123,7 @@ defmodule Timber.PhoenixInstrumenter do
       time_ms: time_ms
     )
 
-    Logger.log(log_level, event.description, timber_event: event)
+    Logger.log(log_level, TemplateRenderEvent.message(event), timber_event: event)
 
     :ok
   end

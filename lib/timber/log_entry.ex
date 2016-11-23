@@ -1,6 +1,6 @@
 defmodule Timber.LogEntry do
   @moduledoc """
-  The LogEntry module formalizes the structure of every log entry
+  The LogEntry module formalizes the structure of every log entry.
 
   When a log is produced, it is converted to this intermediary form
   by the `Timber.Logger` module before being passed on to the desired
@@ -16,10 +16,10 @@ defmodule Timber.LogEntry do
 
   alias Timber.Context
   alias Timber.Logger
-  alias Timber.Event
+  alias Timber.Eventable
+  alias Timber.Events
   alias Timber.Utils
   alias Timber.LogfmtEncoder
-
 
   @type format :: :json | :logfmt
 
@@ -48,7 +48,10 @@ defmodule Timber.LogEntry do
       |> IO.chardata_to_string()
 
     context = Keyword.get(metadata, :timber_context, %{})
-    event = Keyword.get(metadata, :timber_event, nil)
+    event = case Keyword.get(metadata, :timber_event, nil) do
+      nil -> nil
+      data -> Eventable.to_event(data)
+    end
 
     %__MODULE__{
       dt: io_timestamp,
@@ -63,28 +66,47 @@ defmodule Timber.LogEntry do
   Encodes the log event to a string
 
   ## Options
-  
+
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
-    # Reformats the event so that the event 
-    # can be properly interpreted by the log ingester
-    event = Event.event_for_encoding(log_entry.event)
-    log_entry = %__MODULE__{log_entry | event: event}
+    # Convert to a map for encoding.
+    map = Map.from_struct(log_entry)
+
+    # Key the event in a form that the Timber API expects.
+    map =
+      case Map.get(map, :event, nil) do
+        nil -> map
+        event ->
+          event_map =
+            event
+            |> Map.from_struct()
+            |> Utils.drop_nil_values()
+          keyed_event = %{key_for_event(event) => event_map}
+          Map.put(map, :event, keyed_event)
+      end
 
     only = Keyword.get(options, :only, false)
 
     value_to_encode =
       if only do
-        Map.take(log_entry, only)
+        Map.take(map, only)
       else
-        Map.from_struct(log_entry)
+        map
       end
       |> Utils.drop_nil_values()
 
     encode!(format, value_to_encode)
   end
+
+  defp key_for_event(%Events.ControllerCallEvent{}), do: :controller_call
+  defp key_for_event(%Events.CustomEvent{}), do: :custom
+  defp key_for_event(%Events.ExceptionEvent{}), do: :exception
+  defp key_for_event(%Events.HTTPRequestEvent{}), do: :http_request
+  defp key_for_event(%Events.HTTPResponseEvent{}), do: :http_response
+  defp key_for_event(%Events.SQLQueryEvent{}), do: :sql_query
+  defp key_for_event(%Events.TemplateRenderEvent{}), do: :template_render
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(:json, value) do

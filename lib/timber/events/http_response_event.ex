@@ -6,8 +6,9 @@ defmodule Timber.Events.HTTPResponseEvent do
   use a `Plug` based framework through `Timber.Plug`.
   """
 
+  @behaviour Timber.Event
+
   @type t :: %__MODULE__{
-    description: String.t,
     bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
@@ -22,7 +23,7 @@ defmodule Timber.Events.HTTPResponseEvent do
     location: String.t
   }
 
-  defstruct [:description, :bytes, :headers, :status, :time_ms]
+  defstruct [:bytes, :headers, :status, :time_ms]
 
   @recognized_headers ~w(
     cache_control
@@ -33,10 +34,12 @@ defmodule Timber.Events.HTTPResponseEvent do
   )
 
   def new(opts) do
-    event = struct(__MODULE__, opts)
-    description = "Sent #{event.status} in #{event.time_ms}ms"
-    %__MODULE__{event | description: description}
+    struct(__MODULE__, opts)
   end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{status: status, time_ms: time_ms}),
+    do: "Sent #{status} in #{time_ms}ms"
 
   @doc """
   Takes a list of two-element tuples representing HTTP response headers and

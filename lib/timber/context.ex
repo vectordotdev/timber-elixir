@@ -11,7 +11,7 @@ defmodule Timber.Context do
 
   @type context_data ::
     Contexts.CustomContext.t        |
-    Contexts.HTTPContext.t   |
+    Contexts.HTTPContext.t          |
     Contexts.OrganizationContext.t  |
     Contexts.ProcessContext.t       |
     Contexts.ServerContext.t        |
