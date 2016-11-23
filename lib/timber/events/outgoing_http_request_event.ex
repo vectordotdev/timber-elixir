@@ -34,7 +34,6 @@ defmodule Timber.Events.OutgoingHTTPRequest do
         opts
         |> Keyword.delete(:url)
         |> Keyword.put(:scheme, uri.scheme)
-        |> Keyword.put(:method, uri.method)
         |> Keyword.put(:host, uri.authority)
         |> Keyword.put(:path, uri.path)
         |> Keyword.put(:query, uri.query)
