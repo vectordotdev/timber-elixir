@@ -4,16 +4,17 @@ defmodule Timber.Events.SQLQueryEvent do
   """
 
   @type t :: %__MODULE__{
-    description: String.t,
     sql: String.t,
     time_ms: float
   }
 
-  defstruct [:description, :sql, :time_ms]
+  defstruct [:sql, :time_ms]
 
   def new(opts) do
-    event = struct(__MODULE__, opts)
-    description = "Processed #{event.sql} in #{event.time_ms} ms"
-    %__MODULE__{ event | description: description }
+    struct(__MODULE__, opts)
   end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{sql: sql, time_ms: time_ms}),
+    do: "Processed #{sql} in #{time_ms}ms"
 end

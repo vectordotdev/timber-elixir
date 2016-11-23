@@ -6,20 +6,20 @@ defmodule Timber.Events.ControllerCallEvent do
   @type t :: %__MODULE__{
     action: String.t | nil,
     controller: String.t | nil,
-    description: IO.chardata | nil
   }
 
   defstruct [
     :action,
-    :controller,
-    :description
+    :controller
   ]
 
   @spec new(Keyword.t) :: t
   def new(opts) do
-    event = struct(__MODULE__, opts)
-    description = ["Processing by ", event.controller, ?., event.action]
+    struct(__MODULE__, opts)
+  end
 
-    %__MODULE__{ event | description: description }
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{action: action, controller: controller}) do
+    ["Processing by ", controller, ?., action]
   end
 end

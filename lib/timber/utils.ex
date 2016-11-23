@@ -92,7 +92,7 @@ defmodule Timber.Utils do
     |> List.wrap()
     |> Module.concat()
     |> Atom.to_string()
-    |> String.replace_leading("Elixir.", "")
+    |> String.replace_prefix("Elixir.", "")
   end
 
   # These padding functions are based on the original functions in

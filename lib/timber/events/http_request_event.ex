@@ -8,7 +8,6 @@ defmodule Timber.Events.HTTPRequestEvent do
 
   @type t :: %__MODULE__{
     host: String.t | nil,
-    description: String.t | nil,
     headers: headers | nil,
     method: method | nil,
     path: String.t | nil,
@@ -29,7 +28,7 @@ defmodule Timber.Events.HTTPRequestEvent do
     user_agent: String.t | nil
   }
 
-  defstruct [:host, :headers, :method, :path, :port, :scheme, :query_params, :description]
+  defstruct [:host, :headers, :method, :path, :port, :scheme, :query_params]
 
   @recognized_headers ~w(
     content-type
@@ -40,15 +39,22 @@ defmodule Timber.Events.HTTPRequestEvent do
   )
 
   def new(opts) do
-    event = struct(__MODULE__, opts)
-    method =
-      event.method
-      |> Atom.to_string()
-      |> String.upcase()
-    description = "#{method} #{event.path}"
-
-    %__MODULE__{event | description: description}
+    method = Keyword.get(opts, :method)
+    opts = if method do
+      normalized_method =
+        method
+        |> Atom.to_string()
+        |> String.upcase()
+      Keyword.put(opts, :method, normalized_method)
+    else
+      opts
+    end
+    struct(__MODULE__, opts)
   end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{method: method, path: path}),
+    do: "#{method} #{path}"
 
   @doc """
   Takes a list of two-element tuples representing HTTP request headers and

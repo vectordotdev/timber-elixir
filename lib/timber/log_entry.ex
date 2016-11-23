@@ -20,7 +20,6 @@ defmodule Timber.LogEntry do
   alias Timber.Utils
   alias Timber.LogfmtEncoder
 
-
   @type format :: :json | :logfmt
 
   @type t :: %__MODULE__{

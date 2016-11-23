@@ -27,22 +27,22 @@ defmodule Timber.ErrorLogger do
   ```
   config :logger, :handle_otp_reports, false
   ```
-  
+
   However, the OTP report handler handles additional report types as well. If you
   find that you would like these reports to be logged, just be aware that every
   exception will be displayed twice in the log.
 
   Since the OTP report handler does not add the requisite metadata, Timber's console
   will not identify the errors it logs as exception events when you search.
-  
+
   ## Elixir Logger's SASL Report Handler
-  
+
   The Elixir `Logger` application also comes with a SASL (System Architecture Support Libraries)
   report handler. Timber does not currently handle these reports, so activating the
   standard handler will not cause duplicate logs.
 
   ## :error_logger Output
-  
+
   When Timber's error capturing system is activated, it will also disable `:error_logger`'s `tty`
   output. In most cases, this is what you want, otherwise, otherwise it will print out reports
   to the `tty` in a plain text (and rather ugly) format.
@@ -87,7 +87,7 @@ defmodule Timber.ErrorLogger do
           |> Keyword.get(:dictionary)
           |> handle_process_dictionary()
 
-        Logger.error(event.description, [timber_context: context, timber_event: event])
+        Logger.error(ExceptionEvent.message(event), [timber_context: context, timber_event: event])
       {:error, _} ->
         # do nothing
         :ok
@@ -98,7 +98,7 @@ defmodule Timber.ErrorLogger do
 
   def handle_event({:error, _gl, {_process, _msg_fmt, [_pid, {error, stacktrace}]}}, state) do
     event = ExceptionEvent.new(error, stacktrace)
-    Logger.error(event.description, timber_event: event)
+    Logger.error(ExceptionEvent.message(event), timber_event: event)
 
     {:ok, state}
   end

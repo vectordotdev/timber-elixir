@@ -1,5 +1,4 @@
 defmodule Timber.Event do
-
   alias Timber.{Events, Utils}
 
   @type t ::
@@ -44,7 +43,11 @@ defmodule Timber.Event do
   def event_for_encoding(%{__struct__: module} = struct) do
     struct
     |> Map.from_struct()
-    |> Map.put_new_lazy(:_name, fn -> Utils.module_name(module) end)
+    |> Map.put_new_lazy(:_name, fn ->
+      module
+      |> Utils.module_name()
+      |> String.replace_suffix("Event", "")
+    end)
     |> event_for_encoding()
   end
 
@@ -62,11 +65,7 @@ defmodule Timber.Event do
   end
 
   defp event_to_map(key, event) do
-    value =
-      event
-      |> Map.from_struct()
-      |> Map.drop([:description])
-
+    value = Map.from_struct(event)
     %{key => value}
   end
 end

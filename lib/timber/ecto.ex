@@ -78,7 +78,7 @@ defmodule Timber.Ecto do
       time_ms: time_ms
     )
 
-    Logger.log(level, event.description, timber_event: event)
+    Logger.log(level, SQLQueryEvent.message(event), timber_event: event)
 
     entry
   end
