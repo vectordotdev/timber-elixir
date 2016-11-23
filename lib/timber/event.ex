@@ -38,19 +38,32 @@ defmodule Timber.Event do
   end
 
   @doc """
-  Easily get the message and metadata in one call.
+  Convenience method for getting the message and metadata in one call.
 
-    iex> require Logger
-    iex> {message, metdata} = Timber.Event.logger_tuple(event)
-    iex> Logger.info(message, metdata)
+    ```
+    require Logger
+    {message, metdata} = Timber.Event.logger_tuple(data)
+    Logger.info(message, metdata)
+    ```
+
+  This is equivalent to:
+
+    ```
+    require Logger
+    event = Timber.Eventable.to_event(data)
+    message = Timber.Event.message(event)
+    Logger.info(message, timber_event: event)
+    ```
 
   In future versions of Elixir, a logger passed function can return this tuple.
   See https://github.com/elixir-lang/elixir/pull/5447. Once available, you'll be
   able to do:
 
-    iex> # Warning, the below code will not work until the above PR is released!
-    iex> require Logger
-    iex> Logger.info fn -> Timber.Event.logger_tuple(event) end
+    ```
+    # Warning, the below code will not work until the above PR is released!
+    require Logger
+    Logger.info fn -> Timber.Event.logger_tuple(event) end
+    ```
 
   """
   @spec logger_tuple(Timber.Eventable.t) :: {message, metadata}
