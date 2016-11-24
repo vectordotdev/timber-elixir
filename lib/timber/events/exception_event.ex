@@ -8,6 +8,8 @@ defmodule Timber.Events.ExceptionEvent do
   more details.
   """
 
+  alias Timber.Utils
+
   @behaviour Timber.Event
 
   @type stacktrace_entry :: {
@@ -26,19 +28,21 @@ defmodule Timber.Events.ExceptionEvent do
   @type t :: %__MODULE__{
     backtrace: [backtrace_entry] | [],
     name: String.t,
-    message: String.t
+    message: String.t,
+    data: map() | nil
   }
 
-  defstruct [:backtrace, :name, :message]
+  defstruct [:backtrace, :name, :message, :data]
 
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
   def new(error, stacktrace \\ []) do
-    {name, message} = transform_error(error)
+    {name, message, data} = transform_error(error)
     backtrace = Enum.map(stacktrace, &transform_stacktrace/1)
     %__MODULE__{
       name: name,
       message: message,
-      backtrace: backtrace
+      backtrace: backtrace,
+      data: data
     }
   end
 
@@ -48,17 +52,21 @@ defmodule Timber.Events.ExceptionEvent do
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)
-    {name, name}
+    {name, name, nil}
   end
 
   defp transform_error(%{__exception__: true, __struct__: module} = error) do
-    name = module_name(module)
+    name = Utils.module_name(module)
     msg = Exception.message(error)
-    {name, msg}
+    data =
+      error
+      |> Map.from_struct()
+      |> Map.drop(:message)
+    {name, msg, data}
   end
 
   defp transform_stacktrace({module, function_name, arity, fileinfo}) do
-    module_name = module_name(module)
+    module_name = Utils.module_name(module)
 
     function_name = Atom.to_string(function_name)
 
@@ -91,12 +99,5 @@ defmodule Timber.Events.ExceptionEvent do
     else
       :bad_descriptor
     end
-  end
-
-  defp module_name(module) do
-    module
-    |> List.wrap()
-    |> Module.concat()
-    |> Atom.to_string()
   end
 end
