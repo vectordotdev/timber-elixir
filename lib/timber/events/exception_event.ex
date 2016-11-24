@@ -61,7 +61,7 @@ defmodule Timber.Events.ExceptionEvent do
     data =
       error
       |> Map.from_struct()
-      |> Map.drop(:message)
+      |> Map.delete(:message)
     {name, msg, data}
   end
 
