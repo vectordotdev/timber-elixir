@@ -55,7 +55,6 @@ defmodule Timber.Utils do
     time = format_time(time)
     [date | [?T | [time | [?Z]]]]
   end
-
   # Formatting a timestamp with microseconds
   def format_timestamp({date, {_, _, _, {microseconds, _precision}} = time}) do
     date = format_date(date)
@@ -63,7 +62,6 @@ defmodule Timber.Utils do
     partial_seconds = pad6(microseconds)
     [date | [?T | [time | [?. | [partial_seconds | [?Z]]]]]]
   end
-
   # Formatting a timestamp with milliseconds
   def format_timestamp({date, {_, _, _, milliseconds} = time}) do
     date = format_date(date)

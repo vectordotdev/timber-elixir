@@ -13,5 +13,10 @@ defmodule Timber.Contexts.OrganizationContext do
     name: String.t
   }
 
+  @type m :: %{
+    id: String.t,
+    name: String.t
+  }
+
   defstruct [:id, :name]
 end

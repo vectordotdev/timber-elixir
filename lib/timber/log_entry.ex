@@ -16,6 +16,7 @@ defmodule Timber.LogEntry do
 
   alias Timber.Context
   alias Timber.Logger
+  alias Timber.Event
   alias Timber.Eventable
   alias Timber.Events
   alias Timber.Utils
@@ -71,42 +72,32 @@ defmodule Timber.LogEntry do
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
-    # Convert to a map for encoding.
-    map = Map.from_struct(log_entry)
+    map = to_map!(log_entry, options)
+    encode!(format, map)
+  end
 
-    # Key the event in a form that the Timber API expects.
+  @spec to_map!(t, Keyword.t) :: map()
+  defp to_map!(log_entry, options) do
     map =
-      case Map.get(map, :event, nil) do
-        nil -> map
-        event ->
-          event_map =
-            event
-            |> Map.from_struct()
-            |> Utils.drop_nil_values()
-          keyed_event = %{key_for_event(event) => event_map}
-          Map.put(map, :event, keyed_event)
-      end
+      log_entry
+      |> Map.from_struct()
+      |> Map.get_and_update(:event, fn current_event ->
+        if current_event == nil do
+          {current_event, current_event}
+        else
+          {current_event, Event.to_api_map(current_event)}
+        end
+      end)
 
     only = Keyword.get(options, :only, false)
 
-    value_to_encode =
-      if only do
-        Map.take(map, only)
-      else
-        map
-      end
-      |> Utils.drop_nil_values()
-
-    encode!(format, value_to_encode)
+    if only do
+      Map.take(map, only)
+    else
+      map
+    end
+    |> Utils.drop_nil_values()
   end
-
-  defp key_for_event(%Events.ControllerCallEvent{}), do: :controller_call
-  defp key_for_event(%Events.CustomEvent{}), do: :custom
-  defp key_for_event(%Events.ExceptionEvent{}), do: :exception
-  defp key_for_event(%Events.HTTPRequestEvent{}), do: :http_request
-  defp key_for_event(%Events.HTTPResponseEvent{}), do: :http_response
-  defp key_for_event(%Events.SQLQueryEvent{}), do: :sql_query
-  defp key_for_event(%Events.TemplateRenderEvent{}), do: :template_render
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(:json, value) do

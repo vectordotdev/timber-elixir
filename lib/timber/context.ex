@@ -26,6 +26,9 @@ defmodule Timber.Context do
     optional(:user) => Context.UserContext.m
   }
 
+  @doc false
+  def new(), do: %{}
+
   @doc """
   Takes an existing context and inserts the new context
   """
@@ -42,7 +45,6 @@ defmodule Timber.Context do
   defp insert_context(new_context, existing_context, _key) when map_size(new_context) == 0 do
     existing_context
   end
-
   defp insert_context(new_context, existing_context, key) do
     Map.put(existing_context, key, new_context)
   end

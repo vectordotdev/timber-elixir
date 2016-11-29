@@ -3,8 +3,6 @@ defmodule Timber.Events.ControllerCallEvent do
   Represents a controller being called
   """
 
-  @behaviour Timber.Event
-
   @type t :: %__MODULE__{
     action: String.t | nil,
     controller: String.t | nil,

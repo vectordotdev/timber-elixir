@@ -1,13 +1,13 @@
 defprotocol Timber.Eventable do
   @moduledoc """
-  Converts a data structure to a `Timber.Event.t`. This is the heart of how custom events work.
-  Any value passed in the `:timber_event` Logger metadata must implement this.
+  Converts a data structure to a `Timber.Event.t`. This allows you to
+  support custom types passed to the Logger metadata `:event` key.
 
   ## Basic map example
 
     iex> require Logger
     iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    iex> Logger.info("Payment rejected", timber_event: %{name: :payment_rejected, data: event_data})
+    iex> Logger.info("Payment rejected", event: %{name: :payment_rejected, data: event_data})
 
   This is the simplest example, and demonstrates Timber's no lock-in / no code debt promise.
   Please see `Timber.Events.CustomEvent` for field explanations.
@@ -16,46 +16,64 @@ defprotocol Timber.Eventable do
 
     iex> require Logger
     iex> event = Timber.Events.CustomEvent.new(name: :payment_rejected, data: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"})
-    iex> Logger.info("Payment rejected", timber_event: event)
+    iex> Logger.info("Payment rejected", event: event)
 
   This adds compile time guarantees in exchange for relying on the Timber library. Please see
   `Timber.Events.CustomEvent` for field explanations.
 
-  ## Using your own structured events
-
-    iex> require Logger
-    iex> defmodule PaymentRejectedEvent do
-    iex>   @derive Timber.Eventable
-    iex>   defstruct [:customer_id, :amount, :currency]
-    iex> end
-    iex> event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    iex> Logger.info("Payment rejected", timber_event: event)
-
-  At Timber, we prefer this, the lock-in to the Timber library is minimal, and it creates
-  a stronger contract with any downstream consumers. Such as graphing on the Timber interface,
-  alerts, BI tools, etc.
-
   ## Timing events
 
-  Any of the above examples can pass a `:time_ms` key. This is a special key that Timber
-  (and other systems) can use to make assumptions about your data and enhance your experience.
-  An example:
+  Any of the above examples can pass a `:time_ms` key in the `:data` map. This is a special key
+  that Timber (and other systems) can use to enhance your experience. An example:
 
     iex> require Logger
     iex> timer = Timber.Timer.start()
-    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> # ... code to time ...
     iex> time_ms = Timber.Timer.duration_ms(timer)
-    iex> Logger.info("Payment rejected", timber_event: %{name: :payment_rejected, data: event_data, time_ms: time_ms})
+    iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD", time_ms: time_ms}
+    iex> Logger.info("Payment rejected", event: %{name: :payment_rejected, data: event_data})
 
-  ### Pro tip!
+  ## Pro tip! Use your own structs.
 
-  We recommend defining a `message(t) :: String.t` method or a `message` attribute.
-  This works just like the `Exception` behaviour. This way if event creation and logging are
-  separated, logging is as simple as:
+  At Timber we prefer to define our events as structs. It provides a stronger contract with
+  downstream consumers (alerts, graphs, etc), and there is no risk of code-debt or lock-in
+  to Timber. You are simply adding events to your application. Here's an example:
+
+  First, implement the `Timber.Eventable` protocol:
+
+    iex> defimpl Timber.Eventable, for: Any do
+    iex>   def to_event(%{__struct__: module} = event) do
+    iex>     name = module.name()
+    iex>     data = Map.from_struct(event)
+    iex>     Timber.Events.CustomEvent.new(name: name, data: data)
+    iex>   end
+    iex> end
+
+  Notice we expect every event to have a `name` function, Timber requires this for custom events.
+  Let's define a behaviour to ensure all events follow this pattern:
+
+    iex> defmodule MyApp.Event do
+    iex>   @callback name() :: atom()
+    iex> end
+
+  Lastly, define your event and log it!:
 
     iex> require Logger
-    iex> {message, metadata} = Timber.Event.logger_tuple(my_internal_event)
-    iex> Logger.info(message, metadata)
+    iex> defmodule PaymentRejectedEvent do
+    iex>   @behaviour MyApp.Event
+    iex>   @derive Timber.Eventable
+    iex>   defstruct [:customer_id, :amount, :currency]
+    iex>   def name(), do: :payment_rejected
+    iex> end
+    iex> event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    iex> Logger.info("Payment rejected", event: event)
+
+  Note: we recommend adding a `@callback message(struct()) :: String.t` to `MyApp.Event`.
+  This follows the same pattern set by the `Exception` behaviour. This way if event creation
+  and logging are separated, logging an event is as simple as:
+
+      message = MyApp.Event.message(event)
+      Logger.info(message, event: event)
 
   """
 
@@ -92,50 +110,10 @@ defimpl Timber.Eventable, for: Timber.Events.TemplateRenderEvent do
 end
 
 defimpl Timber.Eventable, for: Map do
-  def to_event(%{name: name, data: data} = event) do
-    # Only grab the values we support and then convert to a CustomEvent.
+  def to_event(%{name: name, data: data}) do
     %Timber.Events.CustomEvent{
       name: name,
-      data: data,
-      time_ms: Map.get(event, :time_ms, nil),
-      message: Map.get(event, :message, nil)
+      data: data
     }
-  end
-end
-
-defimpl Timber.Eventable, for: Any do
-  # Implemented if you want to log your own exceptions. Logging exceptions this
-  # way is discouraged, but since our useres cannot redefine this protocol we
-  # wanted to make this available for edge cases.
-  def to_event(%{__exception__: _value} = exception) do
-    Timber.Events.ExceptionEvent.new(exception)
-  end
-
-  def to_event(%{__struct__: module} = struct) do
-    name =
-      module
-      |> Timber.Utils.module_name()
-      |> String.replace_suffix("Event", "")
-
-    data = Map.from_struct(struct)
-
-    {time_ms, data} = Map.pop(data, :time_ms)
-
-    %Timber.Events.CustomEvent{name: name, data: data, time_ms: time_ms, message: message(struct)}
-  end
-
-  # Attempts to extract a message from the data structure, This attemps to follow
-  # the pattern set by exceptions.
-  # https://github.com/elixir-lang/elixir/blob/44ef53ec2b1f49d86a35a0b33d6c1209fadd3cc8/lib/elixir/lib/exception.ex#L51
-  defp message(%{__struct__: module} = struct) do
-    try do
-      module.message(struct)
-    rescue
-      _e ->
-        case Map.get(struct, :message) do
-          message when is_binary(message) -> message
-          _val -> nil
-        end
-    end
   end
 end

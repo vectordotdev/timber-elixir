@@ -10,8 +10,6 @@ defmodule Timber.Events.ExceptionEvent do
 
   alias Timber.Utils
 
-  @behaviour Timber.Event
-
   @type stacktrace_entry :: {
     module,
     atom,
@@ -47,8 +45,8 @@ defmodule Timber.Events.ExceptionEvent do
   end
 
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{message: message}),
-    do: message
+  def message(%__MODULE__{name: name, message: message}),
+    do: "#{name}: #{message}"
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)

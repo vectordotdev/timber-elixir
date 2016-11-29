@@ -8,7 +8,12 @@ defmodule Timber.Contexts.CustomContext do
   """
 
   @type t :: %__MODULE__{
-    name: String.t,
+    name: atom(),
+    data: %{String.t => any}
+  }
+
+  @type m :: %{
+    name: atom(),
     data: %{String.t => any}
   }
 

@@ -21,7 +21,7 @@ defmodule Timber do
   @spec add_context(Context.context_data) :: :ok
   def add_context(data) do
     current_metadata = Elixir.Logger.metadata()
-    current_context = Keyword.get(current_metadata, :timber_context, %{})
+    current_context = Keyword.get(current_metadata, :timber_context, Context.new())
     new_context = Context.add_context(current_context, data)
 
     Elixir.Logger.metadata([timber_context: new_context])
