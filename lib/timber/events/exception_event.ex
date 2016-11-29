@@ -27,20 +27,18 @@ defmodule Timber.Events.ExceptionEvent do
     backtrace: [backtrace_entry] | [],
     name: String.t,
     message: String.t,
-    data: map() | nil
   }
 
   defstruct [:backtrace, :name, :message, :data]
 
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
   def new(error, stacktrace \\ []) do
-    {name, message, data} = transform_error(error)
+    {name, message} = transform_error(error)
     backtrace = Enum.map(stacktrace, &transform_stacktrace/1)
     %__MODULE__{
       name: name,
       message: message,
-      backtrace: backtrace,
-      data: data
+      backtrace: backtrace
     }
   end
 
@@ -50,17 +48,13 @@ defmodule Timber.Events.ExceptionEvent do
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)
-    {name, name, nil}
+    {name, name}
   end
 
   defp transform_error(%{__exception__: true, __struct__: module} = error) do
     name = Utils.module_name(module)
     msg = Exception.message(error)
-    data =
-      error
-      |> Map.from_struct()
-      |> Map.delete(:message)
-    {name, msg, data}
+    {name, msg}
   end
 
   defp transform_stacktrace({module, function_name, arity, fileinfo}) do
