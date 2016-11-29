@@ -41,14 +41,11 @@ defmodule Timber do
   # This is the function that starts up the error logger listener
   #
   def start(_type, _opts) do
-    capture_errors = Application.get_env(:timber, :capture_errors, false)
-    disable_tty = Application.get_env(:timber, :disable_kernel_error_tty, capture_errors)
-
-    if capture_errors do
+    if Timber.Config.capture_errors?() do
       :error_logger.add_report_handler(Timber.ErrorLogger)
     end
 
-    if disable_tty do
+    if Timber.Config.disable_tty?() do
       :error_logger.tty(false)
     end
 

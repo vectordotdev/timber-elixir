@@ -49,7 +49,7 @@ defmodule Timber.LogEntry do
       |> IO.chardata_to_string()
 
     context = Keyword.get(metadata, :timber_context, %{})
-    event = case Keyword.get(metadata, :timber_event, nil) do
+    event = case Keyword.get(metadata, Timber.Config.event_key(), nil) do
       nil -> nil
       data -> Eventable.to_event(data)
     end

@@ -25,12 +25,12 @@ defmodule Timber.Transports.IODevice do
   until the IO device sends a response about the last write operation.
 
   ## Configuration Recommendations: Development vs. Production
-  
+
   In a standard Elixir project, you will probably have different configuration files
   for your development and production setups. These configuration files typically
   take the form of `config/dev.exs` and `config/prod.exs` which override defaults set
   in `config/config.exs`.
-  
+
   Timber's defaults are production ready, but the production settings also assume that
   you'll be viewing the logs through the Timber console, so they forego some niceties
   that help when developing locally. Therefore, to help with local development, we
@@ -63,7 +63,7 @@ defmodule Timber.Transports.IODevice do
   _Defaults to `true`._
 
   #### `escape_new_lines`
-  
+
   When `true`, new lines characters are escaped as `\\n`.
 
   When `false`, new lines characters are left alone.
@@ -77,7 +77,7 @@ defmodule Timber.Transports.IODevice do
   configuration will always override the initialized setting..
 
   #### `format`
-  
+
   Determines the output format to use. Even though the Timber service is designed
   to receive log metadata in JSON format, it's not the prettiest format to look at when
   you're developing locally. Therefore, we let you print the metadata in logfmt locally
@@ -100,7 +100,7 @@ defmodule Timber.Transports.IODevice do
   _Defaults to `100`._
 
   #### `print_log_level`
-  
+
   When `true`, the log level is printed in brackets as part of your log message.
 
   When `false`, the log level is not printed.
@@ -200,10 +200,10 @@ defmodule Timber.Transports.IODevice do
   defp get_init_config() do
     heroku_env = System.get_env("HEROKU")
     heroku? = !is_nil(heroku_env)
-    
+
     init_env = [escape_new_lines: heroku?]
 
-    env = Application.get_env(:timber, :io_device, [])
+    env = Timber.Config.io_device()
 
     Keyword.merge(init_env, env)
   end

@@ -121,7 +121,10 @@ defmodule Timber.EventPlug do
       query_params: query_params
     )
 
-    Logger.log(log_level, HTTPRequestEvent.message(event), timber_event: event)
+    message = HTTPRequestEvent.message(event)
+    metadata = Timber.Event.metadata(event)
+
+    Logger.log(log_level, message, metadata)
 
     Plug.Conn.put_private(conn, :timber_opts, opts)
     |> Plug.Conn.put_private(:timber_start, start)
@@ -151,7 +154,10 @@ defmodule Timber.EventPlug do
       time_ms: time_ms
     )
 
-    Logger.log(log_level, HTTPResponseEvent.message(event), timber_event: event)
+    message = HTTPResponseEvent.message(event)
+    metadata = Timber.Event.metadata(event)
+
+    Logger.log(log_level, message, metadata)
 
     conn
   end

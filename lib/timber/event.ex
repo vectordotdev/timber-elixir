@@ -15,6 +15,10 @@ defmodule Timber.Event do
     Events.SQLQueryEvent        |
     Events.TemplateRenderEvent
 
+  def metadata(event) do
+    Keyword.put([], Timber.Config.event_key(), event]
+  end
+
   @doc """
   Converts the given event to a map in the structure that the Timber API
   expects during ingestion.
