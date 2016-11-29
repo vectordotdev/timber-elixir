@@ -15,7 +15,7 @@ defprotocol Timber.Eventable do
   ## Using Timber.Events.CustomEvent
 
     iex> require Logger
-    iex> event = Timber.Events.CustomEvent.new(name: :payment_rejected, data: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"})
+    iex> event = Timber.Events.CustomEvent.new(type: :payment_rejected, data: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"})
     iex> Logger.info("Payment rejected", event: event)
 
   This adds compile time guarantees in exchange for relying on the Timber library. Please see
@@ -31,7 +31,7 @@ defprotocol Timber.Eventable do
     iex> # ... code to time ...
     iex> time_ms = Timber.Timer.duration_ms(timer)
     iex> event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD", time_ms: time_ms}
-    iex> Logger.info("Payment rejected", event: %{name: :payment_rejected, data: event_data})
+    iex> Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
 
   ## Pro tip! Use your own structs.
 
@@ -43,17 +43,17 @@ defprotocol Timber.Eventable do
 
     iex> defimpl Timber.Eventable, for: Any do
     iex>   def to_event(%{__struct__: module} = event) do
-    iex>     name = module.name()
+    iex>     type = module.type()
     iex>     data = Map.from_struct(event)
-    iex>     Timber.Events.CustomEvent.new(name: name, data: data)
+    iex>     Timber.Events.CustomEvent.new(type: type, data: data)
     iex>   end
     iex> end
 
-  Notice we expect every event to have a `name` function, Timber requires this for custom events.
+  Notice we expect every event to have a `type` function, Timber requires this for custom events.
   Let's define a behaviour to ensure all events follow this pattern:
 
     iex> defmodule MyApp.Event do
-    iex>   @callback name(struct()) :: atom()
+    iex>   @callback type(struct()) :: atom()
     iex> end
 
   Lastly, define your event and log it!:
@@ -63,7 +63,7 @@ defprotocol Timber.Eventable do
     iex>   @behaviour MyApp.Event
     iex>   @derive Timber.Eventable
     iex>   defstruct [:customer_id, :amount, :currency]
-    iex>   def name(_event), do: :payment_rejected
+    iex>   def type(_event), do: :payment_rejected
     iex> end
     iex> event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
     iex> Logger.info("Payment rejected", event: event)
@@ -110,9 +110,9 @@ defimpl Timber.Eventable, for: Timber.Events.TemplateRenderEvent do
 end
 
 defimpl Timber.Eventable, for: Map do
-  def to_event(%{name: name, data: data}) do
+  def to_event(%{type: type, data: data}) do
     %Timber.Events.CustomEvent{
-      name: name,
+      type: type,
       data: data
     }
   end

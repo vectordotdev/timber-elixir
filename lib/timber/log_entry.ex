@@ -101,7 +101,7 @@ defmodule Timber.LogEntry do
 
   defp to_api_map(%Events.ControllerCallEvent{} = event),
     do: %{controller_call: Map.from_struct(event)}
-  defp to_api_map(%Events.CustomEvent{name: name, data: data} = event),
+  defp to_api_map(%Events.CustomEvent{type: type, data: data}),
     do: %{custom: %{type => data}}
   defp to_api_map(%Events.ExceptionEvent{} = event),
     do: %{exception: Map.from_struct(event)}

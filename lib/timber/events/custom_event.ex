@@ -8,12 +8,11 @@ defmodule Timber.Events.CustomEvent do
 
   ## Fields
 
-    * `name` - (required) This is the name of your event. This can be anything that adheres
-      to the `String.Chars' protocol. It will be used to identify this event on the Timber
-      interface. Example: `:my_event` or or `MyEvent`. At Timber we like to reserve CamelCase
-      events for actual modules and snake_case events for inline events.
-    * `data` - (optional) A map of data. This can be anything that implemented the `Poison.Encoder`
-      protocol. That is, anything that can be JSON encoded. example: `%{key: "value"}`.
+    * `type` - (atom, required) This is the type of your event. It should be something unique
+      and unchanging. It will be used to identify this event. Example: `:my_event`.
+    * `data` - (map, optional) A map of data. This can be anything that implements the
+      `Poison.Encoder` protocol. That is, anything that can be JSON encoded.
+      Example: `%{key: "value"}`.
 
   ## Special `data` fields
 
@@ -25,7 +24,7 @@ defmodule Timber.Events.CustomEvent do
 
   An example:
 
-    Timber.Events.CustomEvent.new(name: :payment_rejected, data: %{time_ms: 45.6})
+    Timber.Events.CustomEvent.new(type: :payment_rejected, data: %{time_ms: 45.6})
 
   ## Examples
 
@@ -34,14 +33,14 @@ defmodule Timber.Events.CustomEvent do
   """
 
   @type t :: %__MODULE__{
-    name: atom(),
+    type: atom(),
     data: map() | nil
   }
 
-  @enforce_keys [:name]
+  @enforce_keys [:type]
   defstruct [
     :data,
-    :name
+    :type
   ]
 
   @doc ~S"""
