@@ -53,7 +53,7 @@ defprotocol Timber.Eventable do
   Let's define a behaviour to ensure all events follow this pattern:
 
     iex> defmodule MyApp.Event do
-    iex>   @callback name() :: atom()
+    iex>   @callback name(struct()) :: atom()
     iex> end
 
   Lastly, define your event and log it!:
@@ -63,7 +63,7 @@ defprotocol Timber.Eventable do
     iex>   @behaviour MyApp.Event
     iex>   @derive Timber.Eventable
     iex>   defstruct [:customer_id, :amount, :currency]
-    iex>   def name(), do: :payment_rejected
+    iex>   def name(_event), do: :payment_rejected
     iex> end
     iex> event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
     iex> Logger.info("Payment rejected", event: event)
