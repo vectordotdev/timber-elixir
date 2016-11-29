@@ -29,7 +29,7 @@ defmodule Timber.Events.ExceptionEvent do
     message: String.t,
   }
 
-  defstruct [:backtrace, :name, :message, :data]
+  defstruct [:backtrace, :name, :message]
 
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
   def new(error, stacktrace \\ []) do

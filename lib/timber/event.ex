@@ -16,6 +16,6 @@ defmodule Timber.Event do
     Events.TemplateRenderEvent
 
   def metadata(event) do
-    Keyword.put([], Timber.Config.event_key(), event]
+    Keyword.put([], Timber.Config.event_key(), event)
   end
 end

@@ -112,7 +112,7 @@ defmodule Timber.PhoenixInstrumenter do
   end
 
   def phoenix_controller_render(:stop, time_diff, {:ok, template_name}) do
-    log_level = Timber.Config.phoenix_instrumentation_level(:info)
+    log_level = get_log_level(:info)
 
     # This comes in as native time but is expected to be a float representing
     # milliseconds
@@ -132,5 +132,10 @@ defmodule Timber.PhoenixInstrumenter do
     Logger.log(log_level, message, metadata)
 
     :ok
+  end
+
+  @spec get_log_level(atom) :: atom
+  defp get_log_level(default) do
+    Timber.Config.phoenix_instrumentation_level(default)
   end
 end
