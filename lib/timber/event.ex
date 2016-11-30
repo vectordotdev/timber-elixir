@@ -4,7 +4,7 @@ defmodule Timber.Event do
   implements the `Timber.Eventable` protocol.
   """
 
-  alias Timber.{Eventable, Events}
+  alias Timber.Events
 
   @type t ::
     Events.ControllerCallEvent  |
