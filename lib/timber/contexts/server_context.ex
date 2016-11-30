@@ -7,5 +7,9 @@ defmodule Timber.Contexts.ServerContext do
     hostname: String.t
   }
 
+  @type m :: %{
+    hostname: String.t
+  }
+
   defstruct [:hostname]
 end

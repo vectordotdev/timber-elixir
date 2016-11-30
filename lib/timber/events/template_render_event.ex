@@ -3,8 +3,6 @@ defmodule Timber.Events.TemplateRenderEvent do
   Tracks the time to render a template
   """
 
-  @behaviour Timber.Event
-
   @type t :: %__MODULE__{
     name: String.t | nil,
     time_ms: float | nil,

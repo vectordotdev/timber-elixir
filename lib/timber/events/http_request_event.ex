@@ -6,8 +6,6 @@ defmodule Timber.Events.HTTPRequestEvent do
   you use a `Plug` based framework through the `Timber.Plug`.
   """
 
-  @behaviour Timber.Event
-
   @type t :: %__MODULE__{
     host: String.t | nil,
     headers: headers | nil,

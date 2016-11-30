@@ -9,6 +9,12 @@ defmodule Timber.Contexts.UserContext do
     email: String.t
   }
 
+  @type m :: %{
+    id: String.t,
+    name: String.t,
+    email: String.t
+  }
+
   defstruct [:id, :name, :email]
 
   def new(opts) do

@@ -8,6 +8,11 @@ defmodule Timber.Contexts.ProcessContext do
     description: String.t
   }
 
+  @type m :: %{
+    id: String.t,
+    description: String.t
+  }
+
   defstruct [:id, :description]
 
   def new(opts) do

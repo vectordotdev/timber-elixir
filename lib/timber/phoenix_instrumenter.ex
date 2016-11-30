@@ -93,7 +93,10 @@ defmodule Timber.PhoenixInstrumenter do
       controller: controller
     )
 
-    Logger.log(log_level, ControllerCallEvent.message(event), timber_event: event)
+    message = ControllerCallEvent.message(event)
+    metadata = Timber.Event.metadata(event)
+
+    Logger.log(log_level, message, metadata)
 
     :ok
   end
@@ -123,13 +126,16 @@ defmodule Timber.PhoenixInstrumenter do
       time_ms: time_ms
     )
 
-    Logger.log(log_level, TemplateRenderEvent.message(event), timber_event: event)
+    message = TemplateRenderEvent.message(event)
+    metadata = Timber.Event.metadata(event)
+
+    Logger.log(log_level, message, metadata)
 
     :ok
   end
 
   @spec get_log_level(atom) :: atom
   defp get_log_level(default) do
-    Application.get_env(:timber, :instrumentation_level, default)
+    Timber.Config.phoenix_instrumentation_level(default)
   end
 end

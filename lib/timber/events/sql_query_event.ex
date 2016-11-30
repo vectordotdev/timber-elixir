@@ -3,8 +3,6 @@ defmodule Timber.Events.SQLQueryEvent do
   The SQL Query event tracks SQL query performance
   """
 
-  @behaviour Timber.Event
-
   @type t :: %__MODULE__{
     sql: String.t,
     time_ms: float

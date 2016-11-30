@@ -29,7 +29,7 @@ defmodule Timber.Logger do
   the configuration.
 
   ### transport_state
-  
+
   The transport state. This is initialized by calling `init/1` on the
   transport with transport configuration data from the application
   config.
@@ -205,6 +205,6 @@ defmodule Timber.Logger do
   # configuration
   @spec get_transport() :: module
   defp get_transport() do
-    Application.get_env(:timber, :transport)
+    Timber.Config.transport()
   end
 end

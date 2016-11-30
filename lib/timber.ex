@@ -21,7 +21,7 @@ defmodule Timber do
   @spec add_context(Context.context_data) :: :ok
   def add_context(data) do
     current_metadata = Elixir.Logger.metadata()
-    current_context = Keyword.get(current_metadata, :timber_context, %{})
+    current_context = Keyword.get(current_metadata, :timber_context, Context.new())
     new_context = Context.add_context(current_context, data)
 
     Elixir.Logger.metadata([timber_context: new_context])
@@ -41,14 +41,11 @@ defmodule Timber do
   # This is the function that starts up the error logger listener
   #
   def start(_type, _opts) do
-    capture_errors = Application.get_env(:timber, :capture_errors, false)
-    disable_tty = Application.get_env(:timber, :disable_kernel_error_tty, capture_errors)
-
-    if capture_errors do
+    if Timber.Config.capture_errors?() do
       :error_logger.add_report_handler(Timber.ErrorLogger)
     end
 
-    if disable_tty do
+    if Timber.Config.disable_tty?() do
       :error_logger.tty(false)
     end
 
