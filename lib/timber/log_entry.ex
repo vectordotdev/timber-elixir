@@ -72,8 +72,9 @@ defmodule Timber.LogEntry do
   """
   @spec to_string!(t, format, Keyword.t) :: IO.chardata
   def to_string!(log_entry, format, options) do
-    map = to_map!(log_entry, options)
-    encode!(format, map)
+    log_entry
+    |> to_map!(options)
+    |> encode!(format)
   end
 
   @spec to_map!(t, Keyword.t) :: map()
@@ -82,8 +83,12 @@ defmodule Timber.LogEntry do
       log_entry
       |> Map.from_struct()
       |> Map.update(:event, nil, fn existing_event ->
+        if existing_event != nil do
           to_api_map(existing_event)
-         end)
+        else
+          existing_event
+        end
+      end)
 
     only = Keyword.get(options, :only, false)
 
@@ -95,8 +100,6 @@ defmodule Timber.LogEntry do
     |> Utils.drop_nil_values()
   end
 
-  defp to_api_map(nil),
-    do: %{}
   defp to_api_map(%Events.ControllerCallEvent{} = event),
     do: %{controller_call: Map.from_struct(event)}
   defp to_api_map(%Events.CustomEvent{type: type, data: data}),
@@ -113,14 +116,13 @@ defmodule Timber.LogEntry do
     do: %{template_render: Map.from_struct(event)}
 
   @spec encode!(format, map) :: IO.chardata
-  defp encode!(:json, value) do
+  defp encode!(value, :json) do
     Poison.encode_to_iodata!(value)
   end
-
   # The logfmt encoding will actually use a pretty-print style
   # of encoding rather than converting the data structure directly to
   # logfmt
-  defp encode!(:logfmt, value) do
+  defp encode!(value, :logfmt) do
     context =
       case Map.get(value, :context) do
         nil -> []
