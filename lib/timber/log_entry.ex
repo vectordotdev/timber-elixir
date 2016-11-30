@@ -81,13 +81,9 @@ defmodule Timber.LogEntry do
     map =
       log_entry
       |> Map.from_struct()
-      |> Map.get_and_update(:event, fn current_event ->
-        if current_event == nil do
-          {current_event, current_event}
-        else
-          {current_event, to_api_map(current_event)}
-        end
-      end)
+      |> Map.update(:event, nil, fn existing_event ->
+          to_api_map(existing_event)
+         end)
 
     only = Keyword.get(options, :only, false)
 
@@ -99,6 +95,8 @@ defmodule Timber.LogEntry do
     |> Utils.drop_nil_values()
   end
 
+  defp to_api_map(nil),
+    do: %{}
   defp to_api_map(%Events.ControllerCallEvent{} = event),
     do: %{controller_call: Map.from_struct(event)}
   defp to_api_map(%Events.CustomEvent{type: type, data: data}),
