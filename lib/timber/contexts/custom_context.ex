@@ -14,6 +14,11 @@ defmodule Timber.Contexts.CustomContext do
       `Poison.Encoder` protocol. That is, anything that can be JSON encoded.
       Example: `%{key: "value"}`.
 
+  ## Example
+
+    %Timber.Contexts.CustomContext{type: :my_custom_context, data: %{"key" => "value"}}
+    |> Timber.add_context()
+
   """
 
   @type t :: %__MODULE__{
