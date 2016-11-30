@@ -16,8 +16,7 @@ defmodule Timber.Events.CustomEvent do
 
   ## Special `data` fields
 
-  These are special fields Timber looks for to enhancement your experience with our interface.
-  For example, if `time_ms` is present we'll display it next to the log line.
+  These are special fields Timber looks for to enhancement your experience with our interface:
 
     * `time_ms` - A fractional float represented the execution time in milliseconds.
       example: `45.6`

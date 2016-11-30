@@ -33,6 +33,14 @@ defmodule Timber.Context do
   Takes an existing context and inserts the new context
   """
   @spec add_context(t, context_data) :: t
+  def add_context(existing_context_map, %Contexts.CustomContext{type: type, data: data} = context_element) do
+    key = type_for_data(context_element)
+    custom_map =
+      existing_context_map
+      |> Map.get(key, %{})
+      |> Map.put(type, data)
+    Map.put(existing_context_map, key, custom_map)
+  end
   def add_context(existing_context_map, context_element) do
     key = type_for_data(context_element)
 
