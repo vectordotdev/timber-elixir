@@ -2,7 +2,7 @@ defmodule Timber.Events.HTTPResponseEvent do
   @moduledoc """
   The HTTP response event tracks outgoing HTTP responses.
 
-  Timber can automatically track response events  if you
+  Timber can automatically track response events if you
   use a `Plug` based framework through `Timber.Plug`.
   """
 

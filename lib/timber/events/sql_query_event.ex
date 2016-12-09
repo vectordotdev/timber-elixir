@@ -1,6 +1,9 @@
 defmodule Timber.Events.SQLQueryEvent do
   @moduledoc """
-  The SQL Query event tracks SQL query performance
+  The SQL Query event tracks SQL query performance.
+
+  Timber can automatically track SQL query events if you
+  use `Ecto` and setup `Timber.Ecto`.
   """
 
   @type t :: %__MODULE__{

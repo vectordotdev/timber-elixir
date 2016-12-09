@@ -1,6 +1,9 @@
 defmodule Timber.Events.TemplateRenderEvent do
   @moduledoc """
-  Tracks the time to render a template
+  Tracks the time to render a template.
+
+  Timber can automatically track template rendering events if you
+  use the Phoenix framework and setup the `Timber.PhoenixInstrumenter`.
   """
 
   @type t :: %__MODULE__{
