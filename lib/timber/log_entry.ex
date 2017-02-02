@@ -101,19 +101,19 @@ defmodule Timber.LogEntry do
   end
 
   defp to_api_map(%Events.ControllerCallEvent{} = event),
-    do: %{controller_call: Map.from_struct(event)}
+    do: %{server_side_app: %{controller_call: Map.from_struct(event)}}
   defp to_api_map(%Events.CustomEvent{type: type, data: data}),
-    do: %{custom: %{type => data}}
+    do: %{server_side_app: %{custom: %{type => data}}}
   defp to_api_map(%Events.ExceptionEvent{} = event),
-    do: %{exception: Map.from_struct(event)}
+    do: %{server_side_app: %{exception: Map.from_struct(event)}}
   defp to_api_map(%Events.HTTPRequestEvent{} = event),
-    do: %{http_request: Map.from_struct(event)}
+    do: %{server_side_app: %{http_request: Map.from_struct(event)}}
   defp to_api_map(%Events.HTTPResponseEvent{} = event),
-    do: %{http_response: Map.from_struct(event)}
+    do: %{server_side_app: %{http_response: Map.from_struct(event)}}
   defp to_api_map(%Events.SQLQueryEvent{} = event),
-    do: %{sql_query: Map.from_struct(event)}
+    do: %{server_side_app: %{sql_query: Map.from_struct(event)}}
   defp to_api_map(%Events.TemplateRenderEvent{} = event),
-    do: %{template_render: Map.from_struct(event)}
+    do: %{server_side_app: %{template_render: Map.from_struct(event)}}
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(value, :json) do
