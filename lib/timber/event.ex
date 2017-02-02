@@ -7,15 +7,17 @@ defmodule Timber.Event do
   alias Timber.Events
 
   @type t ::
-    Events.ControllerCallEvent  |
-    Events.CustomEvent          |
-    Events.ExceptionEvent       |
-    Events.HTTPRequestEvent     |
-    Events.HTTPResponseEvent    |
-    Events.SQLQueryEvent        |
+    Events.ControllerCallEvent     |
+    Events.CustomEvent             |
+    Events.ExceptionEvent          |
+    Events.HTTPClientRequestEvent  |
+    Events.HTTPClientResponseEvent |
+    Events.HTTPServerRequestEvent  |
+    Events.HTTPServerResponseEvent |
+    Events.SQLQueryEvent           |
     Events.TemplateRenderEvent
 
-  def metadata(event) do
+  def to_logger_metadata(event) do
     Keyword.put([], Timber.Config.event_key(), event)
   end
 end

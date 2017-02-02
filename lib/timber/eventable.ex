@@ -93,11 +93,19 @@ defimpl Timber.Eventable, for: Timber.Events.ExceptionEvent do
   def to_event(event), do: event
 end
 
-defimpl Timber.Eventable, for: Timber.Events.HTTPRequestEvent do
+defimpl Timber.Eventable, for: Timber.Events.HTTPClientRequestEvent do
   def to_event(event), do: event
 end
 
-defimpl Timber.Eventable, for: Timber.Events.HTTPResponseEvent do
+defimpl Timber.Eventable, for: Timber.Events.HTTPClientResponseEvent do
+  def to_event(event), do: event
+end
+
+defimpl Timber.Eventable, for: Timber.Events.HTTPServerRequestEvent do
+  def to_event(event), do: event
+end
+
+defimpl Timber.Eventable, for: Timber.Events.HTTPServerResponseEvent do
   def to_event(event), do: event
 end
 

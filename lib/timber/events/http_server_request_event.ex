@@ -1,4 +1,4 @@
-defmodule Timber.Events.HTTPRequestEvent do
+defmodule Timber.Events.HTTPServerRequestEvent do
   @moduledoc """
   The HTTP request event tracks incoming HTTP requests
 
@@ -12,8 +12,8 @@ defmodule Timber.Events.HTTPRequestEvent do
     method: method | nil,
     path: String.t | nil,
     port: pos_integer | nil,
-    scheme: scheme | nil,
-    query_params: %{String.t => String.t} | nil,
+    query_string: String.t | nil,
+    scheme: scheme | nil
   }
 
   @type method :: :connect | :delete | :get | :head | :options | :post | :put | :trace
@@ -28,7 +28,7 @@ defmodule Timber.Events.HTTPRequestEvent do
     user_agent: String.t | nil
   }
 
-  defstruct [:host, :headers, :method, :path, :port, :scheme, :query_params]
+  defstruct [:host, :headers, :method, :path, :port, :query_string, :scheme]
 
   @recognized_headers ~w(
     content-type
@@ -38,6 +38,10 @@ defmodule Timber.Events.HTTPRequestEvent do
     x-request-id
   )
 
+  @doc """
+  Builds a new struct taking care to normalize data into a valid state. This should
+  be used, where possible, instead of creating the struct directly.
+  """
   def new(opts) do
     method = Keyword.get(opts, :method)
     opts = if method do
@@ -51,10 +55,6 @@ defmodule Timber.Events.HTTPRequestEvent do
     end
     struct(__MODULE__, opts)
   end
-
-  @spec message(t) :: IO.chardata
-  def message(%__MODULE__{method: method, path: path}),
-    do: "#{method} #{path}"
 
   @doc """
   Takes a list of two-element tuples representing HTTP request headers and
@@ -71,11 +71,18 @@ defmodule Timber.Events.HTTPRequestEvent do
   defp header_filter(_), do: false
 
   @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
-  defp header_to_keyword({"content-type", content_type}), do: {:content_type, content_type}
-  defp header_to_keyword({"referrer", referrer}), do: {:referrer, referrer}
-  defp header_to_keyword({"user-agent", user_agent}), do: {:user_agent, user_agent}
-  defp header_to_keyword({"remote-addr", ip}), do: {:remote_addr, ip}
   defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
+  defp header_to_keyword({name, value}) do
+    atom_name =
+      name
+      |> String.replace("-", "_")
+      |> String.to_existing_atom()
+    {atom_name, value}
+  end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{method: method, path: path}),
+    do: "#{method} #{path}"
 
   @spec method_from_string(String.t) :: method
   def method_from_string(method) do

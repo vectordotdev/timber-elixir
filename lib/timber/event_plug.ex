@@ -68,7 +68,8 @@ defmodule Timber.EventPlug do
 
   require Logger
 
-  alias Timber.Events.{HTTPRequestEvent, HTTPResponseEvent}
+  alias Timber.Event
+  alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
   alias Timber.PlugUtils
 
   @doc """
@@ -103,26 +104,26 @@ defmodule Timber.EventPlug do
     port = conn.port
     scheme = conn.scheme
     path = conn.request_path
-    headers = HTTPRequestEvent.headers_from_list(request_headers)
-    query_params = conn.query_params
+    headers = HTTPServerRequestEvent.headers_from_list(request_headers)
+    query_string = conn.query_string
 
     method =
       conn.method
       |> String.downcase()
       |> String.to_existing_atom()
 
-    event = HTTPRequestEvent.new(
+    event = HTTPServerRequestEvent.new(
       host: host,
       port: port,
       scheme: scheme,
       method: method,
       path: path,
       headers: headers,
-      query_params: query_params
+      query_string: query_string
     )
 
-    message = HTTPRequestEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    message = HTTPServerRequestEvent.message(event)
+    metadata = Event.to_logger_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -145,17 +146,17 @@ defmodule Timber.EventPlug do
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
     status = Plug.Conn.Status.code(conn.status)
-    headers = HTTPResponseEvent.headers_from_list(conn.resp_headers)
+    headers = HTTPServerResponseEvent.headers_from_list(conn.resp_headers)
 
-    event = HTTPResponseEvent.new(
+    event = HTTPServerResponseEvent.new(
       bytes: bytes,
       headers: headers,
       status: status,
       time_ms: time_ms
     )
 
-    message = HTTPResponseEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    message = HTTPServerResponseEvent.message(event)
+    metadata = Event.to_logger_metadata(event)
 
     Logger.log(log_level, message, metadata)
 

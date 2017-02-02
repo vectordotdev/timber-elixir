@@ -1,4 +1,4 @@
-defmodule Timber.Events.HTTPResponseEvent do
+defmodule Timber.Events.HTTPServerResponseEvent do
   @moduledoc """
   The HTTP response event tracks outgoing HTTP responses.
 
@@ -18,7 +18,8 @@ defmodule Timber.Events.HTTPResponseEvent do
     content_disposition: String.t,
     content_length: non_neg_integer,
     content_type: String.t,
-    location: String.t
+    location: String.t,
+    request_id: String.t
   }
 
   defstruct [:bytes, :headers, :status, :time_ms]
@@ -29,15 +30,16 @@ defmodule Timber.Events.HTTPResponseEvent do
     content_length
     content_type
     location
+    x-request-id
   )
 
+  @doc """
+  Builds a new struct taking care to normalize data into a valid state. This should
+  be used, where possible, instead of creating the struct directly.
+  """
   def new(opts) do
     struct(__MODULE__, opts)
   end
-
-  @spec message(t) :: IO.chardata
-  def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: "Sent #{status} in #{time_ms}ms"
 
   @doc """
   Takes a list of two-element tuples representing HTTP response headers and
@@ -54,5 +56,16 @@ defmodule Timber.Events.HTTPResponseEvent do
   defp header_filter(_), do: false
 
   @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
-  defp header_to_keyword({name, value}), do: {String.to_existing_atom(name), value}
+  defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
+  defp header_to_keyword({name, value}) do
+    atom_name =
+      name
+      |> String.replace("-", "_")
+      |> String.to_existing_atom()
+    {atom_name, value}
+  end
+
+  @spec message(t) :: IO.chardata
+  def message(%__MODULE__{status: status, time_ms: time_ms}),
+    do: "Sent #{status} in #{time_ms}ms"
 end

@@ -106,10 +106,14 @@ defmodule Timber.LogEntry do
     do: %{server_side_app: %{custom: %{type => data}}}
   defp to_api_map(%Events.ExceptionEvent{} = event),
     do: %{server_side_app: %{exception: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPRequestEvent{} = event),
-    do: %{server_side_app: %{http_request: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPResponseEvent{} = event),
-    do: %{server_side_app: %{http_response: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPClientRequestEvent{} = event),
+    do: %{server_side_app: %{http_client_request: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPClientResponseEvent{} = event),
+    do: %{server_side_app: %{http_client_response: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPServerRequestEvent{} = event),
+    do: %{server_side_app: %{http_server_request: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPServerResponseEvent{} = event),
+    do: %{server_side_app: %{http_server_response: Map.from_struct(event)}}
   defp to_api_map(%Events.SQLQueryEvent{} = event),
     do: %{server_side_app: %{sql_query: Map.from_struct(event)}}
   defp to_api_map(%Events.TemplateRenderEvent{} = event),
