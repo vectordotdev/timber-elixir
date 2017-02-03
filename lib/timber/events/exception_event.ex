@@ -52,7 +52,7 @@ defmodule Timber.Events.ExceptionEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{name: name, message: message}),
-    do: [name, ": ", message]
+    do: [name, ?:, ?\s, message]
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)

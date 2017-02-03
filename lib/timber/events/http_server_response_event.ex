@@ -8,7 +8,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   through `Timber.Plug`.
   """
 
-  alias Timber.Events.HTTPUtils
+  alias Timber.Utils
 
   @type t :: %__MODULE__{
     bytes: non_neg_integer,
@@ -47,7 +47,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
     opts =
       opts
       |> Keyword.update(:headers, nil, fn headers ->
-        HTTPUtils.normalize_headers(headers, @recognized_headers)
+        Utils.normalize_headers(headers, @recognized_headers)
       end)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)

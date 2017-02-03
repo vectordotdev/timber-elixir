@@ -8,7 +8,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   `README.md` outlines how to set these up.
   """
 
-  alias Timber.Events.HTTPUtils
+  alias Timber.Utils
 
   @type t :: %__MODULE__{
     host: String.t,
@@ -47,9 +47,9 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:headers, nil, fn headers -> HTTPUtils.normalize_headers(headers, @recognized_headers) end)
-      |> Keyword.update(:method, nil, &HTTPUtils.normalize_method/1)
-      |> Keyword.merge(HTTPUtils.normalize_url(Keyword.get(opts, :url)))
+      |> Keyword.update(:headers, nil, fn headers -> Utils.normalize_headers(headers, @recognized_headers) end)
+      |> Keyword.update(:method, nil, &Utils.normalize_method/1)
+      |> Keyword.merge(Utils.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)

@@ -7,7 +7,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   lifecycle.
   """
 
-  alias Timber.Events.HTTPUtils
+  alias Timber.Utils
 
   @enforce_keys [:status, :time_ms]
   defstruct [:bytes, :headers, :status, :time_ms]
@@ -46,7 +46,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
     opts =
       opts
       |> Keyword.update(:headers, nil, fn headers ->
-        HTTPUtils.normalize_headers(headers, @recognized_headers)
+        Utils.normalize_headers(headers, @recognized_headers)
       end)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
