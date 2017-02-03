@@ -173,7 +173,7 @@ defmodule Timber.Utils do
 
   @doc false
   # Convenience method that checks if the value is an atom and also converts it to a string.
-  def try_atom_to_string(val) when is_atom(method), do: Atom.to_string(method)
+  def try_atom_to_string(val) when is_atom(val), do: Atom.to_string(val)
   def try_atom_to_string(val), do: val
 
 

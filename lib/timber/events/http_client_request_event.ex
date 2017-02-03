@@ -98,7 +98,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
     message = ["Outgoing HTTP request to "]
     message = if service_name,
       do: [message, service_name, " [", method, "] ", Utils.full_path(path, query_string)],
-      else: [message, " [", method, "] ", Utils.full_url(scheme, host, path, port, query_string)]
+      else: [message, "[", method, "] ", Utils.full_url(scheme, host, path, port, query_string)]
     request_id = Map.get(headers || %{}, :request_id)
     message = if request_id,
       do: [message, ", ID ", request_id],

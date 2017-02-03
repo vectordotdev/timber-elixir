@@ -31,4 +31,29 @@ defmodule Timber.Events.HTTPClientRequestEventTest do
       assert result.scheme == "https"
     end
   end
+
+  describe "Timber.Events.HTTPClientRequestEvent.message/1" do
+    test "includes service name, query string, and request id" do
+      headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
+      event = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get,
+        path: "path", port: 12, query_string: "query", scheme: "https", service_name: :service)
+      message = HTTPClientRequestEvent.message(event)
+      assert String.Chars.to_string(message) == "Outgoing HTTP request to service [GET] path?query, ID value"
+    end
+
+    test "service name excluded" do
+      headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
+      event = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get,
+        path: "path", port: 12, query_string: "query", scheme: "https")
+      message = HTTPClientRequestEvent.message(event)
+      assert String.Chars.to_string(message) == "Outgoing HTTP request to [GET] https://host:12path?query, ID value"
+    end
+
+    test "request id excluded" do
+      event = HTTPClientRequestEvent.new(host: "host", method: :get, path: "path", port: 12,
+        query_string: "query", scheme: "https")
+      message = HTTPClientRequestEvent.message(event)
+      assert String.Chars.to_string(message) == "Outgoing HTTP request to [GET] https://host:12path?query"
+    end
+  end
 end
