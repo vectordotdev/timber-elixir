@@ -13,6 +13,9 @@ defmodule Timber.Config do
   def io_device,
     do: Application.get_env(@env_key, :io_device, [])
 
+  def json_decoder,
+    do: Application.get_env(@env_key, :json_decoder, &Poison.encode_to_iodata!/1)
+
   @spec phoenix_instrumentation_level(atom) :: atom
   def phoenix_instrumentation_level(default) do
     Application.get_env(@env_key, :instrumentation_level, default)

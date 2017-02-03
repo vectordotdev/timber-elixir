@@ -106,30 +106,38 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   config :timber, :capture_errors, true
   ```
 
-3. Add the Timber plugs:
+3. Install the Timber plugs:
 
-  Skip if you are not using `Plug`.
+  1. Remove the existing `Plug.Logger`:
 
-  ```elixir
-  # web/router.ex
+    ```elixir
+    # lib/my_app/endpoint.ex
 
-  defmodule MyApp.Router do
-    use MyApp.Web, :router
+    plug Plug.Logger # <--- REMOVE ME
+    ```
 
-    pipeline :logging do
-      plug Timber.Integrations.ContextPlug
-      plug Timber.Integrations.EventPlug
+  2. Add the Timber plugs:
+
+    ```elixir
+    # web/router.ex
+
+    defmodule MyApp.Router do
+      use MyApp.Web, :router
+
+      pipeline :logging do
+        plug Timber.Integrations.ContextPlug
+        plug Timber.Integrations.EventPlug
+      end
+
+      scope "/api", MyApp do
+        pipe_through :logging
+      end
     end
+    ```
 
-    scope "/api", MyApp do
-      pipe_through :logging
-    end
-  end
-  ```
-
-  * To learn more about what each of these plugs are doing, checkout the docs:
-    [Timber.Integrations.ContextPlug](lib/timber/integrations/context_plug.ex) and
-    [Timber.Integrations.EventPlug](lib/timber/integrations/event_plug.ex)
+    * To learn more about what each of these plugs are doing, checkout the docs:
+      [Timber.Integrations.ContextPlug](lib/timber/integrations/context_plug.ex) and
+      [Timber.Integrations.EventPlug](lib/timber/integrations/event_plug.ex)
 
 4. Add Phoenix instrumentation:
 
