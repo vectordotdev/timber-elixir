@@ -10,17 +10,20 @@
 
 Logs are great...when they're structured. And unless your a logging company, designing and
 implementing a structured logging strategy can be a time sink. Not only do you have to deal
-with 3rd party libraries, but you need to agree on a schema and a standard your team will follow.
+with 3rd party libraries, but you need to agree on a schema and a standard your team will adhere
+to across *all* of your apps.
 
-Timber gives you all of this today. *And*, we've built a beautiful modern console designed
-specifically for this data. *And*, we give you *6 months* of retention at a price cheaper than
-any alternative. *And*, we don't charge you extra for the structured data we're encouraging here.
-*And* your data is encrypted with 11 9s of durability. And...so many things!
+Timber gives you this today by automatically structuring and adding context to you logs.
+We also built a beautiful modern console designed specifically for this data. *And*, we
+give you *6 months* of retention at a price cheaper than any alternative. *And*, we don't charge
+you extra for the structured data we're encouraging here. *And* your data is encrypted with
+11 9s of durability. And...so many things!
 
 Timber's goal is to remove *any* barrier that gets in the way of realizing the power of structured
 logging.
 
-To learn more, checkout out [timber.io](https://timber.io) or the ["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
+To learn more, checkout out [timber.io](https://timber.io) or the
+["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
 blog post.
 
 
@@ -28,16 +31,24 @@ blog post.
 
 Out of the box you get everything in the `Timber.Events` namespace:
 
-1. [Controller Calls]()
-2. [Exceptions]()
-3. [Outgoing HTTP requests]()
-4. [Outgoing HTTP responses]()
-5. [Incoming HTTP requests]()
-6. [Incoming HTTP responses]()
-7. [SQL Queries]()
-8. [Template Renders]()
-9. ...more coming! [Make an issue](https://github.com/timberio/timber-elixir/issues) if you'd like
-   to request support for other types.
+1. [Controller Call Event]()
+2. [Exception Event]()
+3. [Outgoing HTTP Request Event]()
+4. [Outgoing HTTP Response Event]()
+5. [Incoming HTTP Request Event]()
+6. [Incoming HTTP Response Event]()
+7. [SQL Query Event]()
+8. [Template Render Event]()
+9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
+
+We also add context to every line, everything in the `Timber.Contexts` namespace:
+
+1. [HTTP Context]()
+2. [Organization Context]()
+3. [Process Context]()
+4. [Server Context]()
+5. [Runtime Context]()
+6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 
 ## What about custom events?
@@ -55,8 +66,7 @@ depending on how strict you want to be with structuring your data.
 2. Log a struct (recommended)
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
-  with down stream consumers and gives you compile time guarantees. It makes a statement that
-  this event means something and that it can relied upon.
+  with down stream consumers and gives you compile time guarantees.
 
   ```elixir
   def PaymentRejectedEvent do

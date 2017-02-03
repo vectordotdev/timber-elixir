@@ -8,19 +8,17 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   `README.md` outlines how to set these up.
   """
 
+  alias Timber.Events.HTTPUtils
+
   @type t :: %__MODULE__{
-    host: String.t | nil,
+    host: String.t,
     headers: headers | nil,
-    method: method | nil,
-    path: String.t | nil,
+    method: String.t,
+    path: String.t,
     port: pos_integer | nil,
     query_string: String.t | nil,
-    scheme: scheme | nil
+    scheme: String.t
   }
-
-  @type method :: :connect | :delete | :get | :head | :options | :post | :put | :trace
-
-  @type scheme :: :https | :http
 
   @type headers :: %{
     content_type: String.t | nil,
@@ -30,7 +28,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
     user_agent: String.t | nil
   }
 
-  @enforce_keys [:host, :method, :path, :port, :scheme]
+  @enforce_keys [:host, :method, :path, :scheme]
   defstruct [:host, :headers, :method, :path, :port, :query_string, :scheme]
 
   @recognized_headers ~w(
@@ -46,50 +44,20 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   be used, where possible, instead of creating the struct directly.
   """
   def new(opts) do
-    method = Keyword.get(opts, :method)
-    opts = if method do
-      normalized_method =
-        method
-        |> Atom.to_string()
-        |> String.upcase()
-      Keyword.put(opts, :method, normalized_method)
-    else
+    opts =
       opts
-    end
-    struct(__MODULE__, opts)
+      |> Keyword.update(:headers, nil, fn headers -> HTTPUtils.normalize_headers(headers, @recognized_headers) end)
+      |> Keyword.update(:method, nil, &HTTPUtils.normalize_method/1)
+      |> Keyword.merge(HTTPUtils.normalize_url(Keyword.get(opts, :url)))
+      |> Keyword.delete(:url)
+      |> Enum.filter(fn {_k,v} -> v != nil end)
+    struct!(__MODULE__, opts)
   end
 
   @doc """
-  Takes a list of two-element tuples representing HTTP request headers and
-  returns a map of the recognized headers Timber handles
+  Message to be used when logging.
   """
-  @spec headers_from_list([{String.t, String.t}]) :: headers
-  def headers_from_list(headers) do
-    Enum.filter_map(headers, &header_filter/1, &header_to_keyword/1)
-    |> Enum.into(%{})
-  end
-
-  @spec headers_from_list({String.t, String.t}) :: boolean
-  defp header_filter({name, _}) when name in @recognized_headers, do: true
-  defp header_filter(_), do: false
-
-  @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
-  defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
-  defp header_to_keyword({name, value}) do
-    atom_name =
-      name
-      |> String.replace("-", "_")
-      |> String.to_existing_atom()
-    {atom_name, value}
-  end
-
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{method: method, path: path}),
     do: [method, " ", path]
-
-  @spec method_from_string(String.t) :: method
-  def method_from_string(method) do
-    String.downcase(method)
-    |> String.to_existing_atom()
-  end
 end

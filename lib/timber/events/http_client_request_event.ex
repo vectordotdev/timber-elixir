@@ -21,31 +21,27 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   """
 
-  alias Timber.Events.HTTP
+  alias Timber.Events.HTTPUtils
+
+  @enforce_keys [:host, :method, :path, :scheme]
+  defstruct [:headers, :host, :method, :path, :port, :query_string, :scheme, :service_name]
+
+  @type t :: %__MODULE__{
+    headers: headers | nil,
+    host: String.t,
+    method: String.t,
+    path: String.t,
+    port: pos_integer | nil,
+    query_string: String.t | nil,
+    scheme: String.t,
+    service_name: String.t | nil
+  }
 
   @type headers :: %{
     accept: String.t | nil,
     content_type: String.t | nil,
     request_id: String.t | nil,
     user_agent: String.t | nil
-  }
-  @type host :: String.t
-  @type method :: String.t
-  @type path :: String.t
-  @type http_port :: pos_integer
-  @type query_string :: String.t | nil
-  @type scheme :: :http | :https
-  @type service_name :: String.t
-
-  @type t :: %__MODULE__{
-    headers: headers | nil,
-    host: host,
-    method: method,
-    path: path,
-    port: http_port,
-    query_string: query_string,
-    scheme: scheme,
-    service_name: service_name | nil
   }
 
   @recognized_headers ~w(
@@ -55,78 +51,28 @@ defmodule Timber.Events.HTTPClientRequestEvent do
     x-request-id
   )
 
-  @enforce_keys [:host, :method, :path, :port, :scheme, :service_name]
-  defstruct [:headers, :host, :method, :path, :port, :scheme, :service_name, :query_string]
-
-  # Constructs a full path from the given parts
-  defp full_path(%__MODULE__{path: path, query_string: query_string}) do
-    %URI{path: path, query: query_string}
-    |> URI.to_string()
-  end
-
   @doc """
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
   """
   def new(opts) do
-    url = Keyword.get(opts, :url)
-    opts = if url do
-      uri = URI.parse(url)
+    opts =
       opts
-      |> Keyword.merge([
-        host: uri.host,
-        path: uri.path,
-        query_string: uri.query,
-        scheme: uri.schema
-      ])
+      |> Keyword.update(:headers, nil, fn headers -> HTTPUtils.normalize_headers(headers, @recognized_headers) end)
+      |> Keyword.update(:method, nil, &HTTPUtils.normalize_method/1)
+      |> Keyword.merge(HTTPUtils.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
-    else
-      opts
-    end
-
-    method = Keyword.get(opts, :method)
-    opts = if method do
-      Keyword.put(opts, :method, HTTP.normalize_method(method))
-    else
-      opts
-    end
-    struct(__MODULE__, opts)
+      |> Enum.filter(fn {_k,v} -> v != nil end)
+    struct!(__MODULE__, opts)
   end
 
   @doc """
-  Takes a list of two-element tuples representing HTTP request headers and
-  returns a map of the recognized headers Timber handles
-  """
-  @spec headers_from_list([{String.t, String.t}]) :: headers
-  def headers_from_list(headers) do
-    Enum.filter_map(headers, &header_filter/1, &header_to_keyword/1)
-    |> Enum.into(%{})
-  end
-
-  @spec headers_from_list({String.t, String.t}) :: boolean
-  defp header_filter({name, _}) when name in @recognized_headers, do: true
-  defp header_filter(_), do: false
-
-  @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
-  defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
-  defp header_to_keyword({name, value}) do
-    atom_name =
-      name
-      |> String.replace("-", "_")
-      |> String.to_existing_atom()
-    {atom_name, value}
-  end
-
-  @doc """
-  Default message used when logging this event.
+  Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{method: method, service_name: service_name} = event),
-    do: ["Outgoing HTTP request to ", service_name, " [", method, "] ", full_path(event)]
-
-  @spec method_from_string(String.t) :: method
-  def method_from_string(method) do
-    String.downcase(method)
-    |> String.to_existing_atom()
-  end
+  def message(%__MODULE__{method: method, path: path, query_string: query_string,
+    service_name: service_name}) when not is_nil(service_name),
+    do: ["Outgoing HTTP request to ", service_name, " [", method, "] ", HTTPUtils.full_path(path, query_string)]
+  def message(%__MODULE__{method: method, path: path, query_string: query_string}),
+    do: ["Outgoing HTTP request to [", method, "] ", HTTPUtils.full_path(path, query_string)]
 end

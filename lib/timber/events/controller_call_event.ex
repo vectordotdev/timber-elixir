@@ -15,6 +15,9 @@ defmodule Timber.Events.ControllerCallEvent do
     :controller
   ]
 
+  @doc """
+  Message to be used when logging.
+  """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{action: action, controller: controller}) do
     ["Processing by ", controller, ?., action]

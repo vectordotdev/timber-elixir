@@ -15,6 +15,9 @@ defmodule Timber.Events.SQLQueryEvent do
   @enforce_keys [:sql, :time_ms]
   defstruct [:sql, :time_ms]
 
+  @doc """
+  Message to be used when logging.
+  """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{sql: sql, time_ms: time_ms}),
     do: ["Processed ", sql, " in ", time_ms, "ms"]

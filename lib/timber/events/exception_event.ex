@@ -47,6 +47,9 @@ defmodule Timber.Events.ExceptionEvent do
     }
   end
 
+  @doc """
+  Message to be used when logging.
+  """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{name: name, message: message}),
     do: [name, ": ", message]

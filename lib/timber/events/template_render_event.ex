@@ -19,7 +19,7 @@ defmodule Timber.Events.TemplateRenderEvent do
   ]
 
   @doc """
-  Returns a message to be used for logging.
+  Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{name: name, time_ms: time_ms}),

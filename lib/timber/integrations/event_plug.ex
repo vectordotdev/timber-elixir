@@ -70,7 +70,7 @@ defmodule Timber.Integrations.EventPlug do
 
   alias Timber.Event
   alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
-  alias Timber.PlugUtils
+  alias Timber.Integrations.PlugUtils
 
   @doc """
   Prepares the given options for use in a plug pipeline
@@ -98,19 +98,13 @@ defmodule Timber.Integrations.EventPlug do
     client_ip = PlugUtils.get_client_ip(conn)
     remote_addr = {"remote-addr", client_ip}
 
-    request_headers = [request_id, remote_addr | conn.req_headers]
-
+    method = conn.method
     host = conn.host
     port = conn.port
     scheme = conn.scheme
     path = conn.request_path
-    headers = HTTPServerRequestEvent.headers_from_list(request_headers)
+    headers = [request_id, remote_addr | conn.req_headers]
     query_string = conn.query_string
-
-    method =
-      conn.method
-      |> String.downcase()
-      |> String.to_existing_atom()
 
     event = HTTPServerRequestEvent.new(
       host: host,
@@ -146,7 +140,7 @@ defmodule Timber.Integrations.EventPlug do
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
     status = Plug.Conn.Status.code(conn.status)
-    headers = HTTPServerResponseEvent.headers_from_list(conn.resp_headers)
+    headers = conn.resp_headers
 
     event = HTTPServerResponseEvent.new(
       bytes: bytes,
