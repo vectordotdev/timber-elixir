@@ -42,6 +42,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
   """
+  @spec new(Keyword.t) :: t
   def new(opts) do
     opts =
       opts

@@ -41,6 +41,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
   """
+  @spec new(Keyword.t) :: t
   def new(opts) do
     opts =
       opts
@@ -49,6 +50,15 @@ defmodule Timber.Events.HTTPClientResponseEvent do
       end)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
+  end
+
+  @doc """
+  Convenience methods for creating an event and getting the message at the same time.
+  """
+  @spec new_with_message(Keyword.t) :: {t, IO.chardata}
+  def new_with_message(opts) do
+    event = new(opts)
+    {event, message(event)}
   end
 
   @doc """

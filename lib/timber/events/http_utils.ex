@@ -9,6 +9,13 @@ defmodule Timber.Events.HTTPUtils do
   end
 
   @doc false
+  # Constructs a full path from the given parts
+  def full_url(scheme, host, path, port, query_string) do
+    %URI{scheme: scheme, host: host, path: path, port: port, query: query_string}
+    |> URI.to_string()
+  end
+
+  @doc false
   # Normalizes a URL into a Keyword.t that maps to our HTTP event fields.
   def normalize_url(url) when is_binary(url) do
     uri = URI.parse(url)
@@ -20,7 +27,7 @@ defmodule Timber.Events.HTTPUtils do
       scheme: uri.scheme
     ]
   end
-  def normalize_url(url), do: []
+  def normalize_url(_url), do: []
 
   @doc false
   # Normalizes HTTP methods into a value expected by the Timber API.

@@ -7,17 +7,22 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   ## Hackney Example
 
-    iex> req_method = :get
-    iex> req_url = "https://some.api.com/path?query=1"
-    iex> req_headers = [{"Accept", "application/json"}]
-    iex> req_event = Timber.Events.HTTPClientRequestEvent.new(method: req_method, url: req_url, headers: req_headers)
-    iex> message = Timber.Events.HTTPClientRequestEvent.message(req_event)
-    iex> Logger.info message, event: req_event
-    iex> timer = Timber.Timer.start()
-    iex> {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
-    iex> resp_event = Timber.Events.HTTPClientResponseEvent.new(bytes: 200, headers: headers, status: status, timer: timer)
-    iex> message = Timber.Events.HTTPClientResponseEvent.message(resp_event)
-    iex> Logger.info message, event: resp_event
+    req_method = :get
+    req_url = "https://some.api.com/path?query=1"
+    req_headers = [{"Accept", "application/json"}]
+
+    # Log the outgoing request
+    {req_event, req_message} = Timber.Events.HTTPClientRequestEvent.new_with_message(method: req_method, url: req_url, headers: req_headers)
+    Logger.info req_message, event: req_event
+
+    # Make the request
+    timer = Timber.Timer.start()
+    {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
+
+    # Log the response
+    {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(bytes: 200,
+      headers: headers, status: status, timer: timer)
+    Logger.info resp_message, event: resp_event
 
   """
 
@@ -55,6 +60,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
   """
+  @spec new(Keyword.t) :: t
   def new(opts) do
     opts =
       opts
@@ -67,12 +73,22 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   end
 
   @doc """
+  Convenience methods for creating an event and getting the message at the same time.
+  """
+  @spec new_with_message(Keyword.t) :: {t, IO.chardata}
+  def new_with_message(opts) do
+    event = new(opts)
+    {event, message(event)}
+  end
+
+  @doc """
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{method: method, path: path, query_string: query_string,
     service_name: service_name}) when not is_nil(service_name),
     do: ["Outgoing HTTP request to ", service_name, " [", method, "] ", HTTPUtils.full_path(path, query_string)]
-  def message(%__MODULE__{method: method, path: path, query_string: query_string}),
-    do: ["Outgoing HTTP request to [", method, "] ", HTTPUtils.full_path(path, query_string)]
+  def message(%__MODULE__{host: host, method: method, path: path, port: port,
+    query_string: query_string, scheme: scheme}),
+    do: ["Outgoing HTTP request to [", method, "] ", HTTPUtils.full_url(scheme, host, path, port, query_string)]
 end

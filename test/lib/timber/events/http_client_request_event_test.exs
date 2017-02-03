@@ -1,5 +1,6 @@
 defmodule Timber.Events.HTTPClientRequestEventTest do
   use Timber.TestCase
+  doctest Timber.Events.HTTPClientRequestEvent
 
   alias Timber.Events.HTTPClientRequestEvent
 
