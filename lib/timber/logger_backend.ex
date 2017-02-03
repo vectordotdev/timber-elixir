@@ -11,6 +11,8 @@ defmodule Timber.LoggerBackend do
   asynchronous or synchronous.
   """
   use GenEvent
+
+  alias Timber.Contexts.RuntimeContext
   alias Timber.LogEntry
   alias Timber.Transport
 
@@ -178,6 +180,13 @@ defmodule Timber.LoggerBackend do
   @spec output_event(timestamp, level, IO.chardata, Keyword.t, t) :: t
   defp output_event(ts, level, message, metadata, state) do
     %{transport: transport, transport_state: transport_state} = state
+
+    module = Keyword.get(metadata, :module)
+    fun = Keyword.get(metadata, :function)
+    file = Keyword.get(metadata, :file)
+    line = Keyword.get(metadata, :file)
+    %RuntimeContext{module: module, function: fun, file: file, line: line}
+    |> Timber.add_context()
 
     log_entry = LogEntry.new(ts, level, message, metadata)
 
