@@ -1,10 +1,10 @@
 defmodule Timber.Events.ExceptionEvent do
   @moduledoc """
-  The exception event is used to track exceptions.
+  The `ExceptionEvent` is used to track exceptions.
 
   Timber can automatically keep track of errors reported by the VM by hooking
   into the SASL reporting system to collect exception information, so it should
-  be unnecessary to track exceptions manually. See `Timber.ErrorLogger` for
+  be unnecessary to track exceptions manually. See `Timber.Integrations.ErrorLogger` for
   more details.
   """
 
@@ -29,8 +29,13 @@ defmodule Timber.Events.ExceptionEvent do
     message: String.t,
   }
 
+  @enforce_keys [:backtrace, :name, :message]
   defstruct [:backtrace, :name, :message]
 
+  @doc """
+  Builds a new struct taking care to normalize data into a valid state. This should
+  be used, where possible, instead of creating the struct directly.
+  """
   @spec new(atom | Exception.t, [stacktrace_entry] | []) :: t
   def new(error, stacktrace \\ []) do
     {name, message} = transform_error(error)
@@ -42,9 +47,12 @@ defmodule Timber.Events.ExceptionEvent do
     }
   end
 
+  @doc """
+  Message to be used when logging.
+  """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{name: name, message: message}),
-    do: "#{name}: #{message}"
+    do: [name, ?:, ?\s, message]
 
   defp transform_error(error) when is_atom(error) do
     name = inspect(error)

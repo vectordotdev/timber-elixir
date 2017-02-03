@@ -1,6 +1,6 @@
-defmodule Timber.Logger do
+defmodule Timber.LoggerBackend do
   @moduledoc """
-  The Logger module is at the heart of Timber's integration. It specifies
+  The LoggerBackend module is at the heart of Timber's integration. It specifies
   a backend that can be used with the standard `Logger` application distributed
   with Elixir.
 
@@ -81,7 +81,7 @@ defmodule Timber.Logger do
   # Initializes the GenEvent system for this module. This
   # will be called by the Elixir `Logger` module when it
   # to add Timber as a logger backend.
-  @spec init(Elixir.Timber.Logger) :: {:ok, t}
+  @spec init(LoggerBackend) :: {:ok, t}
   def init(__MODULE__) do
     transport = get_transport()
 

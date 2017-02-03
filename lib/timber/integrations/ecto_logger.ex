@@ -1,6 +1,6 @@
-defmodule Timber.Ecto do
+defmodule Timber.Integrations.EctoLogger do
   @moduledoc """
-  Timber integration for Ecto
+  Timber integration for Ecto.
 
   Timber can hook into Ecto's logging system to gather information
   about queries including the text of the query and the time
@@ -17,14 +17,14 @@ defmodule Timber.Ecto do
   you will want to make sure it isn't in the list when using this
   event collector.
 
-  The tuple for Timber's event collector is `{Timber.Ecto, :log, []}`.
+  The tuple for Timber's event collector is `{Timber.Integrations.EctoLogger, :log, []}`.
   Many applications will have only one repository named `Repo`, which
   makes adding this easy. For example, to add it to the repository
   `MyApp.Repo`:
 
   ```elixir
   config :my_app, MyApp.Repo,
-    loggers: [{Timber.Ecto, :log, []}]
+    loggers: [{Timber.Integrations.EctoLogger, :log, []}]
   ```
 
   By default, queries are logged at the `:debug` level. If you want
@@ -34,7 +34,7 @@ defmodule Timber.Ecto do
 
   ```elixir
   config :my_app, MyApp.Repo,
-    loggers: [{Timber.Ecto, :log, [:info]}]
+    loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
   ```
 
   ### Timing
@@ -67,19 +67,19 @@ defmodule Timber.Ecto do
   which is then logged at the designated level.
   """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
-  def log(%Ecto.LogEntry{query: query, query_time: time_native} = entry, level) do
+  def log(%{query: query, query_time: time_native} = entry, level) do
     query_text = resolve_query(query, entry)
     # The time is given in native units which the VM determines. We have
     # to convert them to the desired unit
     time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
 
-    event = SQLQueryEvent.new(
+    event = %SQLQueryEvent{
       sql: query_text,
       time_ms: time_ms
-    )
+    }
 
     message = SQLQueryEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    metadata = Timber.Event.to_logger_metadata(event)
 
     Logger.log(level, message, metadata)
 

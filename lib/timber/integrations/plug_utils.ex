@@ -1,4 +1,4 @@
-defmodule Timber.PlugUtils do
+defmodule Timber.Integrations.PlugUtils do
   @doc """
   Fetches the request ID from the connection using the given header name
 
@@ -38,17 +38,15 @@ defmodule Timber.PlugUtils do
   defp handle_request_id([]) do
     []
   end
-
   defp handle_request_id([request_id | _]) do
     [{"x-request-id", request_id}]
   end
 
   @spec get_client_ip(Plug.Conn.t) :: String.t | nil
-  def get_client_ip(%Plug.Conn{remote_ip: nil}) do
+  def get_client_ip(%{remote_ip: nil}) do
     nil
   end
-
-  def get_client_ip(%Plug.Conn{remote_ip: remote_ip}) do
+  def get_client_ip(%{remote_ip: remote_ip}) do
     remote_ip
     |> :inet.ntoa()
     |> List.to_string()

@@ -22,12 +22,13 @@ defmodule Timber.Timer do
   this by passing a new precision as the second argument.
   """
   def duration_ms(timer, precision \\ @precision) do
-    difference = System.monotonic_time() - timer
-    difference
+    (System.monotonic_time() - timer)
     |> System.convert_time_unit(:native, :nanoseconds)
     |> divide_by_milliseconds()
     |> Float.round(precision)
   end
 
-  defp divide_by_milliseconds(time), do: time / 1_000_000
+  defp divide_by_milliseconds(time) do
+    time / 1_000_000
+  end
 end

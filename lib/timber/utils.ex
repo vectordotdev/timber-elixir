@@ -2,7 +2,8 @@ defmodule Timber.Utils do
   @moduledoc """
   Utility functions for Timber
   """
-  alias Timber.Logger
+
+  alias Timber.LoggerBackend
 
   @doc """
   Drops any `nil` values from the given map
@@ -23,7 +24,7 @@ defmodule Timber.Utils do
   @doc """
   Returns the current date and time in UTC including fractional portions of a second
   """
-  @spec now() :: Logger.timestamp
+  @spec now() :: LoggerBackend.timestamp
   def now() do
     now = DateTime.utc_now()
 
@@ -47,7 +48,7 @@ defmodule Timber.Utils do
   have no precision. In this case, the fractional seconds will be left off
   entirely, resulting in the following format: `YYYY-MM-DDTHH:MM:SSZ`.
   """
-  @spec format_timestamp(Logger.timestamp) :: IO.chardata
+  @spec format_timestamp(LoggerBackend.timestamp) :: IO.chardata
   # If the precision for timekeeping of fractional seconds is 0, drop
   # the fractional portion
   def format_timestamp({date, {_, _, _, {_microseconds, 0}} = time}) do
@@ -71,13 +72,13 @@ defmodule Timber.Utils do
   end
 
   # Common functionality for formatting a date as YYYY-MM-DD
-  @spec format_date(Logger.date) :: IO.chardata
+  @spec format_date(LoggerBackend.date) :: IO.chardata
   defp format_date({year, month, day}) do
     [Integer.to_string(year), ?-, pad2(month), ?-, pad2(day)]
   end
 
   # Common functionality for formatting time as HH:MM:SS
-  @spec format_time(Logger.time) :: IO.chardata
+  @spec format_time(LoggerBackend.time) :: IO.chardata
   defp format_time({hours, minutes, seconds, _}) do
     [pad2(hours), ?:, pad2(minutes), ?:, pad2(seconds)]
   end
@@ -116,4 +117,69 @@ defmodule Timber.Utils do
   defp pad6(int) when int < 10000,  do: [?0, ?0, Integer.to_string(int)]
   defp pad6(int) when int < 100000, do: [?0, Integer.to_string(int)]
   defp pad6(int), do: Integer.to_string(int)
+
+  @doc false
+  # Constructs a full path from the given parts
+  def full_path(path, query_string) do
+    %URI{path: path, query: query_string}
+    |> URI.to_string()
+  end
+
+  @doc false
+  # Constructs a full path from the given parts
+  def full_url(scheme, host, path, port, query_string) do
+    %URI{scheme: scheme, host: host, path: path, port: port, query: query_string}
+    |> URI.to_string()
+  end
+
+  @doc false
+  # Normalizes a URL into a Keyword.t that maps to our HTTP event fields.
+  def normalize_url(url) when is_binary(url) do
+    uri = URI.parse(url)
+    [
+      host: uri.authority,
+      path: uri.path,
+      port: uri.port,
+      query_string: uri.query,
+      scheme: uri.scheme
+    ]
+  end
+  def normalize_url(_url), do: []
+
+  @doc false
+  # Normalizes HTTP methods into a value expected by the Timber API.
+  def normalize_method(method) when is_atom(method) do
+    method
+    |> Atom.to_string()
+    |> normalize_method()
+  end
+  def normalize_method(method) when is_binary(method), do: String.upcase(method)
+  def normalize_method(method), do: method
+
+  @doc false
+  # Normalizes HTTP headers into a structure expected by the Timber API.
+  def normalize_headers(headers, allowed_keys) when is_list(headers) do
+    headers
+    |> List.flatten()
+    |> Enum.into(%{})
+    |> normalize_headers(allowed_keys)
+  end
+  def normalize_headers(headers, allowed_keys) when is_map(headers) do
+    headers
+    |> Enum.filter_map(fn {k,_v} -> k in allowed_keys end, &header_to_keyword/1)
+    |> Enum.into(%{})
+  end
+  def normalize_headers(headers), do: headers
+
+  @doc false
+  # Converts header key value pairs into a structure expected by the Timber API.
+  @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
+  defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}
+  defp header_to_keyword({name, value}) do
+    atom_name =
+      name
+      |> String.replace("-", "_")
+      |> String.to_existing_atom()
+    {atom_name, value}
+  end
 end

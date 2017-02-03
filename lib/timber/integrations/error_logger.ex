@@ -1,6 +1,6 @@
-defmodule Timber.ErrorLogger do
+defmodule Timber.Integrations.ErrorLogger do
   @moduledoc """
-  Handles error reports from the `:error_logger` application
+  Handles error reports from the `:error_logger` application.
 
   Timber can automatically log the exceptions that occur in your
   application as exception events with all the necessary metadata
@@ -90,7 +90,7 @@ defmodule Timber.ErrorLogger do
         message = ExceptionEvent.message(event)
         metadata =
           event
-          |> Timber.Event.metadata()
+          |> Timber.Event.to_logger_metadata()
           |> Keyword.put(:timber_context, context)
 
         Logger.error(message, metadata)
@@ -106,7 +106,7 @@ defmodule Timber.ErrorLogger do
     event = ExceptionEvent.new(error, stacktrace)
 
     message = ExceptionEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    metadata = Timber.Event.to_logger_metadata(event)
 
     Logger.error(message, metadata)
 

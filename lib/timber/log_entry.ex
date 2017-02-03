@@ -3,7 +3,7 @@ defmodule Timber.LogEntry do
   The LogEntry module formalizes the structure of every log entry.
 
   When a log is produced, it is converted to this intermediary form
-  by the `Timber.Logger` module before being passed on to the desired
+  by the `Timber.LoggerBackend` module before being passed on to the desired
   transport. Each transport implements a `write/2` function as defined
   by the `Timber.Transport.write/2` behaviour. Inside of this function,
   the transport is responsible for formatting the data contained in a
@@ -15,7 +15,7 @@ defmodule Timber.LogEntry do
   """
 
   alias Timber.Context
-  alias Timber.Logger
+  alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
   alias Timber.Events
@@ -26,8 +26,8 @@ defmodule Timber.LogEntry do
 
   @type t :: %__MODULE__{
     dt: IO.chardata,
-    level: Logger.level,
-    message: Logger.message,
+    level: LoggerBackend.level,
+    message: LoggerBackend.message,
     context: Context.t,
     event: Event.t | nil
   }
@@ -42,7 +42,7 @@ defmodule Timber.LogEntry do
   to fill the context for the log entry. Otherwise, a blank context
   will be used.
   """
-  @spec new(Logger.timestamp, Logger.level, Logger.message, Keyword.t) :: t
+  @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
     io_timestamp =
       Timber.Utils.format_timestamp(timestamp)
@@ -101,23 +101,27 @@ defmodule Timber.LogEntry do
   end
 
   defp to_api_map(%Events.ControllerCallEvent{} = event),
-    do: %{controller_call: Map.from_struct(event)}
+    do: %{server_side_app: %{controller_call: Map.from_struct(event)}}
   defp to_api_map(%Events.CustomEvent{type: type, data: data}),
-    do: %{custom: %{type => data}}
+    do: %{server_side_app: %{custom: %{type => data}}}
   defp to_api_map(%Events.ExceptionEvent{} = event),
-    do: %{exception: Map.from_struct(event)}
-  defp to_api_map(%Events.HTTPRequestEvent{} = event),
-    do: %{http_request: Map.from_struct(event)}
-  defp to_api_map(%Events.HTTPResponseEvent{} = event),
-    do: %{http_response: Map.from_struct(event)}
+    do: %{server_side_app: %{exception: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPClientRequestEvent{} = event),
+    do: %{server_side_app: %{http_client_request: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPClientResponseEvent{} = event),
+    do: %{server_side_app: %{http_client_response: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPServerRequestEvent{} = event),
+    do: %{server_side_app: %{http_server_request: Map.from_struct(event)}}
+  defp to_api_map(%Events.HTTPServerResponseEvent{} = event),
+    do: %{server_side_app: %{http_server_response: Map.from_struct(event)}}
   defp to_api_map(%Events.SQLQueryEvent{} = event),
-    do: %{sql_query: Map.from_struct(event)}
+    do: %{server_side_app: %{sql_query: Map.from_struct(event)}}
   defp to_api_map(%Events.TemplateRenderEvent{} = event),
-    do: %{template_render: Map.from_struct(event)}
+    do: %{server_side_app: %{template_render: Map.from_struct(event)}}
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(value, :json) do
-    Poison.encode_to_iodata!(value)
+    Timber.Config.json_decoder().(value)
   end
   # The logfmt encoding will actually use a pretty-print style
   # of encoding rather than converting the data structure directly to

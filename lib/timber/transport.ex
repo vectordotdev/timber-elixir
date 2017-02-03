@@ -1,9 +1,9 @@
 defmodule Timber.Transport do
   @moduledoc """
-  A Transport specifies the way in which `Timber.Logger` should actually output
+  A Transport specifies the way in which `Timber.LoggerBackend` should actually output
   log events.
 
-  While the `Timber.Logger` module will handle receiving and processing log events,
+  While the `Timber.LoggerBackend` module will handle receiving and processing log events,
   the process of actually outputting them is left to the trasnport. The transport
   is also responsible for managing any necessary buffers and switching between
   syncrhonous and asynchronous output.
@@ -45,7 +45,7 @@ defmodule Timber.Transport do
   @callback write(LogEntry.t, state) :: {:ok, state} | no_return
 
   @doc """
-  Handles `handle_info` process messaging forwarded from `Timber.Logger`
+  Handles `handle_info` process messaging forwarded from `Timber.LoggerBackend`
 
   It is expected that your transport at least return `{:ok, state}` for
   any given `info`.

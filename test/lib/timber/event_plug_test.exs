@@ -1,17 +1,17 @@
-defmodule Timber.EventPlugTest do
-#  use ExUnit.Case, async: false
+defmodule Timber.Integrations.EventPlugTest do
+#  use Timber.TestCase, async: false
 #  use Plug.Test
 #
 #  import ExUnit.CaptureIO
 #
 #  require Logger
 #
-#  describe "Timber.EventPlug.call/2" do
+#  describe "Timber.Integrations.EventPlug.call/2" do
 #    test "logs an incoming HTTP request event" do
 #      conn = generate_conn(:get, [])
 #
 #      log_msg = capture_io(:user, fn ->
-#        Timber.EventPlug.call(conn, [])
+#        Timber.Integrations.EventPlug.call(conn, [])
 #      end)
 #
 #      {_, metadata} = Timber.TestHelpers.parse_log_line(log_msg)
@@ -34,7 +34,7 @@ defmodule Timber.EventPlugTest do
 #      conn = generate_conn(:get, [request_id_header: "req-id"])
 #
 #      log_msg = capture_io(fn ->
-#        Timber.EventPlug.call(conn, [request_id_header: "req-id"])
+#        Timber.Integrations.EventPlug.call(conn, [request_id_header: "req-id"])
 #      end)
 #
 #      {_, metadata} = Timber.TestHelpers.parse_log_line(log_msg)
@@ -48,7 +48,7 @@ defmodule Timber.EventPlugTest do
 #
 #    test "logs an HTTP response event" do
 #      generate_conn(:get, [])
-#      |> Timber.EventPlug.call([])
+#      |> Timber.Integrations.EventPlug.call([])
 #      |> Plug.Conn.send_resp(200, "")
 #
 #      metadata = Logger.metadata()
@@ -84,7 +84,7 @@ defmodule Timber.EventPlugTest do
 #              58, [34, ["server"], 34]], 125]], 93]], 125]
 #
 #      generate_conn(:get, [])
-#      |> Timber.EventPlug.call([])
+#      |> Timber.Integrations.EventPlug.call([])
 #      |> Plug.Conn.send_resp(200, response_body)
 #
 #      metadata = Logger.metadata()

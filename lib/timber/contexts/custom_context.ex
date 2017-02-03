@@ -10,8 +10,7 @@ defmodule Timber.Contexts.CustomContext do
 
     * `type` - (atom, required) This is the type of your context. It should be something unique
       and unchanging. It will be used to identify this content. Example: `:my_context`.
-    * `data` - (map, optional) A map of data. This can be anything that implements the
-      `Poison.Encoder` protocol. That is, anything that can be JSON encoded.
+    * `data` - (map, optional) A map of data. This can be anything that can be JSON encoded.
       Example: `%{key: "value"}`.
 
   ## Example
