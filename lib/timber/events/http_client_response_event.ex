@@ -10,10 +10,9 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   alias Timber.Utils
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:bytes, :headers, :status, :time_ms]
+  defstruct [:headers, :status, :time_ms]
 
   @type t :: %__MODULE__{
-    bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
     time_ms: float
