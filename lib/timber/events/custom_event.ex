@@ -60,16 +60,11 @@ defmodule Timber.Events.CustomEvent do
 
   defmacro __using__(opts) do
     quote do
-      type = Keyword.get(unquote(opts), :type, __MODULE__)
-
-      @behaviour Timber.Event
-
-      def for_logger
-
       defimpl Timber.Eventable, for: __MODULE__ do
         def to_event(event) do
+          type = Keyword.get(unquote(opts), :type, __MODULE__)
           data = Map.from_struct(event)
-          %Timber.Events.CustomEvent.new{type: type, data: data}
+          %Timber.Events.CustomEvent{type: type, data: data}
         end
       end
     end

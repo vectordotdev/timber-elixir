@@ -1,5 +1,5 @@
 defmodule Timber.Integrations.EventPlugTest do
-#  use ExUnit.Case, async: false
+#  use Timber.TestCase, async: false
 #  use Plug.Test
 #
 #  import ExUnit.CaptureIO
