@@ -3,7 +3,7 @@ defmodule Timber.LogEntry do
   The LogEntry module formalizes the structure of every log entry.
 
   When a log is produced, it is converted to this intermediary form
-  by the `Timber.Logger` module before being passed on to the desired
+  by the `Timber.LoggerBackend` module before being passed on to the desired
   transport. Each transport implements a `write/2` function as defined
   by the `Timber.Transport.write/2` behaviour. Inside of this function,
   the transport is responsible for formatting the data contained in a
@@ -15,7 +15,7 @@ defmodule Timber.LogEntry do
   """
 
   alias Timber.Context
-  alias Timber.Logger
+  alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
   alias Timber.Events
@@ -26,8 +26,8 @@ defmodule Timber.LogEntry do
 
   @type t :: %__MODULE__{
     dt: IO.chardata,
-    level: Logger.level,
-    message: Logger.message,
+    level: LoggerBackend.level,
+    message: LoggerBackend.message,
     context: Context.t,
     event: Event.t | nil
   }
@@ -42,7 +42,7 @@ defmodule Timber.LogEntry do
   to fill the context for the log entry. Otherwise, a blank context
   will be used.
   """
-  @spec new(Logger.timestamp, Logger.level, Logger.message, Keyword.t) :: t
+  @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
     io_timestamp =
       Timber.Utils.format_timestamp(timestamp)

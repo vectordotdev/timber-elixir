@@ -1,4 +1,4 @@
-defmodule Timber.EventPlug do
+defmodule Timber.Integrations.EventPlug do
   @moduledoc """
   Automatically logs metadata information about HTTP requests
   and responses in Plug-based frameworks like Phoenix.
@@ -7,12 +7,12 @@ defmodule Timber.EventPlug do
   adding this plug to your pipeline will automatically create events
   for incoming HTTP requests and responses for your log statements.
 
-  Note: If you're using `Timber.ContextPlug`, that plug should come before
-  `Timber.EventPlug` in any pipeline. This will give you the best results.
+  Note: If you're using `Timber.Integrations.ContextPlug`, that plug should come before
+  `Timber.Integrations.EventPlug` in any pipeline. This will give you the best results.
 
   ## Adding the Plug
 
-  `Timber.EventPlug` can be added to your plug pipeline using the standard
+  `Timber.Integrations.EventPlug` can be added to your plug pipeline using the standard
   `Plug.Builder.plug/2` macro. The point at which you place it determines
   what state Timber will receive the connection in, therefore it's
   recommended you place it as close to the origin of the request as
@@ -21,7 +21,7 @@ defmodule Timber.EventPlug do
   ### Plug (Standalone or Plug.Router)
 
   If you are using Plug without a framework, your setup will vary depending
-  on your architecture. The call to `plug Timber.EventPlug` should be grouped
+  on your architecture. The call to `plug Timber.Integrations.EventPlug` should be grouped
   with any other plugs you call prior to performing business logic.
 
   Timber expects query paramters to have already been fetched on the
@@ -30,7 +30,7 @@ defmodule Timber.EventPlug do
   ### Phoenix
 
   Phoenix's flexibility means there are multiple points in the plug pipeline
-  where the `Timber.EventPlug` can be inserted. The recommended place is in
+  where the `Timber.Integrations.EventPlug` can be inserted. The recommended place is in
   a `:logging` pipeline in your router, but if you have more complex needs
   you can also place the plug in an endpoint or a controller.
 
@@ -39,7 +39,7 @@ defmodule Timber.EventPlug do
     use MyApp.Web, :router
 
     pipeline :logging do
-      plug Timber.EventPlug
+      plug Timber.Integrations.EventPlug
     end
 
     scope "/api", MyApp do

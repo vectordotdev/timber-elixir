@@ -1,6 +1,6 @@
-defmodule Timber.PhoenixInstrumenter do
+defmodule Timber.Integrations.PhoenixInstrumenter do
   @moduledoc """
-  Handles instrumentation of `Phoenix.Endpoint`
+  Handles instrumentation of `Phoenix.Endpoint`.
 
   This module is designed to log events when Phoenix calls a controller or
   renders a template. It hooks into the instrumentation tools built into
@@ -22,7 +22,7 @@ defmodule Timber.PhoenixInstrumenter do
   ```
 
   You will need to add an `:instrumenters` key to this configuration with
-  a value of `[Timber.PhoenixInstrumenter]`. This would update the configuration
+  a value of `[Timber.Integrations.PhoenixInstrumenter]`. This would update the configuration
   to something like the following:
 
 
@@ -30,7 +30,7 @@ defmodule Timber.PhoenixInstrumenter do
   config :my_app, MyApp.Endpoint,
     http: [port: 4001],
     root: Path.dirname(__DIR__),
-    instrumenters: [Timber.PhoenixInstrumenter],
+    instrumenters: [Timber.Integrations.PhoenixInstrumenter],
     pubsub: [name: MyApp.PubSub,
               adapter: Phoenix.PubSub.PG2]
   ```
@@ -88,13 +88,13 @@ defmodule Timber.PhoenixInstrumenter do
     # Phoenix actions are always 2 arity function
     action = action_name <> "/2"
 
-    event = ControllerCallEvent.new(
+    event = %ControllerCallEvent{
       action: action,
       controller: controller
-    )
+    }
 
     message = ControllerCallEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    metadata = Timber.Event.to_logger_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -121,13 +121,13 @@ defmodule Timber.PhoenixInstrumenter do
       |> System.convert_time_unit(:native, :milliseconds)
       |> :erlang.float()
 
-    event = TemplateRenderEvent.new(
+    event = %TemplateRenderEvent{
       name: template_name,
       time_ms: time_ms
-    )
+    }
 
     message = TemplateRenderEvent.message(event)
-    metadata = Timber.Event.metadata(event)
+    metadata = Timber.Event.to_logger_metadata(event)
 
     Logger.log(log_level, message, metadata)
 

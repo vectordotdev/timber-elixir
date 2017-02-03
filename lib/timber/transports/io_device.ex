@@ -143,7 +143,7 @@ defmodule Timber.Transports.IODevice do
 
   @behaviour Timber.Transport
 
-  alias Timber.{LogEntry, Logger}
+  alias Timber.{LogEntry, LoggerBackend}
   alias __MODULE__.BadDeviceError
 
   @default_colorize true
@@ -322,7 +322,7 @@ defmodule Timber.Transports.IODevice do
     ["[", log_level, "] " | message ]
   end
 
-  @spec colorize_log_level(Logger.level, boolean) :: IO.chardata
+  @spec colorize_log_level(LoggerBackend.level, boolean) :: IO.chardata
   defp colorize_log_level(level_a, false), do: Atom.to_string(level_a)
   defp colorize_log_level(level_a, true) do
     color = log_level_color(level_a)
@@ -332,7 +332,7 @@ defmodule Timber.Transports.IODevice do
     |> IO.ANSI.format(true)
   end
 
-  @spec log_level_color(Logger.level) :: atom
+  @spec log_level_color(LoggerBackend.level) :: atom
   defp log_level_color(:debug), do: :cyan
   defp log_level_color(:warn), do: :yellow
   defp log_level_color(:error), do: :red

@@ -6,7 +6,7 @@ use Mix.Config
 config :logger, :utc_log, true
 config :logger, :handle_otp_reports, false
 
-config :logger, backends: [Timber.Logger]
+config :logger, backends: [Timber.LoggerBackend]
 config :timber, transport: Timber.Transports.IODevice
 
 

@@ -2,7 +2,7 @@ defmodule Timber.Utils do
   @moduledoc """
   Utility functions for Timber
   """
-  alias Timber.Logger
+  alias Timber.LoggerBackend
 
   @doc """
   Drops any `nil` values from the given map
@@ -23,7 +23,7 @@ defmodule Timber.Utils do
   @doc """
   Returns the current date and time in UTC including fractional portions of a second
   """
-  @spec now() :: Logger.timestamp
+  @spec now() :: LoggerBackend.timestamp
   def now() do
     now = DateTime.utc_now()
 
@@ -47,7 +47,7 @@ defmodule Timber.Utils do
   have no precision. In this case, the fractional seconds will be left off
   entirely, resulting in the following format: `YYYY-MM-DDTHH:MM:SSZ`.
   """
-  @spec format_timestamp(Logger.timestamp) :: IO.chardata
+  @spec format_timestamp(LoggerBackend.timestamp) :: IO.chardata
   # If the precision for timekeeping of fractional seconds is 0, drop
   # the fractional portion
   def format_timestamp({date, {_, _, _, {_microseconds, 0}} = time}) do
@@ -71,13 +71,13 @@ defmodule Timber.Utils do
   end
 
   # Common functionality for formatting a date as YYYY-MM-DD
-  @spec format_date(Logger.date) :: IO.chardata
+  @spec format_date(LoggerBackend.date) :: IO.chardata
   defp format_date({year, month, day}) do
     [Integer.to_string(year), ?-, pad2(month), ?-, pad2(day)]
   end
 
   # Common functionality for formatting time as HH:MM:SS
-  @spec format_time(Logger.time) :: IO.chardata
+  @spec format_time(LoggerBackend.time) :: IO.chardata
   defp format_time({hours, minutes, seconds, _}) do
     [pad2(hours), ?:, pad2(minutes), ?:, pad2(seconds)]
   end

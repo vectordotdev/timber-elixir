@@ -1,4 +1,4 @@
-defmodule Timber.ContextPlug do
+defmodule Timber.Integrations.ContextPlug do
   @moduledoc """
   Automatically captures the HTTP request ID in Plug-based frameworks
   like Phoenix and adds it to the context.
@@ -8,7 +8,7 @@ defmodule Timber.ContextPlug do
 
   ## Adding the Plug
 
-  `Timber.ContextPlug` can be added to your plug pipeline using the standard
+  `Timber.Integrations.ContextPlug` can be added to your plug pipeline using the standard
   `Plug.Builder.plug/2` macro. The point at which you place it determines
   what state Timber will receive the connection in, therefore it's
   recommended you place it as close to the origin of the request as
@@ -17,7 +17,7 @@ defmodule Timber.ContextPlug do
   ### Plug (Standalone or Plug.Router)
 
   If you are using Plug without a framework, your setup will vary depending
-  on your architecture. The call to `plug Timber.ContextPlug` should be grouped
+  on your architecture. The call to `plug Timber.Integrations.ContextPlug` should be grouped
   with any other plugs you call prior to performing business logic.
 
   Timber expects query paramters to have already been fetched on the
@@ -26,7 +26,7 @@ defmodule Timber.ContextPlug do
   ### Phoenix
 
   Phoenix's flexibility means there are multiple points in the plug pipeline
-  where the `Timber.ContextPlug` can be inserted. The recommended place is in
+  where the `Timber.Integrations.ContextPlug` can be inserted. The recommended place is in
   a `:logging` pipeline in your router, but if you have more complex needs
   you can also place the plug in an endpoint or a controller.
 
@@ -35,7 +35,7 @@ defmodule Timber.ContextPlug do
     use MyApp.Web, :router
 
     pipeline :logging do
-      plug Timber.ContextPlug
+      plug Timber.Integrations.ContextPlug
     end
 
     scope "/api", MyApp do
@@ -53,7 +53,7 @@ defmodule Timber.ContextPlug do
   Timber does its best to track the request ID for every HTTP request
   in order to help you filter your logs responsibly. If you are calling
   the `Plug.RequestId` plug in your pipeline, you should make sure
-  that `Timber.ContextPlug` appears _after_ that plug so that it can pick
+  that `Timber.Integrations.ContextPlug` appears _after_ that plug so that it can pick
   up the correct ID.
 
   By default, Timber expects your request ID to be stored using the

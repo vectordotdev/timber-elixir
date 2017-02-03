@@ -1,18 +1,23 @@
 defmodule Timber.Events.HTTPClientRequestEvent do
   @moduledoc """
-  The HTTP client request event tracks *outgoing* HTTP requests from your application.
+  The `HTTPClientRequestEvent` tracks *outgoing* HTTP requests giving you structured insight
+  into communication with external services.
+
   This event is HTTP client agnostic, use it with your HTTP client of choice.
 
   ## Hackney Example
 
-    iex> method = :get
-    iex> url = "https://some.api.com/path?query=1"
-    iex> headers_list = [{"Accept", "application/json"}]
-    iex> Timber.Events.HTTPClientRequestEvent.new(
-      method: method,
-      url: url,
-      headers_list: headers_list
-    )
+    iex> req_method = :get
+    iex> req_url = "https://some.api.com/path?query=1"
+    iex> req_headers = [{"Accept", "application/json"}]
+    iex> req_event = Timber.Events.HTTPClientRequestEvent.new(method: req_method, url: req_url, headers: req_headers)
+    iex> message = Timber.Events.HTTPClientRequestEvent.message(req_event)
+    iex> Logger.info message, event: req_event
+    iex> timer = Timber.Timer.start()
+    iex> {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
+    iex> resp_event = Timber.Events.HTTPClientResponseEvent.new(bytes: 200, headers: headers, status: status, timer: timer)
+    iex> message = Timber.Events.HTTPClientResponseEvent.message(resp_event)
+    iex> Logger.info message, event: resp_event
 
   """
 
@@ -81,11 +86,6 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
     method = Keyword.get(opts, :method)
     opts = if method do
-      normalized_method =
-        method
-        |> Atom.to_string()
-        |> String.upcase()
-        |> String.to_existing_atom()
       Keyword.put(opts, :method, HTTP.normalize_method(method))
     else
       opts

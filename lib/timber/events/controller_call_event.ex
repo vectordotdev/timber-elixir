@@ -1,6 +1,7 @@
 defmodule Timber.Events.ControllerCallEvent do
   @moduledoc """
-  Represents a controller being called
+  The `ControllerCallEvent` represents a controller being called during the HTTP request
+  cycle.
   """
 
   @type t :: %__MODULE__{
@@ -8,15 +9,11 @@ defmodule Timber.Events.ControllerCallEvent do
     controller: String.t | nil,
   }
 
+  @enforce_keys [:action, :controller]
   defstruct [
     :action,
     :controller
   ]
-
-  @spec new(Keyword.t) :: t
-  def new(opts) do
-    struct(__MODULE__, opts)
-  end
 
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{action: action, controller: controller}) do

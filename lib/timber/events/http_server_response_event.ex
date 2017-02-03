@@ -1,9 +1,11 @@
 defmodule Timber.Events.HTTPServerResponseEvent do
   @moduledoc """
-  The HTTP response event tracks outgoing HTTP responses.
+  The `HTTPServerResponseEvent` tracks responses for *incoming* HTTP *requests*. In other words,
+  the resposnes you are sending back to your clients. This gives you structured insight into
+  the response you are sending back to your clients.
 
-  Timber can automatically track response events if you
-  use a `Plug` based framework through `Timber.Plug`.
+  Timber can automatically track response events if you use a `Plug` based framework
+  through `Timber.Plug`.
   """
 
   @type t :: %__MODULE__{
@@ -22,6 +24,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
     request_id: String.t
   }
 
+  @enforce_keys [:status, :time_ms]
   defstruct [:bytes, :headers, :status, :time_ms]
 
   @recognized_headers ~w(
@@ -67,5 +70,5 @@ defmodule Timber.Events.HTTPServerResponseEvent do
 
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: "Sent #{status} in #{time_ms}ms"
+    do: ["Sent ", status, " in ", time_ms, "ms"]
 end

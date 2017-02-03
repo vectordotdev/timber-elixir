@@ -1,9 +1,11 @@
 defmodule Timber.Events.HTTPServerRequestEvent do
   @moduledoc """
-  The HTTP request event tracks incoming HTTP requests
+  The `HTTPServerRequestEvent` tracks *incoming* HTTP requests. This gives you structured
+  insight into the HTTP requests coming into your app.
 
-  Timber can automatically track incoming HTTP requests if
-  you use a `Plug` based framework through the `Timber.Plug`.
+  Timber can automatically track incoming HTTP requests if you use a `Plug` based framework.
+  See `Timber.Integrations.ContextPlug` and `Timber.Integerations.EventPlug`. Also, the
+  `README.md` outlines how to set these up.
   """
 
   @type t :: %__MODULE__{
@@ -28,6 +30,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
     user_agent: String.t | nil
   }
 
+  @enforce_keys [:host, :method, :path, :port, :scheme]
   defstruct [:host, :headers, :method, :path, :port, :query_string, :scheme]
 
   @recognized_headers ~w(
@@ -82,7 +85,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
 
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{method: method, path: path}),
-    do: "#{method} #{path}"
+    do: [method, " ", path]
 
   @spec method_from_string(String.t) :: method
   def method_from_string(method) do

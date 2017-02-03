@@ -19,5 +19,5 @@ defmodule Timber.Config do
   end
 
   def transport,
-    do: Application.get_env(@env_key, :transport)
+    do: Application.get_env(@env_key, :transport, Timber.Transports.IODevice)
 end

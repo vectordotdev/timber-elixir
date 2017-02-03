@@ -1,9 +1,10 @@
 defmodule Timber.Events.SQLQueryEvent do
   @moduledoc """
-  The SQL Query event tracks SQL query performance.
+  The `SQLQueryEvent` tracks *outgoing* SQL queries. This gives you structured insight into
+  SQL query performance within your application.
 
-  Timber can automatically track SQL query events if you
-  use `Ecto` and setup `Timber.Ecto`.
+  Timber can automatically track SQL query events if you use `Ecto` and setup
+  `Timber.Integrations.EctoLogger`.
   """
 
   @type t :: %__MODULE__{
@@ -11,13 +12,10 @@ defmodule Timber.Events.SQLQueryEvent do
     time_ms: float
   }
 
+  @enforce_keys [:sql, :time_ms]
   defstruct [:sql, :time_ms]
-
-  def new(opts) do
-    struct(__MODULE__, opts)
-  end
 
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{sql: sql, time_ms: time_ms}),
-    do: "Processed #{sql} in #{time_ms}ms"
+    do: ["Processed ", sql, " in ", time_ms, "ms"]
 end

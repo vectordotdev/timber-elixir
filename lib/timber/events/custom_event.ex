@@ -1,8 +1,8 @@
 defmodule Timber.Events.CustomEvent do
-  @moduledoc """
-  Allows for custom events that aren't covered elsewhere.
+  @moduledoc ~S"""
+  The `CustomEvent` represents events that aren't covered elsewhere.
 
-  Custom events can be used to encode information about events that are central
+  Custom events can be used to structure information about events that are central
   to your line of business like receiving credit card payments, saving a draft of a post,
   or changing a user's password.
 
@@ -16,18 +16,41 @@ defmodule Timber.Events.CustomEvent do
 
   ## Special `data` fields
 
-  These are special fields Timber looks for to enhancement your experience with our interface:
+  Timber treats these fields as special. We'll display them on the interface where relevant,
+  create graphs, etc.:
 
-    * `time_ms` - A fractional float represented the execution time in milliseconds.
-      example: `45.6`
+    * `:time_ms` (float, optional) - Represents the execution time in fractional milliseconds.
+      Example: `45.6`
 
-  An example:
+  ## Example usage
 
-    Timber.Events.CustomEvent.new(type: :payment_rejected, data: %{time_ms: 45.6})
+  There are 2 ways to log custom events:
 
-  ## Examples
+  1. Log a map (simplest)
 
-  Please see `Timber.Eventable` for examples on using custom events.
+      event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+      Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+
+  2. Log a struct (recommended)
+
+    Defining structs for your important events just feels oh so good :) It creates a strong contract
+    with down stream consumers and gives you compile time guarantees. It makes a statement that
+    this event means something and that it can relied upon.
+
+      def PaymentRejectedEvent do
+        use Timber.Events.CustomEvent, type: :payment_rejected
+
+        @enforce_keys [:customer_id, :amount, :currency]
+        defstruct [:customer_id, :amount, :currency]
+
+        def message(%__MODULE__{customer_id: customer_id}) do
+          "Payment rejected for #{customer_id}"
+        end
+      end
+
+      event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+      message = PaymentRejectedEvent.message(event)
+      Logger.info(message, event: event)
 
   """
 
@@ -36,17 +59,26 @@ defmodule Timber.Events.CustomEvent do
     data: map() | nil
   }
 
+  defmacro __using__(opts) do
+    quote do
+      type = Keyword.get(unquote(opts), :type, __MODULE__)
+
+      @behaviour Timber.Event
+
+      def for_logger
+
+      defimpl Timber.Eventable, for: __MODULE__ do
+        def to_event(event) do
+          data = Map.from_struct(event)
+          %Timber.Events.CustomEvent.new{type: type, data: data}
+        end
+      end
+    end
+  end
+
   @enforce_keys [:type]
   defstruct [
     :data,
     :type
   ]
-
-  @doc ~S"""
-  Creates a new custom event. Takes any of the fields described in the module docs as keys.
-  """
-  @spec new(Keyword.t) :: t
-  def new(opts) do
-    struct(__MODULE__, opts)
-  end
 end
