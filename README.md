@@ -159,7 +159,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   config :my_app, MyApp.Endpoint,
     http: [port: 4001],
     root: Path.dirname(__DIR__),
-    instrumenters: [Timber.Integrations.PhoenixInstrumenter], # <------
+    instrumenters: [Timber.Integrations.PhoenixInstrumenter], # <------ add this line
     pubsub: [name: MyApp.PubSub,
              adapter: Pheonix.PubSub.PG2]
   ```
