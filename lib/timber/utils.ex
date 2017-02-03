@@ -172,6 +172,12 @@ defmodule Timber.Utils do
   def normalize_headers(headers), do: headers
 
   @doc false
+  # Convenience method that checks if the value is an atom and also converts it to a string.
+  def try_atom_to_string(val) when is_atom(method), do: Atom.to_string(method)
+  def try_atom_to_string(val), do: val
+
+
+  @doc false
   # Converts header key value pairs into a structure expected by the Timber API.
   @spec header_to_keyword({String.t, String.t}) :: {atom, String.t}
   defp header_to_keyword({"x-request-id", id}), do: {:request_id, id}

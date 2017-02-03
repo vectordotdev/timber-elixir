@@ -66,6 +66,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
       opts
       |> Keyword.update(:headers, nil, fn headers -> Utils.normalize_headers(headers, @recognized_headers) end)
       |> Keyword.update(:method, nil, &Utils.normalize_method/1)
+      |> Keyword.update(:service_name, nil, &Utils.try_atom_to_string/1)
       |> Keyword.merge(Utils.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> v != nil end)
