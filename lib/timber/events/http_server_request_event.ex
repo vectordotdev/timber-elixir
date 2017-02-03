@@ -33,8 +33,8 @@ defmodule Timber.Events.HTTPServerRequestEvent do
 
   @recognized_headers ~w(
     content-type
-    referrer
     remote-addr
+    referrer
     user-agent
     x-request-id
   )

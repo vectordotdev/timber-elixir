@@ -20,8 +20,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
     {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
 
     # Log the response
-    {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(bytes: 200,
-      headers: headers, status: status, timer: timer)
+    {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(headers: headers, status: status, timer: timer)
     Logger.info resp_message, event: resp_event
 
   """

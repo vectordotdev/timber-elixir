@@ -11,7 +11,6 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   alias Timber.Utils
 
   @type t :: %__MODULE__{
-    bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
     time_ms: float
@@ -27,7 +26,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   }
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:bytes, :headers, :status, :time_ms]
+  defstruct [:headers, :status, :time_ms]
 
   @recognized_headers ~w(
     cache_control
