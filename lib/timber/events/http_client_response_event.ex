@@ -16,7 +16,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
     bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
-    time_ms: non_neg_integer
+    time_ms: float
   }
 
   @type headers :: %{
@@ -65,9 +65,11 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{status: status, time_ms: time_ms, headers: %{request_id: request_id}})
-    when is_binary(request_id),
-    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms, ID ", request_id]
-  def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms"]
+  def message(%__MODULE__{headers: headers, status: status, time_ms: time_ms}) do
+    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", Utils.format_time_ms(time_ms)]
+    request_id = Map.get(headers || %{}, :request_id)
+    if request_id,
+      do: [message, ", ID ", request_id],
+      else: message
+  end
 end
