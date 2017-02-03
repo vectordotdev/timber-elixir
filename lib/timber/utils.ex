@@ -132,6 +132,13 @@ defmodule Timber.Utils do
     |> URI.to_string()
   end
 
+  def format_time_ms(time_ms) when is_integer(time_ms),
+    do: [Integer.to_string(time_ms), "ms"]
+  def format_time_ms(time_ms) when is_float(time_ms) and time_ms >= 1,
+    do: [:erlang.float_to_binary(time_ms, decimals: 2), "ms"]
+  def format_time_ms(time_ms) when is_float(time_ms) and time_ms < 1,
+    do: [:erlang.float_to_binary(time_ms * 1000, decimals: 0), "µs"]
+
   @doc false
   # Normalizes a URL into a Keyword.t that maps to our HTTP event fields.
   def normalize_url(url) when is_binary(url) do
@@ -170,6 +177,12 @@ defmodule Timber.Utils do
     |> Enum.into(%{})
   end
   def normalize_headers(headers), do: headers
+
+  @doc false
+  # Convenience method that checks if the value is an atom and also converts it to a string.
+  def try_atom_to_string(val) when is_atom(val), do: Atom.to_string(val)
+  def try_atom_to_string(val), do: val
+
 
   @doc false
   # Converts header key value pairs into a structure expected by the Timber API.

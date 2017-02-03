@@ -14,7 +14,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
     bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
-    time_ms: non_neg_integer
+    time_ms: float
   }
 
   @type headers :: %{
@@ -58,5 +58,5 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: ["Sent ", status, " in ", time_ms, "ms"]
+    do: ["Sent ", Integer.to_string(status), " in ", Utils.format_time_ms(time_ms)]
 end

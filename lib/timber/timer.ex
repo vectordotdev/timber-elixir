@@ -1,7 +1,7 @@
 defmodule Timber.Timer do
   @moduledoc false
 
-  @precision 4
+  @precision 6
 
   @doc """
   Starts a timer for timing code execution. This timer can then be passed
