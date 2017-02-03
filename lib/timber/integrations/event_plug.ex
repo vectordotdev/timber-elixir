@@ -140,9 +140,7 @@ defmodule Timber.Integrations.EventPlug do
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
     status = Plug.Conn.Status.code(conn.status)
-    headers =
-      conn.resp_headers
-      |> Map.put("content-length", bytes)
+    headers = conn.resp_headers ++ [{"content-length", Integer.to_string(bytes)}]
 
     event = HTTPServerResponseEvent.new(
       headers: headers,
