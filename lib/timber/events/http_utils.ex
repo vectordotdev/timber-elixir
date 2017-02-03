@@ -43,6 +43,7 @@ defmodule Timber.Events.HTTPUtils do
   # Normalizes HTTP headers into a structure expected by the Timber API.
   def normalize_headers(headers, allowed_keys) when is_list(headers) do
     headers
+    |> List.flatten()
     |> Enum.into(%{})
     |> normalize_headers(allowed_keys)
   end

@@ -103,7 +103,7 @@ defmodule Timber.Integrations.EventPlug do
     port = conn.port
     scheme = conn.scheme
     path = conn.request_path
-    headers = [request_id, remote_addr | conn.req_headers]
+    headers = List.flatten([request_id, remote_addr | conn.req_headers])
     query_string = conn.query_string
 
     event = HTTPServerRequestEvent.new(

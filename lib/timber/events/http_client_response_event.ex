@@ -65,6 +65,9 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
+  def message(%__MODULE__{status: status, time_ms: time_ms, headers: %{request_id: request_id}})
+    when is_binary(request_id),
+    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms, ID ", request_id]
   def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: ["Sent ", status, " in ", time_ms, "ms"]
+    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms"]
 end
