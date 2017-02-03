@@ -100,7 +100,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   end
 
   def deps do
-    [{:timber, "~> 0.4"}]
+    [{:timber, "~> 1.0"}]
   end
   ```
 
