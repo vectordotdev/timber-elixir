@@ -31,23 +31,23 @@ blog post.
 
 Out of the box you get everything in the `Timber.Events` namespace:
 
-1. [Controller Call Event]()
-2. [Exception Event]()
-3. [Outgoing HTTP Request Event]()
-4. [Outgoing HTTP Response Event]()
-5. [Incoming HTTP Request Event]()
-6. [Incoming HTTP Response Event]()
-7. [SQL Query Event]()
-8. [Template Render Event]()
+1. [Controller Call Event](lib/timber/events/controller_call_event.ex)
+2. [Exception Event](lib/timber/events/exception_event.ex)
+3. [Outgoing HTTP Request Event](lib/timber/events/http_client_request_event.ex)
+4. [Outgoing HTTP Response Event](lib/timber/events/http_client_response_event.ex)
+5. [Incoming HTTP Request Event](lib/timber/events/http_server_request_event.ex)
+6. [Incoming HTTP Response Event](lib/timber/events/http_server_response_event.ex)
+7. [SQL Query Event](lib/timber/events/sql_query_event.ex)
+8. [Template Render Event](lib/timber/events/template_render_event.ex)
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 We also add context to every line, everything in the `Timber.Contexts` namespace:
 
-1. [HTTP Context]()
-2. [Organization Context]()
-3. [Process Context]()
-4. [Server Context]()
-5. [Runtime Context]()
+1. [HTTP Context](lib/timber/contexts/http_context.ex)
+2. [Organization Context](lib/timber/contexts/organization_context.ex)
+3. [Process Context](lib/timber/contexts/process_context.ex)
+4. [Server Context](lib/timber/contexts/server_context.ex)
+5. [Runtime Context](lib/timber/contexts/runtime_context.ex)
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 
@@ -90,7 +90,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Installation
 
-1. Add Timber as a dependency:
+1. Add Timber as a dependency in `Mix.exs`:
 
   ```elixir
   # Mix.exs
@@ -104,7 +104,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   end
   ```
 
-2. Configure Timber:
+2. Configure Timber in `config/config.exs`:
 
   ```elixir
   # config/config.exs
@@ -118,7 +118,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 3. Install the Timber plugs:
 
-  1. Remove the existing `Plug.Logger`:
+  1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
     ```elixir
     # lib/my_app/endpoint.ex
@@ -126,7 +126,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     plug Plug.Logger # <--- REMOVE ME
     ```
 
-  2. Add the Timber plugs:
+  2. Add the Timber plugs in `web/router.ex`:
 
     ```elixir
     # web/router.ex
@@ -149,7 +149,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
       [Timber.Integrations.ContextPlug](lib/timber/integrations/context_plug.ex) and
       [Timber.Integrations.EventPlug](lib/timber/integrations/event_plug.ex)
 
-4. Add Phoenix instrumentation:
+4. Add Phoenix instrumentation in `config/config.exs`:
 
   Skip if you are not using `Phoenix`.
 
@@ -164,7 +164,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
              adapter: Pheonix.PubSub.PG2]
   ```
 
-5. Add the Ecto logger:
+5. Add the Ecto logger in `config/config.exs`:
 
   Skip if you are not using `Ecto`.
 
