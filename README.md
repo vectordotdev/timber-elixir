@@ -11,12 +11,12 @@
 Logs are amazingly useful...when they're structured. And unless your a logging company,
 designing, implementing, and maintaining a structured logging strategy can be a major time sink.
 
-Timber gives you this today. It's a fully-managed structured logging strategy that...
+Timber gives you this *today*. It's a fully-managed structured logging strategy that...
 
 1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
 2. Provides a [framework for logging custom events](#what-about-custom-events).
 3. Defines a [normalized shared log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps.
-4. Offers a [beutiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
+4. Offers a [beautiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
 5. Gives you *6 months of retention*, by default.
 6. Does not charge you for the extra structured data we're encouraging here, only the core log message.
 7. Encrypts your data in transit and at rest.
