@@ -29,7 +29,7 @@ blog post.
 
 ## What events does Timber structure for me?
 
-Out of the box you get everything in the `Timber.Events` namespace:
+Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
 
 1. [Controller Call Event](lib/timber/events/controller_call_event.ex)
 2. [Exception Event](lib/timber/events/exception_event.ex)
@@ -41,7 +41,7 @@ Out of the box you get everything in the `Timber.Events` namespace:
 8. [Template Render Event](lib/timber/events/template_render_event.ex)
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
-We also add context to every line, everything in the `Timber.Contexts` namespace:
+We also add context to every line, everything in the [`Timber.Contexts`](lib/timber/contexts) namespace:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
