@@ -8,10 +8,10 @@
 
 **Note: Timber is in beta testing, if interested in joining, please visit https://timber.io**
 
-Logs are amazingly useful...when they're structured. And unless your a logging company,
+Logs are amazingly useful...when they're structured. And unless you're a logging company,
 designing, implementing, and maintaining a structured logging strategy can be a major time sink.
 
-Timber gives you this *today*. It's a fully-managed structured logging strategy that...
+Timber gives you this *today*. It's a fully-managed structured logging system that...
 
 1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
 2. Provides a [framework for logging custom events](#what-about-custom-events).
@@ -34,15 +34,17 @@ Out of the box you get everything in the [`Timber.Events`](lib/timber/events) na
 
 1. [Controller Call Event](lib/timber/events/controller_call_event.ex)
 2. [Exception Event](lib/timber/events/exception_event.ex)
-3. [Outgoing HTTP Request Event](lib/timber/events/http_client_request_event.ex)
-4. [Outgoing HTTP Response Event](lib/timber/events/http_client_response_event.ex)
-5. [Incoming HTTP Request Event](lib/timber/events/http_server_request_event.ex)
-6. [Incoming HTTP Response Event](lib/timber/events/http_server_response_event.ex)
+3. [HTTP Client Request Event (outgoing)](lib/timber/events/http_client_request_event.ex)
+4. [HTTP Client Response Event](lib/timber/events/http_client_response_event.ex)
+5. [HTTP Server Request Event (incoming)](lib/timber/events/http_server_request_event.ex)
+6. [HTTP Server Response Event](lib/timber/events/http_server_response_event.ex)
 7. [SQL Query Event](lib/timber/events/sql_query_event.ex)
 8. [Template Render Event](lib/timber/events/template_render_event.ex)
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
-We also add context to every line, everything in the [`Timber.Contexts`](lib/timber/contexts) namespace:
+We also add context to every log, everything in the [`Timber.Contexts`](lib/timber/contexts)
+namespace. Context is like join data for your logs. Ever wish you could see all log lines written
+a specific request? Context achieves that:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
@@ -55,7 +57,7 @@ We also add context to every line, everything in the [`Timber.Contexts`](lib/tim
 ## What about custom events?
 
 No probs! We've put careful thought in how this would be implemented. You have a couple of options
-depending on how strict you want to be with structuring your data.
+depending on how strict you want to be with structuring your events.
 
 1. Log a map (simplest)
 
@@ -180,11 +182,10 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Transport Installation
 
-So how do you get your logs to the Timber service?
-
-We *highly* recmmend that you [create an app within your Timber account](https://app.timber.io/organizations/timber/apps/new) and follow the
-instructions that proceed. Based on your app details we'll provide you with simple, straight-forward
-instructions that get you up and running quickly.
+The last step is getting your logs to the Timber service. We *highly* recmmend that you
+[create an app within your Timber account](https://app.timber.io/organizations/timber/apps/new)
+and follow the instructions that proceed. Based on your app details we'll provide you with simple,
+straight-forward instructions that get you up and running quickly.
 
 ### STDOUT
 
@@ -200,12 +201,14 @@ Do nothing! This is the default transport strategy.
     file: "path/to/file",
   ```
 
+* Note, this requires our agent to send the file contents to Timber.
+
 ### HTTP
 
 Coming soon!
 
 
-## Development environment
+## Development environment?
 
 Bonus points! Use Timber in your development environment so you can see context locally:
 
