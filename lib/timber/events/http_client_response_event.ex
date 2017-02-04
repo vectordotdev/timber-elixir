@@ -7,7 +7,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   lifecycle.
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:status, :time_ms]
   defstruct [:headers, :status, :time_ms]
@@ -45,7 +45,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
     opts =
       opts
       |> Keyword.update(:headers, nil, fn headers ->
-        Utils.normalize_headers(headers, @recognized_headers)
+        UtilsHTTP.normalize_headers(headers, @recognized_headers)
       end)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
@@ -65,7 +65,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{headers: headers, status: status, time_ms: time_ms}) do
-    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", Utils.format_time_ms(time_ms)]
+    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
     request_id = Map.get(headers || %{}, :request_id)
     if request_id,
       do: [message, ", ID ", request_id],
