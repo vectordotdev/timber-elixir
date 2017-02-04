@@ -184,14 +184,19 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 
 
-<details><summary><a href="#">AWS Beanstalk</a></summary><p>
+<details><summary><strong>AWS Beanstalk</strong></summary><p>
 
-```
-These are instructions
-```
+1. In your *shell*, add a Heroku log drain:
+
+  ```shell
+  heroku drains:add <timber provided URL> --app <heroku-app-name>
+  ```
+
+  * `timber provided URL` can be obtained
+
 </p></details>
 
-<details><summary><strong>Heroku instructions</strong></summary><p>
+<details><summary><strong>AWS Lambda</strong></summary><p>
 
 ```
 These are instructions
