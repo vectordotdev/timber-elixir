@@ -6,7 +6,7 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master) [![Coverage Status](https://coveralls.io/repos/github/timberio/timber-elixir/badge.svg?branch=master)](https://coveralls.io/github/timberio/timber-elixir=master)
 
-**Note: Timber is in alpha testing, if interested in joining, please visit https://timber.io**
+**Note: Timber is in beta testing, if interested in joining, please visit https://timber.io**
 
 Logs are amazingly useful...when they're structured. And unless your a logging company,
 designing, implementing, and maintaining a structured logging strategy can be a major time sink.
@@ -182,9 +182,9 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 So how do you get your logs to the Timber service?
 
-We *highly* recmmend that you create an app within your Timber account and follow the
+We *highly* recmmend that you [create an app within your Timber account](https://app.timber.io/organizations/timber/apps/new) and follow the
 instructions that proceed. Based on your app details we'll provide you with simple, straight-forward
-instructions that get you up and running quick.
+instructions that get you up and running quickly.
 
 ### STDOUT
 
