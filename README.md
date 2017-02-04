@@ -184,6 +184,20 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 
 
+<details><summary><a href="#">AWS Beanstalk</a></summary><p>
+
+```
+These are instructions
+```
+</p></details>
+
+<details><summary><strong>Heroku instructions</strong></summary><p>
+
+```
+These are instructions
+```
+</p></details>
+
 <details><summary><strong>Heroku instructions</strong></summary><p>
 
 ```
