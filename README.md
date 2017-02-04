@@ -216,3 +216,9 @@ config :timber, :io_device,
   print_timestamps: true
   print_log_level: true
 ```
+
+---
+
+<p align="center" style="background: #140f2a;">
+<a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/ruby-library-readme-log-truth.png" height="947" /></a>
+</p>
