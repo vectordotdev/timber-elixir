@@ -8,19 +8,20 @@
 
 **Note: Timber is in alpha testing, if interested in joining, please visit https://timber.io**
 
-Logs are great...when they're structured. And unless your a logging company, designing and
-implementing a structured logging strategy can be a time sink. Not only do you have to deal
-with 3rd party libraries, but you need to agree on a schema and a standard your team will adhere
-to across *all* of your apps.
+Logs are amazingly useful...when they're structured. And unless your a logging company,
+designing, implementing, and maintaining a structured logging strategy can be a major time sink.
 
-Timber gives you this today by automatically structuring and adding context to you logs.
-We also built a beautiful modern console designed specifically for this data. *And*, we
-give you *6 months* of retention at a price cheaper than any alternative. *And*, we don't charge
-you extra for the structured data we're encouraging here. *And* your data is encrypted with
-11 9s of durability. And...so many things!
+Timber gives you this today. It's a fully-managed structured logging strategy that...
 
-Timber's goal is to remove *any* barrier that gets in the way of realizing the power of structured
-logging.
+1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
+2. Provides a [framework for logging custom events](#what-about-custom-events).
+3. Defines a [normalized shared log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps.
+4. Offers a [beutiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
+5. Gives you *6 months of retention*, by default.
+6. Does not charge you for the extra structured data we're encouraging here, only the core log message.
+7. Encrypts your data in transit and at rest.
+8. Offers 11 9s of durability.
+9. ...and so much more!
 
 To learn more, checkout out [timber.io](https://timber.io) or the
 ["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
@@ -172,7 +173,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   # config/config.exs
 
   config :my_app, MyApp.Repo,
-    loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bump to info to gain more insight
+    loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bumped to info to gain more insight
   ```
 
 6. Whew! Done! You've now got a fully managed structured logging solution.
