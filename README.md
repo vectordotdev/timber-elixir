@@ -68,7 +68,7 @@ depending on how strict you want to be with structuring your events.
 
 </p></details>
 
-<details><summary><strong>2. Log a custom map (simplest):</strong></summary><p>
+<details><summary><strong>2. Log a custom struct (recommended):</strong></summary><p>
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
   with down stream consumers and gives you compile time guarantees.
