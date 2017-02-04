@@ -228,6 +228,30 @@ there is no additional configuration for the library itself.
 
 </p></details>
 
+<details><summary><strong>Other - HTTP</strong></summary><p>
+
+If your platform isn't listed above, you can always use the built in HTTP transport:
+
+1. fdsfdsfs
+
+</p></details>
+
+<details><summary><strong>Other - File</strong></summary><p>
+
+If your platform isn't listed above, you can always use the built in HTTP transport:
+
+1. fdsfdsfs
+
+</p></details>
+
+
+<details><summary><strong>Other - STDOUT</strong></summary><p>
+
+If your platform isn't listed above, you can always use the built in HTTP transport:
+
+1. fdsfdsfs
+
+</p></details>
 
 ## Development environment?
 
