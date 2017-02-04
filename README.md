@@ -59,14 +59,16 @@ a specific request? Context achieves that:
 No probs! We've put careful thought in how this would be implemented. You have a couple of options
 depending on how strict you want to be with structuring your events.
 
-1. Log a map (simplest)
+<details><summary><strong>1. Log a custom map (simplest):</strong></summary><p>
 
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
   Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
   ```
 
-2. Log a struct (recommended)
+</p></details>
+
+<details><summary><strong>2. Log a custom map (simplest):</strong></summary><p>
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
   with down stream consumers and gives you compile time guarantees.
@@ -87,6 +89,8 @@ depending on how strict you want to be with structuring your events.
   message = PaymentRejectedEvent.message(event)
   Logger.info(message, event: event)
   ```
+
+</p></details>
 
 Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
 
