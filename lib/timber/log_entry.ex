@@ -81,7 +81,7 @@ defmodule Timber.LogEntry do
   end
 
   @spec to_map!(t, Keyword.t) :: map()
-  defp to_map!(log_entry, options \\ []) do
+  defp to_map!(log_entry, options) do
     map =
       log_entry
       |> Map.from_struct()
