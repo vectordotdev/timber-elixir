@@ -180,7 +180,21 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 6. Whew! Done! You've now got a fully managed structured logging solution.
 
-## Transport Installation
+## Send your logs
+
+
+
+<details><summary><h3>Heroku instructions</h3></summary><p>
+
+```
+These are instructions
+```
+</p></details>
+
+
+
+
+
 
 The last step is getting your logs to the Timber service. We *highly* recmmend that you
 [create an app within your Timber account](https://app.timber.io/organizations/timber/apps/new)
