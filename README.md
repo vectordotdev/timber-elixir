@@ -93,7 +93,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Installation
 
-1. Add Timber as a dependency in `Mix.exs`:
+<details><summary><strong>1. Add Timber as a dependency in `Mix.exs`</strong></summary><p>
 
   ```elixir
   # Mix.exs
@@ -106,8 +106,9 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     [{:timber, "~> 1.0"}]
   end
   ```
+</p></details>
 
-2. Configure Timber in `config/config.exs`:
+<details><summary><strong>2. Configure Timber in `config/config.exs`:</strong></summary><p>
 
   ```elixir
   # config/config.exs
@@ -118,6 +119,8 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
   config :timber, :capture_errors, true
   ```
+
+</p></details>
 
 3. Install the Timber plugs:
 
@@ -209,36 +212,6 @@ These are instructions
 These are instructions
 ```
 </p></details>
-
-
-
-
-
-
-The last step is getting your logs to the Timber service. We *highly* recmmend that you
-[create an app within your Timber account](https://app.timber.io/organizations/timber/apps/new)
-and follow the instructions that proceed. Based on your app details we'll provide you with simple,
-straight-forward instructions that get you up and running quickly.
-
-### STDOUT
-
-Do nothing! This is the default transport strategy.
-
-### File
-
-1. Configure the Timber transport strategy:
-
-  ```elixir
-  config :timber, :transport, Timber.Transports.IODevice
-  config :timber, :io_device,
-    file: "path/to/file",
-  ```
-
-* Note, this requires our agent to send the file contents to Timber.
-
-### HTTP
-
-Coming soon!
 
 
 ## Development environment?
