@@ -175,14 +175,15 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bump to info to gain more insight
   ```
 
+6. Whew! Done! You've now got a fully managed structured logging solution.
 
 ## Transport Installation
 
-We *highly* recommend that you obtain these transport instructions from within
-[the Timber app](https://app.timber.io). During the app creation process we collect details
-about your app, and at the end, we provide you with simple, copy-paste, instructions for your
-exact environment (API key included).
+So how do you get your logs to the Timber service?
 
+We *highly* recmmend that you create an app within your Timber account and follow the
+instructions that proceed. Based on your app details we'll provide you with simple, straight-forward
+instructions that get you up and running quick.
 
 ### STDOUT
 
