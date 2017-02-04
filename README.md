@@ -122,7 +122,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-3. Install the Timber plugs:
+<details><summary><strong>3. Install the Timber plugs:</strong></summary><p>
 
   1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
@@ -155,7 +155,9 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
       [Timber.Integrations.ContextPlug](lib/timber/integrations/context_plug.ex) and
       [Timber.Integrations.EventPlug](lib/timber/integrations/event_plug.ex)
 
-4. Add Phoenix instrumentation in `config/config.exs`:
+</p></details>
+
+<details><summary><strong>4. Add Phoenix instrumentation in `config/config.exs`:</strong></summary><p>
 
   Skip if you are not using `Phoenix`.
 
@@ -170,7 +172,9 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
              adapter: Pheonix.PubSub.PG2]
   ```
 
-5. Add the Ecto logger in `config/config.exs`:
+</p></details>
+
+<details><summary><strong>5. Add the Ecto logger in `config/config.exs`:</strong></summary><p>
 
   Skip if you are not using `Ecto`.
 
@@ -181,7 +185,8 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bumped to info to gain more insight
   ```
 
-6. Whew! Done! You've now got a fully managed structured logging solution.
+</p></details>
+
 
 ## Send your logs
 
