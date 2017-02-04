@@ -184,7 +184,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 
 
-<details><summary><h3>Heroku instructions</h3></summary><p>
+<details><summary>Heroku instructions</summary><p>
 
 ```
 These are instructions
