@@ -8,6 +8,7 @@ defmodule Timber.Context do
   """
 
   alias Timber.Contexts
+  alias Timber.Utils.Map, as: UtilsMap
 
   @type context_data ::
     Contexts.CustomContext.t        |
@@ -45,7 +46,7 @@ defmodule Timber.Context do
     key = type_for_data(context_element)
 
     Map.from_struct(context_element)
-    |> Timber.Utils.drop_nil_values()
+    |> UtilsMap.recursively_drop_blanks()
     |> insert_context(existing_context_map, key)
   end
 

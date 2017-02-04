@@ -25,7 +25,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:host, :method, :path, :scheme]
   defstruct [:headers, :host, :method, :path, :port, :query_string, :scheme, :service_name]
@@ -63,10 +63,10 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:headers, nil, fn headers -> Utils.normalize_headers(headers, @recognized_headers) end)
-      |> Keyword.update(:method, nil, &Utils.normalize_method/1)
-      |> Keyword.update(:service_name, nil, &Utils.try_atom_to_string/1)
-      |> Keyword.merge(Utils.normalize_url(Keyword.get(opts, :url)))
+      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTP.normalize_headers(headers, @recognized_headers) end)
+      |> Keyword.update(:method, nil, &UtilsHTTP.normalize_method/1)
+      |> Keyword.update(:service_name, nil, &UtilsHTTP.try_atom_to_string/1)
+      |> Keyword.merge(UtilsHTTP.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
@@ -96,8 +96,8 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   do
     message = ["Outgoing HTTP request to "]
     message = if service_name,
-      do: [message, service_name, " [", method, "] ", Utils.full_path(path, query_string)],
-      else: [message, "[", method, "] ", Utils.full_url(scheme, host, path, port, query_string)]
+      do: [message, service_name, " [", method, "] ", UtilsHTTP.full_path(path, query_string)],
+      else: [message, "[", method, "] ", UtilsHTTP.full_url(scheme, host, path, port, query_string)]
     request_id = Map.get(headers || %{}, :request_id)
     message = if request_id,
       do: [message, ", ID ", request_id],
