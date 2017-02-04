@@ -1,7 +1,6 @@
 defmodule Timber.Event do
   @moduledoc """
-  A common interface for working with data structures that implement the `Timber.Event`
-  behaviour.
+  A common interface for working with structures in the `Timber.Events` namespace.
   """
 
   alias Timber.Events

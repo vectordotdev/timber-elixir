@@ -1,4 +1,6 @@
 defmodule Timber.Utils.Map do
+  @moduledoc false
+
   @doc """
   Recursively drops keys with blank values in a map.
   """

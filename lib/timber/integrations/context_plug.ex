@@ -69,7 +69,7 @@ defmodule Timber.Integrations.ContextPlug do
   require Logger
 
   alias Timber.Contexts.HTTPContext
-  alias Timber.Integrations.PlugUtils
+  alias Timber.Utils.Plug, as: PlugUtils
 
   @doc """
   Prepares the given options for use in a plug pipeline

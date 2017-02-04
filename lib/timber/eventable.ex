@@ -5,19 +5,23 @@ defprotocol Timber.Eventable do
 
   For example, this protocol is how we're able to support maps:
 
-    event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    Logger.info "Payment rejected", event: event_data
+  ```elixir
+  event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+  Logger.info "Payment rejected", event: event_data
+  ```
 
   This is achieved by:
 
-    defimpl Timber.Eventable, for: Map do
-      def to_event(%{type: type, data: data}) do
-        %Timber.Events.CustomEvent{
-          type: type,
-          data: data
-        }
-      end
+  ```elixir
+  defimpl Timber.Eventable, for: Map do
+    def to_event(%{type: type, data: data}) do
+      %Timber.Events.CustomEvent{
+        type: type,
+        data: data
+      }
     end
+  end
+  ```
 
   ## What about custom events and structs?
 

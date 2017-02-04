@@ -70,7 +70,7 @@ defmodule Timber.Integrations.EventPlug do
 
   alias Timber.Event
   alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
-  alias Timber.Integrations.PlugUtils
+  alias Timber.Utils.Plug, as: PlugUtils
 
   @doc """
   Prepares the given options for use in a plug pipeline

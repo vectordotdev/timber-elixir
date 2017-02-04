@@ -1,7 +1,5 @@
 defmodule Timber.Utils.Timestamp do
-  @moduledoc """
-  Utility functions for Timber
-  """
+  @moduledoc false
 
   alias Timber.LoggerBackend
 

@@ -1,4 +1,6 @@
-defmodule Timber.Integrations.PlugUtils do
+defmodule Timber.Utils.Plug do
+  @moduledoc false
+
   @doc """
   Fetches the request ID from the connection using the given header name
 

@@ -7,21 +7,23 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   ## Hackney Example
 
-    req_method = :get
-    req_url = "https://some.api.com/path?query=1"
-    req_headers = [{"Accept", "application/json"}]
+  ```elixir
+  req_method = :get
+  req_url = "https://some.api.com/path?query=1"
+  req_headers = [{"Accept", "application/json"}]
 
-    # Log the outgoing request
-    {req_event, req_message} = Timber.Events.HTTPClientRequestEvent.new_with_message(method: req_method, url: req_url, headers: req_headers)
-    Logger.info req_message, event: req_event
+  # Log the outgoing request
+  {req_event, req_message} = Timber.Events.HTTPClientRequestEvent.new_with_message(method: req_method, url: req_url, headers: req_headers)
+  Logger.info req_message, event: req_event
 
-    # Make the request
-    timer = Timber.Timer.start()
-    {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
+  # Make the request
+  timer = Timber.Timer.start()
+  {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
 
-    # Log the response
-    {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(headers: headers, status: status, timer: timer)
-    Logger.info resp_message, event: resp_event
+  # Log the response
+  {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(headers: headers, status: status, timer: timer)
+  Logger.info resp_message, event: resp_event
+  ```
 
   """
 

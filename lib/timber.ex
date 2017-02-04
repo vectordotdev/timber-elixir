@@ -26,6 +26,20 @@ defmodule Timber do
     Elixir.Logger.metadata([timber_context: new_context])
   end
 
+  @doc """
+  Used to time runtime execution. For example, when timing a `Timber.Events.HTTPClientRequestEvent`:
+
+  ```elixir
+  timer = Timber.start_timer()
+  # .... make request
+  event = HTTPClientResponseEvent.new(status: 200, timer: timer) # automatically sets :time_ms
+  message = HTTPClientResponseEvent.message(event)
+  Logger.info(message, event: event)
+  ```
+
+  """
+  defdelegate start_timer, to: Timber.Timer, as: :start
+
   @doc false
   # Handles the application callback start/2
   #

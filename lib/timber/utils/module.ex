@@ -1,7 +1,5 @@
 defmodule Timber.Utils.Module do
-  @moduledoc """
-  Utility functions for working with modules.
-  """
+  @moduledoc false
 
   @doc """
   Returns a string representation of the module name with the `Elixir.` prefix stripped.

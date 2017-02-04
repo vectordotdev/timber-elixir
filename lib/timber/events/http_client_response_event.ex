@@ -47,6 +47,8 @@ defmodule Timber.Events.HTTPClientResponseEvent do
       |> Keyword.update(:headers, nil, fn headers ->
         UtilsHTTP.normalize_headers(headers, @recognized_headers)
       end)
+      |> Keyword.merge(UtilsHTTP.normalize_timer(Keyword.get(opts, :timer)))
+      |> Keyword.delete(:timer)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
   end
