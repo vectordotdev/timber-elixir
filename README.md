@@ -59,7 +59,7 @@ a specific request? Context achieves that:
 No probs! We've put careful thought in how this would be implemented. You have a couple of options
 depending on how strict you want to be with structuring your events.
 
-<details><summary><strong>1. Log a custom map (simplest):</strong></summary><p>
+<details><summary><strong>1. Log a custom map (simplest)</strong></summary><p>
 
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
@@ -68,7 +68,7 @@ depending on how strict you want to be with structuring your events.
 
 </p></details>
 
-<details><summary><strong>2. Log a custom struct (recommended):</strong></summary><p>
+<details><summary><strong>2. Log a custom struct (recommended)</strong></summary><p>
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
   with down stream consumers and gives you compile time guarantees.
@@ -112,7 +112,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
   ```
 </p></details>
 
-<details><summary><strong>2. Configure Timber in `config/config.exs`:</strong></summary><p>
+<details><summary><strong>2. Configure Timber in `config/config.exs`</strong></summary><p>
 
   ```elixir
   # config/config.exs
@@ -126,7 +126,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>3. Install the Timber plugs:</strong></summary><p>
+<details><summary><strong>3. Install the Timber plugs</strong></summary><p>
 
   1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
@@ -161,7 +161,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>4. Add Phoenix instrumentation in `config/config.exs`:</strong></summary><p>
+<details><summary><strong>4. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
   Skip if you are not using `Phoenix`.
 
@@ -178,7 +178,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>5. Add the Ecto logger in `config/config.exs`:</strong></summary><p>
+<details><summary><strong>5. Add the Ecto logger in `config/config.exs`</strong></summary><p>
 
   Skip if you are not using `Ecto`.
 
@@ -193,8 +193,6 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 
 ## Send your logs
-
-
 
 <details><summary><strong>AWS Beanstalk</strong></summary><p>
 
@@ -215,11 +213,19 @@ These are instructions
 ```
 </p></details>
 
-<details><summary><strong>Heroku instructions</strong></summary><p>
+<details><summary><strong>Heroku</strong></summary><p>
 
-```
-These are instructions
-```
+Heroku requires that you log to `STDOUT` and the default transport for Timber is `STDOUT`. As such,
+there is no additional configuration for the library itself.
+
+1. In your *shell*, add a Heroku log drain:
+
+  ```shell
+  heroku drains:add <timber provided URL> --app <heroku-app-name>
+  ```
+
+  * `timber provided URL` can be obtained [here](url)
+
 </p></details>
 
 
