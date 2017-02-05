@@ -201,7 +201,7 @@ After creating an app, we'll display copy / paste instructions with your API key
 
 **--> [Create a Timber app]()**
 
-\** If you don't have a Timber account signup is free and only requires a click via Github oauth.*
+\* * If you don't have a Timber account signup is free and only requires a click via Github oauth.*
 
 </p></details>
 
