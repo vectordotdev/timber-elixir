@@ -8,6 +8,15 @@
 
 **Note: Timber is in beta testing, if interested in joining, please visit https://timber.io**
 
+* **[What is Timber?](#what-is-timber)**
+* **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
+* **[What about custom events?](#what-about-custom-events)**
+* **[Installation](#installation)**
+* **[Send your logs](#send-your-logs)**
+
+
+## What is Timber?
+
 Logs are amazingly useful...when they're structured. And unless you're a logging company,
 designing, implementing, and maintaining a structured logging strategy can be a major time sink.
 
@@ -126,7 +135,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>3. Install the Timber plugs</strong></summary><p>
+<details><summary><strong>3. Add the Timber plugs</strong></summary><p>
 
   1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
@@ -191,6 +200,22 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
+<details><summary><strong>6. (optional) Use Timber in development</strong></summary><p>
+
+  Bonus points! Use Timber in your development environment so you can see context locally:
+
+  ```elixir
+  # config/dev.exs
+
+  config :timber, :io_device,
+    colorize: true,
+    format: :logfmt,
+    print_timestamps: true
+    print_log_level: true
+  ```
+
+</p></details>
+
 
 ## Send your logs
 
@@ -199,9 +224,9 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 We recommend setting up a Heroku log drain. To do that, you'll need a Timber app with an API key.
 After creating an app, we'll display copy / paste instructions with your API key:
 
-**--> [Create a Timber app]()**
+**--> [Create a Timber app](https://app.timber.io)**
 
-\* If you don't have a Timber account signup is free and only requires a click via Github oauth.
+\* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
 
 </p></details>
 
@@ -210,26 +235,11 @@ After creating an app, we'll display copy / paste instructions with your API key
 You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
 with your API key:
 
-**----> [Click here to create a Timber app]()**
+**--> [Create a Timber app](https://app.timber.io)**
 
-* *If you don't have a Timber account signup is free and only requires a click via Github oauth.*
+\* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
 
 </p></details>
-
-
-## Development environment?
-
-Bonus points! Use Timber in your development environment so you can see context locally:
-
-```elixir
-# config/dev.exs
-
-config :timber, :io_device,
-  colorize: true,
-  format: :logfmt,
-  print_timestamps: true
-  print_log_level: true
-```
 
 ---
 
