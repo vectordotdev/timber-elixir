@@ -194,64 +194,28 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Send your logs
 
-<details><summary><strong>AWS Beanstalk</strong></summary><p>
-
-1. In your *shell*, add a Heroku log drain:
-
-  ```shell
-  heroku drains:add <timber provided URL> --app <heroku-app-name>
-  ```
-
-  * `timber provided URL` can be obtained
-
-</p></details>
-
-<details><summary><strong>AWS Lambda</strong></summary><p>
-
-```
-These are instructions
-```
-</p></details>
-
 <details><summary><strong>Heroku</strong></summary><p>
 
-Heroku requires that you log to `STDOUT` and the default transport for Timber is `STDOUT`. As such,
-there is no additional configuration for the library itself.
+You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
+with your API key:
 
-1. In your *shell*, add a Heroku log drain:
+**----> [Click here to create a Timber app]()**
 
-  ```shell
-  heroku drains:add <timber provided URL> --app <heroku-app-name>
-  ```
-
-  * `timber provided URL` can be obtained [here](url)
+* *If you don't have a Timber account signup is free and only requires a click via Github oauth.*
 
 </p></details>
 
 <details><summary><strong>Other - HTTP</strong></summary><p>
 
-If your platform isn't listed above, you can always use the built in HTTP transport:
+You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
+with your API key:
 
-1. fdsfdsfs
+**----> [Click here to create a Timber app]()**
 
-</p></details>
-
-<details><summary><strong>Other - File</strong></summary><p>
-
-If your platform isn't listed above, you can always use the built in HTTP transport:
-
-1. fdsfdsfs
+* *If you don't have a Timber account signup is free and only requires a click via Github oauth.*
 
 </p></details>
 
-
-<details><summary><strong>Other - STDOUT</strong></summary><p>
-
-If your platform isn't listed above, you can always use the built in HTTP transport:
-
-1. fdsfdsfs
-
-</p></details>
 
 ## Development environment?
 
