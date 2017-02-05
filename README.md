@@ -6,7 +6,7 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master) [![Coverage Status](https://coveralls.io/repos/github/timberio/timber-elixir/badge.svg?branch=master)](https://coveralls.io/github/timberio/timber-elixir=master)
 
-**Note: Timber is in beta testing, if interested in joining, please visit https://timber.io**
+:point_right: **Note: Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
 
 * **[What is Timber?](#what-is-timber)**
 * **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
