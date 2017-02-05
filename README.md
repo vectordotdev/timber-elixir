@@ -196,10 +196,10 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 <details><summary><strong>Heroku</strong></summary><p>
 
-You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
-with your API key:
+We recommend setting up a Heroku log drain. To do that, you'll need a Timber app with an API key.
+After creating an app, we'll display copy / paste instructions with your API key:
 
-**----> [Click here to create a Timber app]()**
+**----> [Create a Timber app]()**
 
 * *If you don't have a Timber account signup is free and only requires a click via Github oauth.*
 
