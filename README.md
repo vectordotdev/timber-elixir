@@ -219,27 +219,13 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Send your logs
 
-<details><summary><strong>Heroku</strong></summary><p>
+To start sending your logs you'll need a Timber app with an API key:
 
-  Heroku logs drains are the recommended strategy, but for high log volume apps you can also
-  use the in library HTTP method. To get started, you'll need a Timber app with an API key:
+**--> [Create a Timber app](https://app.timber.io)**
 
-  **--> [Create a Timber app](https://app.timber.io)**
+Based on the application and platform details you provide, Timber will display copy / paste
+instructions that include your API key.
 
-  \* We'll display copy / paste instructions after app creation.
-
-</p></details>
-
-<details><summary><strong>Other - HTTP</strong></summary><p>
-
-  You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
-  with your API key:
-
-  **--> [Create a Timber app](https://app.timber.io)**
-
-  \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
-
-</p></details>
 
 ---
 
