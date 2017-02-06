@@ -12,6 +12,7 @@
 * **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
 * **[What about custom events?](#what-about-custom-events)**
 * **[Installation](#installation)**
+* **[Setup](#installation)**
 * **[Send your logs](#send-your-logs)**
 
 
@@ -106,8 +107,6 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Installation
 
-<details><summary><strong>1. Add Timber as a dependency in `Mix.exs`</strong></summary><p>
-
   ```elixir
   # Mix.exs
 
@@ -119,9 +118,11 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     [{:timber, "~> 1.0"}]
   end
   ```
-</p></details>
 
-<details><summary><strong>2. Configure Timber in `config/config.exs`</strong></summary><p>
+
+## Setup
+
+<details><summary><strong>1. Configure Timber in `config/config.exs`</strong></summary><p>
 
   ```elixir
   # config/config.exs
@@ -135,7 +136,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>3. Add the Timber plugs</strong></summary><p>
+<details><summary><strong>2. Add the Timber plugs</strong></summary><p>
 
   1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
@@ -170,7 +171,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>4. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
+<details><summary><strong>3. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
   Skip if you are not using `Phoenix`.
 
@@ -187,7 +188,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>5. Add the Ecto logger in `config/config.exs`</strong></summary><p>
+<details><summary><strong>4. Add the Ecto logger in `config/config.exs`</strong></summary><p>
 
   Skip if you are not using `Ecto`.
 
@@ -200,7 +201,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 </p></details>
 
-<details><summary><strong>6. (optional) Use Timber in development</strong></summary><p>
+<details><summary><strong>5. (optional) Use Timber in development</strong></summary><p>
 
   Bonus points! Use Timber in your development environment so you can see context locally:
 
@@ -225,7 +226,13 @@ To start sending your logs you'll need a Timber app with an API key:
 
 Based on the application and platform details you provide, Timber will display copy / paste
 instructions that include your API key.
+export GITHUB_USER = "youtGithubUsername"
+export GITHUB_TOKEN = "yourfreshlygeneratedToken"
 
+
+## Library transport options
+
+For completeness
 
 ---
 
