@@ -221,30 +221,12 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 <details><summary><strong>Heroku</strong></summary><p>
 
-  <details><summary><strong>Using Heroku log drains (recommended)</strong></summary><p>
+  Heroku logs drains are the recommended strategy, but for high log volume apps you can also
+  use the in library HTTP method. To get started, you'll need a Timber app with an API key:
 
-    Heroku logs drains are the recommended strategy. To do that, you'll need to setup a Timber
-    application with an API key:
+  **--> [Create a Timber app](https://app.timber.io)**
 
-    **--> [Create a Timber app](https://app.timber.io)**
-
-    \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
-    \* If your app generates high volumes of logs we recommend the Library HTTP method below.
-
-  </p></details>
-
-  <details><summary><strong>Library HTTP</strong></summary><p>
-
-    If your app generates high volumes of logs, you'll want to use this option. After a certain
-    rate, Heroku logplex will drop logs and log an L10 error in your log stream. If you see these
-    errors you should switch to using HTTP. To do that, you'll need to create a Timber application
-    with an API key:
-
-    **--> [Create a Timber app](https://app.timber.io)**
-
-    \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
-
-  </p></details>
+  \* We'll display copy / paste instructions after app creation.
 
 </p></details>
 
