@@ -6,7 +6,7 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master) [![Coverage Status](https://coveralls.io/repos/github/timberio/timber-elixir/badge.svg?branch=master)](https://coveralls.io/github/timberio/timber-elixir=master)
 
-:point_right: **Note: Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
+:point_right: **Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
 
 * **[What is Timber?](#what-is-timber)**
 * **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
@@ -221,23 +221,41 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 <details><summary><strong>Heroku</strong></summary><p>
 
-We recommend setting up a Heroku log drain. To do that, you'll need a Timber app with an API key.
-After creating an app, we'll display copy / paste instructions with your API key:
+  <details><summary><strong>Using Heroku log drains (recommended)</strong></summary><p>
 
-**--> [Create a Timber app](https://app.timber.io)**
+    Heroku logs drains are the recommended strategy. To do that, you'll need to setup a Timber
+    application with an API key:
 
-\* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
+    **--> [Create a Timber app](https://app.timber.io)**
+
+    \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
+    \* If your app generates high volumes of logs we recommend the Library HTTP method below.
+
+  </p></details>
+
+  <details><summary><strong>Library HTTP</strong></summary><p>
+
+    If your app generates high volumes of logs, you'll want to use this option. After a certain
+    rate, Heroku logplex will drop logs and log an L10 error in your log stream. If you see these
+    errors you should switch to using HTTP. To do that, you'll need to create a Timber application
+    with an API key:
+
+    **--> [Create a Timber app](https://app.timber.io)**
+
+    \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
+
+  </p></details>
 
 </p></details>
 
 <details><summary><strong>Other - HTTP</strong></summary><p>
 
-You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
-with your API key:
+  You'll need a Timber app with an API key. After creating, we'll display copy / paste instructions
+  with your API key:
 
-**--> [Create a Timber app](https://app.timber.io)**
+  **--> [Create a Timber app](https://app.timber.io)**
 
-\* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
+  \* If you don't have a Timber account, signup is free and only requires a click via Github oauth.
 
 </p></details>
 
