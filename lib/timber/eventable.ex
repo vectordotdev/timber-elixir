@@ -25,14 +25,14 @@ defprotocol Timber.Eventable do
 
   ## What about custom events and structs?
 
-  We recommend defining a struct and calling `use Timber.Events.Custom` in that module. This takes
-  care of everything automatically. See `Timber.Events.Custom` for examples.
+  We recommend defining a struct and calling `use Timber.Events.CustomEvent` in that module.
+  This takes care of everything automatically. See `Timber.Events.CustomEvent` for examples.
   """
 
   @doc """
   Converts the data structure into a `Timber.Event.t`.
   """
-  @spec to_event(any()) :: t
+  @spec to_event(any()) :: Timber.Event.t
   def to_event(data)
 end
 

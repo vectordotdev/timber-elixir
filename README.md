@@ -70,13 +70,17 @@ a specific request? Context achieves that:
 
 <details><summary><strong>Basic logging</strong></summary><p>
 
+No special logger, no magic, use `Logger` as normal:
 
+```elixir
+Logger.info("My log message")
+```
 
 </p></details>
 
 <details><summary><strong>Custom events</strong></summary><p>
 
-1. Log a custom map (simplest)
+1. Log a map (simplest)
 
   The simplest way to send an event and kick the tires:
 
@@ -85,7 +89,7 @@ a specific request? Context achieves that:
   Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
   ```
 
-2. Log a custom struct (recommended)
+2. Log a struct (recommended)
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
   with down stream consumers and gives you compile time guarantees.
@@ -107,11 +111,40 @@ a specific request? Context achieves that:
   Logger.info(message, event: event)
   ```
 
-  Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
+* Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
 
 </p></details>
 
 <details><summary><strong>Custom contexts</strong></summary><p>
+
+Context is additional data shared across log lines. Think of it like join data. For example, the
+`http.request_id` is included in the context, allowing you to view all log lines related to that
+request ID. Not just the lines that contain the value.
+
+1. Add a map (simplest)
+
+  The simplest way to add context is:
+
+  ```elixir
+  Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
+  ```
+
+  This adds context namespaced by the `build`.
+
+2. Add a struct (recommended)
+
+  Just like events, we recommend defining your custom contexts. It makes a stronger contract
+  with downstream consumers.
+
+  ```elixir
+  def BuildContext do
+    use Timber.Contexts.CustomContext, type: :build
+    @enforce_keys [:version]
+    defstruct [:version]
+  end
+
+  Timber.add_context(%BuildContext{version: "1.0.0"})
+  ```
 
 </p></details>
 
@@ -162,13 +195,13 @@ a specific request? Context achieves that:
     ```elixir
     # lib/my_app/endpoint.ex
 
+    # Insert immediately before plug MyApp.Router
     plug Timber.Integrations.ContextPlug
     plug Timber.Integrations.EventPlug
     ```
 
-    * To learn more about what each of these plugs are doing, checkout the docs:
-      [Timber.Integrations.ContextPlug](lib/timber/integrations/context_plug.ex) and
-      [Timber.Integrations.EventPlug](lib/timber/integrations/event_plug.ex)
+    * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
+      `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
 
 </p></details>
 
