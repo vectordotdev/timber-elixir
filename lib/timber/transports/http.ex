@@ -96,7 +96,7 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => "Timber Elixir HTTP Transport/1.0.0"
     }
 
-    :hackney.request(:post, @url, headers, body, [with_body: true])
+    get_http_client!().request(:post, @url, headers, body, [])
 
     %{state | buffer: [], buffer_size: 0}
   end
