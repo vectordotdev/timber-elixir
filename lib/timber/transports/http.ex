@@ -101,14 +101,6 @@ defmodule Timber.Transports.HTTP do
     %{state | buffer: [], buffer_size: 0}
   end
 
-  # If there is an existing ref, that means we need to wait for
-  # the IO device to inform us that it is done writing.
-  def flush(state) do
-    state
-    |> wait_for_device()
-    |> flush()
-  end
-
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
   defp get_http_client!, do: Keyword.get(config(), :http_client, @default_http_client)
