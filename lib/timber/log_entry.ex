@@ -104,24 +104,12 @@ defmodule Timber.LogEntry do
     |> UtilsMap.recursively_drop_blanks()
   end
 
-  defp to_api_map(%Events.ControllerCallEvent{} = event),
-    do: %{server_side_app: %{controller_call: Map.from_struct(event)}}
   defp to_api_map(%Events.CustomEvent{type: type, data: data}),
     do: %{server_side_app: %{custom: %{type => data}}}
-  defp to_api_map(%Events.ExceptionEvent{} = event),
-    do: %{server_side_app: %{exception: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPClientRequestEvent{} = event),
-    do: %{server_side_app: %{http_client_request: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPClientResponseEvent{} = event),
-    do: %{server_side_app: %{http_client_response: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPServerRequestEvent{} = event),
-    do: %{server_side_app: %{http_server_request: Map.from_struct(event)}}
-  defp to_api_map(%Events.HTTPServerResponseEvent{} = event),
-    do: %{server_side_app: %{http_server_response: Map.from_struct(event)}}
-  defp to_api_map(%Events.SQLQueryEvent{} = event),
-    do: %{server_side_app: %{sql_query: Map.from_struct(event)}}
-  defp to_api_map(%Events.TemplateRenderEvent{} = event),
-    do: %{server_side_app: %{template_render: Map.from_struct(event)}}
+  defp to_api_map(event) do
+    type = Event.type(event)
+    %{server_side_app: %{type => Map.from_struct(event)}}
+  end
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(value, :json) do

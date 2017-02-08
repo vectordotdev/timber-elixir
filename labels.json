@@ -1,0 +1,42 @@
+[
+  {
+    "name": "bug",
+    "color": "#ee0701"
+  },
+  {
+    "name": "code debt",
+    "color": "#b60205"
+  },
+  {
+    "name": "duplicate",
+    "color": "#cccccc"
+  },
+  {
+    "name": "enhancement",
+    "color": "#84b6eb"
+  },
+  {
+    "name": "help wanted",
+    "color": "#128A0C"
+  },
+  {
+    "name": "idea",
+    "color": "#fef2c0"
+  },
+  {
+    "name": "invalid",
+    "color": "#e6e6e6"
+  },
+  {
+    "name": "on hold",
+    "color": "#d93f0b"
+  },
+  {
+    "name": "question",
+    "color": "#cc317c"
+  },
+  {
+    "name": "wontfix",
+    "color": "#ffffff"
+  }
+]

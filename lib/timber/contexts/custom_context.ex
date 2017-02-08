@@ -1,10 +1,7 @@
 defmodule Timber.Contexts.CustomContext do
   @moduledoc """
-  A custom context can be specified by the user that is specific to the system
-  being logged.
-
-  You can use a custom context to track contextual information relevant to your
-  system that is not one of the commonly supported contexts for Timber.
+  The `CustomContext` allows you to track contextual information relevant to your
+  system that is not one of the commonly supported contexts for Timber (`Timber.Contexts.*`).
 
   ## Fields
 
@@ -15,8 +12,29 @@ defmodule Timber.Contexts.CustomContext do
 
   ## Example
 
-    %Timber.Contexts.CustomContext{type: :my_custom_context, data: %{"key" => "value"}}
-    |> Timber.add_context()
+  There are 2 ways to log custom events:
+
+  1. Use a map (simplest)
+
+    ```elixir
+    Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
+    ```
+
+  2. Use a struct
+
+    Defining structs for your contexts creates a strong contract with down stream consumers
+    and gives you compile time guarantees. It makes a statement that this context means something
+    and that it can relied upon.
+
+    ```elixir
+    def BuildContext do
+      use Timber.Contexts.CustomContext, type: :build
+      @enforce_keys [:version]
+      defstruct [:version]
+    end
+
+    Timber.add_context(%BuildContext{version: "1.0.0"})
+    ```
 
   """
 

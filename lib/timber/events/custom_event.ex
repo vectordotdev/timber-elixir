@@ -21,7 +21,7 @@ defmodule Timber.Events.CustomEvent do
     * `:time_ms` (float, optional) - Represents the execution time in fractional milliseconds.
       Example: `45.6`
 
-  ## Example usage
+  ## Example
 
   There are 2 ways to log custom events:
 
