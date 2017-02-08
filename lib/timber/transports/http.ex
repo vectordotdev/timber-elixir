@@ -21,17 +21,10 @@ defmodule Timber.Transports.HTTP do
 
   @behaviour Timber.Transport
 
-  alias Timber.{LogEntry, LoggerBackend}
-
-  defstruct api_key: nil,
-            output: nil,
-            buffer_size: 0,
-            max_buffer_size: @default_max_buffer_size,
-            buffer: []
+  alias Timber.LogEntry
 
   @typep t :: %__MODULE__{
     api_key: String.t,
-    output: nil | IO.chardata,
     buffer_size: non_neg_integer,
     max_buffer_size: pos_integer,
     buffer: [] | [IO.chardata]
@@ -40,6 +33,11 @@ defmodule Timber.Transports.HTTP do
   @default_max_buffer_size 100
   @default_http_client __MODULE__.HackneyClient
   @url "https://api.timber.io/frames"
+
+  defstruct api_key: nil,
+            buffer_size: 0,
+            max_buffer_size: @default_max_buffer_size,
+            buffer: []
 
   @doc false
   @spec init() :: {:ok, t}
@@ -59,9 +57,7 @@ defmodule Timber.Transports.HTTP do
 
   @doc false
   @spec write(LogEntry.t, t) :: {:ok, t}
-  def write(%LogEntry{dt: timestamp, level: level, message: message} = log_entry,
-    %{buffer_size: buffer_size, max_buffer_size: max_buffer_size} = state)
-  do
+  def write(log_entry, %{buffer_size: buffer_size, max_buffer_size: max_buffer_size} = state) do
     new_state = if buffer_size < max_buffer_size do
       write_buffer(log_entry, state)
     else

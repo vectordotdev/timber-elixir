@@ -268,7 +268,26 @@ is true for any Heroku app, in which case we recommend the Network method below.
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
-1. Configure Timber to use the HTTP transport in `config/prod.exs`:
+Timber does not force an HTTP client on you. The following instruction utilize the Timber default
+`hackney`. If you'd like to use another client see `Timber.Transports.HTTP.Client`.
+
+1. Add HTTP dependencies to `mix.exs` and start them:
+
+  ```elixir
+  def application do
+    [applications: [:fuse, :hackney, :timber]] # <-- Be sure to start fuse and hackney!
+  end
+
+  def deps do
+    [
+      {:timber, "~> 1.0"},
+      {:fuse, "~> 2.4"}, # <-- Add this
+      {:hackney, "~> 1.6"} # <-- Add this
+    ]
+  end
+  ```
+
+2. Configure Timber to use the HTTP transport in `config/prod.exs`:
 
   ```elixir
   # config/prod.exs
@@ -279,7 +298,7 @@ is true for any Heroku app, in which case we recommend the Network method below.
     api_key: System.get_env("TIMBER_API_KEY")
   ```
 
-2. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
 
 </p></details>
 

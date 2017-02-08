@@ -48,8 +48,15 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     fuse_options = get_fuse_options()
     pool_options = get_pool_options()
 
-    :ok = :fuse.install(@fuse_name, fuse_options)
-    :ok = :hackney_pool.start_pool(@pool_name, pool_options)
+    fuse_started = Enum.any?(Application.started_applications(), fn {name, _desc, _version} -> name == :fuse end)
+    if fuse_started do
+      :ok = :fuse.install(@fuse_name, fuse_options)
+    end
+
+    hackney_started = Enum.any?(Application.started_applications(), fn {name, _desc, _version} -> name == :hackney end)
+    if hackney_started do
+      :ok = :hackney_pool.start_pool(@pool_name, pool_options)
+    end
 
     :ok
   end
@@ -79,7 +86,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
         case :hackney.request(method, url, headers, body, req_opts) do
           {:ok, status, headers, body} ->
             maintain_fuse(status)
-            {:ok, statue, headers, body}
+            {:ok, status, headers, body}
           {:error, error} ->
             {:error, error}
         end

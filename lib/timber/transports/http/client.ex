@@ -1,4 +1,4 @@
-defmodule Timber.HTTP.Client do
+defmodule Timber.Transports.HTTP.Client do
   @moduledoc """
   Behavior for custom HTTP clients. If you opt not to use the default Timber HTTP client
   you can define your own here.
