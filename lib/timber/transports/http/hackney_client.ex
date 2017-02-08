@@ -79,6 +79,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
         case :hackney.request(method, url, headers, body, req_opts) do
           {:ok, status, headers, body} ->
             maintain_fuse(status)
+            {:ok, statue, headers, body}
           {:error, error} ->
             {:error, error}
         end

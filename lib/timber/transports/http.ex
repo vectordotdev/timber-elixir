@@ -59,7 +59,9 @@ defmodule Timber.Transports.HTTP do
 
   @doc false
   @spec write(LogEntry.t, t) :: {:ok, t}
-  def write(%LogEntry{dt: timestamp, level: level, message: message} = log_entry, %{buffer: buffer, buffer_size: buffer_size}) do
+  def write(%LogEntry{dt: timestamp, level: level, message: message} = log_entry,
+    %{buffer_size: buffer_size, max_buffer_size: max_buffer_size} = state)
+  do
     new_state = if buffer_size < max_buffer_size do
       write_buffer(log_entry, state)
     else
@@ -71,7 +73,7 @@ defmodule Timber.Transports.HTTP do
 
   # Writes a log entry into the buffer
   @spec write_buffer(LogEntry.t, t) :: t
-  defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size}) do
+  defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size} = state) do
     %__MODULE__{state | buffer: [buffer | log_entry], buffer_size: buffer_size + 1}
   end
 

@@ -57,9 +57,9 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
-    children = [
-      worker(Timber.Transports.HTTP.HackneyClient, [])
-    ]
+    :ok = Timber.Transports.HTTP.HackneyClient
+
+    children = []
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)
   end
