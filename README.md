@@ -268,6 +268,8 @@ The recommended strategy for Heroku is to setup a
 *:information_desk_person: Note: for high volume apps Heroku log drains will drop messages. This
 is true for any Heroku app, in which case we recommend the Network method below.*
 
+---
+
 </p></details>
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
@@ -305,6 +307,8 @@ little overhead. If you'd like to use another client see `Timber.Transports.HTTP
   ```
 
 3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+
+---
 
 </p></details>
 
