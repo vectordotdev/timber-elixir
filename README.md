@@ -21,17 +21,19 @@
 Logs are amazingly useful...when they're structured. And unless you're a logging company,
 designing, implementing, and maintaining a structured logging strategy can be a major time sink.
 
-Timber gives you this *today*. It's a fully-managed structured logging system that...
+Timber gives you this *today*, allowing you to spend time on your app, not logging. Specifically,
+Timber is a thoughtful, carefully crafted, fully-managed, *structured* logging strategy that...
 
 1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
 2. Provides a [framework for logging custom events](#what-about-custom-events).
-3. Defines a [normalized log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps. Implemented by [our libraries](https://github.com/timberio).
-4. Offers a [beautiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
-5. Gives you *6 months of retention*, by default.
-6. Does not charge you for the extra structured data we're encouraging here, only the core log message.
-7. Encrypts your data in transit and at rest.
-8. Offers 11 9s of durability.
-9. ...and so much more!
+3. Does not lock you in with a special API or closed data. Just better logging.
+4. Defines a [normalized log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps. Implemented by [our libraries](https://github.com/timberio).
+5. Offers a [beautiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
+6. Gives you *6 months of retention*, by default.
+7. Does not charge you for the extra structured data we're encouraging here, only the core log message.
+8. Encrypts your data in transit and at rest.
+9. Offers 11 9s of durability.
+10. ...and so much more!
 
 To learn more, checkout out [timber.io](https://timber.io) or the
 ["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
@@ -66,10 +68,9 @@ a specific request? Context achieves that:
 
 ## What about custom events?
 
-No probs! We've put careful thought in how this would be implemented. You have a couple of options
-depending on how strict you want to be with structuring your events.
-
 <details><summary><strong>1. Log a custom map (simplest)</strong></summary><p>
+
+  The simplest way to send an event and kick the tires:
 
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
@@ -129,7 +130,7 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
   config :logger,
     backends: [Timber.LoggerBackend],
-    handle_otp_reports: false # Timber handles this and adds additional metadata
+    handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
 
   config :timber, :capture_errors, true
   ```
@@ -146,23 +147,13 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
     plug Plug.Logger # <--- REMOVE ME
     ```
 
-  2. Add the Timber plugs in `web/router.ex`:
+  2. Add the Timber plugs in `lib/my_app/endpoint.ex``:
 
     ```elixir
-    # web/router.ex
+    # lib/my_app/endpoint.ex
 
-    defmodule MyApp.Router do
-      use MyApp.Web, :router
-
-      pipeline :logging do
-        plug Timber.Integrations.ContextPlug
-        plug Timber.Integrations.EventPlug
-      end
-
-      scope "/api", MyApp do
-        pipe_through :logging
-      end
-    end
+    plug Timber.Integrations.ContextPlug
+    plug Timber.Integrations.EventPlug
     ```
 
     * To learn more about what each of these plugs are doing, checkout the docs:
@@ -220,19 +211,30 @@ Notice there are no special APIs, no risk of code-debt, and no lock-in. Just bet
 
 ## Send your logs
 
-To start sending your logs you'll need a Timber app with an API key:
+<details><summary><strong>Heroku (log drains)</strong></summary><p>
 
-**--> [Create a Timber app](https://app.timber.io)**
+The recommended strategy for Heroku is to setup a
+[log drain](https://devcenter.heroku.com/articles/log-drains). To get your Timber log drain URL:
 
-Based on the application and platform details you provide, Timber will display copy / paste
-instructions that include your API key.
-export GITHUB_USER = "youtGithubUsername"
-export GITHUB_TOKEN = "yourfreshlygeneratedToken"
+**--> [Add your app to Timber](https://app.timber.io)**
 
+*:information_desk_person: Note: for high volume apps Heroku log drains will drop messages. This
+is true for any Heroku app, in which case we recommend the Network method below.*
 
-## Library transport options
+</p></details>
 
-For completeness
+<details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
+
+Coming soon!
+
+</p></details>
+
+<details><summary><strong>Advanced setup (syslog, file tailing agent, etc)</strong></summary><p>
+
+Checkout our [docs](https://timber.io/docs) for a comprehensive list of install instructions.
+
+</p></details>
+
 
 ---
 
