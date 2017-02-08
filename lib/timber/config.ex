@@ -10,9 +10,6 @@ defmodule Timber.Config do
   def event_key,
     do: Application.get_env(@env_key, :event_key, :event)
 
-  def io_device,
-    do: Application.get_env(@env_key, :io_device, [])
-
   def json_decoder,
     do: Application.get_env(@env_key, :json_decoder, &Poison.encode_to_iodata!/1)
 
@@ -21,6 +18,10 @@ defmodule Timber.Config do
     Application.get_env(@env_key, :instrumentation_level, default)
   end
 
+  @doc """
+  Gets the transport specificed in the :timber configuration. The default is
+  `Timber.Transports.IODevice`.
+  """
   def transport,
     do: Application.get_env(@env_key, :transport)
 end

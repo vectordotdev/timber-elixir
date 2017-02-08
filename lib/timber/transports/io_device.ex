@@ -203,7 +203,7 @@ defmodule Timber.Transports.IODevice do
 
     init_env = [escape_new_lines: heroku?]
 
-    env = Timber.Config.io_device()
+    env = Application.get_env(:timber, :io_device, [])
 
     Keyword.merge(init_env, env)
   end
