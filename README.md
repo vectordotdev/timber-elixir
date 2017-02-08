@@ -10,7 +10,7 @@
 
 * **[What is Timber?](#what-is-timber)**
 * **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
-* **[What about custom events?](#what-about-custom-events)**
+* **[Usage](#usage)**
 * **[Installation](#installation)**
 * **[Setup](#installation)**
 * **[Send your logs](#send-your-logs)**
@@ -66,9 +66,17 @@ a specific request? Context achieves that:
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 
-## What about custom events?
+## Usage
 
-<details><summary><strong>1. Log a custom map (simplest)</strong></summary><p>
+<details><summary><strong>Basic logging</strong></summary><p>
+
+
+
+</p></details>
+
+<details><summary><strong>Custom events</strong></summary><p>
+
+1. Log a custom map (simplest)
 
   The simplest way to send an event and kick the tires:
 
@@ -77,9 +85,7 @@ a specific request? Context achieves that:
   Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
   ```
 
-</p></details>
-
-<details><summary><strong>2. Log a custom struct (recommended)</strong></summary><p>
+2. Log a custom struct (recommended)
 
   Defining structs for your important events just feels oh so good :) It creates a strong contract
   with down stream consumers and gives you compile time guarantees.
@@ -101,9 +107,13 @@ a specific request? Context achieves that:
   Logger.info(message, event: event)
   ```
 
+  Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
+
 </p></details>
 
-Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
+<details><summary><strong>Custom contexts</strong></summary><p>
+
+</p></details>
 
 
 ## Installation
