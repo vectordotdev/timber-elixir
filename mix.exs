@@ -160,7 +160,7 @@ defmodule Timber.Mixfile do
       {:fuse, "~> 2.4", optional: true},
       {:hackney, "~> 1.6", optional: true},
       {:excoveralls, "~> 0.5", only: [:test]},
-      {:msgpax, "~> 1.0", optional: true},
+      {:msgpax, "~> 1.0"},
       {:plug, "~> 1.2", optional: true},
       {:phoenix, "~> 1.2", optional: true},
       {:poison, "~> 2.0 or ~> 3.0"},

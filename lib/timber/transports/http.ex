@@ -30,7 +30,7 @@ defmodule Timber.Transports.HTTP do
     buffer: [] | [IO.chardata]
   }
 
-  @default_max_buffer_size 100
+  @default_max_buffer_size 5000 # 5000 log lines should be well below 1mb and give us plent of room
   @default_http_client __MODULE__.HackneyClient
   @url "https://api.timber.io/frames"
 

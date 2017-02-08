@@ -269,7 +269,9 @@ is true for any Heroku app, in which case we recommend the Network method below.
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
 Timber does not force an HTTP client on you. The following instruction utilize the Timber default
-`hackney`. If you'd like to use another client see `Timber.Transports.HTTP.Client`.
+`Timber.Transports.HTTP.HackneyClient`. This is a highly efficient client that utilizes batching,
+stay alive connections, connection pools, and msgpack to deliver logs with high throughput and
+little overhead. If you'd like to use another client see `Timber.Transports.HTTP.Client`.
 
 1. Add HTTP dependencies to `mix.exs` and start them:
 
