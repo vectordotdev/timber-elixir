@@ -268,10 +268,10 @@ is true for any Heroku app, in which case we recommend the Network method below.
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
-1. Configure Timber to use the HTTP transport:
+1. Configure Timber to use the HTTP transport in `config/prod.exs`:
 
   ```elixir
-  # config/config.exs
+  # config/prod.exs
 
   config :timber, :transport, Timber.Transports.HTTP
 
@@ -279,7 +279,7 @@ is true for any Heroku app, in which case we recommend the Network method below.
     api_key: System.get_env("TIMBER_API_KEY")
   ```
 
-2. **Obtain your Timber API :key: by [adding your app in Timber](https://app.timber.io).**
+2. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
 
 </p></details>
 

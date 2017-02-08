@@ -96,12 +96,12 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => "Timber Elixir HTTP Transport/1.0.0"
     }
 
-    get_http_client!().request(:post, @url, headers, body, [])
+    get_http_client().request(:post, @url, headers, body, [])
 
     %{state | buffer: [], buffer_size: 0}
   end
 
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
-  defp get_http_client!, do: Keyword.get(config(), :http_client, @default_http_client)
+  defp get_http_client, do: Keyword.get(config(), :http_client, @default_http_client)
 end
