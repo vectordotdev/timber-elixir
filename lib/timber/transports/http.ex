@@ -33,11 +33,10 @@ defmodule Timber.Transports.HTTP do
 
   # 5000 log lines should be well below 1mb and provide plenty of time to handle
   # network failures, etc.
+  @content_type "application/msgpack"
   @default_max_buffer_size 5000
   @default_flush_interval 1000
   @default_http_client __MODULE__.HackneyClient
-  @vsn Application.spec(:timber, :vsn)
-  @user_agent "Timber Elixir/#{@vsn} (HTTP)"
   @url "https://api.timber.io/frames"
 
   defstruct api_key: nil,
@@ -117,11 +116,12 @@ defmodule Timber.Transports.HTTP do
       |> Msgpax.pack()
 
     auth_token = Base.encode64(api_key)
-
+    vsn = Application.spec(:timber, :vsn)
+    user_agent = "Timber Elixir/#{vsn} (HTTP)"
     headers = %{
       "Authorization" => "Basic #{auth_token}",
-      "Content-Type" => "application/msgpack",
-      "User-Agent" => "Timber Elixir HTTP Transport/1.0.0"
+      "Content-Type" => @content_type,
+      "User-Agent" => user_agent
     }
 
     get_http_client().request(:post, @url, headers, body, [])

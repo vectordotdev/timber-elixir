@@ -53,11 +53,15 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   Issues a HTTP request via hackney.
   """
   def request(method, url, headers, body, opts) do
+    req_headers = encode_req_headers(headers)
     req_opts =
       get_request_options()
       |> Keyword.merge(opts)
       |> Keyword.merge([pool: @pool_name, with_body: true])
 
-    :hackney.request(method, url, headers, body, req_opts)
+    :hackney.request(method, url, req_headers, body, req_opts)
   end
+
+  defp encode_req_headers(headers),
+    do: Enum.map(headers, &(&1))
 end

@@ -5,6 +5,10 @@ defmodule Timber.Stubbing do
         Agent.start_link(fn -> %{} end, name: __MODULE__)
       end
 
+      def reset do
+        Agent.update(__MODULE__, fn _ -> %{} end)
+      end
+
       defp add_function_call(name, args) do
         calls = get_function_calls(name)
         Agent.update(__MODULE__, &Map.put(&1, name, calls ++ [args]))

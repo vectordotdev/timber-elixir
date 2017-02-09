@@ -32,7 +32,8 @@ defmodule Timber.Transports.HTTPTest do
       call = Enum.at(calls, 0)
       assert elem(call, 0) == :post
       assert elem(call, 1) == "https://api.timber.io/frames"
-      assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir HTTP Transport/1.0.0"}
+      vsn = Application.spec(:timber, :vsn)
+      assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
       {:ok, encoded_body} = Msgpax.pack([LogEntry.to_map!(entry)])
       assert elem(call, 3) == encoded_body
       assert elem(call, 4) == []
