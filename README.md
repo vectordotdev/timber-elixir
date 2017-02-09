@@ -237,7 +237,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>5. (optional) Use Timber in development</strong></summary><p>
+<details><summary><strong>5. (optional) Config Timber for development in `config/dev.exs`</strong></summary><p>
 
   Bonus points! Use Timber in your development environment so you can see context locally:
 
