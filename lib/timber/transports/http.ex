@@ -1,6 +1,6 @@
 defmodule Timber.Transports.HTTP do
   @moduledoc """
-  A highly efficient HTTP transport that buffers and delivers log messages over HTTP to the
+  An efficient HTTP transport that buffers and delivers log messages over HTTP to the
   Timber API. It uses batching, keep-alive connections, and msgpack to deliver logs with
   high-throughput and little overhead.
 
@@ -26,24 +26,36 @@ defmodule Timber.Transports.HTTP do
   @typep t :: %__MODULE__{
     api_key: String.t,
     buffer_size: non_neg_integer,
-    max_buffer_size: pos_integer,
-    buffer: [] | [IO.chardata]
+    buffer: [] | [IO.chardata],
+    flush_interval: non_neg_integer,
+    max_buffer_size: pos_integer
   }
 
-  @default_max_buffer_size 5000 # 5000 log lines should be well below 1mb and give us plent of room
+  # 5000 log lines should be well below 1mb and provide plenty of time to handle
+  # network failures, etc.
+  @default_max_buffer_size 5000
+  @default_flush_interval 1000
   @default_http_client __MODULE__.HackneyClient
   @url "https://api.timber.io/frames"
 
   defstruct api_key: nil,
             buffer_size: 0,
-            max_buffer_size: @default_max_buffer_size,
-            buffer: []
+            buffer: [],
+            flush_interval: @default_flush_interval,
+            max_buffer_size: @default_max_buffer_size
 
   @doc false
   @spec init() :: {:ok, t}
   def init() do
-    config()
-    |> configure(%__MODULE__{})
+    config =
+      config()
+      |> Keyword.put(:api_key, Timber.Config.api_key!())
+    case configure(config, %__MODULE__{}) do
+      {:ok, state} ->
+        flusher(state.flush_interval)
+        {:ok, state}
+      {:error, error} -> {:error, error}
+    end
   end
 
   @doc false
@@ -57,31 +69,45 @@ defmodule Timber.Transports.HTTP do
 
   @doc false
   @spec write(LogEntry.t, t) :: {:ok, t}
-  def write(log_entry, %{buffer_size: buffer_size, max_buffer_size: max_buffer_size} = state) do
-    new_state = if buffer_size < max_buffer_size do
-      write_buffer(log_entry, state)
+  def write(log_entry, state) do
+    state = write_buffer(log_entry, state)
+    if state.buffer_size > state.max_buffer_size do
+      {:ok, flush(state)}
     else
-      flush(state)
+      {:ok, state}
     end
-
-    {:ok, new_state}
   end
 
   # Writes a log entry into the buffer
   @spec write_buffer(LogEntry.t, t) :: t
   defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size} = state) do
-    %__MODULE__{state | buffer: [buffer | log_entry], buffer_size: buffer_size + 1}
+    %{state | buffer: buffer ++ [log_entry], buffer_size: buffer_size + 1}
   end
 
+  # Handle the flusher step, this recursively calls itself.
+  def handle_info(:flusher_step, state) do
+    new_state = flush(state)
+    flusher(state.flush_interval)
+    {:ok, new_state}
+  end
+  # Do nothing for everything else.
   def handle_info(_, state) do
     {:ok, state}
   end
 
+  # The flusher recursively calls itself on the specificed `interval`. This ensures
+  # items do not sit in the buffer longer than `interval`.
+  defp flusher(interval) do
+    Process.send_after(self(), :flusher_step, interval)
+  end
+
   @doc false
   @spec flush(t) :: t
-  def flush(%{buffer: []} = state), do: state
+  def flush(%{buffer: []} = state) do
+    state
+  end
   def flush(%{api_key: api_key, buffer: buffer} = state) do
-    body =
+    {:ok, body} =
       buffer
       |> Enum.map(&LogEntry.to_map!/1)
       |> Msgpax.pack()

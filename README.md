@@ -170,7 +170,7 @@ request ID. Not just the lines that contain the value.
 
 ## Setup
 
-<details><summary><strong>1. Configure Timber in `config/config.exs`</strong></summary><p>
+<details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
 
   ```elixir
   # config/config.exs
@@ -184,7 +184,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>2. Add the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
+<details><summary><strong>2. *Add* the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
 
   :point_right: *Skip if you are not using `Plug`.*
 
@@ -207,7 +207,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>3. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
+<details><summary><strong>3. *Add* Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
   :point_right: *Skip if you are not using `Phoenix`.*
 
@@ -224,7 +224,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>4. Add the Ecto logger in `config/config.exs`</strong></summary><p>
+<details><summary><strong>4. *Add* the Ecto logger in `config/config.exs`</strong></summary><p>
 
   :point_right: *Skip if you are not using `Ecto`.*
 
@@ -237,7 +237,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>5. (optional) Configure Timber for development in `config/dev.exs`</strong></summary><p>
+<details><summary><strong>5. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
 
   Bonus points! Use Timber in your development environment so you can see context locally:
 
@@ -272,38 +272,57 @@ is true for any Heroku app, in which case we recommend the Network method below.
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
-Timber does not force an HTTP client on you. The following instruction utilize the Timber default
-`Timber.Transports.HTTP.HackneyClient`. This is a highly efficient client that utilizes batching,
-stay alive connections, connection pools, and msgpack to deliver logs with high throughput and
-little overhead. If you'd like to use another client see `Timber.Transports.HTTP.Client`.
+Timber does *not* force an HTTP client on you. The following instruction utilize the Timber default
+`Timber.Transports.HTTP.HackneyClient`. This is a highly efficient client that utilizes hackney,
+batching, stay alive connections, connection pools, and msgpack to deliver logs with high
+throughput and little overhead. If you'd like to use another client see
+`Timber.Transports.HTTP.Client`.
 
-1. Add HTTP dependencies to `mix.exs` and start them:
+1. *Add* HTTP dependencies to `mix.exs`:
 
   ```elixir
   def application do
-    [applications: [:fuse, :hackney, :timber]] # <-- Be sure to start fuse and hackney!
+    [applications: [:hackney, :timber]] # <-- Be sure to add hackney!
   end
 
   def deps do
     [
       {:timber, "~> 1.0"},
-      {:fuse, "~> 2.4"}, # <-- Add this
-      {:hackney, "~> 1.6"} # <-- Add this
+      {:hackney, "~> 1.6"} # <-- ADD ME
     ]
   end
   ```
 
-2. Configure Timber to use the HTTP transport in `config/prod.exs`:
+2. *Configure* Timber to use the Network transport in `config/prod.exs`:
 
   ```elixir
   # config/prod.exs
 
   config :timber,
-    transport: Timber.Transports.HTTP,
+    transport: Timber.Transports.Network,
     api_key: System.get_env("TIMBER_API_KEY")
   ```
 
-3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+3. *Start* the Timber modules in `myapp.ex`:
+
+  ```elixir
+  # myapp.ex
+
+  def start(_type, _opts) do
+    :ok = Timber.Transports.HTTP.HackneyClient.start() # <-- ADD ME
+
+    children = []
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+  ```
+
+4. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+   Afterwards simply assign it to the `TIMBER_API_KEY` environment variable.
+
+* Note: we use the `Network` transport so that we can upgrade protocols in the future if we
+  deem it more efficient. For example, TCP. If you want to use strictly HTTP, simply replace
+  `Timber.Transports.Network` with `Timber.Transports.HTTP`.
 
 ---
 

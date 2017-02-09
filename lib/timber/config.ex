@@ -1,6 +1,9 @@
 defmodule Timber.Config do
   @env_key :timber
 
+  def api_key!,
+    do: Application.fetch_env!(@env_key, :api_key)
+
   def capture_errors?,
     do: Application.get_env(@env_key, :capture_errors, false)
 

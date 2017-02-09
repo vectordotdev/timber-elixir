@@ -157,7 +157,6 @@ defmodule Timber.Mixfile do
       {:earmark, "~> 1.0", only: [:dev, :docs]},
       {:ecto, "~> 2.0", optional: true},
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
-      {:fuse, "~> 2.4", optional: true},
       {:hackney, "~> 1.6", optional: true},
       {:excoveralls, "~> 0.5", only: [:test]},
       {:msgpax, "~> 1.0"},
