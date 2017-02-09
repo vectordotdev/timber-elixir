@@ -184,7 +184,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>2. Add the Timber plugs</strong></summary><p>
+<details><summary><strong>2. Add the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
 
   :point_right: *Skip if you are not using `Plug`.*
 
