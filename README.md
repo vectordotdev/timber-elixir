@@ -13,7 +13,7 @@
 ---
 
 * **[What is Timber?](#what-is-timber)**
-* **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
+* **[What does Timber structure for me?](#what-events-does-timber-structure-for-me)**
 * **[Usage](#usage)**
 * **[Installation](#installation)**
 * **[Setup](#installation)**
@@ -44,7 +44,7 @@ To learn more, checkout out [timber.io](https://timber.io) or the
 blog post.
 
 
-## What events does Timber structure for me?
+## What does Timber structure for me?
 
 Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
 
@@ -59,8 +59,8 @@ Out of the box you get everything in the [`Timber.Events`](lib/timber/events) na
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 We also add context to every log, everything in the [`Timber.Contexts`](lib/timber/contexts)
-namespace. Context is like join data for your logs. Ever wish you could see all log lines written
-a specific request? Context achieves that:
+namespace. Context is like join data for your logs. Have you ever wished you could search for all
+logs written with in a specific request ID? Context achieves that:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
@@ -186,6 +186,8 @@ request ID. Not just the lines that contain the value.
 
 <details><summary><strong>2. Add the Timber plugs</strong></summary><p>
 
+  :point_right: *Skip if you are not using `Plug`.*
+
   1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
 
     ```elixir
@@ -211,7 +213,7 @@ request ID. Not just the lines that contain the value.
 
 <details><summary><strong>3. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
-  Skip if you are not using `Phoenix`.
+  :point_right: *Skip if you are not using `Phoenix`.*
 
   ```elixir
   # config/config.exs
@@ -228,7 +230,7 @@ request ID. Not just the lines that contain the value.
 
 <details><summary><strong>4. Add the Ecto logger in `config/config.exs`</strong></summary><p>
 
-  Skip if you are not using `Ecto`.
+  :point_right: *Skip if you are not using `Ecto`.*
 
   ```elixir
   # config/config.exs
