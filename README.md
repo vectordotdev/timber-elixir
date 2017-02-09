@@ -12,23 +12,22 @@
 
 ---
 
-* **[What is Timber?](#what-is-timber)**
-* **[What does Timber structure for me?](#what-events-does-timber-structure-for-me)**
-* **[Usage](#usage)**
-* **[Installation](#installation)**
-* **[Setup](#installation)**
-* **[Send your logs](#send-your-logs)**
+Timber is a complete, fully-managed, *structured* logging system that you can setup in
+minutes. It pairs libraries that automatically structure your logs (like this one),
+with a [beautiful modern console](https://timber.io) designed specifically for this data.
+
+To learn more, checkout out [timber.io](https://timber.io) or the
+["why we built Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
+blog post.
 
 
-## What is Timber?
+## Overview
 
-Logs are amazingly useful...when they're structured. And unless you're a logging company,
-designing, implementing, and maintaining a structured logging strategy can be a major time sink.
+<details><summary><strong>What does Timber do?</strong></summary><p>
 
-Timber gives you this *today*, allowing you to spend time on your app, not logging. Specifically,
-Timber is a thoughtful, carefully crafted, fully-managed, *structured* logging strategy that...
+To extend the above description, Timber...
 
-1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
+1. Automatically structures your framework and 3rd party logs (see next question).
 2. Provides a [framework for logging custom events](#what-about-custom-events).
 3. Does not lock you in with a special API or closed data. Just better logging.
 4. Defines a [normalized log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps. Implemented by [our libraries](https://github.com/timberio).
@@ -39,12 +38,9 @@ Timber is a thoughtful, carefully crafted, fully-managed, *structured* logging s
 9. Offers 11 9s of durability.
 10. ...and so much more!
 
-To learn more, checkout out [timber.io](https://timber.io) or the
-["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
-blog post.
+</p></details>
 
-
-## What does Timber structure for me?
+<details><summary><strong>What events does Timber capture & structure for me?</strong></summary><p>
 
 Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
 
@@ -59,22 +55,25 @@ Out of the box you get everything in the [`Timber.Events`](lib/timber/events) na
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 We also add context to every log, everything in the [`Timber.Contexts`](lib/timber/contexts)
-namespace. Context is like join data for your logs. Have you ever wished you could search for all
-logs written with in a specific request ID? Context achieves that:
+namespace. Context is structured data representing the current environment when the log line was written.
+It is included in every log line. Think of it like join data for your logs:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
 3. [Process Context](lib/timber/contexts/process_context.ex)
 4. [Server Context](lib/timber/contexts/server_context.ex)
 5. [Runtime Context](lib/timber/contexts/runtime_context.ex)
+5. [User Context](lib/timber/contexts/user_context.ex)
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
+
+</p></details>
 
 
 ## Usage
 
 <details><summary><strong>Basic logging</strong></summary><p>
 
-No special logger, no magic, use `Logger` as normal:
+No client, no special API, no magic, just use `Logger` as normal:
 
 ```elixir
 Logger.info("My log message")
@@ -133,7 +132,7 @@ request ID. Not just the lines that contain the value.
   Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
   ```
 
-  This adds context namespaced by the `build`.
+  This adds context data keyspaces by `build`.
 
 2. Add a struct (recommended)
 
@@ -155,17 +154,17 @@ request ID. Not just the lines that contain the value.
 
 ## Installation
 
-  ```elixir
-  # Mix.exs
+```elixir
+# Mix.exs
 
-  def application do
-    [applications: [:timber]]
-  end
+def application do
+  [applications: [:timber]]
+end
 
-  def deps do
-    [{:timber, "~> 1.0"}]
-  end
-  ```
+def deps do
+  [{:timber, "~> 1.0"}]
+end
+```
 
 
 ## Setup
@@ -301,7 +300,7 @@ throughput and little overhead. If you'd like to use another client see
 
   config :timber,
     transport: Timber.Transports.Network,
-    api_key: System.get_env("TIMBER_API_KEY")
+    api_key: System.get_env("TIMBER_LOGS_KEY")
   ```
 
 3. *Start* the Timber modules in `myapp.ex`:
@@ -319,7 +318,7 @@ throughput and little overhead. If you'd like to use another client see
   ```
 
 4. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
-   Afterwards simply assign it to the `TIMBER_API_KEY` environment variable.
+   Afterwards simply assign it to the `TIMBER_LOGS_KEY` environment variable.
 
 * Note: we use the `Network` transport so that we can upgrade protocols in the future if we
   deem it more efficient. For example, TCP. If you want to use strictly HTTP, simply replace
