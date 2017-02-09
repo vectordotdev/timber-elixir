@@ -237,7 +237,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>5. (optional) Config Timber for development in `config/dev.exs`</strong></summary><p>
+<details><summary><strong>5. (optional) Configure Timber for development in `config/dev.exs`</strong></summary><p>
 
   Bonus points! Use Timber in your development environment so you can see context locally:
 
@@ -298,9 +298,8 @@ little overhead. If you'd like to use another client see `Timber.Transports.HTTP
   ```elixir
   # config/prod.exs
 
-  config :timber, :transport, Timber.Transports.HTTP
-
-  config :timber, :http_transport,
+  config :timber,
+    transport: Timber.Transports.HTTP,
     api_key: System.get_env("TIMBER_API_KEY")
   ```
 
