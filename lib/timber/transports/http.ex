@@ -131,5 +131,5 @@ defmodule Timber.Transports.HTTP do
 
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
-  defp get_http_client, do: Keyword.get(config(), :http_client, @default_http_client)
+  def get_http_client, do: Keyword.get(config(), :http_client, @default_http_client)
 end

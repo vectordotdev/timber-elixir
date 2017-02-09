@@ -57,6 +57,10 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
+    if Timber.Config.transport == Timber.Transports.HTTP && Timber.Transports.HTTP.get_http_client() == Timber.Transports.HTTP.HackneyClient do
+      :ok = Timber.Transports.HTTP.HackneyClient.start()
+    end
+
     children = []
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)

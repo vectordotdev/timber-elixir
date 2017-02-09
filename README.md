@@ -303,21 +303,7 @@ throughput and little overhead. If you'd like to use another client see
     api_key: System.get_env("TIMBER_LOGS_KEY")
   ```
 
-3. *Start* the Timber modules in `myapp.ex`:
-
-  ```elixir
-  # myapp.ex
-
-  def start(_type, _opts) do
-    :ok = Timber.Transports.HTTP.HackneyClient.start() # <-- ADD ME
-
-    children = []
-    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
-  ```
-
-4. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
    Afterwards simply assign it to the `TIMBER_LOGS_KEY` environment variable.
 
 * Note: we use the `Network` transport so that we can upgrade protocols in the future if we
