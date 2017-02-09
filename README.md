@@ -188,26 +188,22 @@ request ID. Not just the lines that contain the value.
 
   :point_right: *Skip if you are not using `Plug`.*
 
-  1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
+  ```elixir
+  # lib/my_app/endpoint.ex
 
-    ```elixir
-    # lib/my_app/endpoint.ex
+  plug Plug.Logger # <--- REMOVE ME
 
-    plug Plug.Logger # <--- REMOVE ME
-    ```
+  ...
 
-  2. Add the Timber plugs in `lib/my_app/endpoint.ex``:
+  # Insert immediately before plug MyApp.Router
+  plug Timber.Integrations.ContextPlug
+  plug Timber.Integrations.EventPlug
 
-    ```elixir
-    # lib/my_app/endpoint.ex
+  plug MyApp.Router
+  ```
 
-    # Insert immediately before plug MyApp.Router
-    plug Timber.Integrations.ContextPlug
-    plug Timber.Integrations.EventPlug
-    ```
-
-    * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
-      `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
+  * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
+    `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
 
 </p></details>
 
