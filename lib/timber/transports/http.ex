@@ -59,8 +59,8 @@ defmodule Timber.Transports.HTTP do
 
   @doc false
   @spec configure(Keyword.t, t) :: {:ok, t}
-  def configure(options, state) do
-    api_key = Keyword.get(options, :api_key)
+  def configure(options, %{api_key: current_api_key} = state) do
+    api_key = Keyword.get(options, :api_key, current_api_key)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
     new_state = %{ state | api_key: api_key, max_buffer_size: max_buffer_size }
     if api_key == nil do

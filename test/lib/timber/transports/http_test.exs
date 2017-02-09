@@ -12,6 +12,30 @@ defmodule Timber.Transports.HTTPTest do
     end
   end
 
+  describe "Timber.Transports.HTTP.configure/2" do
+    test "requiers an API key" do
+      {:ok, state} = HTTP.init()
+      result = HTTP.configure([api_key: nil], state)
+      assert result == {:error, :no_api_key}
+    end
+
+    test "updates the api key" do
+      {:ok, state} = HTTP.init()
+      {:ok, new_state} = HTTP.configure([api_key: "new_api_key"], state)
+      assert new_state.api_key == "new_api_key"
+    end
+
+    test "updates the max_buffer_size" do
+      {:ok, state} = HTTP.init()
+      {:ok, new_state} = HTTP.configure([max_buffer_size: 100], state)
+      assert new_state.max_buffer_size == 100
+    end
+  end
+
+  describe "Timber.Transports.HTTP.flush/0" do
+    # tested in Timber.Transports.HTTP.write/0
+  end
+
   describe "Timber.Transports.HTTP.write/0" do
     test "buffers the message" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
