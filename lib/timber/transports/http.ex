@@ -36,6 +36,8 @@ defmodule Timber.Transports.HTTP do
   @default_max_buffer_size 5000
   @default_flush_interval 1000
   @default_http_client __MODULE__.HackneyClient
+  @vsn Application.spec(:timber, :vsn)
+  @user_agent "Timber Elixir/#{@vsn} (HTTP)"
   @url "https://api.timber.io/frames"
 
   defstruct api_key: nil,
@@ -47,9 +49,7 @@ defmodule Timber.Transports.HTTP do
   @doc false
   @spec init() :: {:ok, t}
   def init() do
-    config =
-      config()
-      |> Keyword.put(:api_key, Timber.Config.api_key!())
+    config = Keyword.put(config(), :api_key, Timber.Config.api_key())
     case configure(config, %__MODULE__{}) do
       {:ok, state} ->
         flusher(state.flush_interval)
@@ -64,7 +64,11 @@ defmodule Timber.Transports.HTTP do
     api_key = Keyword.get(options, :api_key)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
     new_state = %{ state | api_key: api_key, max_buffer_size: max_buffer_size }
-    {:ok, new_state}
+    if api_key == nil do
+      {:error, :no_api_key}
+    else
+      {:ok, new_state}
+    end
   end
 
   @doc false

@@ -281,6 +281,7 @@ throughput and little overhead. If you'd like to use another client see
 1. *Add* HTTP dependencies to `mix.exs`:
 
   ```elixir
+  # Elixir >= 1.4? Adding the applications list is optional.
   def application do
     [applications: [:hackney, :timber]] # <-- Be sure to add hackney!
   end
