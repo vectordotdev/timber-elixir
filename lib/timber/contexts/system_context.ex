@@ -1,4 +1,4 @@
-defmodule Timber.Contexts.OSProcessContext do
+defmodule Timber.Contexts.SystemContext do
   @moduledoc """
   Tracks process information
   """
