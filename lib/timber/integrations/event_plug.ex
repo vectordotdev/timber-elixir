@@ -68,7 +68,6 @@ defmodule Timber.Integrations.EventPlug do
 
   require Logger
 
-  alias Timber.Event
   alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
   alias Timber.Utils.Plug, as: PlugUtils
 
@@ -117,7 +116,7 @@ defmodule Timber.Integrations.EventPlug do
     )
 
     message = HTTPServerRequestEvent.message(event)
-    metadata = Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -149,7 +148,7 @@ defmodule Timber.Integrations.EventPlug do
     )
 
     message = HTTPServerResponseEvent.message(event)
-    metadata = Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
