@@ -59,6 +59,7 @@ defmodule Timber.LogEntry do
       metadata
       |> Keyword.get(:timber_context, %{})
       |> add_runtime_context(metadata)
+      |> add_system_context()
 
     event = case UtilsLogger.get_event_from_metadata(metadata) do
       nil -> nil
@@ -89,6 +90,11 @@ defmodule Timber.LogEntry do
     runtime_context = %RuntimeContext{application: application, module_name: module_name,
       function: fun, file: file,line: line}
     Context.add_context(context, runtime_context)
+  end
+
+  defp add_system_context(context) do
+    system_context = %SystemContext{pid: System.get_pid()}
+    Context.add_context(context, system_context)
   end
 
   @doc """
