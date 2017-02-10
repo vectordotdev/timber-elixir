@@ -31,7 +31,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   ]
   @default_pool_options pool_options: [
     timeout: 600_000, # 10 minutes, how long the connection is kept alive in the pool
-    max_connections: 10 # number of connections maintained in the pool
+    max_connections: 3 # number of connections maintained in the pool
   ]
 
   @doc false
@@ -52,12 +52,12 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   @doc """
   Issues a HTTP request via hackney.
   """
-  def async_request(method, url, headers, body, opts) do
+  def request(method, url, headers, body, opts) do
     req_headers = encode_req_headers(headers)
     req_opts =
       get_request_options()
       |> Keyword.merge(opts)
-      |> Keyword.merge([pool: @pool_name, async: true])
+      |> Keyword.merge([pool: @pool_name])
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end

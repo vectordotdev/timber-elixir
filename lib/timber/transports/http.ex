@@ -74,7 +74,7 @@ defmodule Timber.Transports.HTTP do
   @spec write(LogEntry.t, t) :: {:ok, t}
   def write(log_entry, state) do
     state = write_buffer(log_entry, state)
-    if state.buffer_size > state.max_buffer_size do
+    if state.buffer_size >= state.max_buffer_size do
       {:ok, flush(state)}
     else
       {:ok, state}
@@ -124,7 +124,9 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => user_agent
     }
 
-    get_http_client().request(:post, @url, headers, body, [])
+    async = state.buffer_size < state.max_buffer_size
+
+    get_http_client().request(:post, @url, headers, body, [async: async])
 
     %{state | buffer: [], buffer_size: 0}
   end

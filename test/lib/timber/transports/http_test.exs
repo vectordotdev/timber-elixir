@@ -33,7 +33,32 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.flush/0" do
-    # tested in Timber.Transports.HTTP.write/0
+    test "does nothing when the buffer is empty" do
+      {:ok, state} = HTTP.init()
+      new_state = HTTP.flush(state)
+      assert state == new_state
+      calls = FakeHTTPClient.get_request_calls()
+      assert length(calls) == 0
+    end
+  end
+
+  describe "Timber.Transports.HTTP.handle_info/2" do
+    test "handles the flusher_step properly" do
+      entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
+      {:ok, state} = HTTP.init()
+      {:ok, state} = HTTP.write(entry, state)
+      {:ok, new_state} = HTTP.handle_info(:flusher_step, state)
+      calls = FakeHTTPClient.get_request_calls()
+      assert length(calls) == 1
+      assert length(new_state.buffer) == 0
+      assert_receive(:flusher_step, 1100)
+    end
+
+    test "ignores everything else" do
+      {:ok, state} = HTTP.init()
+      {:ok, new_state} = HTTP.handle_info(:unknown, state)
+      assert state == new_state
+    end
   end
 
   describe "Timber.Transports.HTTP.write/0" do
