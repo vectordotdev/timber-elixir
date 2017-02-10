@@ -90,7 +90,7 @@ defmodule Timber.Integrations.ErrorLogger do
         message = ExceptionEvent.message(event)
         metadata =
           event
-          |> Timber.Event.to_logger_metadata()
+          |> Timber.Utils.Logger.event_to_metadata()
           |> Keyword.put(:timber_context, context)
 
         Logger.error(message, metadata)
@@ -106,7 +106,7 @@ defmodule Timber.Integrations.ErrorLogger do
     event = ExceptionEvent.new(error, stacktrace)
 
     message = ExceptionEvent.message(event)
-    metadata = Timber.Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.error(message, metadata)
 
