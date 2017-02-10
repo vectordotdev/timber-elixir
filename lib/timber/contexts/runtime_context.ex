@@ -8,7 +8,7 @@ defmodule Timber.Contexts.RuntimeContext do
     file: String.t,
     function: String.t,
     line: String.t,
-    module: String.t,
+    module_name: String.t,
     vm_pid: String.t
   }
 
@@ -17,9 +17,9 @@ defmodule Timber.Contexts.RuntimeContext do
     file: String.t,
     function: String.t,
     line: String.t,
-    module: String.t,
+    module_name: String.t,
     vm_pid: String.t
   }
 
-  defstruct [:application, :file, :function, :line, :module, :vm_pid]
+  defstruct [:application, :file, :function, :line, :module_name, :vm_pid]
 end

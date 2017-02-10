@@ -21,6 +21,7 @@ defmodule Timber.LogEntry do
   alias Timber.Eventable
   alias Timber.Events.CustomEvent
   alias Timber.Utils.Logger, as: UtilsLogger
+  alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
@@ -76,12 +77,17 @@ defmodule Timber.LogEntry do
   # Add the default Elixir Logger runtime metadata as runtime context.
   defp add_runtime_context(context, metadata) do
     application = Keyword.get(metadata, :application)
-    module = Keyword.get(metadata, :module)
+    module_name = Keyword.get(metadata, :module)
+    module_name = if module_name do
+      UtilsModule.name(module_name)
+    else
+      module_name
+    end
     fun = Keyword.get(metadata, :function)
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
-    runtime_context = %RuntimeContext{application: application, module: module, function: fun,
-      file: file,line: line}
+    runtime_context = %RuntimeContext{application: application, module_name: module_name,
+      function: fun, file: file,line: line}
     Context.add_context(context, runtime_context)
   end
 
