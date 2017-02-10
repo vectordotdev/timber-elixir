@@ -262,9 +262,6 @@ The recommended strategy for Heroku is to setup a
 
 **--> [Add your app to Timber](https://app.timber.io)**
 
-*:information_desk_person: Note: for high volume apps Heroku log drains will drop messages. This
-is true for any Heroku app, in which case we recommend the Network method below.*
-
 ---
 
 </p></details>
