@@ -22,7 +22,9 @@ defmodule Timber.Transports.HTTP.HackneyClient do
 
   """
 
-  @behaviour Timber.Transports.HTTP.Client
+  alias Timber.Transports.HTTP.Client
+
+  @behaviour Client
 
   @pool_name __MODULE__
   @default_request_options [
@@ -47,6 +49,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   @doc """
   Issues a HTTP request via hackney.
   """
+  @spec request(Client.method, Client.url, Client.headers, Client.body, Client.options) :: Client.result
   def request(method, url, headers, body, opts) do
     req_headers = Enum.map(headers, &(&1))
     req_opts =

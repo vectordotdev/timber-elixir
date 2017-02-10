@@ -32,7 +32,7 @@ defmodule Timber.Transports.HTTP.Client do
   @type options :: Keyword.t
   @type status :: pos_integer()
   @type url :: String.t
+  @type result :: :ok | {:error, atom()}
 
-  @callback request(method, url, headers, body, options) :: {:ok, status, headers, body} |
-    {:error, any()}
+  @callback request(method, url, headers, body, options) :: result
 end
