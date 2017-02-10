@@ -60,8 +60,8 @@ It is included in every log line. Think of it like join data for your logs:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
-3. [Process Context](lib/timber/contexts/process_context.ex)
-4. [Server Context](lib/timber/contexts/server_context.ex)
+3. [Server Context](lib/timber/contexts/server_context.ex)
+4. [System Context](lib/timber/contexts/system_context.ex)
 5. [Runtime Context](lib/timber/contexts/runtime_context.ex)
 5. [User Context](lib/timber/contexts/user_context.ex)
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.

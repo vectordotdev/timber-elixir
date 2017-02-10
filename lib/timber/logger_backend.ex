@@ -11,6 +11,7 @@ defmodule Timber.LoggerBackend do
   asynchronous or synchronous.
   """
   use GenEvent
+
   alias Timber.LogEntry
   alias Timber.Transport
 
