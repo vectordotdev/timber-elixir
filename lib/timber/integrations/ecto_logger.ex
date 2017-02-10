@@ -79,7 +79,7 @@ defmodule Timber.Integrations.EctoLogger do
     }
 
     message = SQLQueryEvent.message(event)
-    metadata = Timber.Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.log(level, message, metadata)
 

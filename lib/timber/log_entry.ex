@@ -15,10 +15,13 @@ defmodule Timber.LogEntry do
   """
 
   alias Timber.Context
+  alias Timber.Contexts.RuntimeContext
   alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
-  alias Timber.Events
+  alias Timber.Events.CustomEvent
+  alias Timber.Utils.Logger, as: UtilsLogger
+  alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
@@ -48,11 +51,16 @@ defmodule Timber.LogEntry do
   @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
     io_timestamp =
-      UtilsTimestamp.format_timestamp(timestamp)
+      timestamp
+      |> UtilsTimestamp.format_timestamp()
       |> IO.chardata_to_string()
 
-    context = Keyword.get(metadata, :timber_context, %{})
-    event = case Keyword.get(metadata, Timber.Config.event_key(), nil) do
+    context =
+      metadata
+      |> Keyword.get(:timber_context, %{})
+      |> add_runtime_context(metadata)
+
+    event = case UtilsLogger.get_event_from_metadata(metadata) do
       nil -> nil
       data -> Eventable.to_event(data)
     end
@@ -64,6 +72,23 @@ defmodule Timber.LogEntry do
       message: message,
       context: context
     }
+  end
+
+  # Add the default Elixir Logger runtime metadata as runtime context.
+  defp add_runtime_context(context, metadata) do
+    application = Keyword.get(metadata, :application)
+    module_name = Keyword.get(metadata, :module)
+    module_name = if module_name do
+      UtilsModule.name(module_name)
+    else
+      module_name
+    end
+    fun = Keyword.get(metadata, :function)
+    file = Keyword.get(metadata, :file)
+    line = Keyword.get(metadata, :line)
+    runtime_context = %RuntimeContext{application: application, module_name: module_name,
+      function: fun, file: file,line: line}
+    Context.add_context(context, runtime_context)
   end
 
   @doc """
@@ -104,7 +129,7 @@ defmodule Timber.LogEntry do
     |> UtilsMap.recursively_drop_blanks()
   end
 
-  defp to_api_map(%Events.CustomEvent{type: type, data: data}),
+  defp to_api_map(%CustomEvent{type: type, data: data}),
     do: %{server_side_app: %{custom: %{type => data}}}
   defp to_api_map(event) do
     type = Event.type(event)

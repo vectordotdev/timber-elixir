@@ -94,7 +94,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     }
 
     message = ControllerCallEvent.message(event)
-    metadata = Timber.Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -127,7 +127,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     }
 
     message = TemplateRenderEvent.message(event)
-    metadata = Timber.Event.to_logger_metadata(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 

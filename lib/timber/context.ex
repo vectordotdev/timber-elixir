@@ -63,6 +63,7 @@ defmodule Timber.Context do
   defp type(%Contexts.HTTPContext{}), do: :http
   defp type(%Contexts.OrganizationContext{}), do: :organization
   defp type(%Contexts.ProcessContext{}), do: :process
+  defp type(%Contexts.RuntimeContext{}), do: :runtime
   defp type(%Contexts.ServerContext{}), do: :server
   defp type(%Contexts.UserContext{}), do: :user
 end

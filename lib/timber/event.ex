@@ -17,22 +17,6 @@ defmodule Timber.Event do
     Events.TemplateRenderEvent
 
   @doc """
-  Convenience function for using the metadata logger key specified in the configuration.
-  This is equivalent to:
-
-  ## Examples
-
-  ```elixir
-  metadata = Timber.Event.to_logger_metadata(event)
-  Logger.info("my message", metadata)
-  ```
-  """
-  @spec to_logger_metadata(t) :: Keyword.t
-  def to_logger_metadata(event) do
-    Keyword.put([], Timber.Config.event_key(), event)
-  end
-
-  @doc """
   Returns the official Timber type for this event. Used as the JSON map key when
   sending to Timber.
   """
