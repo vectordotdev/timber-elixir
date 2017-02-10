@@ -70,7 +70,7 @@ defmodule Timber.Integrations.EventPlug do
 
   alias Timber.Event
   alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
-  alias Timber.Integrations.PlugUtils
+  alias Timber.Utils.Plug, as: PlugUtils
 
   @doc """
   Prepares the given options for use in a plug pipeline
@@ -140,10 +140,9 @@ defmodule Timber.Integrations.EventPlug do
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
     status = Plug.Conn.Status.code(conn.status)
-    headers = conn.resp_headers
+    headers = conn.resp_headers ++ [{"content-length", Integer.to_string(bytes)}]
 
     event = HTTPServerResponseEvent.new(
-      bytes: bytes,
       headers: headers,
       status: status,
       time_ms: time_ms

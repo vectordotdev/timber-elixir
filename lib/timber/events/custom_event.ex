@@ -21,14 +21,16 @@ defmodule Timber.Events.CustomEvent do
     * `:time_ms` (float, optional) - Represents the execution time in fractional milliseconds.
       Example: `45.6`
 
-  ## Example usage
+  ## Example
 
   There are 2 ways to log custom events:
 
   1. Log a map (simplest)
 
-      event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-      Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+    ```elixir
+    event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+    ```
 
   2. Log a struct (recommended)
 
@@ -36,20 +38,22 @@ defmodule Timber.Events.CustomEvent do
     with down stream consumers and gives you compile time guarantees. It makes a statement that
     this event means something and that it can relied upon.
 
-      def PaymentRejectedEvent do
-        use Timber.Events.CustomEvent, type: :payment_rejected
+    ```elixir
+    def PaymentRejectedEvent do
+      use Timber.Events.CustomEvent, type: :payment_rejected
 
-        @enforce_keys [:customer_id, :amount, :currency]
-        defstruct [:customer_id, :amount, :currency]
+      @enforce_keys [:customer_id, :amount, :currency]
+      defstruct [:customer_id, :amount, :currency]
 
-        def message(%__MODULE__{customer_id: customer_id}) do
-          "Payment rejected for #{customer_id}"
-        end
+      def message(%__MODULE__{customer_id: customer_id}) do
+        "Payment rejected for #{customer_id}"
       end
+    end
 
-      event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-      message = PaymentRejectedEvent.message(event)
-      Logger.info(message, event: event)
+    event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+    message = PaymentRejectedEvent.message(event)
+    Logger.info(message, event: event)
+    ```
 
   """
 

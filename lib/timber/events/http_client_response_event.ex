@@ -7,16 +7,15 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   lifecycle.
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:bytes, :headers, :status, :time_ms]
+  defstruct [:headers, :status, :time_ms]
 
   @type t :: %__MODULE__{
-    bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
-    time_ms: non_neg_integer
+    time_ms: float
   }
 
   @type headers :: %{
@@ -46,8 +45,10 @@ defmodule Timber.Events.HTTPClientResponseEvent do
     opts =
       opts
       |> Keyword.update(:headers, nil, fn headers ->
-        Utils.normalize_headers(headers, @recognized_headers)
+        UtilsHTTP.normalize_headers(headers, @recognized_headers)
       end)
+      |> Keyword.merge(UtilsHTTP.normalize_timer(Keyword.get(opts, :timer)))
+      |> Keyword.delete(:timer)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
   end
@@ -65,9 +66,11 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{status: status, time_ms: time_ms, headers: %{request_id: request_id}})
-    when is_binary(request_id),
-    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms, ID ", request_id]
-  def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: ["Outgoing HTTP response ", status, " in ", time_ms, "ms"]
+  def message(%__MODULE__{headers: headers, status: status, time_ms: time_ms}) do
+    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
+    request_id = Map.get(headers || %{}, :request_id)
+    if request_id,
+      do: [message, ", ID ", request_id],
+      else: message
+  end
 end

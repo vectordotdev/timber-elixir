@@ -12,19 +12,34 @@ defmodule Timber do
 
   use Application
 
-  alias Timber.Context
+  alias Timber.{Context, Contextable}
 
   @doc """
-  Adds a context entry to the stack
+  Adds a context entry to the stack. See `Timber::Contexts::CustomContext` for examples.
   """
   @spec add_context(Context.context_data) :: :ok
   def add_context(data) do
     current_metadata = Elixir.Logger.metadata()
     current_context = Keyword.get(current_metadata, :timber_context, Context.new())
-    new_context = Context.add_context(current_context, data)
+    context_element = Contextable.to_context(data)
+    new_context = Context.add_context(current_context, context_element)
 
     Elixir.Logger.metadata([timber_context: new_context])
   end
+
+  @doc """
+  Used to time runtime execution. For example, when timing a `Timber.Events.HTTPClientRequestEvent`:
+
+  ```elixir
+  timer = Timber.start_timer()
+  # .... make request
+  event = HTTPClientResponseEvent.new(status: 200, timer: timer) # automatically sets :time_ms
+  message = HTTPClientResponseEvent.message(event)
+  Logger.info(message, event: event)
+  ```
+
+  """
+  defdelegate start_timer, to: Timber.Timer, as: :start
 
   @doc false
   # Handles the application callback start/2

@@ -8,6 +8,7 @@ defmodule Timber.Context do
   """
 
   alias Timber.Contexts
+  alias Timber.Utils.Map, as: UtilsMap
 
   @type context_data ::
     Contexts.CustomContext.t        |
@@ -34,7 +35,7 @@ defmodule Timber.Context do
   """
   @spec add_context(t, context_data) :: t
   def add_context(existing_context_map, %Contexts.CustomContext{type: type, data: data} = context_element) do
-    key = type_for_data(context_element)
+    key = type(context_element)
     custom_map =
       existing_context_map
       |> Map.get(key, %{})
@@ -42,10 +43,10 @@ defmodule Timber.Context do
     Map.put(existing_context_map, key, custom_map)
   end
   def add_context(existing_context_map, context_element) do
-    key = type_for_data(context_element)
+    key = type(context_element)
 
     Map.from_struct(context_element)
-    |> Timber.Utils.drop_nil_values()
+    |> UtilsMap.recursively_drop_blanks()
     |> insert_context(existing_context_map, key)
   end
 
@@ -57,11 +58,11 @@ defmodule Timber.Context do
     Map.put(existing_context, key, new_context)
   end
 
-  @spec type_for_data(context_data) :: atom
-  defp type_for_data(%Contexts.CustomContext{}), do: :custom
-  defp type_for_data(%Contexts.HTTPContext{}), do: :http
-  defp type_for_data(%Contexts.OrganizationContext{}), do: :organization
-  defp type_for_data(%Contexts.ProcessContext{}), do: :process
-  defp type_for_data(%Contexts.ServerContext{}), do: :server
-  defp type_for_data(%Contexts.UserContext{}), do: :user
+  @spec type(context_data) :: atom
+  defp type(%Contexts.CustomContext{}), do: :custom
+  defp type(%Contexts.HTTPContext{}), do: :http
+  defp type(%Contexts.OrganizationContext{}), do: :organization
+  defp type(%Contexts.ProcessContext{}), do: :process
+  defp type(%Contexts.ServerContext{}), do: :server
+  defp type(%Contexts.UserContext{}), do: :user
 end

@@ -8,13 +8,12 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   through `Timber.Plug`.
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @type t :: %__MODULE__{
-    bytes: non_neg_integer,
     headers: headers,
     status: pos_integer,
-    time_ms: non_neg_integer
+    time_ms: float
   }
 
   @type headers :: %{
@@ -27,7 +26,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   }
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:bytes, :headers, :status, :time_ms]
+  defstruct [:headers, :status, :time_ms]
 
   @recognized_headers ~w(
     cache_control
@@ -47,7 +46,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
     opts =
       opts
       |> Keyword.update(:headers, nil, fn headers ->
-        Utils.normalize_headers(headers, @recognized_headers)
+        UtilsHTTP.normalize_headers(headers, @recognized_headers)
       end)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
@@ -58,5 +57,5 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{status: status, time_ms: time_ms}),
-    do: ["Sent ", status, " in ", time_ms, "ms"]
+    do: ["Sent ", Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
 end

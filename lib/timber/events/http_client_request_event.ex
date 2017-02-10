@@ -7,26 +7,27 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   ## Hackney Example
 
-    req_method = :get
-    req_url = "https://some.api.com/path?query=1"
-    req_headers = [{"Accept", "application/json"}]
+  ```elixir
+  req_method = :get
+  req_url = "https://some.api.com/path?query=1"
+  req_headers = [{"Accept", "application/json"}]
 
-    # Log the outgoing request
-    {req_event, req_message} = Timber.Events.HTTPClientRequestEvent.new_with_message(method: req_method, url: req_url, headers: req_headers)
-    Logger.info req_message, event: req_event
+  # Log the outgoing request
+  {req_event, req_message} = Timber.Events.HTTPClientRequestEvent.new_with_message(method: req_method, url: req_url, headers: req_headers)
+  Logger.info req_message, event: req_event
 
-    # Make the request
-    timer = Timber.Timer.start()
-    {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
+  # Make the request
+  timer = Timber.Timer.start()
+  {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
 
-    # Log the response
-    {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(bytes: 200,
-      headers: headers, status: status, timer: timer)
-    Logger.info resp_message, event: resp_event
+  # Log the response
+  {resp_event, resp_message} = Timber.Events.HTTPClientResponseEvent.new(headers: headers, status: status, timer: timer)
+  Logger.info resp_message, event: resp_event
+  ```
 
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:host, :method, :path, :scheme]
   defstruct [:headers, :host, :method, :path, :port, :query_string, :scheme, :service_name]
@@ -64,9 +65,10 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:headers, nil, fn headers -> Utils.normalize_headers(headers, @recognized_headers) end)
-      |> Keyword.update(:method, nil, &Utils.normalize_method/1)
-      |> Keyword.merge(Utils.normalize_url(Keyword.get(opts, :url)))
+      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTP.normalize_headers(headers, @recognized_headers) end)
+      |> Keyword.update(:method, nil, &UtilsHTTP.normalize_method/1)
+      |> Keyword.update(:service_name, nil, &UtilsHTTP.try_atom_to_string/1)
+      |> Keyword.merge(UtilsHTTP.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
@@ -96,8 +98,8 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   do
     message = ["Outgoing HTTP request to "]
     message = if service_name,
-      do: [message, service_name, " [", method, "] ", Utils.full_path(path, query_string)],
-      else: [message, " [", method, "] ", Utils.full_url(scheme, host, path, port, query_string)]
+      do: [message, service_name, " [", method, "] ", UtilsHTTP.full_path(path, query_string)],
+      else: [message, "[", method, "] ", UtilsHTTP.full_url(scheme, host, path, port, query_string)]
     request_id = Map.get(headers || %{}, :request_id)
     message = if request_id,
       do: [message, ", ID ", request_id],

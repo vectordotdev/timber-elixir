@@ -8,7 +8,7 @@ defmodule Timber.Events.ExceptionEvent do
   more details.
   """
 
-  alias Timber.Utils
+  alias Timber.Utils.Module, as: UtilsModule
 
   @type stacktrace_entry :: {
     module,
@@ -60,13 +60,13 @@ defmodule Timber.Events.ExceptionEvent do
   end
 
   defp transform_error(%{__exception__: true, __struct__: module} = error) do
-    name = Utils.module_name(module)
+    name = UtilsModule.name(module)
     msg = Exception.message(error)
     {name, msg}
   end
 
   defp transform_stacktrace({module, function_name, arity, fileinfo}) do
-    module_name = Utils.module_name(module)
+    module_name = UtilsModule.name(module)
 
     function_name = Atom.to_string(function_name)
 
