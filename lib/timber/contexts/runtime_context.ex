@@ -1,6 +1,7 @@
 defmodule Timber.Contexts.RuntimeContext do
   @moduledoc """
-  The Server context tracks information about the host your system runs on
+  The Runtime context tracks information about the current runtime, such as the module, file,
+  function, and line number that called the log line.
   """
 
   @type t :: %__MODULE__{
