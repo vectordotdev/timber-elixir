@@ -88,6 +88,8 @@ defmodule Timber.Transports.HTTP do
   end
 
   # Handle the flusher step, this recursively calls itself.
+  @doc false
+  @spec handle_info(atom(), t) :: {:ok, t}
   def handle_info(:flusher_step, state) do
     new_state = flush(state)
     flusher(state.flush_interval)
@@ -133,5 +135,6 @@ defmodule Timber.Transports.HTTP do
 
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
+  @doc false
   def get_http_client, do: Keyword.get(config(), :http_client, @default_http_client)
 end

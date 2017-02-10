@@ -38,11 +38,14 @@ defmodule Timber.Transports.HTTP.HackneyClient do
 
   defp config, do: Application.get_env(:timber, :hackney_client, [])
 
+  @doc false
   def get_pool_name(), do: @pool_name
 
+  @doc false
   @spec get_pool_options() :: Keyword.t
   def get_pool_options(), do: Keyword.get(config(), :pool_options, @default_pool_options)
 
+  @doc false
   @spec get_request_options() :: Keyword.t
   defp get_request_options(), do: Keyword.get(config(), :request_options, @default_request_options)
 
