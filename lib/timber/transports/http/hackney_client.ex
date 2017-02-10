@@ -34,17 +34,12 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     max_connections: 3 # number of connections maintained in the pool
   ]
 
-  @doc false
-  @spec start() :: :ok
-  def start() do
-    pool_options = get_pool_options()
-    :hackney_pool.start_pool(@pool_name, pool_options)
-  end
-
   defp config, do: Application.get_env(:timber, :hackney_client, [])
 
+  def get_pool_name(), do: @pool_name
+
   @spec get_pool_options() :: Keyword.t
-  defp get_pool_options(), do: Keyword.get(config(), :pool_options, @default_pool_options)
+  def get_pool_options(), do: Keyword.get(config(), :pool_options, @default_pool_options)
 
   @spec get_request_options() :: Keyword.t
   defp get_request_options(), do: Keyword.get(config(), :request_options, @default_request_options)
@@ -53,7 +48,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   Issues a HTTP request via hackney.
   """
   def request(method, url, headers, body, opts) do
-    req_headers = encode_req_headers(headers)
+    req_headers = Enum.map(headers, &(&1))
     req_opts =
       get_request_options()
       |> Keyword.merge(opts)
@@ -61,7 +56,4 @@ defmodule Timber.Transports.HTTP.HackneyClient do
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
-
-  defp encode_req_headers(headers),
-    do: Enum.map(headers, &(&1))
 end

@@ -85,7 +85,7 @@ defmodule Timber.Transports.HTTPTest do
       assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
       {:ok, encoded_body} = Msgpax.pack([LogEntry.to_map!(entry)])
       assert elem(call, 3) == encoded_body
-      assert elem(call, 4) == []
+      assert elem(call, 4) == [async: false]
     end
   end
 
