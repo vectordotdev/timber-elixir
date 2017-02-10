@@ -15,7 +15,7 @@ defmodule Timber.LogEntry do
   """
 
   alias Timber.Context
-  alias Timber.Contexts.RuntimeContext
+  alias Timber.Contexts.{RuntimeContext, SystemContext}
   alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
