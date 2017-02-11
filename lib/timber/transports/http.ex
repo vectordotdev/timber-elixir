@@ -43,7 +43,7 @@ defmodule Timber.Transports.HTTP do
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
   @default_flush_interval 1000
   @default_http_client __MODULE__.HackneyClient
-  @url "https://api.timber.io/frames"
+  @url "https://logs.timber.io/frames"
 
   defstruct api_key: nil,
             buffer_size: 0,
