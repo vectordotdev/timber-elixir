@@ -86,7 +86,7 @@ defmodule Timber.Transports.HTTP do
     # them on an interval.
     state = write_buffer(log_entry, state)
 
-    if state.buffer_size === state.max_buffer_size do
+    if state.buffer_size >= state.max_buffer_size do
       # The buffer is full, flush immediately.
       {:ok, flush(state)}
     else
@@ -97,18 +97,18 @@ defmodule Timber.Transports.HTTP do
   # Writes a log entry into the buffer
   @spec write_buffer(LogEntry.t, t) :: t
   defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size} = state) do
-    %{state | buffer: buffer ++ [log_entry], buffer_size: buffer_size + 1}
+    %{state | buffer: [log_entry | buffer], buffer_size: buffer_size + 1}
   end
 
   # Handle the flusher step, this recursively calls itself by re-calling `flusher/1`.
   # This is how the flush interval is maintained.
   @doc false
   @spec handle_info(atom(), t) :: {:ok, t}
-  def handle_info(:flusher_step, state) do
+  def handle_info(:issue_request, state) do
     new_state =
       state
       |> issue_request()
-      |> flusher()
+      |> outlet()
     {:ok, new_state}
   end
   # Do nothing for everything else.
@@ -119,8 +119,8 @@ defmodule Timber.Transports.HTTP do
   # The flusher recursively calls itself through process messaging via `Process.send_after/3`.
   # This allows us to flush the buffer on an interval ensuring messages are delivered, at most,
   # by the specified interval length.
-  defp flusher(%{flush_interval: flush_interval} = state) do
-    Process.send_after(self(), :flusher_step, flush_interval)
+  defp outlet(%{flush_interval: flush_interval} = state) do
+    Process.send_after(self(), :issue_request, flush_interval)
     state
   end
 
@@ -136,6 +136,7 @@ defmodule Timber.Transports.HTTP do
   defp wait_on_request(%{ref: nil} = state) do
     state
   end
+
   defp wait_on_request(%{ref: ref} = state) do
     receive do
       {:DOWN, ^ref, _, _pid, _reason} ->
@@ -159,12 +160,15 @@ defmodule Timber.Transports.HTTP do
     |> wait_on_request()
     |> issue_request()
   end
+
   defp issue_request(%{buffer: []} = state) do
     state
   end
+
   defp issue_request(%{api_key: api_key, buffer: buffer} = state) do
     {:ok, body} =
       buffer
+      |> Enum.reverse()
       |> Enum.map(&LogEntry.to_map!/1)
       |> Msgpax.pack()
 

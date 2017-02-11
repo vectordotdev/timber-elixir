@@ -13,7 +13,7 @@ defmodule Timber.Transports.HTTPTest do
 
     test "starts the flusher" do
       HTTP.init()
-      assert_receive(:flusher_step, 1100)
+      assert_receive(:issue_request, 1100)
     end
   end
 
@@ -56,15 +56,15 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.handle_info/2" do
-    test "handles the flusher_step properly" do
+    test "handles the issue_request properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
-      {:ok, new_state} = HTTP.handle_info(:flusher_step, state)
+      {:ok, new_state} = HTTP.handle_info(:issue_request, state)
       calls = FakeHTTPClient.get_request_calls()
       assert length(calls) == 1
       assert length(new_state.buffer) == 0
-      assert_receive(:flusher_step, 1100)
+      assert_receive(:issue_request, 1100)
     end
 
     test "ignores everything else" do
