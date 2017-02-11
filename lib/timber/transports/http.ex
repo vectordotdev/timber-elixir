@@ -139,8 +139,6 @@ defmodule Timber.Transports.HTTP do
 
   defp wait_on_request(%{ref: ref} = state) do
     receive do
-      {:DOWN, ^ref, _, _pid, _reason} ->
-        raise "HTTP Client down"
       message ->
         # Defer message detection to the client. Each client will have different
         # messages and the check should be contained in there.
