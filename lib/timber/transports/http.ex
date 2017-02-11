@@ -148,7 +148,6 @@ defmodule Timber.Transports.HTTP do
         else
           wait_on_request(state)
         end
-      msg -> raise(msg)
     end
   end
 
