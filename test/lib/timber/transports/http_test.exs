@@ -60,7 +60,8 @@ defmodule Timber.Transports.HTTPTest do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
-      {:ok, new_state} = HTTP.handle_info(:outlet, state)
+      assert_receive(:outlet, 1100)
+      #{:ok, new_state} = HTTP.handle_info(:outlet, state)
       calls = FakeHTTPClient.get_request_calls()
       assert length(calls) == 1
       assert length(new_state.buffer) == 0
