@@ -33,7 +33,7 @@ blog post.
    Meaning you can interact with your logs consistently across apps of any language: queries,
    graphs, alerts, and other downstream consumers. They all operate on the same schema.
 4. Timber poses no risk of lock-in or code-debt. There is no special client, no special API; Timber
-   adheres strictly to the default `::Logger` interface. On the surface, it's just logging.
+   adheres strictly to the default `Logger` interface. On the surface, it's just logging.
    And if you choose to stop using Timber, you can do so without having to alter your code.
 5. Timber manages the entire logging pipeline. From log creation (libraries like this one) to a
    [beautiful modern console](https://timber.io) designed specifically for this data.
@@ -85,7 +85,7 @@ It is included in every log line. Think of it like join data for your logs:
 
 <details><summary><strong>What about my current log statements?</strong></summary><p>
 
-They'll continue to work as expected. Timber adheres strictly to the default `::Logger` interface
+They'll continue to work as expected. Timber adheres strictly to the default `Logger` interface
 and will never deviate in *any* way.
 
 In fact, traditional log statements for non-meaningful events, debug statements, etc, are
@@ -139,7 +139,6 @@ Logger.info("My log message")
   ```
 
 * `:type` is how Timber classifies the event, it creates a namespace for the data you send.
-* For more advanced examples see [`Timber::Logger`](lib/timber.logger.rb).
 * Also, notice there is no mention of Timber in the above code. Just plain old logging.
 
 #### What about regular Hashes, JSON, or logfmt?
