@@ -33,7 +33,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   ]
   @default_pool_options pool_options: [
     timeout: 600_000, # 10 minutes, how long the connection is kept alive in the pool
-    max_connections: 3 # number of connections maintained in the pool
+    max_connections: 2 # number of connections maintained in the pool
   ]
 
   defp config, do: Application.get_env(:timber, :hackney_client, [])
@@ -52,14 +52,19 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   @doc """
   Issues a HTTP request via hackney.
   """
-  @spec request(Client.method, Client.url, Client.headers, Client.body, Client.options) :: Client.result
-  def request(method, url, headers, body, opts) do
+  @spec async_request(Client.method, Client.url, Client.headers, Client.body) :: Client.result
+  def async_request(method, url, headers, body) do
     req_headers = Enum.map(headers, &(&1))
-    req_opts =
-      get_request_options()
-      |> Keyword.merge(opts)
-      |> Keyword.merge([pool: @pool_name])
+    req_opts = [pool: @pool_name, async: true]
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
+
+  @doc """
+  Takes a process message type and body and determines if the async request sent in
+  `async_request/5` is complete.
+  """
+  @spec done?(Client.message_type, Client.message_body) :: bool
+  def done?(:hackney_response, :done), do: true
+  def done?(_type, message), do: false
 end

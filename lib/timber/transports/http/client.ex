@@ -27,12 +27,14 @@ defmodule Timber.Transports.HTTP.Client do
   """
 
   @type body :: IO.chardata
-  @type headers :: map()
-  @type method :: atom()
-  @type options :: Keyword.t
-  @type status :: pos_integer()
+  @type headers :: map
+  @type method :: atom
+  @type message_type :: atom
+  @type message_body :: any
+  @type status :: pos_integer
   @type url :: String.t
-  @type result :: :ok | {:error, atom()}
+  @type result :: {:ok, reference} | {:error, atom}
 
-  @callback request(method, url, headers, body, options) :: result
+  @callback request(method, url, headers, body) :: result
+  @callback done?(message_type, message_body) :: bool
 end
