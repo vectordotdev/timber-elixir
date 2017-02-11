@@ -108,7 +108,7 @@ defmodule Timber.Transports.HTTP do
     new_state =
       state
       |> issue_request()
-      |> outlet()
+      |> outlet() # maintains the outlet loop called on an interval
     {:ok, new_state}
   end
   # Do nothing for everything else.
