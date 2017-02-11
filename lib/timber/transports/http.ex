@@ -59,8 +59,8 @@ defmodule Timber.Transports.HTTP do
 
     case configure(config, %__MODULE__{}) do
       {:ok, state} ->
-        flusher(state)
-        {:ok, state}
+        # Kick-off the outlet
+        {:ok, outlet(state)}
       {:error, error} -> {:error, error}
     end
   end
@@ -100,15 +100,15 @@ defmodule Timber.Transports.HTTP do
     %{state | buffer: [log_entry | buffer], buffer_size: buffer_size + 1}
   end
 
-  # Handle the flusher step, this recursively calls itself by re-calling `flusher/1`.
-  # This is how the flush interval is maintained.
+  # Handle the outlet step, this recursively calls through process messaging via
+  # `Process.send_after/3`. This is how the flush interval is maintained.
   @doc false
   @spec handle_info(atom(), t) :: {:ok, t}
-  def handle_info(:issue_request, state) do
+  def handle_info(:outlet, state) do
     new_state =
       state
       |> issue_request()
-      |> outlet() # maintains the outlet loop called on an interval
+      |> outlet()
     {:ok, new_state}
   end
   # Do nothing for everything else.
@@ -116,11 +116,11 @@ defmodule Timber.Transports.HTTP do
     {:ok, state}
   end
 
-  # The flusher recursively calls itself through process messaging via `Process.send_after/3`.
-  # This allows us to flush the buffer on an interval ensuring messages are delivered, at most,
+  # The outlet recursively calls itself through process messaging via `Process.send_after/3`.
+  # This allows us to clear the buffer on an interval ensuring messages are delivered, at most,
   # by the specified interval length.
   defp outlet(%{flush_interval: flush_interval} = state) do
-    Process.send_after(self(), :issue_request, flush_interval)
+    Process.send_after(self(), :outlet, flush_interval)
     state
   end
 
