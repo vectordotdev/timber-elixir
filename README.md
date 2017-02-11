@@ -81,6 +81,8 @@ It is included in every log line. Think of it like join data for your logs:
 5. [User Context](lib/timber/contexts/user_context.ex)
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
+---
+
 </p></details>
 
 <details><summary><strong>What about my current log statements?</strong></summary><p>
@@ -102,6 +104,8 @@ No client, no special API, no magic, just use `Logger` as normal:
 ```elixir
 Logger.info("My log message")
 ```
+
+---
 
 </p></details>
 
@@ -152,6 +156,8 @@ Logger.info(%{key: "value"})
 Logger.info('{"key": "value"}')
 Logger.info("key=value")
 ```
+
+---
 
 </p></details>
 
