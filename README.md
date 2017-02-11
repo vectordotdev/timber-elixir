@@ -207,8 +207,10 @@ end
 
 ## Setup
 
-* Prefer examples? Checkout our [Elixir / Phoenix example app](https://github.com/timberio/elixir-phoenix-example-app),
-  you can see all changes by [search for "timber-change"](https://github.com/timberio/phoenix-elixir-example-app/search?utf8=%E2%9C%93&q=timber-change&type=Code).
+:point_right: Prefer examples? Checkout our [Elixir / Phoenix example app](https://github.com/timberio/elixir-phoenix-example-app),
+you can see all changes by [search for "timber-change"](https://github.com/timberio/phoenix-elixir-example-app/search?utf8=%E2%9C%93&q=timber-change&type=Code).
+
+---
 
 <details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
 
