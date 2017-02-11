@@ -140,10 +140,10 @@ defmodule Timber.Transports.HTTP do
     receive do
       {:DOWN, ^ref, _, _pid, _reason} ->
         raise "HTTP Client down"
-      {type, ^ref, message} ->
+      message ->
         # Defer message detection to the client. Each client will have different
         # messages and the check should be contained in there.
-        if get_http_client().done?(type, message) do
+        if get_http_client().done?(ref, message) do
           %{state | ref: nil}
         else
           wait_on_request(state)

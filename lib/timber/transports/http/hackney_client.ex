@@ -55,7 +55,9 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   @spec async_request(Client.method, Client.url, Client.headers, Client.body) :: Client.result
   def async_request(method, url, headers, body) do
     req_headers = Enum.map(headers, &(&1))
-    req_opts = [pool: @pool_name, async: true]
+    req_opts =
+      get_request_options()
+      |> Keyword.merge([pool: @pool_name, async: true])
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
@@ -64,7 +66,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   Takes a process message type and body and determines if the async request sent in
   `async_request/5` is complete.
   """
-  @spec done?(Client.message_type, Client.message_body) :: bool
-  def done?(:hackney_response, :done), do: true
-  def done?(_type, message), do: false
+  @spec done?(reference, any) :: boolean
+  def done?(ref, {:hackney_response, message_ref, :done}) when ref == message_ref, do: true
+  def done?(_ref, _message), do: false
 end
