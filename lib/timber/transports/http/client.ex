@@ -33,6 +33,7 @@ defmodule Timber.Transports.HTTP.Client do
   @type url :: String.t
   @type result :: {:ok, reference} | {:error, atom}
 
+  @callback start :: any
   @callback async_request(method, url, headers, body) :: result
   @callback done?(reference, any) :: boolean
 end
