@@ -12,12 +12,12 @@
 
 ---
 
-Still logging raw text? Timber is a complete, high-quality, *structured* logging solution that you
-can setup in minutes. It goes beyond traditional log management by focusing on data quality and
-modern developer experiences.
+Still logging raw text? Timber is a complete *structured* logging solution that you can setup in
+minutes. It goes beyond traditional log management by focusing on data quality and modern
+developer experiences.
 
 High quality logs, [a modern beautiful interface](https://timber.io), simple setup,
-zero-maintenance, 6-month retention, and sane prices are just a few of the differences Timber
+zero-maintenance, 6-month retention, and sane prices are just a few of the benefits Timber
 offers.
 
 To learn more, checkout out [timber.io](https://timber.io) or the
@@ -59,7 +59,7 @@ blog post.
 
 <details><summary><strong>What specifically does the Timber library do?</strong></summary><p>
 
-1. Automatically captures and structures your framework and 3rd party logs. (see next question)
+1. Captures and structures your framework and 3rd party logs. (see next question)
 2. Adds useful context to every log line. (see next question)
 3. Provides a [framework for logging custom structured events](#what-about-custom-events).
 4. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
