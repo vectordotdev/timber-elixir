@@ -228,6 +228,7 @@ config :logger,
   backends: [Timber.LoggerBackend],
   handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
 
+# Because the logger is no longer handling errors we instruct Timber to do so
 config :timber, :capture_errors, true
 ```
 
@@ -257,7 +258,7 @@ plug MyApp.Router
 
 </p></details>
 
-<details><summary><strong>3. *Capture* `Phoenix` logging in `config/prod.exs` and `my_app/web.ex`</strong></summary><p>
+<details><summary><strong>3. *Capture* `Phoenix` logging in `config/config.exs` and `my_app/web.ex`</strong></summary><p>
 
 :point_right: *Skip if you are not using `Phoenix`.*
 
@@ -305,7 +306,7 @@ Now that Timber is all set up, we want to make sure it's development friendly:
 config :timber, :io_device,
   colorize: true,
   format: :logfmt,
-  print_timestamps: true
+  print_timestamps: true,
   print_log_level: true
 ```
 

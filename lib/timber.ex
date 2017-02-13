@@ -58,13 +58,17 @@ defmodule Timber do
     end
 
     children =
-      if Timber.Config.transport == Timber.Transports.HTTP &&
+      if Timber.Config.transport() == Timber.Transports.HTTP &&
         Timber.Transports.HTTP.get_http_client() == Timber.Transports.HTTP.HackneyClient
       do
-        [:hackney_pool.child_spec(
-          Timber.Transports.HTTP.HackneyClient.get_pool_name(),
-          Timber.Transports.HTTP.HackneyClient.get_pool_options()
-        )]
+        case Code.ensure_loaded(:hackney_pool) do
+          {:module, _mod} ->
+            [:hackney_pool.child_spec(
+              Timber.Transports.HTTP.HackneyClient.get_pool_name(),
+              Timber.Transports.HTTP.HackneyClient.get_pool_options()
+            )]
+          {:error, _error} -> []
+        end
       else
         []
       end
