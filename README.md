@@ -12,9 +12,9 @@
 
 ---
 
-Timber is a complete, high-quality, carefully designed logging solution that you can setup
-in minutes. It goes beyond traditional log management by focusing on data quality and modern
-user experiences.
+Still logging raw text? Timber is a complete, high-quality, *structured* logging solution that you
+can setup in minutes. It goes beyond traditional log management by focusing on data quality and
+modern developer experiences.
 
 High quality logs, [a modern beautiful interface](https://timber.io), simple setup,
 zero-maintenance, 6-month retention, and sane prices are just a few of the differences Timber
