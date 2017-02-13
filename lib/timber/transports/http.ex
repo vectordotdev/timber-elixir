@@ -182,5 +182,6 @@ defmodule Timber.Transports.HTTP do
   @doc false
   def get_http_client!, do: Keyword.fetch!(config(), :http_client)
 
+  @doc false
   def get_http_client, do: Keyword.get(config(), :http_client)
 end
