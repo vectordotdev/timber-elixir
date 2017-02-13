@@ -16,8 +16,9 @@ Timber is a complete, high-quality, carefully designed logging solution that you
 in minutes. It goes beyond traditional log management by focusing on data quality and modern
 user experiences.
 
-High quality logs, a modern beautiful interface, simple setup, zero-maintenance, 6-month retention,
-and sane prices are just a few of the differences Timber offers.
+High quality logs, [a modern beautiful interface](https://timber.io), simple setup,
+zero-maintenance, 6-month retention, and sane prices are just a few of the differences Timber
+offers.
 
 To learn more, checkout out [timber.io](https://timber.io) or the
 ["why we built Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
