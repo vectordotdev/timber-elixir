@@ -212,8 +212,7 @@ end
 
 ## Setup
 
-:point_right: Prefer examples? Checkout our [Elixir / Phoenix example app](https://github.com/timberio/elixir-phoenix-example-app),
-you can see all changes by [searching for "timber-change"](https://github.com/timberio/elixir-phoenix-example-app/search?utf8=%E2%9C%93&q=timber-change&type=Code).
+:point_right: Prefer examples? Checkout out the **[Timber install example pull requst](**[View the Timber install pull request](https://github.com/timberio/elixir-phoenix-example-app/pull/1) for an example of the exact changes made.**)**. This is includes all changes below for a default Phoenix application.
 
 ---
 
