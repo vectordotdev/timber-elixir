@@ -27,7 +27,7 @@ blog post.
 
 ## Overview
 
-<details><summary><strong>How does Timber benefit me differently?</strong></summary><p>
+<details><summary><strong>What are the benefits of using Timber?</strong></summary><p>
 
 1. **Data quality.** The usefulness of your logs starts here. This is why we ship libraries like
    this one; a fundamental difference from parsing. Timber maintains the entire process of
