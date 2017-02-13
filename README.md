@@ -213,7 +213,7 @@ end
 ## Setup
 
 :point_right: Prefer examples? Checkout out the **[Timber install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/1)**.
-This example demonstrating the below changes for a default Phoenix application.
+This demonstrates the below changes for a default Phoenix application.
 
 ---
 
