@@ -29,7 +29,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
   @pool_name __MODULE__
   @default_request_options [
     connect_timeout: 5_000, # 5 seconds, timeout to connect
-    recv_timeout: 20_000 #  20 seconds, timeout to receive a response
+    recv_timeout: 10_000 #  10 seconds, timeout to receive a response
   ]
   @default_pool_options pool_options: [
     timeout: 600_000, # 10 minutes, how long the connection is kept alive in the pool

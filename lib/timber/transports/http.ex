@@ -153,12 +153,6 @@ defmodule Timber.Transports.HTTP do
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
   # Asynchronous requests are required so that we do not block the caller and provide
   # back pressure needlessly.
-  defp issue_request(%{ref: ref} = state) when not is_nil(ref) do
-    state
-    |> wait_on_request()
-    |> issue_request()
-  end
-
   defp issue_request(%{buffer: []} = state) do
     state
   end
