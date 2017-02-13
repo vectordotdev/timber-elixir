@@ -12,8 +12,9 @@
 
 ---
 
-Timber is a complete, high-quality logging solution without the hassle. It goes beyond traditional
-log management by focusing on data quality and modern user experiences.
+Timber is a complete, high-quality, carefully designed logging solution that you can setup
+in minutes. It goes beyond traditional log management by focusing on data quality and modern
+user experiences.
 
 High quality logs, a modern beautiful interface, simple setup, zero-maintenance, 6-month retention,
 and sane prices are just a few of the differences Timber offers.
@@ -28,10 +29,10 @@ blog post.
 <details><summary><strong>How does Timber benefit me differently?</strong></summary><p>
 
 1. **Data quality.** The usefulness of your logs starts here. This is why we ship libraries like
-   this one. A fundamental difference from parsing. We maintain the entire process of structuring
-   your logs from *within* your application: from framework logs, to 3rd party logs, to custom
-   events. It's all maintained and fully-managed. This gives you time to focus on your core
-   competancies, not logging!
+   this one; a fundamental difference from parsing. Timber maintains the entire process of
+   structuring your logs from *within* your application: from framework logs, to 3rd party logs,
+   to custom events. Moreover, Timber adds data that otherwise wouldn't be in the line; data you
+   can't obtain from parsing alone.
 2. **Human readability.** Structuring your logs means they become unreadable. Timber
    *augments* your logs with structured data. Meaning we do not alter the original log message.
    And in the Timber console, you'll see the humany-friendly message. Click the line, and you'll
