@@ -86,14 +86,16 @@ defmodule Timber.LoggerBackend do
   def init(__MODULE__) do
     transport = get_transport()
 
-    {:ok, transport_state} = transport.init()
+    case transport.init() do
+      {:ok, transport_state} ->
+        state = %__MODULE__{
+          transport: transport,
+          transport_state: transport_state
+        }
 
-    state = %__MODULE__{
-      transport: transport,
-      transport_state: transport_state
-    }
-
-    {:ok, state}
+        {:ok, state}
+      {:error, error} -> {:error, error}
+    end
   end
 
   # handle_call/2
