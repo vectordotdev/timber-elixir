@@ -219,84 +219,84 @@ you can see all changes by [searching for "timber-change"](https://github.com/ti
 
 <details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
 
-  ```elixir
-  # config/config.exs
+```elixir
+# config/config.exs
 
-  config :logger,
-    backends: [Timber.LoggerBackend],
-    handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
+config :logger,
+  backends: [Timber.LoggerBackend],
+  handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
 
-  config :timber, :capture_errors, true
-  ```
+config :timber, :capture_errors, true
+```
 
 </p></details>
 
 <details><summary><strong>2. *Add* the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
 
-  :point_right: *Skip if you are not using `Plug`.*
+:point_right: *Skip if you are not using `Plug`.*
 
-  ```elixir
-  # lib/my_app/endpoint.ex
+```elixir
+# lib/my_app/endpoint.ex
 
-  plug Plug.Logger # <--- REMOVE ME
+plug Plug.Logger # <--- REMOVE ME
 
-  ...
+...
 
-  # Insert immediately before plug MyApp.Router
-  plug Timber.Integrations.ContextPlug
-  plug Timber.Integrations.EventPlug
+# Insert immediately before plug MyApp.Router
+plug Timber.Integrations.ContextPlug
+plug Timber.Integrations.EventPlug
 
-  plug MyApp.Router
-  ```
+plug MyApp.Router
+```
 
-  * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
-    `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
+* Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
+  `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
 
 </p></details>
 
 <details><summary><strong>3. *Add* Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
-  :point_right: *Skip if you are not using `Phoenix`.*
+:point_right: *Skip if you are not using `Phoenix`.*
 
-  ```elixir
-  # config/config.exs
+```elixir
+# config/config.exs
 
-  config :my_app, MyApp.Endpoint,
-    http: [port: 4001],
-    root: Path.dirname(__DIR__),
-    instrumenters: [Timber.Integrations.PhoenixInstrumenter], # <------ add this line
-    pubsub: [name: MyApp.PubSub,
-             adapter: Pheonix.PubSub.PG2]
-  ```
+config :my_app, MyApp.Endpoint,
+  http: [port: 4001],
+  root: Path.dirname(__DIR__),
+  instrumenters: [Timber.Integrations.PhoenixInstrumenter], # <------ add this line
+  pubsub: [name: MyApp.PubSub,
+           adapter: Pheonix.PubSub.PG2]
+```
 
 </p></details>
 
 <details><summary><strong>4. *Add* the Ecto logger in `config/config.exs`</strong></summary><p>
 
-  :point_right: *Skip if you are not using `Ecto`.*
+:point_right: *Skip if you are not using `Ecto`.*
 
-  ```elixir
-  # config/config.exs
+```elixir
+# config/config.exs
 
-  config :my_app, MyApp.Repo,
-    loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bumped to info to gain more insight
-  ```
+config :my_app, MyApp.Repo,
+  loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bumped to info to gain more insight
+```
 
 </p></details>
 
 <details><summary><strong>5. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
 
-  Bonus points! Use Timber in your development environment so you can see context locally:
+Bonus points! Use Timber in your development environment so you can see context locally:
 
-  ```elixir
-  # config/dev.exs
+```elixir
+# config/dev.exs
 
-  config :timber, :io_device,
-    colorize: true,
-    format: :logfmt,
-    print_timestamps: true
-    print_log_level: true
-  ```
+config :timber, :io_device,
+  colorize: true,
+  format: :logfmt,
+  print_timestamps: true
+  print_log_level: true
+```
 
 </p></details>
 
