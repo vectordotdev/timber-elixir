@@ -53,20 +53,17 @@ defmodule Timber.Transports.HTTP do
             ref: nil
 
   @doc false
-  @spec init() :: {:ok, t}
+  @spec init() :: {:ok, t} | {:error, atom}
   def init() do
     config = Keyword.put(config(), :api_key, Timber.Config.api_key())
 
-    case configure(config, %__MODULE__{}) do
-      {:ok, state} ->
-        # Kick-off the outlet
-        {:ok, outlet(state)}
-      {:error, error} -> {:error, error}
-    end
+    with {:ok, state} <- configure(config, %__MODULE__{}),
+         state <- outlet(state),
+         do: {:ok, state}
   end
 
   @doc false
-  @spec configure(Keyword.t, t) :: {:ok, t}
+  @spec configure(Keyword.t, t) :: {:ok, t} | {:error, atom}
   def configure(options, %{api_key: current_api_key} = state) do
     api_key = Keyword.get(options, :api_key, current_api_key)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
@@ -119,6 +116,7 @@ defmodule Timber.Transports.HTTP do
   # The outlet recursively calls itself through process messaging via `Process.send_after/3`.
   # This allows us to clear the buffer on an interval ensuring messages are delivered, at most,
   # by the specified interval length.
+  @spec outlet(t) :: t
   defp outlet(%{flush_interval: flush_interval} = state) do
     Process.send_after(self(), :outlet, flush_interval)
     state
@@ -133,6 +131,7 @@ defmodule Timber.Transports.HTTP do
   end
 
   # Waits for the async request to complete
+  @spec wait_on_request(t) :: t
   defp wait_on_request(%{ref: nil} = state) do
     state
   end
@@ -153,6 +152,7 @@ defmodule Timber.Transports.HTTP do
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
   # Asynchronous requests are required so that we do not block the caller and provide
   # back pressure needlessly.
+  @spec issue_request(t) :: t
   defp issue_request(%{buffer: []} = state) do
     state
   end
@@ -178,6 +178,7 @@ defmodule Timber.Transports.HTTP do
     %{state | ref: ref, buffer: [], buffer_size: 0}
   end
 
+  @spec config() :: Keyword.t
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
   @doc false

@@ -184,7 +184,7 @@ defmodule Timber.Transports.IODevice do
             buffer: []
 
   @doc false
-  @spec init() :: {:ok, t}
+  @spec init() :: {:ok, t} | {:error, Exception.t}
   def init() do
     init_config = get_init_config()
     filename = Keyword.get(init_config, :file, :no_file)
