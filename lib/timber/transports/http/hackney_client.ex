@@ -36,6 +36,13 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     max_connections: 2 # number of connections maintained in the pool
   ]
 
+  @doc false
+  def start_link do
+    children = [:hackney_pool.child_spec(get_pool_name(), get_pool_options())]
+    opts = [strategy: :one_for_one, name: __MODULE__.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
   defp config, do: Application.get_env(:timber, :hackney_client, [])
 
   @doc false

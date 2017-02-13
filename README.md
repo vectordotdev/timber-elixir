@@ -319,7 +319,8 @@ config :timber, :io_device,
   colorize: true,
   format: :logfmt,
   print_timestamps: true,
-  print_log_level: true
+  print_log_level: true,
+  print_metadata: false
 ```
 
 </p></details>
@@ -369,6 +370,10 @@ throughput and little overhead. If you'd like to use another client see
 
   config :timber,
     transport: Timber.Transports.Network,
+    api_key: System.get_env("TIMBER_LOGS_KEY")
+
+  config :timber, :http_transport,
+    http_client: Timber.Transports.HTTP.HackneyClient,
     api_key: System.get_env("TIMBER_LOGS_KEY")
   ```
 

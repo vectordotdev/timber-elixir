@@ -49,6 +49,8 @@ defmodule Timber do
   # This is the function that starts up the error logger listener
   #
   def start(_type, _opts) do
+    import Supervisor.Spec, warn: false
+
     if Timber.Config.capture_errors?() do
       :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
     end
@@ -57,18 +59,10 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
+    http_client = Timber.Transports.HTTP.get_http_client()
     children =
-      if Timber.Config.transport() == Timber.Transports.HTTP &&
-        Timber.Transports.HTTP.get_http_client() == Timber.Transports.HTTP.HackneyClient
-      do
-        case Code.ensure_loaded(:hackney_pool) do
-          {:module, _mod} ->
-            [:hackney_pool.child_spec(
-              Timber.Transports.HTTP.HackneyClient.get_pool_name(),
-              Timber.Transports.HTTP.HackneyClient.get_pool_options()
-            )]
-          {:error, _error} -> []
-        end
+      if http_client do
+        [worker(http_client, [])]
       else
         []
       end

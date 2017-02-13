@@ -42,7 +42,6 @@ defmodule Timber.Transports.HTTP do
   @content_type "application/msgpack"
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
   @default_flush_interval 1000
-  @default_http_client __MODULE__.HackneyClient
   @url "https://logs.timber.io/frames"
 
   defstruct api_key: nil,
@@ -141,7 +140,7 @@ defmodule Timber.Transports.HTTP do
       message ->
         # Defer message detection to the client. Each client will have different
         # messages and the check should be contained in there.
-        if get_http_client().done?(ref, message) do
+        if get_http_client!().done?(ref, message) do
           %{state | ref: nil}
         else
           wait_on_request(state)
@@ -173,7 +172,7 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => user_agent
     }
 
-    {:ok, ref} = get_http_client().async_request(:post, @url, headers, body)
+    {:ok, ref} = get_http_client!().async_request(:post, @url, headers, body)
 
     %{state | ref: ref, buffer: [], buffer_size: 0}
   end
@@ -182,5 +181,8 @@ defmodule Timber.Transports.HTTP do
   defp config, do: Application.get_env(:timber, :http_transport, [])
 
   @doc false
-  def get_http_client, do: Keyword.get(config(), :http_client, @default_http_client)
+  def get_http_client!, do: Keyword.fetch!(config(), :http_client)
+
+  @doc false
+  def get_http_client, do: Keyword.get(config(), :http_client)
 end
