@@ -34,7 +34,7 @@ blog post.
    structuring your logs from *within* your application: from framework logs, to 3rd party logs,
    to custom events. Moreover, Timber adds data that otherwise wouldn't be in the line; data you
    can't obtain from parsing alone.
-2. **Human readability.** Structuring your logs means they become unreadable. Timber
+2. **Human readability.** Structuring your logs usually means they become unreadable. Timber
    *augments* your logs with structured data. Meaning we do not alter the original log message.
    And in the Timber console, you'll see the humany-friendly message. Click the line, and you'll
    get access to all of the structured data in a slide out panel. :open_mouth:
