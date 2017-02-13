@@ -219,6 +219,8 @@ you can see all changes by [searching for "timber-change"](https://github.com/ti
 
 <details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
 
+Replace *any* existing `config :logger` calls with:
+
 ```elixir
 # config/config.exs
 
@@ -231,30 +233,31 @@ config :timber, :capture_errors, true
 
 </p></details>
 
-<details><summary><strong>2. *Add* the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
+<details><summary><strong>2. *Capture* `Plug` logging in `lib/my_app/endpoint.ex`</strong></summary><p>
 
 :point_right: *Skip if you are not using `Plug`.*
 
 ```elixir
 # lib/my_app/endpoint.ex
 
-plug Plug.Logger # <--- REMOVE ME
+plug Plug.Logger # <--- REMOVE THIS LINE
 
 ...
 
-# Insert immediately before plug MyApp.Router
+# ADD THESE LINES
+# Insert at the bottom, immediately before `plug MyApp.Router`
 plug Timber.Integrations.ContextPlug
 plug Timber.Integrations.EventPlug
 
 plug MyApp.Router
 ```
 
-* Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
+* Be sure to insert these plugs at the bottom of your `endpoint.ex` file, *immediately* before
   `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
 
 </p></details>
 
-<details><summary><strong>3. *Add* Phoenix instrumentation in `config/config.exs`</strong></summary><p>
+<details><summary><strong>3. *Capture* `Phoenix` logging in `config/prod.exs` and `my_app/web.ex`</strong></summary><p>
 
 :point_right: *Skip if you are not using `Phoenix`.*
 
@@ -262,16 +265,24 @@ plug MyApp.Router
 # config/config.exs
 
 config :my_app, MyApp.Endpoint,
-  http: [port: 4001],
-  root: Path.dirname(__DIR__),
-  instrumenters: [Timber.Integrations.PhoenixInstrumenter], # <------ add this line
-  pubsub: [name: MyApp.PubSub,
-           adapter: Pheonix.PubSub.PG2]
+  instrumenters: [Timber.Integrations.PhoenixInstrumenter]
+```
+
+Now that Timber is handling logging, disable Phoenix logging with:
+
+```elixir
+# my_app/web.ex
+
+def controller do
+  quote do
+    use Phoenix.Controller, log: false # <--- Add log: false
+  end
+end
 ```
 
 </p></details>
 
-<details><summary><strong>4. *Add* the Ecto logger in `config/config.exs`</strong></summary><p>
+<details><summary><strong>4. *Capture* `Ecto` logging in `config/config.exs`</strong></summary><p>
 
 :point_right: *Skip if you are not using `Ecto`.*
 
@@ -279,14 +290,14 @@ config :my_app, MyApp.Endpoint,
 # config/config.exs
 
 config :my_app, MyApp.Repo,
-  loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}] # Bumped to info to gain more insight
+  loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
 ```
 
 </p></details>
 
-<details><summary><strong>5. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
+<details><summary><strong>5. *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
 
-Bonus points! Use Timber in your development environment so you can see context locally:
+Now that Timber is all set up, we want to make sure it's development friendly:
 
 ```elixir
 # config/dev.exs
@@ -349,7 +360,8 @@ throughput and little overhead. If you'd like to use another client see
   ```
 
 3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
-   Afterwards simply assign it to the `TIMBER_LOGS_KEY` environment variable.
+
+4. Assign your API key to the `TIMBER_LOGS_KEY` environment variable.
 
 * Note: we use the `Network` transport so that we can upgrade protocols in the future if we
   deem it more efficient. For example, TCP. If you want to use strictly HTTP, simply replace
