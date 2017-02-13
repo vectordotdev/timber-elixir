@@ -1,6 +1,6 @@
 defmodule Timber.Contexts.ServerContext do
   @moduledoc """
-  The Server context tracks information about the host your system runs on
+  The Server context tracks information about the host your system runs on.
   """
 
   @type t :: %__MODULE__{

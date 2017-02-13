@@ -4,43 +4,58 @@
 <a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/ruby-library-readme-header.gif" height="469" /></a>
 </p>
 
-[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master) [![Coverage Status](https://coveralls.io/repos/github/timberio/timber-elixir/badge.svg?branch=master)](https://coveralls.io/github/timberio/timber-elixir=master)
+[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master)
+
+---
 
 :point_right: **Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
 
-* **[What is Timber?](#what-is-timber)**
-* **[What events does Timber structure for me?](#what-events-does-timber-structure-for-me)**
-* **[Usage](#usage)**
-* **[Installation](#installation)**
-* **[Setup](#installation)**
-* **[Send your logs](#send-your-logs)**
+---
 
-
-## What is Timber?
-
-Logs are amazingly useful...when they're structured. And unless you're a logging company,
-designing, implementing, and maintaining a structured logging strategy can be a major time sink.
-
-Timber gives you this *today*, allowing you to spend time on your app, not logging. Specifically,
-Timber is a thoughtful, carefully crafted, fully-managed, *structured* logging strategy that...
-
-1. Automatically structures your framework and 3rd party logs ([see below](#what-events-does-timber-structure-for-me)).
-2. Provides a [framework for logging custom events](#what-about-custom-events).
-3. Does not lock you in with a special API or closed data. Just better logging.
-4. Defines a [normalized log schema](https://github.com/timberio/log-event-json-schema) across *all* of your apps. Implemented by [our libraries](https://github.com/timberio).
-5. Offers a [beautiful modern console](https://timber.io) designed specifically for this data. Pre-configured and tuned out of the box.
-6. Gives you *6 months of retention*, by default.
-7. Does not charge you for the extra structured data we're encouraging here, only the core log message.
-8. Encrypts your data in transit and at rest.
-9. Offers 11 9s of durability.
-10. ...and so much more!
+Timber is a complete, fully-managed, logging strategy that you can set up in minutes. It makes
+your application logs useful by taking a different, gentler, smarter approach to structured logging.
 
 To learn more, checkout out [timber.io](https://timber.io) or the
-["why we started Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
+["why we built Timber"](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
 blog post.
 
 
-## What events does Timber structure for me?
+## Overview
+
+<details><summary><strong>How is Timber different?</strong></summary><p>
+
+1. Timber structures your logs from *within* your application using libraries (like this one);
+   a fundamental difference from parsing that has [So. Many. Benefits.](http://moss-ibex2.cloudvent.net/blog/why-were-building-timber/)
+2. Timber does not alter the original log message. It structures your logs by *augmenting* them
+   with metadata. That is, it preserves the original log message and attaches structured data to
+   it. This means you get both: structured data *and* human readable logs.
+3. All log events adhere to a [normalized, shared, schema](https://github.com/timberio/log-event-json-schema).
+   Meaning you can interact with your logs consistently across apps of any language: queries,
+   graphs, alerts, and other downstream consumers. They all operate on the same schema.
+4. Timber poses no risk of lock-in or code-debt. There is no special client, no special API; Timber
+   adheres strictly to the default `Logger` interface. On the surface, it's just logging.
+   And if you choose to stop using Timber, you can do so without having to alter your code.
+5. Timber manages the entire logging pipeline. From log creation (libraries like this one) to a
+   [beautiful modern console](https://timber.io) designed specifically for this data.
+   The whole process is designed to work in harmony.
+6. Lastly, Timber offers 6 months of retention by default, at sane prices. The data is encrypted
+   in-transit and at-rest, and we guarantee 11 9s of durability. :open_mouth:
+
+---
+
+</p></details>
+
+<details><summary><strong>What does this Timber library do?</strong></summary><p>
+
+1. Automatically captures and structures your framework and 3rd party logs (see next question).
+2. Provides a [framework for logging custom structured events](#what-about-custom-events).
+3. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
+
+---
+
+</p></details>
+
+<details><summary><strong>What events does Timber capture & structure for me?</strong></summary><p>
 
 Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
 
@@ -55,26 +70,42 @@ Out of the box you get everything in the [`Timber.Events`](lib/timber/events) na
 9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
 We also add context to every log, everything in the [`Timber.Contexts`](lib/timber/contexts)
-namespace. Context is like join data for your logs. Ever wish you could see all log lines written
-a specific request? Context achieves that:
+namespace. Context is structured data representing the current environment when the log line was written.
+It is included in every log line. Think of it like join data for your logs:
 
 1. [HTTP Context](lib/timber/contexts/http_context.ex)
 2. [Organization Context](lib/timber/contexts/organization_context.ex)
-3. [Process Context](lib/timber/contexts/process_context.ex)
-4. [Server Context](lib/timber/contexts/server_context.ex)
+3. [Server Context](lib/timber/contexts/server_context.ex)
+4. [System Context](lib/timber/contexts/system_context.ex)
 5. [Runtime Context](lib/timber/contexts/runtime_context.ex)
+5. [User Context](lib/timber/contexts/user_context.ex)
 6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
 
+---
+
+</p></details>
+
+<details><summary><strong>What about my current log statements?</strong></summary><p>
+
+They'll continue to work as expected. Timber adheres strictly to the default `Logger` interface
+and will never deviate in *any* way.
+
+In fact, traditional log statements for non-meaningful events, debug statements, etc, are
+encouraged. In cases where the data is meaningful, consider [logging a custom event](#usage).
+
+</p></details>
 
 ## Usage
 
 <details><summary><strong>Basic logging</strong></summary><p>
 
-No special logger, no magic, use `Logger` as normal:
+No client, no special API, no magic, just use `Logger` as normal:
 
 ```elixir
 Logger.info("My log message")
 ```
+
+---
 
 </p></details>
 
@@ -111,7 +142,22 @@ Logger.info("My log message")
   Logger.info(message, event: event)
   ```
 
-* Notice there are no special APIs, no risk of code-debt, and no lock-in. Just better logging.
+* `:type` is how Timber classifies the event, it creates a namespace for the data you send.
+* Also, notice there is no mention of Timber in the above code. Just plain old logging.
+
+#### What about regular Hashes, JSON, or logfmt?
+
+Go for it! Timber will parse the data server side, but we *highly* recommend the above examples.
+Providing a `:type` allows timber to classify the event, create a namespace for the data you
+send, and make it easier to search, graph, alert, etc.
+
+```ruby
+Logger.info(%{key: "value"})
+Logger.info('{"key": "value"}')
+Logger.info("key=value")
+```
+
+---
 
 </p></details>
 
@@ -129,7 +175,7 @@ request ID. Not just the lines that contain the value.
   Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
   ```
 
-  This adds context namespaced by the `build`.
+  This adds context data keyspaces by `build`.
 
 2. Add a struct (recommended)
 
@@ -151,22 +197,27 @@ request ID. Not just the lines that contain the value.
 
 ## Installation
 
-  ```elixir
-  # Mix.exs
+```elixir
+# Mix.exs
 
-  def application do
-    [applications: [:timber]]
-  end
+def application do
+  [applications: [:timber]]
+end
 
-  def deps do
-    [{:timber, "~> 1.0"}]
-  end
-  ```
+def deps do
+  [{:timber, "~> 1.0"}]
+end
+```
 
 
 ## Setup
 
-<details><summary><strong>1. Configure Timber in `config/config.exs`</strong></summary><p>
+:point_right: Prefer examples? Checkout our [Elixir / Phoenix example app](https://github.com/timberio/elixir-phoenix-example-app),
+you can see all changes by [searching for "timber-change"](https://github.com/timberio/elixir-phoenix-example-app/search?utf8=%E2%9C%93&q=timber-change&type=Code).
+
+---
+
+<details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
 
   ```elixir
   # config/config.exs
@@ -180,34 +231,32 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>2. Add the Timber plugs</strong></summary><p>
+<details><summary><strong>2. *Add* the Timber plugs in `lib/my_app/endpoint.ex`</strong></summary><p>
 
-  1. Remove the existing `Plug.Logger` in `lib/my_app/endpoint.ex`:
+  :point_right: *Skip if you are not using `Plug`.*
 
-    ```elixir
-    # lib/my_app/endpoint.ex
+  ```elixir
+  # lib/my_app/endpoint.ex
 
-    plug Plug.Logger # <--- REMOVE ME
-    ```
+  plug Plug.Logger # <--- REMOVE ME
 
-  2. Add the Timber plugs in `lib/my_app/endpoint.ex``:
+  ...
 
-    ```elixir
-    # lib/my_app/endpoint.ex
+  # Insert immediately before plug MyApp.Router
+  plug Timber.Integrations.ContextPlug
+  plug Timber.Integrations.EventPlug
 
-    # Insert immediately before plug MyApp.Router
-    plug Timber.Integrations.ContextPlug
-    plug Timber.Integrations.EventPlug
-    ```
+  plug MyApp.Router
+  ```
 
-    * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
-      `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
+  * Be sure to insert these plugs at the bottom of your `endpoint.ex` file, immediately before
+    `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
 
 </p></details>
 
-<details><summary><strong>3. Add Phoenix instrumentation in `config/config.exs`</strong></summary><p>
+<details><summary><strong>3. *Add* Phoenix instrumentation in `config/config.exs`</strong></summary><p>
 
-  Skip if you are not using `Phoenix`.
+  :point_right: *Skip if you are not using `Phoenix`.*
 
   ```elixir
   # config/config.exs
@@ -222,9 +271,9 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>4. Add the Ecto logger in `config/config.exs`</strong></summary><p>
+<details><summary><strong>4. *Add* the Ecto logger in `config/config.exs`</strong></summary><p>
 
-  Skip if you are not using `Ecto`.
+  :point_right: *Skip if you are not using `Ecto`.*
 
   ```elixir
   # config/config.exs
@@ -235,7 +284,7 @@ request ID. Not just the lines that contain the value.
 
 </p></details>
 
-<details><summary><strong>5. (optional) Use Timber in development</strong></summary><p>
+<details><summary><strong>5. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
 
   Bonus points! Use Timber in your development environment so you can see context locally:
 
@@ -261,14 +310,52 @@ The recommended strategy for Heroku is to setup a
 
 **--> [Add your app to Timber](https://app.timber.io)**
 
-*:information_desk_person: Note: for high volume apps Heroku log drains will drop messages. This
-is true for any Heroku app, in which case we recommend the Network method below.*
+---
 
 </p></details>
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
-Coming soon!
+Timber does *not* force an HTTP client on you. The following instruction utilize the Timber default
+`Timber.Transports.HTTP.HackneyClient`. This is a highly efficient client that utilizes hackney,
+batching, stay alive connections, connection pools, and msgpack to deliver logs with high
+throughput and little overhead. If you'd like to use another client see
+`Timber.Transports.HTTP.Client`.
+
+1. *Add* HTTP dependencies to `mix.exs`:
+
+  ```elixir
+  # Elixir >= 1.4? Adding the applications list is optional.
+  def application do
+    [applications: [:hackney, :timber]] # <-- Be sure to add hackney!
+  end
+
+  def deps do
+    [
+      {:timber, "~> 1.0"},
+      {:hackney, "~> 1.6"} # <-- ADD ME
+    ]
+  end
+  ```
+
+2. *Configure* Timber to use the Network transport in `config/prod.exs`:
+
+  ```elixir
+  # config/prod.exs
+
+  config :timber,
+    transport: Timber.Transports.Network,
+    api_key: System.get_env("TIMBER_LOGS_KEY")
+  ```
+
+3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
+   Afterwards simply assign it to the `TIMBER_LOGS_KEY` environment variable.
+
+* Note: we use the `Network` transport so that we can upgrade protocols in the future if we
+  deem it more efficient. For example, TCP. If you want to use strictly HTTP, simply replace
+  `Timber.Transports.Network` with `Timber.Transports.HTTP`.
+
+---
 
 </p></details>
 

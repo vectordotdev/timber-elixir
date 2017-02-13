@@ -1,6 +1,6 @@
 defmodule Timber.Contexts.SystemContext do
   @moduledoc """
-  Tracks process information
+  Tracks system information such as the current Process ID (pid).
   """
 
   @type t :: %__MODULE__{
