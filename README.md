@@ -228,7 +228,6 @@ config :logger,
   backends: [Timber.LoggerBackend],
   handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
 
-# Because the logger is no longer handling errors we instruct Timber to do so
 config :timber, :capture_errors, true
 ```
 
