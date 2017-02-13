@@ -1,10 +1,6 @@
 defmodule Timber.Stubbing do
   defmacro __using__(_) do
     quote do
-      def start do
-        start_link()
-      end
-
       def start_link do
         Agent.start_link(fn -> %{} end, name: __MODULE__)
       end
