@@ -307,7 +307,8 @@ config :timber, :io_device,
   colorize: true,
   format: :logfmt,
   print_timestamps: true,
-  print_log_level: true
+  print_log_level: true,
+  print_metadata: false
 ```
 
 </p></details>
