@@ -49,6 +49,8 @@ defmodule Timber do
   # This is the function that starts up the error logger listener
   #
   def start(_type, _opts) do
+    import Supervisor.Spec, warn: false
+
     if Timber.Config.capture_errors?() do
       :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
     end
@@ -57,11 +59,13 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
-    if Timber.Transports.HTTP.get_http_client() do
-      Timber.Transports.HTTP.get_http_client().start()
-    end
+    children =
+      if Timber.Transports.HTTP.get_http_client() do
+        [worker(Timber.Transports.HTTP.get_http_client(), [])]
+      else
+        []
+      end
 
-    children = []
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)
   end
