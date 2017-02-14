@@ -8,7 +8,7 @@
 
 ---
 
-:point_right: **Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
+👉 **Timber is in beta testing, if interested in joining, please email us at [beta@timber.io](mailto:beta@timber.io)**
 
 ---
 
@@ -37,13 +37,13 @@ blog post.
 2. **Human readability.** Structuring your logs usually means they become unreadable. Timber
    *augments* your logs with structured data. Meaning we do not alter the original log message.
    And in the Timber console, you'll see the humany-friendly message. Click the line, and you'll
-   get access to all of the structured data in a slide out panel. :open_mouth:
+   get access to all of the structured data in a slide out panel. 😮
 3. **Reliable downstream consumption.** All log events adhere to a
    [normalized, shared, schema](https://github.com/timberio/log-event-json-schema) that follows
    [semantic versioning](http://semver.org/) and goes through a [standard release process](https://github.com/timberio/log-event-json-schema/releases).
    This means you can rely on the structure of your logs and interact consistently with them
    across apps of any language: queries, graphs, alerts, and other downstream consumers. No
-   surprises, less breakage, more reliability, happier developers. :smile:
+   surprises, less breakage, more reliability, happier developers. 😊
 4. **Zero risk of code debt or lock-in.** Logging is a standard that has been around since the dawn
    of computers. It's built into every language, framework, and library. Timber adheres strictly
    to the default `Logger` interface. There are no special APIs, and no need to pepper your app
@@ -333,7 +333,7 @@ config :timber, :io_device,
 The recommended strategy for Heroku is to setup a
 [log drain](https://devcenter.heroku.com/articles/log-drains). To get your Timber log drain URL:
 
-**--> [Add your app to Timber](https://app.timber.io)**
+👉 **[Add your app to Timber](https://app.timber.io)**
 
 ---
 
