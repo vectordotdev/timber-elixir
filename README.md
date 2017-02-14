@@ -265,7 +265,7 @@ config :timber, :capture_errors, true
 
 <details><summary><strong>2. *Capture* `Plug` logging in `lib/my_app/endpoint.ex`</strong></summary><p>
 
-:point_right: *Skip if you are not using `Plug`.*
+👉 *Skip if you are not using `Plug`.*
 
 ```elixir
 # lib/my_app/endpoint.ex
@@ -289,7 +289,7 @@ plug MyApp.Router
 
 <details><summary><strong>3. *Capture* `Phoenix` logging in `config/config.exs` and `my_app/web.ex`</strong></summary><p>
 
-:point_right: *Skip if you are not using `Phoenix`.*
+👉 *Skip if you are not using `Phoenix`.*
 
 ```elixir
 # config/config.exs
@@ -314,7 +314,7 @@ end
 
 <details><summary><strong>4. *Capture* `Ecto` logging in `config/config.exs`</strong></summary><p>
 
-:point_right: *Skip if you are not using `Ecto`.*
+👉 *Skip if you are not using `Ecto`.*
 
 ```elixir
 # config/config.exs
