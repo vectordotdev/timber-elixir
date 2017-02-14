@@ -14,9 +14,9 @@
 
 Still logging raw text? Timber is a complete *structured* logging solution that you can setup in
 minutes. It goes beyond traditional log management by focusing on data quality and modern
-developer experiences.
+developer standards.
 
-High quality logs, [a modern beautiful interface](https://timber.io), simple setup,
+High quality logs, [a modern UX-first interface](https://timber.io), simple setup,
 zero-maintenance, 6-month retention, and sane prices are just a few of the benefits Timber
 offers.
 
@@ -116,6 +116,8 @@ No client, no special API, no magic, just use `Logger` as normal:
 
 ```elixir
 Logger.info("My log message")
+
+# My log message @timber.io {"level": "info", "context": {...}}
 ```
 
 ---
@@ -131,6 +133,8 @@ Logger.info("My log message")
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
   Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+
+  # Payment rejected @timber.io {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
 2. Log a struct (recommended)
@@ -153,6 +157,8 @@ Logger.info("My log message")
   event = %PaymentRejectedEvent{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
   message = PaymentRejectedEvent.message(event)
   Logger.info(message, event: event)
+
+  # Payment rejected @timber.io {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
 * `:type` is how Timber classifies the event, it creates a namespace for the data you send.
@@ -166,8 +172,13 @@ send, and make it easier to search, graph, alert, etc.
 
 ```ruby
 Logger.info(%{key: "value"})
+# {"key": "value"}
+
 Logger.info('{"key": "value"}')
+# {"key": "value"}
+
 Logger.info("key=value")
+# key=value
 ```
 
 ---
@@ -186,6 +197,9 @@ request ID. Not just the lines that contain the value.
 
   ```elixir
   Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
+  Logger.info("My log message")
+
+  # My log message @timber.io {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
   This adds context data keyspaces by `build`.
@@ -203,6 +217,9 @@ request ID. Not just the lines that contain the value.
   end
 
   Timber.add_context(%BuildContext{version: "1.0.0"})
+  Loger.info("My log message")
+
+  # My log message @timber.io {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
 </p></details>
