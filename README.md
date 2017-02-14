@@ -172,13 +172,13 @@ send, and make it easier to search, graph, alert, etc.
 
 ```ruby
 Logger.info(%{key: "value"})
-# {"key": "value"}
+# {"key": "value"} @timber.io {"level": "info", "context": {...}}
 
 Logger.info('{"key": "value"}')
-# {"key": "value"}
+# {"key": "value"} @timber.io {"level": "info", "context": {...}}
 
 Logger.info("key=value")
-# key=value
+# key=value @timber.io {"level": "info", "context": {...}}
 ```
 
 ---
