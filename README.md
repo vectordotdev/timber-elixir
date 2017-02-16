@@ -29,21 +29,18 @@ blog post.
 
 <details><summary><strong>What are the benefits of using Timber?</strong></summary><p>
 
-1. **Data quality.** The usefulness of your logs starts here. This is why we ship libraries like
-   this one; a fundamental difference from parsing. Timber maintains the entire process of
-   structuring your logs from *within* your application: from framework logs, to 3rd party logs,
-   to custom events. Moreover, Timber adds data that otherwise wouldn't be in the line; data you
-   can't obtain from parsing alone.
-2. **Human readability.** Structuring your logs usually means they become unreadable. Timber
-   *augments* your logs with structured data. Meaning we do not alter the original log message.
-   And in the Timber console, you'll see the humany-friendly message. Click the line, and you'll
-   get access to all of the structured data in a slide out panel. 😮
+1. **Data quality.** The usefulness of your logs starts here. This is why we ship libraries that
+   structure logs from *within* your application; a fundamental difference from parsing. Not only
+   is it much more stable, but we can include data you couldn't obtain otherwise.
+2. **Human readability.** Structuring your logs doesn't mean they have to be unreadable. Timber
+   *augments* your logs with structured data. Meaning we do not alter the original log message,
+   we simply attach metadata to it. And our console is specifically designed to give you access
+   to this data, without compromising readability. 😮
 3. **Reliable downstream consumption.** All log events adhere to a
    [normalized, shared, schema](https://github.com/timberio/log-event-json-schema) that follows
    [semantic versioning](http://semver.org/) and goes through a [standard release process](https://github.com/timberio/log-event-json-schema/releases).
-   This means you can rely on the structure of your logs and interact consistently with them
-   across apps of any language: queries, graphs, alerts, and other downstream consumers. No
-   surprises, less breakage, more reliability, happier developers. 😊
+   This means you can *rely* on the structure of your logs and interact consistently with them
+   across apps of any language: queries, graphs, alerts, and other downstream consumers.
 4. **Zero risk of code debt or lock-in.** Logging is a standard that has been around since the dawn
    of computers. It's built into every language, framework, and library. Timber adheres strictly
    to the default `Logger` interface. There are no special APIs, and no need to pepper your app
@@ -117,7 +114,7 @@ No client, no special API, no magic, just use `Logger` as normal:
 ```elixir
 Logger.info("My log message")
 
-# My log message @timber.io {"level": "info", "context": {...}}
+# My log message @metadata {"level": "info", "context": {...}}
 ```
 
 ---
@@ -134,7 +131,7 @@ Logger.info("My log message")
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
   Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
 
-  # Payment rejected @timber.io {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
+  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
 2. Log a struct (recommended)
@@ -158,7 +155,7 @@ Logger.info("My log message")
   message = PaymentRejectedEvent.message(event)
   Logger.info(message, event: event)
 
-  # Payment rejected @timber.io {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
+  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
 * `:type` is how Timber classifies the event, it creates a namespace for the data you send.
@@ -172,13 +169,13 @@ send, and make it easier to search, graph, alert, etc.
 
 ```ruby
 Logger.info(%{key: "value"})
-# {"key": "value"} @timber.io {"level": "info", "context": {...}}
+# {"key": "value"} @metadata {"level": "info", "context": {...}}
 
 Logger.info('{"key": "value"}')
-# {"key": "value"} @timber.io {"level": "info", "context": {...}}
+# {"key": "value"} @metadata {"level": "info", "context": {...}}
 
 Logger.info("key=value")
-# key=value @timber.io {"level": "info", "context": {...}}
+# key=value @metadata {"level": "info", "context": {...}}
 ```
 
 ---
@@ -199,7 +196,7 @@ request ID. Not just the lines that contain the value.
   Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
   Logger.info("My log message")
 
-  # My log message @timber.io {"level": "info", "context": {"build": {"version": "1.0.0"}}}
+  # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
   This adds context data keyspaces by `build`.
@@ -219,7 +216,7 @@ request ID. Not just the lines that contain the value.
   Timber.add_context(%BuildContext{version: "1.0.0"})
   Loger.info("My log message")
 
-  # My log message @timber.io {"level": "info", "context": {"build": {"version": "1.0.0"}}}
+  # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
 </p></details>
@@ -380,10 +377,10 @@ throughput and little overhead. If you'd like to use another client see
   end
   ```
 
-2. *Configure* Timber to use the Network transport in `config/prod.exs`:
+2. *Configure* Timber to use the Network transport in `config/config.exs`:
 
   ```elixir
-  # config/prod.exs
+  # config/config.exs
 
   config :timber,
     transport: Timber.Transports.Network,
