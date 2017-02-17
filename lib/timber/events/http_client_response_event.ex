@@ -10,10 +10,11 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:headers, :status, :time_ms]
+  defstruct [:headers, :service_name, :status, :time_ms]
 
   @type t :: %__MODULE__{
     headers: headers,
+    service_name: String.t | nil,
     status: pos_integer,
     time_ms: float
   }
@@ -65,8 +66,14 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{headers: headers, status: status, time_ms: time_ms}) do
-    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
+  def message(%__MODULE__{headers: headers, service_name: service_name, status: status,
+    time_ms: time_ms})
+  do
+    message = ["Outgoing HTTP response "]
+    message = if service_name,
+      do: [message, "from ", service_name, " "],
+      else: message
+    message = [message, Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
     request_id = Map.get(headers || %{}, :request_id)
     if request_id,
       do: [message, ", ID ", request_id],
