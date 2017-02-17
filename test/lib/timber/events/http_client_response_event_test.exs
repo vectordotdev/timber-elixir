@@ -18,6 +18,12 @@ defmodule Timber.Events.HTTPClientResponseEventTest do
   end
 
   describe "Timber.Events.HTTPClientResponseEvent.message/1" do
+    test "includes the service name" do
+      event = HTTPClientResponseEvent.new(service_name: "timber", status: 200, time_ms: 502.2)
+      message = HTTPClientResponseEvent.message(event)
+      assert String.Chars.to_string(message) == "Outgoing HTTP response from timber 200 in 502.20ms"
+    end
+
     test "includes request id" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
       event = HTTPClientResponseEvent.new(headers: headers, status: 200, time_ms: 502.2)
