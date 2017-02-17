@@ -22,6 +22,12 @@ defmodule Timber.Utils.MapTest do
       assert r == %{b: 1}
     end
 
+    test "drops blank strings" do
+      m = %{a: "", b: 1}
+      r = UtilsMap.recursively_drop_blanks(m)
+      assert r == %{b: 1}
+    end
+
     test "drops blank arrays" do
       m = %{a: [], b: 1}
       r = UtilsMap.recursively_drop_blanks(m)

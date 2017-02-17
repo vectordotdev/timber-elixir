@@ -14,6 +14,7 @@ defmodule Timber.Utils.Map do
           acc
         end
       {_k, nil}, acc -> acc
+      {_k, ""}, acc -> acc
       {_k, []}, acc -> acc
       {k, v}, acc -> Map.put(acc, k, v)
     end
