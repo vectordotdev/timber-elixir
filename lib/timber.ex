@@ -33,13 +33,20 @@ defmodule Timber do
   ```elixir
   timer = Timber.start_timer()
   # .... make request
-  event = HTTPClientResponseEvent.new(status: 200, timer: timer) # automatically sets :time_ms
+  time_ms = Timber.duration_ms(timer)
+  event = HTTPClientResponseEvent.new(status: 200, time_ms: time_ms)
   message = HTTPClientResponseEvent.message(event)
   Logger.info(message, event: event)
   ```
 
   """
   defdelegate start_timer, to: Timber.Timer, as: :start
+
+  @doc """
+  Captures the duration in fractional milliseconds since the timer was started. See
+  `start_timer/0`.
+  """
+  defdelegate duration_ms(timer), to: Timber.Timer
 
   @doc false
   # Handles the application callback start/2

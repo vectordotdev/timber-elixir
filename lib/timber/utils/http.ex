@@ -59,9 +59,6 @@ defmodule Timber.Utils.HTTP do
   def normalize_method(method) when is_binary(method), do: String.upcase(method)
   def normalize_method(method), do: method
 
-  def normalize_timer(nil), do: []
-  def normalize_timer(timer), do: [time_ms: Timber.Timer.duration_ms(timer)]
-
   @doc false
   # Normalizes a URL into a Keyword.t that maps to our HTTP event fields.
   def normalize_url(url) when is_binary(url) do
