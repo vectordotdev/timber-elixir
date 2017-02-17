@@ -10,10 +10,11 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   alias Timber.Utils.HTTP, as: UtilsHTTP
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:headers, :status, :time_ms]
+  defstruct [:headers, :service_name, :status, :time_ms]
 
   @type t :: %__MODULE__{
     headers: headers,
+    service_name: String.t | nil,
     status: pos_integer,
     time_ms: float
   }
@@ -47,7 +48,6 @@ defmodule Timber.Events.HTTPClientResponseEvent do
       |> Keyword.update(:headers, nil, fn headers ->
         UtilsHTTP.normalize_headers(headers, @recognized_headers)
       end)
-      |> Keyword.merge(UtilsHTTP.normalize_timer(Keyword.get(opts, :timer)))
       |> Keyword.delete(:timer)
       |> Enum.filter(fn {_k,v} -> v != nil end)
     struct!(__MODULE__, opts)
@@ -67,7 +67,11 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{headers: headers, status: status, time_ms: time_ms}) do
-    message = ["Outgoing HTTP response ", Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
+    message = ["Outgoing HTTP response "]
+    message = if service_name,
+      do: [message, service_name, " [", method, "] ", UtilsHTTP.full_path(path, query_string)],
+      else: [message, "[", method, "] ", UtilsHTTP.full_url(scheme, host, path, port, query_string)]
+    message = [message, Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
     request_id = Map.get(headers || %{}, :request_id)
     if request_id,
       do: [message, ", ID ", request_id],
