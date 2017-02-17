@@ -129,7 +129,7 @@ Logger.info("My log message")
 
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-  Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+  Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 
   # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
@@ -193,7 +193,7 @@ request ID. Not just the lines that contain the value.
   The simplest way to add context is:
 
   ```elixir
-  Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
+  Timber.add_context(%{build: %{version: "1.0.0"}})
   Logger.info("My log message")
 
   # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}

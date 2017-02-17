@@ -153,7 +153,7 @@ defmodule Timber.Transports.IODevice do
   @default_print_log_level false
   @default_print_metadata true
   @default_print_timestamps false
-  @metadata_delimiter " @timber.io "
+  @metadata_delimiter " @metadata "
 
   @typep t :: %__MODULE__{
     ref: reference | nil,

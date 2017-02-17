@@ -79,4 +79,13 @@ defimpl Timber.Eventable, for: Map do
       data: data
     }
   end
+
+  def to_event(map) when map_size(map) == 1 do
+    [type] = Map.keys(map)
+    [data] = Map.values(map)
+    %Timber.Events.CustomEvent{
+      type: type,
+      data: data
+    }
+  end
 end
