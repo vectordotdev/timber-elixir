@@ -45,7 +45,7 @@ defmodule Timber.Utils.HTTP do
     atom_name =
       name
       |> String.replace("-", "_")
-      |> String.to_existing_atom()
+      |> String.to_atom()
     {atom_name, value}
   end
 
