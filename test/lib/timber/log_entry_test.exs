@@ -17,13 +17,13 @@ defmodule Timber.Events.LogEntryTest do
     test "drops blanks" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       result = LogEntry.to_string!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"https://raw.githubusercontent.com/timberio/log-event-json-schema/1.0.0/schema.json\"}"
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes JSON properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{test: "value"}}])
       result = LogEntry.to_string!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"server_side_app\":{\"custom\":{\"type\":{\"test\":\"value\"}}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"https://raw.githubusercontent.com/timberio/log-event-json-schema/1.0.0/schema.json\"}"
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"server_side_app\":{\"custom\":{\"type\":{\"test\":\"value\"}}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes logfmt properly" do

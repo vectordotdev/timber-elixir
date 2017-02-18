@@ -97,6 +97,8 @@ defmodule Timber.LogEntry do
     Context.add_context(context, system_context)
   end
 
+  def schema, do: @schema
+
   @doc """
   Encodes the log event to a string
 
