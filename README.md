@@ -147,9 +147,9 @@ way to benchmark code execution:
 timer = Timber.start_timer()
 # ... code to time ...
 time_ms = Timber.duration_ms(timer)
-Logger.info("Event complete", time_ms: time_ms)
+Logger.info("Task complete", tags: ["my_task"] time_ms: time_ms)
 
-# Event complete @metadata {"level": "info", "time_ms": 56.4324, "context": {...}}
+# Task complete @metadata {"level": "info", "tags": ["my_task"], "time_ms": 56.4324, "context": {...}}
 ```
 
 * In the Timber console use the query: `time_ms>500`
