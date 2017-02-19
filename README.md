@@ -123,7 +123,7 @@ Logger.info("My log message")
 
 <details><summary><strong>Tagging logs</strong></summary><p>
 
-Need a quick way to identify logs? Use tags!:
+Tags provide a quick way to filter and identify logs:
 
 ```elixir
 Logger.info("My log message", tags: ["tag"])
@@ -131,14 +131,15 @@ Logger.info("My log message", tags: ["tag"])
 # My log message @metadata {"level": "info", "tags": ["tag"], "context": {...}}
 ```
 
+* In the Timber console use the query: `tags:tag`.
+
 ---
 
 </p></details>
 
 <details><summary><strong>Timings & Durations</strong></summary><p>
 
-Need a quick way to identify logs? Use tags!:
-
+Timings allow you to add timing information to a log event. Timber will
 ```elixir
 timer = Timber.start_timer()
 # ... code to time ...
@@ -148,13 +149,18 @@ Logger.info("My log message", time_ms: time_ms)
 # My log message @metadata {"level": "info", "time_ms": 56.4324, "context": {...}}
 ```
 
-* The `:time_ms` metadata key is supported by Timber. If present, we will display it in the interface, etc.
+* In the Timber console use the query: `time_ms>500`
+* The Timber console will also display this value inline with your logs.
 
 ---
 
 </p></details>
 
 <details><summary><strong>Custom events</strong></summary><p>
+
+Custom events can be used to structure information about events that are central
+to your line of business like receiving credit card payments, saving a draft of a post,
+or changing a user's password. You have 2 options to do this:
 
 1. Log a map (simplest)
 
@@ -164,7 +170,7 @@ Logger.info("My log message", time_ms: time_ms)
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
   Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 
-  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
+  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
 2. Log a struct (recommended)
@@ -188,10 +194,10 @@ Logger.info("My log message", time_ms: time_ms)
   message = PaymentRejectedEvent.message(event)
   Logger.info(message, event: event)
 
-  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "abcd1234", "amount": 100, "reason": "Card expired"}}, "context": {...}}
+  # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
-* `:type` is how Timber classifies the event, it creates a namespace for the data you send.
+* In the Timber console use queries like: `payment_rejected.customer_id:xiaus1934` or `payment_rejected.amount>100`
 * Also, notice there is no mention of Timber in the above code. Just plain old logging.
 
 #### What about regular Hashes, JSON, or logfmt?
@@ -251,6 +257,8 @@ request ID. Not just the lines that contain the value.
 
   # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
+
+* In the Timber console use a query like: `context.build.version:1.0.0`
 
 </p></details>
 
