@@ -124,7 +124,10 @@ Logger.info("My log message")
 
 <details><summary><strong>Tagging logs</strong></summary><p>
 
-Tags provide a quick way to filter and identify logs:
+Tags provide a quick way to identify logs. They work just like any tagging system.
+In the context of logging, they prevent obstructing the log message to
+accomplish the same thing, while also being a step down from creating a classified custom
+event. If the event is meaningful in any way, we recommend creating a custom event.
 
 ```elixir
 Logger.info("My log message", tags: ["tag"])
@@ -285,7 +288,7 @@ end
 
 ## Setup
 
-:point_right: Prefer examples? Checkout out the **[Timber install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/1/files)**.
+👉 **Prefer examples?** Checkout out the **[Timber install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/1/files)**.
 This demonstrates the below changes for a default Phoenix application.
 
 ---
