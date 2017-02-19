@@ -121,6 +121,39 @@ Logger.info("My log message")
 
 </p></details>
 
+<details><summary><strong>Tagging logs</strong></summary><p>
+
+Need a quick way to identify logs? Use tags!:
+
+```elixir
+Logger.info("My log message", tags: ["tag"])
+
+# My log message @metadata {"level": "info", "tags": ["tag"], "context": {...}}
+```
+
+---
+
+</p></details>
+
+<details><summary><strong>Timings & Durations</strong></summary><p>
+
+Need a quick way to identify logs? Use tags!:
+
+```elixir
+timer = Timber.start_timer()
+# ... code to time ...
+time_ms = Timber.duration_ms(timer)
+Logger.info("My log message", time_ms: time_ms)
+
+# My log message @metadata {"level": "info", "time_ms": 56.4324, "context": {...}}
+```
+
+* The `:time_ms` metadata key is supported by Timber. If present, we will display it in the interface, etc.
+
+---
+
+</p></details>
+
 <details><summary><strong>Custom events</strong></summary><p>
 
 1. Log a map (simplest)
@@ -412,6 +445,6 @@ Checkout our [docs](https://timber.io/docs) for a comprehensive list of install 
 
 ---
 
-<p align="center" style="background: #140f2a;">
+<p align="center" style="background: #221f40;">
 <a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/ruby-library-readme-log-truth.png" height="947" /></a>
 </p>

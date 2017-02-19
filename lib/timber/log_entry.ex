@@ -26,7 +26,7 @@ defmodule Timber.LogEntry do
   alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
 
-  defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil
+  defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil, tags: nil, time_ms: nil
 
   @type format :: :json | :logfmt
 
@@ -35,10 +35,12 @@ defmodule Timber.LogEntry do
     level: LoggerBackend.level,
     message: LoggerBackend.message,
     context: Context.t,
-    event: Event.t | nil
+    event: Event.t | nil,
+    tags: nil | [String.t],
+    time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/1.2.2/schema.json"
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/1.2.4/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
@@ -71,7 +73,9 @@ defmodule Timber.LogEntry do
       level: level,
       event: event,
       message: message,
-      context: context
+      context: context,
+      tags: Keyword.get(metadata, :tags),
+      time_ms: Keyword.get(metadata, :time_ms)
     }
   end
 

@@ -11,6 +11,16 @@ defmodule Timber.Events.LogEntryTest do
          event: %Timber.Events.CustomEvent{data: %{}, type: :type},
          level: :info, message: "message"}
     end
+
+    test "adds tags" do
+      entry = LogEntry.new(time(), :info, "message", [tags: ["tag1", "tag2"]])
+      assert entry.tags == ["tag1", "tag2"]
+    end
+
+    test "adds time_ms" do
+      entry = LogEntry.new(time(), :info, "message", [time_ms: 56.4])
+      assert entry.time_ms == 56.4
+    end
   end
 
   describe "Timber.LogEntry.to_string!/3" do
