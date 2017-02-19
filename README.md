@@ -137,20 +137,24 @@ Logger.info("My log message", tags: ["tag"])
 
 </p></details>
 
-<details><summary><strong>Timings & Durations</strong></summary><p>
+<details><summary><strong>Timings, Durations, Metrics</strong></summary><p>
 
-Timings allow you to add timing information to a log event. Timber will
+Timings allow you to easily capture one-off timings in your code; a simple
+way to benchmark code execution:
+
+
 ```elixir
 timer = Timber.start_timer()
 # ... code to time ...
 time_ms = Timber.duration_ms(timer)
-Logger.info("My log message", time_ms: time_ms)
+Logger.info("Event complete", time_ms: time_ms)
 
-# My log message @metadata {"level": "info", "time_ms": 56.4324, "context": {...}}
+# Event complete @metadata {"level": "info", "time_ms": 56.4324, "context": {...}}
 ```
 
 * In the Timber console use the query: `time_ms>500`
-* The Timber console will also display this value inline with your logs.
+* The Timber console will also display this value inline with your logs. No need to include it
+  in the log message, but you certainly can if you'd prefer.
 
 ---
 
