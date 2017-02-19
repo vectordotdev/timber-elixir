@@ -138,7 +138,7 @@ Logger.info("My log message", tags: ["tag"])
 
 </p></details>
 
-<details><summary><strong>Timings, Durations, Metrics</strong></summary><p>
+<details><summary><strong>Timings</strong></summary><p>
 
 Timings allow you to easily capture one-off timings in your code; a simple
 way to benchmark code execution:
