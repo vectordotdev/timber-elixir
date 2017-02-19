@@ -58,8 +58,8 @@ blog post.
 
 1. Captures and structures your framework and 3rd party logs. (see next question)
 2. Adds useful context to every log line. (see next question)
-3. Allows you to easily add tags and timings to log. (see [Usage][#usage])
-4. Provides a framework for logging custom structured events. (see [Usage][#usage])
+3. Allows you to easily add tags and timings to log. (see [Usage](#usage))
+4. Provides a framework for logging custom structured events. (see [Usage](#usage))
 5. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
 
 ---
