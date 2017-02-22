@@ -169,8 +169,6 @@ defmodule Timber.Transports.HTTP do
           Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
       end)
 
-    IO.puts inspect(log_entries)
-
     {:ok, body} = Msgpax.pack(log_entries)
 
     auth_token = Base.encode64(api_key)
