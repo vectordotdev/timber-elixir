@@ -371,7 +371,7 @@ config :my_app, MyApp.Repo,
 
 </p></details>
 
-<details><summary><strong>5. *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
+<details><summary><strong>5. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
 
 Now that Timber is all set up, we want to make sure it's development friendly:
 
@@ -404,12 +404,6 @@ The recommended strategy for Heroku is to setup a
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
-Timber does *not* force an HTTP client on you. The following instruction utilize the Timber default
-`Timber.Transports.HTTP.HackneyClient`. This is a highly efficient client that utilizes hackney,
-batching, stay alive connections, connection pools, and msgpack to deliver logs with high
-throughput and little overhead. If you'd like to use another client see
-`Timber.Transports.HTTP.Client`.
-
 1. *Add* HTTP dependencies to `mix.exs`:
 
   ```elixir
@@ -425,6 +419,10 @@ throughput and little overhead. If you'd like to use another client see
     ]
   end
   ```
+
+  * Prefer a different HTTP client? Checkout
+    [Timber.Transports.HTTP.Client](lib/timber/transports/http/client.ex) for details on
+    implementing your own client.
 
 2. *Configure* Timber to use the HTTP transport in `config/config.exs`:
 
