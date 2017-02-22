@@ -426,23 +426,19 @@ throughput and little overhead. If you'd like to use another client see
   end
   ```
 
-2. *Configure* Timber to use the Network transport in `config/config.exs`:
+2. *Configure* Timber to use the HTTP transport in `config/config.exs`:
 
   ```elixir
   # config/config.exs
 
   config :timber,
-    transport: Timber.Transports.Network,
+    transport: Timber.Transports.HTTP,
     api_key: System.get_env("TIMBER_LOGS_KEY")
   ```
 
 3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
 
 4. Assign your API key to the `TIMBER_LOGS_KEY` environment variable.
-
-* Note: we use the `Network` transport so that we can upgrade protocols in the future if we
-  deem it more efficient. For example, TCP. If you want to use strictly HTTP, simply replace
-  `Timber.Transports.Network` with `Timber.Transports.HTTP`.
 
 ---
 
