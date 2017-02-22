@@ -141,7 +141,7 @@ defmodule Timber.Transports.HTTP do
       message ->
         # Defer message detection to the client. Each client will have different
         # messages and the check should be contained in there.
-        if Config.http_client().done?(ref, message) do
+        if Config.http_client!().done?(ref, message) do
           %{state | ref: nil}
         else
           wait_on_request(state)
@@ -176,7 +176,7 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => user_agent
     }
 
-    {:ok, ref} = Config.http_client().async_request(:post, @url, headers, body)
+    {:ok, ref} = Config.http_client!().async_request(:post, @url, headers, body)
 
     %{state | ref: ref, buffer: [], buffer_size: 0}
   end
