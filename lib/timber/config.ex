@@ -13,6 +13,8 @@ defmodule Timber.Config do
 
   def http_client!, do: Application.fetch_env!(@env_key, :http_client)
 
+  def http_url, do: Application.get(@env_key, :http_url)
+
   def json_encoder, do: Application.get_env(@env_key, :json_encoder, &Poison.encode_to_iodata!/1)
 
   @spec phoenix_instrumentation_level(atom) :: atom

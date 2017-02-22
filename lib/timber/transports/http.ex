@@ -176,13 +176,13 @@ defmodule Timber.Transports.HTTP do
     user_agent = "Timber Elixir/#{vsn} (HTTP)"
     headers = %{
       "Authorization" => "Basic #{auth_token}",
+      "Content-Length" => byte_size(body),
       "Content-Type" => @content_type,
       "User-Agent" => user_agent
     }
+    url = Config.http_url() || @url
 
-    IO.puts "Sending request with #{length(log_entries)} log entries"
-
-    {:ok, ref} = Config.http_client!().async_request(:post, @url, headers, body)
+    {:ok, ref} = Config.http_client!().async_request(:post, url, headers, body)
 
     %{state | ref: ref, buffer: [], buffer_size: 0}
   end
