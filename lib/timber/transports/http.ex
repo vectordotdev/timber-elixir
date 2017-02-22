@@ -158,11 +158,14 @@ defmodule Timber.Transports.HTTP do
   end
 
   defp issue_request(%{api_key: api_key, buffer: buffer} = state) do
-    {:ok, body} =
+    log_entries =
       buffer
       |> Enum.reverse()
       |> Enum.map(&LogEntry.to_map!/1)
-      |> Msgpax.pack()
+
+    IO.puts inspect(log_entries)
+
+    {:ok, body} = Msgpax.pack(log_entries)
 
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
