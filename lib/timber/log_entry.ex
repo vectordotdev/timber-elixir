@@ -40,7 +40,7 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/1.2.4/schema.json"
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/1.2.5/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
@@ -93,12 +93,12 @@ defmodule Timber.LogEntry do
     line = Keyword.get(metadata, :line)
     runtime_context = %RuntimeContext{application: application, module_name: module_name,
       function: fun, file: file,line: line}
-    Context.add_context(context, runtime_context)
+    Context.add(context, runtime_context)
   end
 
   defp add_system_context(context) do
     system_context = %SystemContext{pid: System.get_pid()}
-    Context.add_context(context, system_context)
+    Context.add(context, system_context)
   end
 
   def schema, do: @schema
@@ -124,7 +124,7 @@ defmodule Timber.LogEntry do
       |> Map.from_struct()
       |> Map.update(:event, nil, fn existing_event ->
         if existing_event != nil do
-          to_api_map(existing_event)
+          Event.to_api_map(existing_event)
         else
           existing_event
         end
@@ -139,14 +139,6 @@ defmodule Timber.LogEntry do
     end
     |> Map.put(:"$schema", @schema)
     |> UtilsMap.recursively_drop_blanks()
-  end
-
-  defp to_api_map(%CustomEvent{type: type, data: data}),
-    do: %{custom: %{type => data}}
-
-  defp to_api_map(event) do
-    type = Event.type(event)
-    %{server_side_app: %{type => Map.from_struct(event)}}
   end
 
   @spec encode!(format, map) :: IO.chardata
