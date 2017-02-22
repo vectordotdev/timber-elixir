@@ -16,6 +16,17 @@ defmodule Timber.Event do
     Events.SQLQueryEvent           |
     Events.TemplateRenderEvent
 
+  @doc false
+  @spec to_api_map(t) :: map
+  def to_api_map(%Events.CustomEvent{type: type, data: data}) do
+    %{custom: %{type => data}}
+  end
+
+  def to_api_map(event) do
+    type = type(event)
+    %{server_side_app: %{type => Map.from_struct(event)}}
+  end
+
   @doc """
   Returns the official Timber type for this event. Used as the JSON map key when
   sending to Timber.

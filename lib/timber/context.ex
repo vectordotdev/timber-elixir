@@ -10,7 +10,7 @@ defmodule Timber.Context do
   alias Timber.Contexts
   alias Timber.Utils.Map, as: UtilsMap
 
-  @type context_data ::
+  @type context_element ::
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
     Contexts.OrganizationContext.t  |
@@ -31,34 +31,55 @@ defmodule Timber.Context do
   def new(), do: %{}
 
   @doc """
-  Takes an existing context and inserts the new context
+  Takes an existing context element and inserts it into the global context.
   """
-  @spec add_context(t, context_data) :: t
-  def add_context(existing_context_map, %Contexts.CustomContext{type: type, data: data} = context_element) do
-    key = type(context_element)
-    custom_map =
-      existing_context_map
-      |> Map.get(key, %{})
-      |> Map.put(type, data)
-    Map.put(existing_context_map, key, custom_map)
-  end
-  def add_context(existing_context_map, context_element) do
-    key = type(context_element)
-
-    Map.from_struct(context_element)
-    |> UtilsMap.recursively_drop_blanks()
-    |> insert_context(existing_context_map, key)
+  @spec add(t, context_element) :: t
+  def add(context, %Contexts.CustomContext{type: type} = context_element) when is_binary(type) do
+    new_context_element = %{context_element | type: String.to_atom(type)}
+    add(context, new_context_element)
   end
 
-  @spec insert_context(map, t, atom) :: map
-  defp insert_context(new_context, existing_context, _key) when map_size(new_context) == 0 do
+  def add(context, %Contexts.CustomContext{} = context_element) do
+    key = type(context_element)
+    api_map = to_api_map(context_element)
+    insert(context, key, api_map)
+  end
+
+  def add(existing_context_map, context_element) do
+    key = type(context_element)
+    context_element_map = to_api_map(context_element)
+    insert(existing_context_map, key, context_element_map)
+  end
+
+  # Inserts the context_element into the main context map
+  @spec insert(map, t, atom) :: map
+  defp insert(existing_context, _key, new_context) when map_size(new_context) == 0 do
     existing_context
   end
-  defp insert_context(new_context, existing_context, key) do
+
+  defp insert(existing_context, key, new_context) do
     Map.put(existing_context, key, new_context)
   end
 
-  @spec type(context_data) :: atom
+  # Converts a context_element into a map the Timber API expects.
+  @spec to_api_map(context_element) :: map
+  defp to_api_map(%Contexts.CustomContext{type: type, data: data}) do
+    %{type => data}
+    |> UtilsMap.recursively_drop_blanks()
+  end
+
+  defp to_api_map(%Contexts.UserContext{id: id} = context_element) when is_integer(id) do
+    to_api_map(%{context_element | id: Integer.to_string(id)})
+  end
+
+  defp to_api_map(context_element) do
+    context_element
+    |> Map.from_struct()
+    |> UtilsMap.recursively_drop_blanks()
+  end
+
+  # Determines the key name for the context_element that the Timber API expects.
+  @spec type(context_element) :: atom
   defp type(%Contexts.CustomContext{}), do: :custom
   defp type(%Contexts.HTTPContext{}), do: :http
   defp type(%Contexts.OrganizationContext{}), do: :organization
