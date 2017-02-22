@@ -9,7 +9,7 @@ defmodule Timber.Config do
 
   def event_key, do: Application.get_env(@env_key, :event_key, :event)
 
-  def http_client, do: Application.get_env(@env_key, :http_client, Timber.Transports.HTTP.HackneyClient)
+  def http_client, do: Application.get_env(@env_key, :http_client)
 
   def json_decoder, do: Application.get_env(@env_key, :json_decoder, &Poison.encode_to_iodata!/1)
 

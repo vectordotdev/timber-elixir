@@ -433,7 +433,8 @@ throughput and little overhead. If you'd like to use another client see
 
   config :timber,
     transport: Timber.Transports.HTTP,
-    api_key: System.get_env("TIMBER_LOGS_KEY")
+    api_key: System.get_env("TIMBER_LOGS_KEY"),
+    http_client: Timber.Transports.HTTP.HackneyClient,
   ```
 
 3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
