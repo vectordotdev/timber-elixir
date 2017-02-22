@@ -53,6 +53,22 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, encoded_body} = Msgpax.pack([LogEntry.to_map!(entry)])
       assert elem(call, 3) == encoded_body
     end
+
+    test "issues a request with chardata" do
+      entry = LogEntry.new(time(), :info, ["this", "is", "a", "message"], [event: %{type: :type, data: %{}}])
+      {:ok, state} = HTTP.init()
+      {:ok, state} = HTTP.write(entry, state)
+      HTTP.flush(state)
+      calls = FakeHTTPClient.get_request_calls()
+      assert length(calls) == 1
+      call = Enum.at(calls, 0)
+      log_entry_map =
+        entry
+        |> LogEntry.to_map!()
+        |> Map.put(:message, IO.chardata_to_string(entry.message))
+      {:ok, encoded_body} = Msgpax.pack([log_entry_map])
+      assert elem(call, 3) == encoded_body
+    end
   end
 
   describe "Timber.Transports.HTTP.handle_info/2" do

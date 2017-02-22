@@ -162,6 +162,12 @@ defmodule Timber.Transports.HTTP do
       buffer
       |> Enum.reverse()
       |> Enum.map(&LogEntry.to_map!/1)
+      |> Enum.map(fn
+        %{message: nil} = log_entry_map -> log_entry_map
+
+        log_entry_map ->
+          Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
+      end)
 
     IO.puts inspect(log_entries)
 
