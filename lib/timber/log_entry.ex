@@ -151,7 +151,7 @@ defmodule Timber.LogEntry do
 
   @spec encode!(format, map) :: IO.chardata
   defp encode!(value, :json) do
-    Timber.Config.json_decoder().(value)
+    Timber.Config.json_encoder().(value)
   end
 
   # The logfmt encoding will actually use a pretty-print style
