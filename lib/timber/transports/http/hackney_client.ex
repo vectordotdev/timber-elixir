@@ -62,9 +62,11 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     req_headers = Enum.map(headers, &(&1))
     req_opts =
       get_request_options()
-      |> Keyword.merge([async: true])
+      |> Keyword.merge([with_body: true])
 
-    :hackney.request(method, url, req_headers, body, req_opts)
+    response = :hackney.request(method, url, req_headers, body, req_opts)
+    IO.puts inspect(response)
+    response
   end
 
   @doc """
