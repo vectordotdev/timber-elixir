@@ -19,7 +19,6 @@ defmodule Timber.LogEntry do
   alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
-  alias Timber.Events.CustomEvent
   alias Timber.Utils.Logger, as: UtilsLogger
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
