@@ -180,6 +180,8 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => user_agent
     }
 
+    IO.puts "Sending request with #{length(log_entries)} log entries"
+
     {:ok, ref} = Config.http_client!().async_request(:post, @url, headers, body)
 
     %{state | ref: ref, buffer: [], buffer_size: 0}
