@@ -38,10 +38,9 @@ defmodule Timber.Transports.HTTP.HackneyClient do
 
   @doc false
   def start_link do
-    # children = [:hackney_pool.child_spec(@pool_name, get_pool_options())]
-    # opts = [strategy: :one_for_one, name: __MODULE__.Supervisor]
-    # Supervisor.start_link(children, opts)
-    {:ok, self()}
+    children = [:hackney_pool.child_spec(@pool_name, get_pool_options())]
+    opts = [strategy: :one_for_one, name: __MODULE__.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 
   defp config, do: Application.get_env(:timber, :hackney_client, [])
