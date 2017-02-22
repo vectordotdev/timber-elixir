@@ -68,7 +68,7 @@ defmodule Timber do
 
     http_client = Timber.Config.http_client()
     children =
-      if http_client do
+      if false && http_client do
         [worker(http_client, [])]
       else
         []
