@@ -142,7 +142,8 @@ defmodule Timber.LogEntry do
   end
 
   defp to_api_map(%CustomEvent{type: type, data: data}),
-    do: %{server_side_app: %{custom: %{type => data}}}
+    do: %{custom: %{type => data}}
+
   defp to_api_map(event) do
     type = Event.type(event)
     %{server_side_app: %{type => Map.from_struct(event)}}
@@ -152,6 +153,7 @@ defmodule Timber.LogEntry do
   defp encode!(value, :json) do
     Timber.Config.json_decoder().(value)
   end
+
   # The logfmt encoding will actually use a pretty-print style
   # of encoding rather than converting the data structure directly to
   # logfmt

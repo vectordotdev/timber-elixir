@@ -33,13 +33,13 @@ defmodule Timber.Events.LogEntryTest do
     test "encodes JSON properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{test: "value"}}])
       result = LogEntry.to_string!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"server_side_app\":{\"custom\":{\"type\":{\"test\":\"value\"}}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{System.get_pid()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes logfmt properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{a: 1}}])
       result = LogEntry.to_string!(entry, :logfmt)
-      assert result == [[10, 9, "Context: ", ["system.pid", 61, "#{System.get_pid()}"]], [10, 9, "Event: ", ["server_side_app.custom.type.a", 61, "1"]]]
+      assert result == [[10, 9, "Context: ", ["system.pid", 61, "#{System.get_pid()}"]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]]]
     end
   end
 
