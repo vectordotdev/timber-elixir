@@ -176,7 +176,6 @@ defmodule Timber.Transports.HTTP do
     user_agent = "Timber Elixir/#{vsn} (HTTP)"
     headers = %{
       "Authorization" => "Basic #{auth_token}",
-      "Content-Length" => byte_size(body),
       "Content-Type" => @content_type,
       "User-Agent" => user_agent
     }
