@@ -1,20 +1,17 @@
 defmodule Timber.Config do
   @env_key :timber
 
-  def api_key,
-    do: Application.get_env(@env_key, :api_key)
+  def api_key, do: Application.get_env(@env_key, :api_key)
 
-  def capture_errors?,
-    do: Application.get_env(@env_key, :capture_errors, false)
+  def capture_errors?, do: Application.get_env(@env_key, :capture_errors, false)
 
-  def disable_tty?,
-    do: Application.get_env(@env_key, :disable_kernel_error_tty, capture_errors?())
+  def disable_tty?, do: Application.get_env(@env_key, :disable_kernel_error_tty, capture_errors?())
 
-  def event_key,
-    do: Application.get_env(@env_key, :event_key, :event)
+  def event_key, do: Application.get_env(@env_key, :event_key, :event)
 
-  def json_decoder,
-    do: Application.get_env(@env_key, :json_decoder, &Poison.encode_to_iodata!/1)
+  def http_client, do: Application.get_env(@env_key, :http_client, Timber.Transports.HTTP.HackneyClient)
+
+  def json_decoder, do: Application.get_env(@env_key, :json_decoder, &Poison.encode_to_iodata!/1)
 
   @spec phoenix_instrumentation_level(atom) :: atom
   def phoenix_instrumentation_level(default) do
@@ -25,6 +22,5 @@ defmodule Timber.Config do
   Gets the transport specificed in the :timber configuration. The default is
   `Timber.Transports.IODevice`.
   """
-  def transport,
-    do: Application.get_env(@env_key, :transport, Timber.Transports.IODevice)
+  def transport, do: Application.get_env(@env_key, :transport, Timber.Transports.IODevice)
 end

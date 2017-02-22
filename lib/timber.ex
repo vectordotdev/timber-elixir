@@ -66,7 +66,7 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
-    http_client = Timber.Transports.HTTP.get_http_client()
+    http_client = Timber.Config.http_client()
     children =
       if http_client do
         [worker(http_client, [])]

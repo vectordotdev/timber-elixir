@@ -22,12 +22,13 @@ defmodule Timber.Transports.HTTP do
   you must specify your client in the configuration:
 
   ```
-  config :timber, :http_transport, http_client: MyHTTPClient
+  config :timber, :http_client, MyHTTPClient
   ```
   """
 
   @behaviour Timber.Transport
 
+  alias Timber.Config
   alias Timber.LogEntry
 
   @typep t :: %__MODULE__{
@@ -140,7 +141,7 @@ defmodule Timber.Transports.HTTP do
       message ->
         # Defer message detection to the client. Each client will have different
         # messages and the check should be contained in there.
-        if get_http_client!().done?(ref, message) do
+        if Config.http_client().done?(ref, message) do
           %{state | ref: nil}
         else
           wait_on_request(state)
@@ -172,17 +173,11 @@ defmodule Timber.Transports.HTTP do
       "User-Agent" => user_agent
     }
 
-    {:ok, ref} = get_http_client!().async_request(:post, @url, headers, body)
+    {:ok, ref} = Config.http_client().async_request(:post, @url, headers, body)
 
     %{state | ref: ref, buffer: [], buffer_size: 0}
   end
 
   @spec config() :: Keyword.t
   defp config, do: Application.get_env(:timber, :http_transport, [])
-
-  @doc false
-  def get_http_client!, do: Keyword.fetch!(config(), :http_client)
-
-  @doc false
-  def get_http_client, do: Keyword.get(config(), :http_client)
 end
