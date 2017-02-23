@@ -94,6 +94,7 @@ defmodule Timber.Integrations.ErrorLogger do
           |> Keyword.put(:timber_context, context)
 
         Logger.error(message, metadata)
+
       {:error, _} ->
         # do nothing
         :ok
@@ -113,7 +114,19 @@ defmodule Timber.Integrations.ErrorLogger do
     {:ok, state}
   end
 
-  def handle_event(_event, state) do
+  def handle_event({:error, _gl, {_process, _msg_fmt, [_source, _protocol, _pid, {{error, stacktrace}, _other}]}}, state) do
+    event = ExceptionEvent.new(error, stacktrace)
+
+    message = ExceptionEvent.message(event)
+    metadata = Timber.Utils.Logger.event_to_metadata(event)
+
+    Logger.error(message, metadata)
+
+    {:ok, state}
+  end
+
+  def handle_event(event, state) do
+    Logger.error(inspect(event))
     {:ok, state}
   end
 
