@@ -404,6 +404,9 @@ The recommended strategy for Heroku is to setup a
 
 <details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
 
+👉 **Prefer examples?** Checkout out the **[Timber HTTP install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/2/files)**.
+This demonstrates *only* the changes below for a default Phoenix application.
+
 1. *Add* HTTP dependencies to `mix.exs`:
 
   ```elixir

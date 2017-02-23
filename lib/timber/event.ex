@@ -18,6 +18,10 @@ defmodule Timber.Event do
 
   @doc false
   @spec to_api_map(t) :: map
+  def to_api_map(%Events.CustomEvent{type: type} = event) when is_binary(type) do
+    to_api_map(%{event | type: String.to_atom(type)})
+  end
+
   def to_api_map(%Events.CustomEvent{type: type, data: data}) do
     %{custom: %{type => data}}
   end
