@@ -373,8 +373,8 @@ config :my_app, MyApp.Repo,
 
 <details><summary><strong>5. *Capture* current user context</strong></summary><p>
 
-Insert the below snipper wherever you authentication your user. This will tie user
-info to any log line written afterwards.
+Insert the below snippet wherever you authenticate your user. This will add user
+context to any log line written afterwards.
 
 ```elixir
 %Timber.Contexts.UserContext{id: id, name: name, email: email}
