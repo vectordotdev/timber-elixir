@@ -377,6 +377,7 @@ Insert the below snippet wherever you authenticate your user. This will add user
 context to any log line written afterwards.
 
 ```elixir
+# All attributes are optional, supply the ones you have.
 %Timber.Contexts.UserContext{id: id, name: name, email: email}
 |> Timber.add_context()
 ```
