@@ -68,6 +68,14 @@ defmodule Timber.Context do
     |> UtilsMap.recursively_drop_blanks()
   end
 
+  defp to_api_map(%Contexts.OrganizationContext{id: id} = context_element) when is_integer(id) do
+    to_api_map(%{context_element | id: Integer.to_string(id)})
+  end
+
+  defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_integer(pid) do
+    to_api_map(%{context_element | pid: Integer.to_string(pid)})
+  end
+
   defp to_api_map(%Contexts.UserContext{id: id} = context_element) when is_integer(id) do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
