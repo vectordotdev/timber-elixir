@@ -126,7 +126,6 @@ defmodule Timber.Integrations.ErrorLogger do
   end
 
   def handle_event(event, state) do
-    Logger.error(inspect(event))
     {:ok, state}
   end
 
