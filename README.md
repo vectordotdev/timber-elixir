@@ -126,12 +126,31 @@ context to any log line written afterwards.
 
 </p></details>
 
-<details><summary><strong>6. (optional) *Configure* Timber for development in `config/dev.exs`</strong></summary><p>
+<details><summary><strong>6. *Configure* Timber for development in `config/dev.exs` & `config/test.exs`</strong></summary><p>
 
 Now that Timber is all set up, we want to make sure it's development friendly:
 
 ```elixir
 # config/dev.exs
+
+config :timber,
+  transport: Timber.Transports.IODevice,
+
+config :timber, :io_device,
+  colorize: true,
+  format: :logfmt,
+  print_timestamps: true,
+  print_log_level: true,
+  print_metadata: false
+```
+
+Now do the same in `config/test.exs`:
+
+```elixir
+# config/test.exs
+
+config :timber,
+  transport: Timber.Transports.IODevice,
 
 config :timber, :io_device,
   colorize: true,
