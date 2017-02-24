@@ -66,13 +66,7 @@ defmodule Timber do
       :error_logger.tty(false)
     end
 
-    http_client = Timber.Config.http_client()
-    children =
-      if http_client do
-        [worker(http_client, [])]
-      else
-        []
-      end
+    children = []
 
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)

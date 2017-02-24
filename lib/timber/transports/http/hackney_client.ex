@@ -10,15 +10,10 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     request_options: [
       connect_timeout: 5_000, # 5 seconds, timeout to connect
       recv_timeout: 20_000 #  20 seconds, timeout to receive a response
-    ],
-    pool_options: [
-      timeout: 600_000, # 10 minutes, how long the connection is kept alive in the pool
-      max_connections: 10 # number of connections maintained in the pool
     ]
   ```
 
   * `:request_options` - Passed to `:hackney.request(method, url, headers, body, request_options)`.
-  * `:pool_options` - Passed to `:hackney_pool.start_pool(@pool_name, pool_options)`.
 
   """
 
@@ -26,28 +21,12 @@ defmodule Timber.Transports.HTTP.HackneyClient do
 
   @behaviour Client
 
-  @pool_name __MODULE__
   @default_request_options [
     connect_timeout: 5_000, # 5 seconds, timeout to connect
     recv_timeout: 10_000 #  10 seconds, timeout to receive a response
   ]
-  @default_pool_options pool_options: [
-    timeout: 600_000, # 10 minutes, how long the connection is kept alive in the pool
-    max_connections: 2 # number of connections maintained in the pool
-  ]
-
-  @doc false
-  def start_link do
-    children = [:hackney_pool.child_spec(@pool_name, get_pool_options())]
-    opts = [strategy: :one_for_one, name: __MODULE__.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
 
   defp config, do: Application.get_env(:timber, :hackney_client, [])
-
-  @doc false
-  @spec get_pool_options() :: Keyword.t
-  def get_pool_options(), do: Keyword.get(config(), :pool_options, @default_pool_options)
 
   @doc false
   @spec get_request_options() :: Keyword.t
@@ -61,7 +40,7 @@ defmodule Timber.Transports.HTTP.HackneyClient do
     req_headers = Enum.map(headers, &(&1))
     req_opts =
       get_request_options()
-      |> Keyword.merge([pool: @pool_name, async: true])
+      |> Keyword.merge([async: true])
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
