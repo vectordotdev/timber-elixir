@@ -21,6 +21,27 @@ defmodule Timber.Events.LogEntryTest do
       entry = LogEntry.new(time(), :info, "message", [time_ms: 56.4])
       assert entry.time_ms == 56.4
     end
+
+    test "adds exceptions" do
+      log_message =
+        """
+        ** (exit) an exception was raised:
+            ** (RuntimeError) boom
+                (my_app) web/controllers/page_controller.ex:5: MyApp.PageController.index/2
+                (my_app) web/controllers/page_controller.ex:1: MyApp.PageController.action/2
+                (my_app) web/controllers/page_controller.ex:1: MyApp.PageController.phoenix_controller_pipeline/2
+                (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.instrument/4
+                (my_app) lib/phoenix/router.ex:261: MyApp.Router.dispatch/2
+                (my_app) web/router.ex:1: MyApp.Router.do_call/2
+                (my_app) lib/plug/error_handler.ex:64: MyApp.Router.call/2
+                (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.phoenix_pipeline/1
+                (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.call/2
+                (plug) lib/plug/adapters/cowboy/handler.ex:15: Plug.Adapters.Cowboy.Handler.upgrade/4
+                (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
+        """
+      entry = LogEntry.new(time(), :info, log_message, [error_logger: true])
+      assert entry.event.__struct__ == Timber.Events.ExceptionEvent
+    end
   end
 
   describe "Timber.LogEntry.to_string!/3" do

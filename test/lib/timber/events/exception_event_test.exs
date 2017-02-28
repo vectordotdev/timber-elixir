@@ -4,7 +4,7 @@ defmodule Timber.Events.ExceptionEventTest do
   alias Timber.Events.ExceptionEvent
 
   describe "Timber.Events.ExceptionEvent.new/1" do
-    test "converting to a custom event" do
+    test "converting to an ExceptionEvent" do
       log_message =
         """
         ** (exit) an exception was raised:
@@ -21,7 +21,7 @@ defmodule Timber.Events.ExceptionEventTest do
                 (plug) lib/plug/adapters/cowboy/handler.ex:15: Plug.Adapters.Cowboy.Handler.upgrade/4
                 (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
         """
-      event = ExceptionEvent.new(log_message)
+      {:ok, event} = ExceptionEvent.new(log_message)
       assert event == %Timber.Events.ExceptionEvent{
         message: "boom",
         name: "RuntimeError",
@@ -39,6 +39,10 @@ defmodule Timber.Events.ExceptionEventTest do
           %{app_name: "cowboy", file: "/Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl", function: ":cowboy_protocol.execute/4", line: 442}
         ]
       }
+    end
+
+    test "malformed message" do
+      {:error, :could_not_parse_message} = ExceptionEvent.new("testing")
     end
   end
 end

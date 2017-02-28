@@ -32,15 +32,20 @@ defmodule Timber.Events.ExceptionEvent do
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
   """
-  @spec new(String.t) :: t
+  @spec new(String.t) :: {:ok, t} | {:error, atom}
   def new(log_message) do
     lines =
       log_message
       |> String.split("\n")
       |> Enum.map(&({&1, String.trim(&1)}))
 
-    {name, message, backtrace} = do_new({nil, "", []}, lines)
-    %__MODULE__{name: name, message: message, backtrace: backtrace}
+    case do_new({nil, "", []}, lines) do
+      {name, message, backtrace} when is_binary(name) and length(backtrace) > 0 ->
+        {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
+
+      _ ->
+        {:error, :could_not_parse_message}
+    end
   end
 
   # ** (exit) an exception was raised:
@@ -54,6 +59,9 @@ defmodule Timber.Events.ExceptionEvent do
     [name, message] = String.split(line_suffix, ")", parts: 2)
     do_new({name, message, backtrace}, lines)
   end
+
+  # Ignore other leading messages
+  defp do_new({nil, _message, _backtrace} = acc, [_line | lines]), do: do_new(acc, lines)
 
   #      (odin_client_api) web/controllers/page_controller.ex:5: Odin.ClientAPI.PageController.index/2
   defp do_new({name, message, backtrace}, [{_raw_line, ("(" <> line_suffix)} | lines]) when not is_nil(name) and not is_nil(message) do

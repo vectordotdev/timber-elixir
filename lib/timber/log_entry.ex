@@ -65,9 +65,13 @@ defmodule Timber.LogEntry do
     {message, event} = case UtilsLogger.get_event_from_metadata(metadata) do
       nil ->
         if Keyword.has_key?(metadata, :error_logger) do
-          event = Timber.Events.ExceptionEvent.new(to_string(message))
-          message = Timber.Events.ExceptionEvent.message(event)
-          {message, event}
+          case Timber.Events.ExceptionEvent.new(to_string(message)) do
+            {:ok, event} ->
+              message = Timber.Events.ExceptionEvent.message(event)
+              {message, event}
+
+            {:error, _reason} -> {message, nil}
+          end
         else
           {message, nil}
         end
