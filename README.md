@@ -176,7 +176,7 @@ The recommended strategy for Heroku is to setup a
 
 </p></details>
 
-<details><summary><strong>All other platforms (Network / HTTP)</strong></summary><p>
+<details><summary><strong>Or, all other platforms (Network / HTTP)</strong></summary><p>
 
 👉 **Prefer examples?** Checkout out the **[Timber HTTP install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/2/files)**.
 This demonstrates *only* the changes below for a default Phoenix application.
@@ -220,7 +220,7 @@ This demonstrates *only* the changes below for a default Phoenix application.
 
 </p></details>
 
-<details><summary><strong>Advanced setup (syslog, file tailing agent, etc)</strong></summary><p>
+<details><summary><strong>Or, advanced setup (syslog, file tailing agent, etc)</strong></summary><p>
 
 Checkout our [docs](https://timber.io/docs) for a comprehensive list of install instructions.
 
