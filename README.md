@@ -42,11 +42,7 @@ Replace *any* existing `config :logger` calls with:
 ```elixir
 # config/config.exs
 
-config :logger,
-  backends: [Timber.LoggerBackend],
-  handle_otp_reports: false # Timber handles errors, structures them, and adds additional metadata
-
-config :timber, :capture_errors, true
+config :logger, backends: [Timber.LoggerBackend]
 ```
 
 </p></details>
@@ -59,7 +55,6 @@ config :timber, :capture_errors, true
 # lib/my_app/endpoint.ex
 
 plug Plug.Logger # <--- REMOVE THIS LINE
-
 ...
 
 # ADD THESE LINES
@@ -133,8 +128,7 @@ Now that Timber is all set up, we want to make sure it's development friendly:
 ```elixir
 # config/dev.exs
 
-config :timber,
-  transport: Timber.Transports.IODevice,
+config :timber, transport: Timber.Transports.IODevice
 
 config :timber, :io_device,
   colorize: true,
@@ -149,8 +143,7 @@ Now do the same in `config/test.exs`:
 ```elixir
 # config/test.exs
 
-config :timber,
-  transport: Timber.Transports.IODevice,
+config :timber, transport: Timber.Transports.IODevice
 
 config :timber, :io_device,
   colorize: true,

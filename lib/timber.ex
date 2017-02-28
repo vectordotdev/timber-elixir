@@ -58,14 +58,6 @@ defmodule Timber do
   def start(_type, _opts) do
     import Supervisor.Spec, warn: false
 
-    if Timber.Config.capture_errors?() do
-      :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
-    end
-
-    if Timber.Config.disable_tty?() do
-      :error_logger.tty(false)
-    end
-
     children = []
 
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
