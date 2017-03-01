@@ -90,6 +90,10 @@ defmodule Timber.Transports.HTTPTest do
     end
   end
 
+  describe "Timber.Transports.HTTP.wait_on_request/1" do
+
+  end
+
   describe "Timber.Transports.HTTP.write/0" do
     test "buffers the message if the buffer is not full" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])

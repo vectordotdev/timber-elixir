@@ -238,6 +238,7 @@ defmodule Timber.Transports.IODevice do
   @spec configure(Keyword.t, t) :: {:ok, t}
   def configure(options, state) do
     colorize = Keyword.get(options, :colorize, @default_colorize)
+    device = Keyword.get(options, :device, state.device)
     escape_new_lines = Keyword.get(options, :escape_new_lines, @default_escape_new_lines)
     format = Keyword.get(options, :format, @default_format)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
@@ -247,6 +248,7 @@ defmodule Timber.Transports.IODevice do
 
     new_state = %{ state |
       colorize: colorize,
+      device: device,
       escape_new_lines: escape_new_lines,
       format: format,
       max_buffer_size: max_buffer_size,
@@ -295,7 +297,7 @@ defmodule Timber.Transports.IODevice do
         # buffer while the other stuff finishes writing
         new_state = write_buffer(output, state)
         {:ok, new_state}
-      buffer_size === max_buffer_size ->
+      buffer_size >= max_buffer_size ->
         # sync mode
         new_state =
           write_buffer(output, state)
@@ -342,7 +344,7 @@ defmodule Timber.Transports.IODevice do
   defp escape_new_lines(msg, false), do: msg
   defp escape_new_lines(msg, true) do
     to_string(msg)
-    |> String.replace(<< ?\n :: utf8 >>, << ?\\ :: utf8, ?n :: utf8 >>)
+    |> String.replace("\n", "\\n")
   end
 
   @spec write_buffer(IO.chardata, t) :: t
