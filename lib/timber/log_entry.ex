@@ -62,9 +62,21 @@ defmodule Timber.LogEntry do
       |> add_runtime_context(metadata)
       |> add_system_context()
 
-    event = case UtilsLogger.get_event_from_metadata(metadata) do
-      nil -> nil
-      data -> Eventable.to_event(data)
+    {message, event} = case UtilsLogger.get_event_from_metadata(metadata) do
+      nil ->
+        if Keyword.has_key?(metadata, :error_logger) do
+          case Timber.Events.ExceptionEvent.new(to_string(message)) do
+            {:ok, event} ->
+              message = Timber.Events.ExceptionEvent.message(event)
+              {message, event}
+
+            {:error, _reason} -> {message, nil}
+          end
+        else
+          {message, nil}
+        end
+
+      data -> {message, Eventable.to_event(data)}
     end
 
     %__MODULE__{
