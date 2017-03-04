@@ -445,11 +445,11 @@ encouraged. In cases where the data is meaningful, consider [logging a custom ev
 1. **No lock-in**. Timber is just _better_ logging. There is no special API and no risk of vendor
    lock-in.
 2. **Data quality.** Instead of relying on parsing alone, Timber ships libraries that structure
-   and augment your logs from within your application. Improving your log data at the source.
+   and augment your logs from _within_ your application. Improving your log data at the source.
 3. **Human readability.** Structuring your logs doesn't have to mean losing readability. Instead,
-   Timber _augments_ them. For example: `log message @metadata {...}`. And when you view them
-   [Timber console](https://app.timber.io), you see the human friendly message with the ability
-   to view the metadata by clicking the line.
+   Timber _augments_ them. For example: `log message @metadata {...}`. And when you view them in the
+   [Timber console](https://app.timber.io), you'll see human friendly messages with the ability
+   to view the attached metadata.
 4. **Sane prices, long retention**. Logging is notoriously expensive with low retention. Timber
    is affordable and offers 6 months of retention by default.
 5. **Normalized schema.** Have multiple apps? All of Timber's libraries adhere to our
