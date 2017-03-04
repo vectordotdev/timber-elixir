@@ -387,46 +387,20 @@ request ID. Not just the lines that contain the value.
 
 ## Jibber-Jabber
 
-<details><summary><strong>What are the benefits of using Timber?</strong></summary><p>
-
-1. **Data quality.** The usefulness of your logs starts here. This is why we ship libraries that
-   structure logs from *within* your application; a fundamental difference from parsing. Not only
-   is it much more stable, but we can include data you couldn't obtain otherwise.
-2. **Human readability.** Structuring your logs doesn't mean they have to be unreadable. Timber
-   *augments* your logs with structured data. Meaning we do not alter the original log message,
-   we simply attach metadata to it. And our console is specifically designed to give you access
-   to this data, without compromising readability. 😮
-3. **Reliable downstream consumption.** All log events adhere to a
-   [normalized, shared, schema](https://github.com/timberio/log-event-json-schema) that follows
-   [semantic versioning](http://semver.org/) and goes through a [standard release process](https://github.com/timberio/log-event-json-schema/releases).
-   This means you can *rely* on the structure of your logs and interact consistently with them
-   across apps of any language: queries, graphs, alerts, and other downstream consumers.
-4. **Zero risk of code debt or lock-in.** Logging is a standard that has been around since the dawn
-   of computers. It's built into every language, framework, and library. Timber adheres strictly
-   to the default `Logger` interface. There are no special APIs, and no need to pepper your app
-   with Timber specific code. It's just better logging. If you choose to stop using Timber, you
-   can do so without consequence.
-5. **Long term retention.** Timber is designed on modern big-data principles. As a result, we can
-   offer 6+ months of retention at prices cheaper than alternatives offering <1 month.
-   This allows you to unlock your logs for purposes beyond debugging.
-
----
-
-</p></details>
-
 <details><summary><strong>What specifically does the Timber library do?</strong></summary><p>
 
 1. Captures and structures your framework and 3rd party logs. (see next question)
 2. Adds useful context to every log line. (see next question)
-3. Allows you to easily add tags and timings to log. (see [Usage](#usage))
-4. Provides a framework for logging custom structured events. (see [Usage](#usage))
-5. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
+3. Allows you to easily add tags and timings to your logs. (see [Usage](#usage))
+4. Provides a framework for logging custom events. (see [Usage](#usage))
+5. Provides a framework for adding custom context shared across your logs. (see [Usage](#usage))
+6. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
 
 ---
 
 </p></details>
 
-<details><summary><strong>What events does Timber capture & structure for me?</strong></summary><p>
+<details><summary><strong>Which log events does Timber structure for me?</strong></summary><p>
 
 Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
 
@@ -463,6 +437,26 @@ and will never deviate in *any* way.
 
 In fact, traditional log statements for non-meaningful events, debug statements, etc, are
 encouraged. In cases where the data is meaningful, consider [logging a custom event](#usage).
+
+</p></details>
+
+<details><summary><strong>How is Timber different?</strong></summary><p>
+
+1. **No lock-in**. Timber is just _better_ logging. There is no special API and no risk of vendor
+   lock-in.
+2. **Data quality.** Instead of relying on parsing alone, Timber ships libraries that structure
+   and augment your logs from within your application. Improving your log data at the source.
+3. **Human readability.** Structuring your logs doesn't have to mean losing readability. Instead,
+   Timber _augments_ them. For example: `log message @metadata {...}`. And when you view them
+   [Timber console](https://app.timber.io), you see the human friendly message with the ability
+   to view the metadata by clicking the line.
+4. **Sane prices, long retention**. Logging is notoriously expensive with low retention. Timber
+   is affordable and offers 6 months of retention by default.
+5. **Normalized schema.** Have multiple apps? All of Timber's libraries adhere to our
+   [JSON schema](https://github.com/timberio/log-event-json-schema). This means queries, alerts,
+   and graphs for your ruby app can also be applied to your elixir app (for example).
+
+---
 
 </p></details>
 
