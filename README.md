@@ -6,11 +6,12 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master)
 
+Timber is a *structured* logging system that you can setup in minutes; automatically
+turning your logs into rich structured events. Timber solves logging so you don't have to.
 
-Still logging raw text? Timber is a *structured* logging system that you can setup in
-minutes. It solves logging so you don't have to!
-
-To learn more, checkout out [timber.io](https://timber.io).
+* [Timber website](https://timber.io)
+* [Library documentation](https://hex.pm/packages/timber)
+* [Support](mailto:support@timber.io)
 
 
 ## Installation
@@ -38,7 +39,7 @@ To learn more, checkout out [timber.io](https://timber.io).
 
 <details><summary><strong>Basic logging</strong></summary><p>
 
-No client, no special API, no magic, just use `Logger` as normal:
+No special API, Timber works directly with `Logger`:
 
 ```elixir
 Logger.info("My log message")
@@ -52,10 +53,7 @@ Logger.info("My log message")
 
 <details><summary><strong>Tagging logs</strong></summary><p>
 
-Tags provide a quick way to identify logs. They work just like any tagging system.
-In the context of logging, they prevent obstructing the log message to
-accomplish the same thing, while also being a step down from creating a classified custom
-event. If the event is meaningful in any way, we recommend creating a custom event.
+Tags provide a quick way to categorize logs and make them easy to find later.
 
 ```elixir
 Logger.info("My log message", tags: ["tag"])
@@ -63,7 +61,7 @@ Logger.info("My log message", tags: ["tag"])
 # My log message @metadata {"level": "info", "tags": ["tag"], "context": {...}}
 ```
 
-* In the Timber console use the query: `tags:tag`.
+* In the [Timber console](https://app.timber.io) use the query: `tags:tag`.
 
 ---
 
@@ -71,9 +69,7 @@ Logger.info("My log message", tags: ["tag"])
 
 <details><summary><strong>Timings</strong></summary><p>
 
-Timings allow you to easily capture one-off timings in your code; a simple
-way to benchmark code execution:
-
+Timings allow you to capture code execution time:
 
 ```elixir
 timer = Timber.start_timer()
@@ -84,9 +80,7 @@ Logger.info("Task complete", tags: ["my_task"] time_ms: time_ms)
 # Task complete @metadata {"level": "info", "tags": ["my_task"], "time_ms": 56.4324, "context": {...}}
 ```
 
-* In the Timber console use the query: `tags:my_task time_ms>500`
-* The Timber console will also display this value inline with your logs. No need to include it
-  in the log message, but you certainly can if you'd prefer.
+* In the [Timber console](https://app.timber.io) use the query: `tags:my_task time_ms>500`
 
 ---
 
@@ -94,13 +88,14 @@ Logger.info("Task complete", tags: ["my_task"] time_ms: time_ms)
 
 <details><summary><strong>Custom events</strong></summary><p>
 
-Custom events can be used to structure information about events that are central
-to your line of business like receiving credit card payments, saving a draft of a post,
-or changing a user's password. You have 2 options to do this:
+Before logging a custom event, checkout [`Timber.Events`](lib/timber/events) to make sure it doesn
+already exist.
+
+Custom events allow you to capture events central to your line of business like receiving
+credit card payments, saving a draft of a post, or changing a user's password. Please
+ensure a
 
 1. Log a map (simplest)
-
-  The simplest way to send an event and kick the tires:
 
   ```elixir
   event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
@@ -109,10 +104,7 @@ or changing a user's password. You have 2 options to do this:
   # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
-2. Log a struct (recommended)
-
-  Defining structs for your important events just feels oh so good :) It creates a strong contract
-  with down stream consumers and gives you compile time guarantees.
+2. Or, log a struct (recommended)
 
   ```elixir
   def PaymentRejectedEvent do
@@ -133,14 +125,14 @@ or changing a user's password. You have 2 options to do this:
   # Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
   ```
 
-* In the Timber console use queries like: `payment_rejected.customer_id:xiaus1934` or `payment_rejected.amount>100`
-* Also, notice there is no mention of Timber in the above code. Just plain old logging.
+* In the [Timber console](https://app.timber.io) use the query:
+  `payment_rejected.customer_id:xiaus1934` or `payment_rejected.amount>100`
+
 
 #### What about regular Hashes, JSON, or logfmt?
 
-Go for it! Timber will parse the data server side, but we *highly* recommend the above examples.
-Providing a `:type` allows timber to classify the event, create a namespace for the data you
-send, and make it easier to search, graph, alert, etc.
+Go for it! Timber will parse the data server side. If the event is meaningful in any way we
+_highly_ recommend loggin it as a custom event (see above).
 
 ```ruby
 Logger.info(%{key: "value"})
@@ -153,19 +145,17 @@ Logger.info("key=value")
 # key=value @metadata {"level": "info", "context": {...}}
 ```
 
+* In the [Timber console](https://app.timber.io) use the query: `key:value`
+
 ---
 
 </p></details>
 
 <details><summary><strong>Custom contexts</strong></summary><p>
 
-Context is additional data shared across log lines. Think of it like join data. For example, the
-`http.request_id` is included in the context, allowing you to view all log lines related to that
-request ID. Not just the lines that contain the value.
+Context is additional data shared across log lines. Think of it like log join data.
 
 1. Add a map (simplest)
-
-  The simplest way to add context is:
 
   ```elixir
   Timber.add_context(%{build: %{version: "1.0.0"}})
@@ -174,12 +164,7 @@ request ID. Not just the lines that contain the value.
   # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
-  This adds context data keyspaces by `build`.
-
 2. Add a struct (recommended)
-
-  Just like events, we recommend defining your custom contexts. It makes a stronger contract
-  with downstream consumers.
 
   ```elixir
   def BuildContext do
@@ -194,7 +179,7 @@ request ID. Not just the lines that contain the value.
   # My log message @metadata {"level": "info", "context": {"build": {"version": "1.0.0"}}}
   ```
 
-* In the Timber console use a query like: `context.build.version:1.0.0`
+* In the [Timber console](https://app.timber.io) use the query: `build.version:1.0.0`
 
 </p></details>
 
