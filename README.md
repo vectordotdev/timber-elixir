@@ -16,10 +16,9 @@ setup in minutes; automatically turning your logs into rich structured events.
 ## Overview
 
 Timber for Elixir pairs with the [Timber console](https://app.timber.io) to provide a complete
-structured logging system for your Elixir apps. There are no special APIs or agents to install.
-It works directly with the standard `Logger`, so you don't have to worry about vendor lock-in,
-code debt, or perforance issues. At it's core, it's just better logging without the massive time
-investment. And it's implementation is straight forward and simple.
+structured logging system. There are no special APIs or agents; it works directly with the standard
+`Logger`. You don't have to worry about vendor lock-in, code debt, or perforance issues.
+It's just better logging without the massive time investment.
 
 It turns this:
 
