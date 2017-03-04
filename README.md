@@ -80,7 +80,7 @@ Logger.info("My log message")
 
 <details><summary><strong>Tagging logs</strong></summary><p>
 
-Tags provide a quick way to categorize logs and make them easy to find later.
+Tags provide a quick way to categorize logs and make them easier to search:
 
 ```elixir
 Logger.info("My log message", tags: ["tag"])
@@ -115,12 +115,11 @@ Logger.info("Task complete", tags: ["my_task"] time_ms: time_ms)
 
 <details><summary><strong>Custom events</strong></summary><p>
 
-Before logging a custom event, checkout [`Timber.Events`](lib/timber/events) to make sure it doesn
+Before logging a custom event, checkout [`Timber.Events`](lib/timber/events) to make sure it doesn't
 already exist.
 
 Custom events allow you to capture events central to your line of business like receiving
-credit card payments, saving a draft of a post, or changing a user's password. Please
-ensure a
+credit card payments, saving a draft of a post, or changing a user's password:
 
 1. Log a map (simplest)
 
@@ -159,7 +158,7 @@ ensure a
 #### What about regular Hashes, JSON, or logfmt?
 
 Go for it! Timber will parse the data server side. If the event is meaningful in any way we
-_highly_ recommend loggin it as a custom event (see above).
+_highly_ recommend using custom events (see above).
 
 ```ruby
 Logger.info(%{key: "value"})
@@ -213,44 +212,13 @@ Context is additional data shared across log lines. Think of it like log join da
 
 ## Jibber-Jabber
 
-<details><summary><strong>What specifically does the Timber library do?</strong></summary><p>
-
-1. Automatically structures your framework and 3rd party logs. (see next question)
-2. Adds useful context to every log line. (see next question)
-3. Allows you to add tags and timings to your logs. (see [Usage](#usage))
-4. Provides a framework for logging custom events. (see [Usage](#usage))
-5. Provides a framework for adding custom context shared across your logs. (see [Usage](#usage))
-6. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
-
----
-
-</p></details>
-
 <details><summary><strong>Which log events does Timber structure for me?</strong></summary><p>
 
-Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace:
-
-1. [Controller Call Event](lib/timber/events/controller_call_event.ex)
-2. [Exception Event](lib/timber/events/exception_event.ex)
-3. [HTTP Client Request Event (outgoing)](lib/timber/events/http_client_request_event.ex)
-4. [HTTP Client Response Event](lib/timber/events/http_client_response_event.ex)
-5. [HTTP Server Request Event (incoming)](lib/timber/events/http_server_request_event.ex)
-6. [HTTP Server Response Event](lib/timber/events/http_server_response_event.ex)
-7. [SQL Query Event](lib/timber/events/sql_query_event.ex)
-8. [Template Render Event](lib/timber/events/template_render_event.ex)
-9. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
+Out of the box you get everything in the [`Timber.Events`](lib/timber/events) namespace.
 
 We also add context to every log, everything in the [`Timber.Contexts`](lib/timber/contexts)
-namespace. Context is structured data representing the current environment when the log line was written.
-It is included in every log line. Think of it like join data for your logs:
-
-1. [HTTP Context](lib/timber/contexts/http_context.ex)
-2. [Organization Context](lib/timber/contexts/organization_context.ex)
-3. [Server Context](lib/timber/contexts/server_context.ex)
-4. [System Context](lib/timber/contexts/system_context.ex)
-5. [Runtime Context](lib/timber/contexts/runtime_context.ex)
-5. [User Context](lib/timber/contexts/user_context.ex)
-6. ...more coming soon, [file an issue](https://github.com/timberio/timber-elixir/issues) to request.
+namespace. Context is structured data representing the current environment when the log line
+was written. It is included in every log line. Think of it like join data for your logs.
 
 ---
 
@@ -268,8 +236,8 @@ encouraged. In cases where the data is meaningful, consider [logging a custom ev
 
 <details><summary><strong>How is Timber different?</strong></summary><p>
 
-1. **No lock-in**. Timber is just _better_ logging. There is no special API and no risk of vendor
-   lock-in.
+1. **No lock-in**. Timber is just _better_ logging. There are no agents or special APIs. This means
+   no risk of vendor lock-in, code debt, or performance issues.
 2. **Data quality.** Instead of relying on parsing alone, Timber ships libraries that structure
    and augment your logs from _within_ your application. Improving your log data at the source.
 3. **Human readability.** Structuring your logs doesn't have to mean losing readability. Instead,
