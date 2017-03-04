@@ -6,12 +6,39 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master)
 
-Timber is a *structured* logging system that you can setup in minutes; automatically
-turning your logs into rich structured events. Timber solves logging so you don't have to.
+Timber solves logging so you don't have to. It's a _structured_ logging system that you can
+setup in minutes; automatically turning your logs into rich structured events.
 
 * [Timber website](https://timber.io)
 * [Library documentation](https://hex.pm/packages/timber)
 * [Support](mailto:support@timber.io)
+
+## Overview
+
+Timber for Elixir pairs with the [Timber console](https://app.timber.io) to provide a complete
+structured logging system for your Elixir apps. There are no special APIs or agents to install.
+It works directly with the standard `Logger`, so you don't have to worry about vendor lock-in,
+code debt, or perforance issues. At it's core, it's just better logging without the massive time
+investment. And it's implementation is straight forward and simple.
+
+It turns this:
+
+```
+Sent 200 in 45.ms
+```
+
+Into this:
+
+```
+Sent 200 in 45.2ms @metadata {"dt": "2017-02-02T01:33:21.154345Z", "level": "info", "context": {"user": {"id": 1}}, "event": {"http_response": {"status": 200, "time_ms": 45.2}}}
+```
+
+Allowing you do things like:
+
+1. `context.request_id:abcd1234` - View all logs generated for a specific request
+2. `context.user.id:1` - Tails and view logs for a specific user.
+3. `type:exception` - View all exceptions with the ability to zoom out view them in context.
+4. `http_server_response.status:500` - View all 500 responses with the ability to zoom out and view them in context.
 
 
 ## Installation
@@ -188,9 +215,9 @@ Context is additional data shared across log lines. Think of it like log join da
 
 <details><summary><strong>What specifically does the Timber library do?</strong></summary><p>
 
-1. Captures and structures your framework and 3rd party logs. (see next question)
+1. Automatically structures your framework and 3rd party logs. (see next question)
 2. Adds useful context to every log line. (see next question)
-3. Allows you to easily add tags and timings to your logs. (see [Usage](#usage))
+3. Allows you to add tags and timings to your logs. (see [Usage](#usage))
 4. Provides a framework for logging custom events. (see [Usage](#usage))
 5. Provides a framework for adding custom context shared across your logs. (see [Usage](#usage))
 6. Offers transport strategies to [send your logs](#send-your-logs) to the Timber service.
