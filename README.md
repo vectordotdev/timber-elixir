@@ -7,7 +7,7 @@
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master)
 
 
-Still logging raw text? Timber is a complete *structured* logging solution that you can setup in
+Still logging raw text? Timber is a *structured* logging system that you can setup in
 minutes. It solves logging so you don't have to!
 
 To learn more, checkout out [timber.io](https://timber.io).
@@ -15,209 +15,23 @@ To learn more, checkout out [timber.io](https://timber.io).
 
 ## Installation
 
-```elixir
-# Mix.exs
+1. Add `timber` as a dependency in `mix.exs`:
 
-def application do
-  [applications: [:timber]]
-end
+    ```elixir
+    # Mix.exs
 
-def deps do
-  [{:timber, "~> 1.0"}]
-end
-```
+    def application do
+      [applications: [:timber]]
+    end
 
+    def deps do
+      [{:timber, "~> 1.0"}]
+    end
+    ```
 
-## Setup
+2. Run `mix deps.get` in your shell.
 
-👉 **Prefer examples?** Checkout out the **[Timber install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/1/files)**.
-This demonstrates the below changes for a default Phoenix application.
-
----
-
-<details><summary><strong>1. *Configure* Timber in `config/config.exs`</strong></summary><p>
-
-Replace *any* existing `config :logger` calls with:
-
-```elixir
-# config/config.exs
-
-config :logger, backends: [Timber.LoggerBackend]
-```
-
-</p></details>
-
-<details><summary><strong>2. *Capture* `Plug` logging in `lib/my_app/endpoint.ex`</strong></summary><p>
-
-👉 *Skip if you are not using `Plug`.*
-
-```elixir
-# lib/my_app/endpoint.ex
-
-plug Plug.Logger # <--- REMOVE THIS LINE
-...
-
-# ADD THESE LINES
-# Insert at the bottom, immediately before `plug MyApp.Router`
-plug Timber.Integrations.ContextPlug
-plug Timber.Integrations.EventPlug
-
-plug MyApp.Router
-```
-
-* Be sure to insert these plugs at the bottom of your `endpoint.ex` file, *immediately* before
-  `plug MyApp.Router`. This ensures Timber captures the request ID and other useful context.
-
-</p></details>
-
-<details><summary><strong>3. *Capture* `Phoenix` logging in `config/config.exs` and `my_app/web.ex`</strong></summary><p>
-
-👉 *Skip if you are not using `Phoenix`.*
-
-```elixir
-# config/config.exs
-
-config :my_app, MyApp.Endpoint,
-  instrumenters: [Timber.Integrations.PhoenixInstrumenter]
-```
-
-Now that Timber is handling logging, disable Phoenix logging with:
-
-```elixir
-# my_app/web.ex
-
-def controller do
-  quote do
-    use Phoenix.Controller, log: false # <--- Add log: false
-  end
-end
-```
-
-</p></details>
-
-<details><summary><strong>4. *Capture* `Ecto` logging in `config/config.exs`</strong></summary><p>
-
-👉 *Skip if you are not using `Ecto`.*
-
-```elixir
-# config/config.exs
-
-config :my_app, MyApp.Repo,
-  loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
-```
-
-</p></details>
-
-<details><summary><strong>5. *Capture* current user context</strong></summary><p>
-
-Insert the below snippet wherever you authenticate your user. This will add user
-context to any log line written afterwards.
-
-```elixir
-# All attributes are optional, supply the ones you have.
-%Timber.Contexts.UserContext{id: id, name: name, email: email}
-|> Timber.add_context()
-```
-
-</p></details>
-
-<details><summary><strong>6. *Configure* Timber for development in `config/dev.exs` & `config/test.exs`</strong></summary><p>
-
-Now that Timber is all set up, we want to make sure it's development friendly:
-
-```elixir
-# config/dev.exs
-
-config :timber, transport: Timber.Transports.IODevice
-
-config :timber, :io_device,
-  colorize: true,
-  format: :logfmt,
-  print_timestamps: true,
-  print_log_level: true,
-  print_metadata: false
-```
-
-Now do the same in `config/test.exs`:
-
-```elixir
-# config/test.exs
-
-config :timber, transport: Timber.Transports.IODevice
-
-config :timber, :io_device,
-  colorize: true,
-  format: :logfmt,
-  print_timestamps: true,
-  print_log_level: true,
-  print_metadata: false
-```
-
-</p></details>
-
-
-## Send your logs (choose one)
-
-<details><summary><strong>Heroku (log drains)</strong></summary><p>
-
-The recommended strategy for Heroku is to setup a
-[log drain](https://devcenter.heroku.com/articles/log-drains). To get your Timber log drain URL:
-
-👉 **[Add your app to Timber](https://app.timber.io)**
-
----
-
-</p></details>
-
-<details><summary><strong>Or, all other platforms (Network / HTTP)</strong></summary><p>
-
-👉 **Prefer examples?** Checkout out the **[Timber HTTP install example pull requst](https://github.com/timberio/elixir-phoenix-example-app/pull/2/files)**.
-This demonstrates *only* the changes below for a default Phoenix application.
-
-1. *Add* HTTP dependencies to `mix.exs`:
-
-  ```elixir
-  # Elixir >= 1.4? Adding the applications list is optional.
-  def application do
-    [applications: [:hackney, :timber]] # <-- Be sure to add hackney!
-  end
-
-  def deps do
-    [
-      {:timber, "~> 1.0"},
-      {:hackney, "~> 1.6"} # <-- ADD ME
-    ]
-  end
-  ```
-
-  * Prefer a different HTTP client? Checkout
-    [Timber.Transports.HTTP.Client](lib/timber/transports/http/client.ex) for details on
-    implementing your own client.
-
-2. *Configure* Timber to use the HTTP transport in `config/config.exs`:
-
-  ```elixir
-  # config/config.exs
-
-  config :timber,
-    transport: Timber.Transports.HTTP,
-    api_key: System.get_env("TIMBER_LOGS_KEY"),
-    http_client: Timber.Transports.HTTP.HackneyClient
-  ```
-
-3. Obtain your Timber API :key: by **[adding your app in Timber](https://app.timber.io)**.
-
-4. Assign your API key to the `TIMBER_LOGS_KEY` environment variable.
-
----
-
-</p></details>
-
-<details><summary><strong>Or, advanced setup (syslog, file tailing agent, etc)</strong></summary><p>
-
-Checkout our [docs](https://timber.io/docs) for a comprehensive list of install instructions.
-
-</p></details>
+3. Run `mix timber.install your-timber-application-api-key`
 
 
 ## Usage
