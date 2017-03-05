@@ -1,7 +1,9 @@
 defmodule Mix.Tasks.Timber.Install do
   use Mix.Task
 
+  @nos ["n", "N", "No"]
   @pipe_tester Application.get_env(:timber, :pipe_tester, Timber.PipeTester)
+  @yeses ["y", "Y", "Yes"]
 
   # Details
   @docs_url "http://timber.io/docs"
@@ -9,7 +11,7 @@ defmodule Mix.Tasks.Timber.Install do
   @support_email "support@timber.io"
   @timber_config_file_name "timber.exs"
   @timber_config_file_path Path.join("config", @timber_config_file_name)
-  @elixir_repo_url "https://github.com/timberio/timber-elixir"
+  @repo_url "https://github.com/timberio/timber-elixir"
   @twitter_handle "@timberdotio"
   @website_url "https://timber.io"
 
@@ -18,8 +20,7 @@ defmodule Mix.Tasks.Timber.Install do
   @stuck_message "Still stuck? Shoot us an email: #{@support_email}"
 
   def run([]) do
-    header_message()
-    |> display()
+    display_header_message()
 
     """
     Uh oh! You forgot to include your API key. Please specify it via:
@@ -30,13 +31,11 @@ defmodule Mix.Tasks.Timber.Install do
 
     #{@stuck_message}
     """
-    |> warn_format()
-    |> display()
+    |> warn()
   end
 
   def run([api_key]) do
-    header_message()
-    |> display()
+    display_header_message()
 
     case validate_api_key(api_key) do
       :ok ->
@@ -47,14 +46,21 @@ defmodule Mix.Tasks.Timber.Install do
         """
         |> display()
 
-        determine_transport()
-        |> add_config_file()
+        platform = determine_platform()
 
+        add_config_file(platform)
         link_config_file()
         add_plugs()
         disable_phoenix_logging()
-        test_the_pipes()
+        install_user_context()
+        platform_install(platform)
+        social_upgrades()
+        finish()
 
+        # TODO: display url to open console
+        # TODO: display tip to capture user context
+        # Usage examples?
+        # Social upgrades
 
       {:error, reason} ->
         """
@@ -65,48 +71,29 @@ defmodule Mix.Tasks.Timber.Install do
 
         #{@stuck_message}
         """
-        |> display()
+        |> warn()
     end
   end
 
   defp validate_api_key(_), do: :ok
 
-  defp determine_transport do
+  defp determine_platform do
     """
     #{separator()}
-
-    Which platform is your app hosted on?
-    (this helps us determine how to transport your logs.)
-
-    1) Heroku
-    2) Other
     """
     |> display()
 
-    prompt = "Enter your choice: (1/2)"
-    case ask(prompt) do
-      "1" -> :stdout
-      "2" -> :http
+    case ask("Is your app hosted on Heroku?: (y/n)") do
+      v when v in @yeses -> :heroku
+      v when v in @nos -> :other
 
       value ->
-        """
-
-        #{inspect(value)} is not a valid option. Please try again:
-        """
-        |> warn_format()
-        |> display()
-
-        """
-        #{separator()}
-
-        """
-        |> display()
-
-        determine_transport()
+        warn("#{inspect(value)} is not a valid option. Please try again.\n")
+        determine_platform()
     end
   end
 
-  defp add_config_file(transport_strategy) do
+  defp add_config_file(platform) do
     contents =
       """
       use Mix.Config
@@ -130,56 +117,180 @@ defmodule Mix.Tasks.Timber.Install do
       # Questions? Contact us at support@timber.io
       """
 
-    print("\nCreating #{@timber_config_file_path}...")
+    display_action_starting("Creating #{@timber_config_file_path}...")
 
     case File.open @timber_config_file_path, [:write] do
       {:ok, file} ->
         case IO.binwrite(file, contents) do
           :ok ->
-            success_message()
-            |> print()
+            display_action_success()
 
           {:error, reason} ->
-            IO.puts "Uh oh, we had a problem: #{reason}"
+            error("Uh oh, we had a problem: #{reason}")
             exit :shutdown
         end
+
         File.close(file)
 
       {:error, reason} ->
-        IO.puts "Uh oh, we had a problem: #{reason}"
+        error("Uh oh, we had a problem: #{reason}")
         exit :shutdown
     end
   end
 
   defp link_config_file do
-    print("\nLinking #{@timber_config_file_path} in #{@config_file_path}...")
-    success_message()
-    |> print()
+    display_action_starting("Linking #{@timber_config_file_path} in #{@config_file_path}...")
+    display_action_success()
   end
 
   defp add_plugs do
-    print("\nAdding plugs to lib/myapp/endpoint.ex...")
-    success_message()
-    |> print()
+    display_action_starting("Adding Timber plugs to lib/myapp/endpoint.ex...")
+    display_action_success()
   end
 
   defp disable_phoenix_logging do
-    print("\nDisabling default Phoenix logging lib/myapp/endpoint.ex...")
-    success_message()
-    |> print()
+    display_action_starting("Disabling default Phoenix logging lib/myapp/endpoint.ex...")
+    display_action_success()
+  end
+
+  defp install_user_context do
+    """
+
+    #{separator()}
+    """
+    |> display()
+
+    case ask("Does your application have user accounts?: (y/n)") do
+      v when v in @yeses ->
+        """
+
+        Great! Timber can add user context to your logs, allowing you to search
+        and tail logs for specific users. To install this, please add this
+        code wherever you authenticate your user. Typically in a plug:
+
+            %Timber.Contexts.UserContext{id: id, name: name, email: email}
+            |> Timber.add_context()
+        """
+        |> display()
+
+        case ask("Ready to proceed?: (y/n)") do
+          v when v in @yeses -> true
+          v when v in @nos -> install_user_context()
+
+          value ->
+            warn("#{inspect(value)} is not a valid option. Please try again.\n")
+            determine_platform()
+        end
+
+      v when v in @nos -> :heroku
+
+      value ->
+        warn("#{inspect(value)} is not a valid option. Please try again.\n")
+        determine_platform()
+    end
+  end
+
+  defp platform_install(:heroku) do
+    """
+
+    #{separator()}
+
+    Now we need to send your logs to the Timber service.
+    Please run this command in a separate terminal and return when complete:
+
+        heroku drains:add url
+    """
+    |> display()
+
+    wait_for_logs()
+  end
+
+  defp platform_install(:other) do
+    """
+
+    #{separator()}
+
+    Last step! In a new window commit these changes and deploy your application.
+    """
+    |> display()
+
+    wait_for_logs()
+  end
+
+  defp wait_for_logs(10) do
+    display_action_success()
+  end
+
+  defp wait_for_logs(iteration \\ 0) do
+    :timer.sleep(500)
+    rem = rem(iteration, 4)
+
+    IO.ANSI.format(["\r", :clear_line, "Waiting for logs (this can sometimes take a minute)", String.duplicate(".", rem), "\e[u"])
+    |> IO.write()
+
+    wait_for_logs(iteration + 1)
+  end
+
+  defp social_upgrades do
+    """
+
+    #{separator()}
+
+    If you enjoy using Timber, we'd love for you share your experience. And because
+    we *love* our customers, we'll add free data to your account 🎉.
+
+    * Get ✨100mb✨ for starring our repo: #{@elixir_repo_url}
+    * Get ✨250mb✨ for tweeting your experience to #{@twitter_handle}
+    """
+    |> display()
+  end
+
+  defp finish do
+    """
+
+    #{separator()}
+
+    Done! 🎉
+
+    Your Timber console URL: https://app.timber.io
+    """
+    |> display()
+
+    case ask("How would rate this install experience? 1 (bad) - 5 (perfect)") do
+      _ ->
+        display("Thanks for your feedback! Let's get to loggin' 🌲")
+    end
   end
 
   defp test_the_pipes do
-    print("\nTesting the pipes by sending a few test log messages:")
-    success_message()
-    |> print()
+    display_action_starting("Testing the pipes by sending a few test log messages:")
+    display_action_success()
   end
 
   #
   # Messages
   #
 
-  defp header_message do
+  defp display_action_starting(message) do
+    IO.write(message)
+    message_length = String.length(message)
+    success_length = String.length(acction_success_message())
+    difference = 80 - success_length - message_length
+    if difference > 0 do
+      IO.write(String.duplicate(".", difference))
+    end
+  end
+
+  defp acction_success_message do
+    "✓ Success!"
+  end
+
+  defp display_action_success do
+    IO.ANSI.format([:green, acction_success_message(), "\n"])
+    |> IO.write()
+  end
+
+  def display_header_message do
     """
     🌲 Timber installation
     #{separator()}
@@ -188,32 +299,11 @@ defmodule Mix.Tasks.Timber.Install do
     Support:       #{@support_email}
     #{separator()}
     """
+    |> display()
   end
 
-  defp manual_install_message do
-    """
-    No problem. Check out our manual installation guide at: #{@manual_installation_url}
-    """
-  end
-
-  defp separator do
+  def separator do
     "--------------------------------------------------------------------------------"
-  end
-
-  defp social_upgrades_message do
-    """
-    Get free data!
-    --------------------------------------------------------------------------------
-    If you enjoy using Timber, we'd love for you share your experience. And because
-    we *love* our customers, we'll add free data to your account 🎉.
-
-    * Get ✨100mb✨ for starring our repo: #{@elixir_repo_url}
-    * Get ✨250mb✨ for tweeting your experience to #{@twitter_handle}
-    """
-  end
-
-  defp success_message do
-    IO.ANSI.format([:green, "✓ Success!"])
   end
 
   #
@@ -223,8 +313,7 @@ defmodule Mix.Tasks.Timber.Install do
   defp ask(prompt) do
     input = String.trim(IO.gets("#{prompt}: "))
     if String.length(input) <= 0 do
-      warn_format("Uh oh, we didn't receive an answer :(")
-      |> display()
+      warn("Uh oh, we didn't receive an answer :(")
       ask(prompt)
     else
       input
@@ -233,9 +322,13 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp display(message), do: IO.puts(message)
 
-  defp print(message), do: IO.write(message)
-
-  defp warn_format(message) do
+  def warn(message) do
     IO.ANSI.format([:red, "⚠ ", message])
+    |> display()
+  end
+
+  def error(message) do
+    IO.ANSI.format([:red, "⚠ ", message])
+    |> display()
   end
 end
