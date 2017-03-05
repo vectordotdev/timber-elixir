@@ -13,6 +13,8 @@ defmodule Timber.Config do
 
   def json_encoder, do: Application.get_env(@env_key, :json_encoder, &Poison.encode_to_iodata!/1)
 
+  def phoenix?, do: Code.ensure_loaded?(Phoenix)
+
   @spec phoenix_instrumentation_level(atom) :: atom
   def phoenix_instrumentation_level(default) do
     Application.get_env(@env_key, :instrumentation_level, default)
