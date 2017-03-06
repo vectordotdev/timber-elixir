@@ -1,4 +1,4 @@
-defmodule Timber.FakePath do
+defmodule Timber.Installer.FakePath do
   use Timber.Stubbing
 
   def wildcard(path) do

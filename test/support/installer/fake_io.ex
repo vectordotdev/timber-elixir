@@ -1,4 +1,4 @@
-defmodule Timber.FakeIO do
+defmodule Timber.Installer.FakeIO do
   use Timber.Stubbing
 
   def binwrite(file, contents) do

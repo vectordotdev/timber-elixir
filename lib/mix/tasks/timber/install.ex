@@ -1,12 +1,14 @@
 defmodule Mix.Tasks.Timber.Install do
   use Mix.Task
 
+  alias __MODULE__.HTTPClient
+
   @nos ["n", "N", "No"]
   @yeses ["y", "Y", "Yes"]
 
   # Details
+  @api_url "https://api.timber.io"
   @docs_url "http://timber.io/docs"
-  @manual_installation_url "https://timber.io"
   @support_email "support@timber.io"
   @timber_config_file_name "timber.exs"
   @timber_config_file_path Path.join(["config", @timber_config_file_name])
@@ -16,33 +18,34 @@ defmodule Mix.Tasks.Timber.Install do
 
   # Clients
   @file_client Keyword.get(Application.get_env(:timber, __MODULE__, []), :file_client, File)
+  @http_client Keyword.get(Application.get_env(:timber, __MODULE__, []), :http_client, HTTPClient)
   @io_client Keyword.get(Application.get_env(:timber, __MODULE__, []), :io_client, IO)
   @path_client Keyword.get(Application.get_env(:timber, __MODULE__, []), :path_client, Path)
 
   def run([]) do
-    display_header_message()
-
     """
+    #{header_message()}
+
     Uh oh! You forgot to include your API key. Please specify it via:
 
         mix timber.install timber-application-api-key
 
     #{obtain_key_instructions_message()}
 
-    #{stuck_message()}
+    #{get_help_message()}
     """
-    |> warn()
+    |> puts(:red)
   end
 
   def run([api_key]) do
-    display_header_message()
-
     """
+    #{header_message()}
+
     This installer will walk you through setting up Timber in your application.
     At the end we'll make sure logs are flowing properly.
     Grab your axe!
     """
-    |> display()
+    |> puts()
 
     with {:ok, application} <- get_application(api_key),
          :ok <- add_config_file(application),
@@ -57,52 +60,47 @@ defmodule Mix.Tasks.Timber.Install do
       true
     else
       {:error, reason} ->
-        warn(reason)
+        """
+        Bummer! We encountered a problem:
+
+        #{reason}
+
+        Please try again.
+
+        #{get_help_message()}
+        """
+        |> puts(:red)
     end
   end
 
   defp get_application(_api_key) do
-    case 200 do
-      200 ->
+    case @http_client.request("GET", "/installer/application") do
+      {:ok, 200, %{"name" => name, "subdomain" => subdomain, "platform_type" => platform_type}} ->
         application = %{
-          name: "Odin",
-          subdomain: "odin",
-          platform_type: "heroku"
+          name: name,
+          subdomain: subdomain,
+          platform_type: platform_type
         }
         {:ok, application}
 
-      403 ->
+      {:ok, 403, _} ->
         reason =
           """
           Uh oh! It looks like the API key you provided is invalid :(
-          Please sure that you copy the key properly.
+          Please ensure that you copied the key properly.
 
           #{obtain_key_instructions_message()}
 
-          #{stuck_message()}
+          #{get_help_message()}
           """
         {:error, reason}
+
+      {:error, reason} -> {:error, reason}
     end
   end
 
-  # defp determine_platform do
-  #   """
-  #   #{separator()}
-  #   """
-  #   |> display()
-
-  #   case ask("Is your app hosted on Heroku?: (y/n)") do
-  #     v when v in @yeses -> :heroku
-  #     v when v in @nos -> :other
-
-  #     value ->
-  #       warn("#{inspect(value)} is not a valid option. Please try again.\n")
-  #       determine_platform()
-  #   end
-  # end
-
   # Adds the config/timber.exs file to be linked in config/config.exs
-  defp add_config_file(_platform) do
+  defp add_config_file(_application) do
     contents =
       """
       use Mix.Config
@@ -126,11 +124,14 @@ defmodule Mix.Tasks.Timber.Install do
       # Questions? Contact us at support@timber.io
       """
 
-    display_action_starting("Creating #{@timber_config_file_path}...")
+    action_starting_message("Creating #{@timber_config_file_path}...")
+    |> write()
 
     case write_file(@timber_config_file_path, contents) do
       :ok ->
-        display_action_success()
+        success_message()
+        |> puts(:green)
+
         :ok
 
       {:error, reason} ->
@@ -144,7 +145,8 @@ defmodule Mix.Tasks.Timber.Install do
       Path.join(["config", "config.exs"])
       |> find_file()
 
-    display_action_starting("Linking #{@timber_config_file_path} in #{config_file_path}...")
+    action_starting_message("Linking #{@timber_config_file_path} in #{config_file_path}...")
+    |> write()
 
     contents =
       """
@@ -154,7 +156,8 @@ defmodule Mix.Tasks.Timber.Install do
 
     case append_to_file_once(config_file_path, contents) do
       :ok ->
-        display_action_success()
+        success_message()
+        |> puts(:green)
 
       {:error, reason} ->
         {:error, "Uh oh, we had a problem writing to #{config_file_path}: #{reason}"}
@@ -166,7 +169,8 @@ defmodule Mix.Tasks.Timber.Install do
       Path.join(["lib", "*", "endpoint.ex"])
       |> find_file()
 
-    display_action_starting("Adding Timber plugs to #{endpoint_file_path}...")
+    action_starting_message("Adding Timber plugs to #{endpoint_file_path}...")
+    |> write()
 
     pattern = ~r/( *)plug ElixirPhoenixExampleApp\.Router/
     replacement =
@@ -176,7 +180,8 @@ defmodule Mix.Tasks.Timber.Install do
 
     case replace_in_file_once(endpoint_file_path, pattern, replacement) do
       :ok ->
-        display_action_success()
+        success_message()
+        |> puts(:green)
 
       {:error, reason} ->
         {:error, "Uh oh, we had a problem writing to #{endpoint_file_path}: #{reason}"}
@@ -188,14 +193,16 @@ defmodule Mix.Tasks.Timber.Install do
       Path.join(["web", "web.ex"])
       |> find_file()
 
-    display_action_starting("Disabling default Phoenix logging #{web_file_path}...")
+    action_starting_message("Disabling default Phoenix logging #{web_file_path}...")
+    |> write()
 
     pattern = ~r/use Phoenix\.Controller/
     replacement = "\\0, log: false"
 
     case replace_in_file_once(web_file_path, pattern, replacement) do
       :ok ->
-        display_action_success()
+        success_message()
+        |> puts(:green)
 
       {:error, reason} ->
         {:error, "Uh oh, we had a problem writing to #{web_file_path}: #{reason}"}
@@ -207,7 +214,7 @@ defmodule Mix.Tasks.Timber.Install do
 
     #{separator()}
     """
-    |> display()
+    |> puts()
 
     case ask("Does your application have user accounts? (y/n)") do
       v when v in @yeses ->
@@ -220,21 +227,21 @@ defmodule Mix.Tasks.Timber.Install do
             %Timber.Contexts.UserContext{id: id, name: name, email: email}
             |> Timber.add_context()
         """
-        |> display()
+        |> puts()
 
         case ask("Ready to proceed? (y/n)") do
           v when v in @yeses -> :ok
           v when v in @nos -> install_user_context()
 
           v ->
-            warn("#{inspect(v)} is not a valid option. Please try again.\n")
+            puts("#{inspect(v)} is not a valid option. Please try again.\n", :red)
             install_user_context()
         end
 
       v when v in @nos -> :heroku
 
       v ->
-        warn("#{inspect(v)} is not a valid option. Please try again.\n")
+        puts("#{inspect(v)} is not a valid option. Please try again.\n", :red)
         install_user_context()
     end
   end
@@ -249,19 +256,19 @@ defmodule Mix.Tasks.Timber.Install do
 
         heroku drains:add url
     """
-    |> display()
+    |> puts()
 
     wait_for_logs()
   end
 
   defp install_on_platform(_application) do
-    """
+    action_starting_message("Sending a few test logs...")
+    |> write()
 
-    #{separator()}
+    test_http_client()
 
-    Last step! In a new window commit these changes and deploy your application.
-    """
-    |> display()
+    success_message()
+    |> puts(:green)
 
     wait_for_logs()
   end
@@ -286,7 +293,7 @@ defmodule Mix.Tasks.Timber.Install do
 
     #{separator()}
 
-    Done! 🎉
+    Done! Commit these changes and deploy. 🎉
 
     * Your Timber console URL: https://app.timber.io
     * Get ✨100mb✨ for starring our repo: #{@repo_url}
@@ -295,7 +302,7 @@ defmodule Mix.Tasks.Timber.Install do
 
     (your account will be credited within 2-3 business days)
     """
-    |> display()
+    |> puts()
   end
 
   defp collect_feedback do
@@ -315,7 +322,7 @@ defmodule Mix.Tasks.Timber.Install do
         end
 
       v ->
-        warn("#{inspect(v)} is not a valid option. Please try again.\n")
+        puts("#{inspect(v)} is not a valid option. Please try again.\n", :red)
         finish()
     end
 
@@ -326,17 +333,6 @@ defmodule Mix.Tasks.Timber.Install do
   # Files
   #
 
-  defp append_to_file(path, contents) do
-    case @file_client.open(path, [:append]) do
-      {:ok, file} ->
-        result = @io_client.binwrite(file, contents)
-        @file_client.close(file)
-        result
-
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
   defp append_to_file_once(path, contents) do
     case @file_client.read(path) do
       {:ok, current_contents} ->
@@ -345,7 +341,14 @@ defmodule Mix.Tasks.Timber.Install do
         if String.contains?(current_contents, trimmed_contents) do
           :ok
         else
-          append_to_file(path, contents)
+          case @file_client.open(path, [:append]) do
+            {:ok, file} ->
+              result = @io_client.binwrite(file, contents)
+              @file_client.close(file)
+              result
+
+            {:error, reason} -> {:error, reason}
+          end
         end
 
       {:error, reason} -> {:error, reason}
@@ -400,26 +403,22 @@ defmodule Mix.Tasks.Timber.Install do
   # Messages
   #
 
-  defp display_action_starting(message) do
-    write(message)
+  defp action_starting_message(message) do
     message_length = String.length(message)
-    success_length = String.length(acction_success_message())
+    success_length = String.length(success_message())
     difference = 80 - success_length - message_length
     if difference > 0 do
-      write(String.duplicate(".", difference))
+      message <> String.duplicate(".", difference)
+    else
+      message
     end
   end
 
-  defp acction_success_message do
+  defp success_message do
     "✓ Success!"
   end
 
-  defp display_action_success do
-    IO.ANSI.format([:green, acction_success_message(), "\n"])
-    |> write()
-  end
-
-  def display_header_message do
+  def header_message do
     """
     🌲 Timber installation
     #{separator()}
@@ -428,7 +427,7 @@ defmodule Mix.Tasks.Timber.Install do
     Support:       #{@support_email}
     #{separator()}
     """
-    |> display()
+    |> puts()
   end
 
   def obtain_key_instructions_message do
@@ -439,7 +438,7 @@ defmodule Mix.Tasks.Timber.Install do
     "--------------------------------------------------------------------------------"
   end
 
-  def stuck_message do
+  def get_help_message do
     "Still stuck? Shoot us an email: #{@support_email}"
   end
 
@@ -453,7 +452,7 @@ defmodule Mix.Tasks.Timber.Install do
         input = String.trim(value)
 
         if String.length(input) <= 0 do
-          warn("Uh oh, we didn't receive an answer :(")
+          puts("Uh oh, we didn't receive an answer :(", :red)
           ask(prompt)
         else
           input
@@ -465,19 +464,66 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp display(message), do: @io_client.puts(message)
+  defp puts(message), do: @io_client.puts(message)
 
-  defp fail!(message) do
-    IO.ANSI.format([:red, "⚠ ", message])
-    |> display()
-  end
-
-  def warn(message) do
-    IO.ANSI.format([:red, "⚠ ", message])
-    |> display()
+  defp puts(message, color) do
+    IO.ANSI.format([color, message])
+    |> @io_client.puts()
   end
 
   def write(message) do
     @io_client.write(message)
+  end
+
+  def write(message, color) do
+    IO.ANSI.format([color, message])
+    |> @io_client.write()
+  end
+
+  #
+  # HTTP request
+  #
+
+  defmodule HTTPClient do
+    # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
+    # as a dependency just for this installer.
+    def request("GET", url, _headers, _body) do
+      {response, _} = System.cmd("curl", ["-s", "-w _STATUS_:%{http_code}", "test"])
+
+      case String.split(response, " _STATUS_:", parts: 2) do
+        [body, status_str] ->
+          case Integer.parse(status_str) do
+            {status, _units} ->
+              case Poison.decode(body) do
+                {:ok, %{"data" => data}} -> {:ok, status, data}
+
+                {:error, reason} ->
+                  message =
+                    """
+                    We're having trouble communicating with the Timber API.
+                    The response sent back was malformed :(
+                    """
+                  {:error, message}
+
+                {:error, reason, _position} ->
+                  message =
+                    """
+                    We're having trouble communicating with the Timber API.
+                    The response sent back was malformed :(
+                    """
+                  {:error, message}
+              end
+          end
+
+        _ ->
+          message =
+            """
+            We're having trouble connecting to #{@api_url}. Please ensure that
+            this computer can connect to this URL. This is neccessary to verify
+            your API key and test installation.
+            """
+          {:error, message}
+      end
+    end
   end
 end

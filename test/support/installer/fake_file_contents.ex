@@ -1,4 +1,4 @@
-defmodule Timber.InstallerFileContents do
+defmodule Timber.Installer.FakeFileContents do
   def default_config_contents do
     """
     # This file is responsible for configuring your application

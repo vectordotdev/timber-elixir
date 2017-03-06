@@ -9,6 +9,7 @@ config :timber,
   http_client: Timber.FakeHTTPClient
 
 config :timber, Mix.Tasks.Timber.Install,
-  file_client: Timber.FakeFile,
-  io_client: Timber.FakeIO,
-  path_client: Timber.FakePath
+  file_client: Timber.Installer.FakeFile,
+  http_client: Timber.Installer.FakeHTTPClient,
+  io_client: Timber.Installer.FakeIO,
+  path_client: Timber.Installer.FakePath

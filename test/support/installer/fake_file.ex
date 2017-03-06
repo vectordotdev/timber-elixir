@@ -1,4 +1,4 @@
-defmodule Timber.FakeFile do
+defmodule Timber.Installer.FakeFile do
   use Timber.Stubbing
 
   def close(file) do
