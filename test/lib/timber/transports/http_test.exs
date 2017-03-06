@@ -91,7 +91,9 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.wait_on_request/1" do
+    test "handles invalid messages" do
 
+    end
   end
 
   describe "Timber.Transports.HTTP.write/0" do
