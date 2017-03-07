@@ -1,11 +1,13 @@
 defmodule Timber.Config do
+  alias __MODULE__.MissingAPIKeyError
+
   @env_key :timber
 
   def api_key! do
     case Application.get_env(@env_key, :api_key) do
       {:system, env_var_name} -> System.get_env(env_var_name)
       api_key when is_binary(api_key) -> api_key
-      api_key -> raise(MissingAPIKeyError)
+      _other -> raise(MissingAPIKeyError)
     end
   end
 

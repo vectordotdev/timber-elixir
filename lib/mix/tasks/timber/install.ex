@@ -20,39 +20,42 @@ defmodule Mix.Tasks.Timber.Install do
     """
     |> IOHelper.puts()
 
-    with {:ok, application} <- Application.new(api_key),
-         :ok <- create_config_file(application),
-         :ok <- link_config_file(application),
-         :ok <- add_plugs(application),
-         :ok <- disable_default_phoenix_logging(application),
-         :ok <- install_user_context(),
-         :ok <- install_on_platform(application),
-         :ok <- finish(),
-         :ok <- Feedback.collect()
-    do
-      true
-    else
-      {:error, reason} ->
-        """
-        Bummer! We encountered a problem:
+    application = Application.new!(api_key)
+    create_config_file!(application)
+    link_config_file!(application)
+    add_plugs!(application)
+    disable_default_phoenix_logging!(application)
+    install_user_context!()
+    install_on_platform!(application)
+    finish!()
 
-        #{reason}
+  rescue
+    e ->
+      message = Exception.message(e)
+      stacktrace = Exception.format_stacktrace(System.stacktrace())
 
-        Please try again.
+      """
+      #{String.duplicate("!", 80)}
 
-        #{Messages.get_help()}
-        """
-        |> IOHelper.puts(:red)
-    end
+      #{message}
+      #{Messages.get_help()}
+
+      ---
+
+      Here's the stacktrace for reference:
+
+      #{stacktrace}
+      """
+      |> IOHelper.puts(:red)
   end
 
-  defp create_config_file(application) do
+  defp create_config_file!(application) do
     Messages.action_starting("Creating #{@timber_config_file_path}...")
     |> IOHelper.write()
 
-    case ConfigFile.create(application) do
+    case ConfigFile.create!(application) do
       :ok ->
-        Message.success()
+        Messages.success()
         |> IOHelper.puts(:green)
 
         :ok
@@ -62,49 +65,40 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   # Links config/timber.exs within config/config.exs
-  defp link_config_file(%{config_file_path: config_file_path}) do
+  defp link_config_file!(%{config_file_path: config_file_path}) do
     Messages.action_starting("Linking #{@timber_config_file_path} in #{config_file_path}...")
     |> IOHelper.write()
 
-    case ConfigFile.link(config_file_path) do
-      :ok ->
-        Message.success()
-        |> IOHelper.puts(:green)
+    ConfigFile.link!(config_file_path)
 
-      {:error, reason} -> {:error, reason}
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
-  defp add_plugs(%{endpoint_file_path: endpoint_file_path}) do
-    Messages.starting_message("Adding Timber plugs to #{endpoint_file_path}...")
+  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}) do
+    Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
     |> IOHelper.write()
 
-    case EndpointFile.link(endpoint_file_path) do
-      :ok ->
-        Messages.success()
-        |> IOHelper.puts(:green)
+    EndpointFile.update!(endpoint_file_path)
 
-      {:error, reason} -> {:error, reason}
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
-  defp disable_default_phoenix_logging(%{web_file_path: web_file_path}) do
+  defp disable_default_phoenix_logging!(%{web_file_path: web_file_path}) do
     Messages.action_starting("Disabling default Phoenix logging #{web_file_path}...")
     |> IOHelper.write()
 
-    case WebFile.update(web_file_path) do
-      :ok ->
-        Messages.success()
-        |> IOHelper.puts(:green)
+    WebFile.update!(web_file_path)
 
-      {:error, reason} -> {:error, reason}
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
-  defp install_user_context do
+  defp install_user_context! do
     """
 
-    #{Messags.separator()}
+    #{Messages.separator()}
     """
     |> IOHelper.puts()
 
@@ -115,22 +109,22 @@ defmodule Mix.Tasks.Timber.Install do
 
         case IOHelper.ask_yes_no("Ready to proceed? (y/n)") do
           :yes -> :ok
-          :no -> install_user_context()
+          :no -> install_user_context!()
         end
 
       :no -> false
     end
   end
 
-  defp install_on_platform(%{platform_type: "heroku"} = application) do
-    Messages.heroku_drain_instructions(application)
+  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url :heroku_drain_url} = application) do
+    Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
     wait_for_logs()
   end
 
   defp install_on_platform(_application) do
-    Messages.action_starting_message("Sending a few test logs...")
+    Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
     Logger.info("testing")
@@ -157,7 +151,7 @@ defmodule Mix.Tasks.Timber.Install do
     wait_for_logs(iteration + 1)
   end
 
-  defp finish do
+  defp finish! do
     Messages.finish()
     |> IOHelper.puts()
   end

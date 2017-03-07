@@ -28,9 +28,9 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     Done! Commit these changes and deploy. 🎉
 
     * Your Timber console URL: https://app.timber.io
-    * Get ✨250mb✨ for tweeting your experience to #{@twitter_handle}
-    * Get ✨100mb✨ for starring our repo: #{@repo_url}
-    * Get ✨50mb✨ for following #{@twitter_handle} on twitter
+    * Get ✨ 250mb ✨ for tweeting your experience to #{@twitter_handle}
+    * Get ✨ 100mb ✨ for starring our repo: #{@repo_url}
+    * Get ✨ 50mb ✨ for following #{@twitter_handle} on twitter
 
     (your account will be credited within 2-3 business days)
     """
@@ -59,7 +59,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
   end
 
-  def heroku_drain_instructions(_application) do
+  def heroku_drain_instructions(heroku_drain_url) do
     """
 
     #{separator()}
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     Now we need to send your logs to the Timber service.
     Please run this command in a separate terminal and return back here when complete:
 
-        heroku drains:add url
+        heroku drains:add #{heroku_drain_url}
     """
   end
 

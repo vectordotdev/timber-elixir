@@ -1,44 +1,45 @@
 defmodule Mix.Tasks.Timber.Install.ConfigFile do
-  alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper, Messages}
+  alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper}
 
   @file_name "timber.exs"
   @file_path Path.join(["config", @file_name])
 
   # Adds the config/timber.exs file to be linked in config/config.exs
-  def create(%{config_file_path: config_file_path, mix_name: mix_name, module_name: module_name,
-    endpoint_file_path: endpoint_file_path, endpoint_module_name: endpoint_module_name,
+  def create!(%{mix_name: mix_name, endpoint_module_name: endpoint_module_name,
     repo_module_name: repo_module_name} = application)
   do
     contents = "use Mix.Config"
 
     contents =
       if endpoint_module_name do
-        """
-        # Get existing instruments so that we don't overwrite.
-        instrumenters =
-          Application.get_env(:#{mix_name}, #{endpoint_module_name})
-          |> Keyword.get(:instrumenters, [])
+        contents <>
+          """
+          # Get existing instruments so that we don't overwrite.
+          instrumenters =
+            Application.get_env(:#{mix_name}, #{endpoint_module_name})
+            |> Keyword.get(:instrumenters, [])
 
-        # Add the Timber instrumenter
-        new_instrumenters =
-          [Timber.Integrations.PhoenixInstrumenter | instrumenters]
-          |> Enum.uniq()
+          # Add the Timber instrumenter
+          new_instrumenters =
+            [Timber.Integrations.PhoenixInstrumenter | instrumenters]
+            |> Enum.uniq()
 
-        # Update the instrumenters so that we can structure Phoenix logs
-        config :#{mix_name}, #{endpoint_module_name},
-          instrumenters: new_instrumenters
-        """
+          # Update the instrumenters so that we can structure Phoenix logs
+          config :#{mix_name}, #{endpoint_module_name},
+            instrumenters: new_instrumenters
+          """
       else
         contents
       end
 
     contents =
       if repo_module_name do
-        """
-        # Structure Ecto logs
-        config :#{mix_name}, #{repo_module_name},
-          loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
-        """
+        contents <>
+          """
+          # Structure Ecto logs
+          config :#{mix_name}, #{repo_module_name},
+            loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+          """
       else
         contents
       end
@@ -67,12 +68,7 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
       # Need help? Contact us at support@timber.io
       """
 
-    case FileHelper.write(@file_path, contents) do
-      :ok -> :ok
-
-      {:error, reason} ->
-        {:error, "Uh oh, we had a problem writing to #{@file_path}: #{reason}"}
-    end
+    FileHelper.write!(@file_path, contents)
   end
 
   defp timber_portion(%{platform_type: "heroku"}) do
@@ -113,20 +109,14 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
     end
   end
 
-  def link(config_file_path) do
+  def link!(config_file_path) do
     contents =
       """
+
       # Import Timber, structured logging
       import_config \"#{@file_name}\"
       """
 
-    case FileHelper.append_once(config_file_path, contents) do
-      :ok ->
-        Messages.success()
-        |> IOHelper.puts(:green)
-
-      {:error, reason} ->
-        {:error, "Uh oh, we had a problem writing to #{config_file_path}: #{reason}"}
-    end
+    FileHelper.append_once!(config_file_path, contents)
   end
 end

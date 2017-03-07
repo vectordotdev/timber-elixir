@@ -1,17 +1,17 @@
 defmodule Mix.Tasks.Timber.Install.Application do
-  alias Mix.Tasks.Timber.Install.{Config, IOHelper}
+  alias __MODULE__.MalformedApplicationPayload
+  alias Mix.Tasks.Timber.Install.{Config, IOHelper, PathHelper}
 
   defstruct [:api_key, :config_file_path, :endpoint_file_path, :endpoint_module_name,
-    :mix_name, :module_name, :name, :platform_type, :repo_file_path, :repo_module_name, :subdomain]
+    :heroku_drain_url, :mix_name, :module_name, :name, :platform_type, :repo_file_path,
+    :repo_module_name, :slug, :web_file_path]
 
-  def new(api_key) do
-    encoded_api_key = Base.encode64(api_key)
-    headers = %{"Authorization" => "Basic #{encoded_api_key}"}
-    response = Config.http_client().request("GET", "/installer/application", headers)
+  def new!(api_key) do
+    response = Config.http_client().request!("GET", "/installer/application", api_key)
 
     case response do
-      {:ok, %{"name" => name, "subdomain" => subdomain, "platform_type" => platform_type,
-        "api_key" => api_key}}
+      %{"api_key" => api_key, "heroku_drain_url" => heroku_drain_url, "name" => name,
+        "platform_type" => platform_type, "slug" => slug}
       ->
         mix_name = get_mix_name()
         module_name = Macro.camelize(mix_name)
@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
 
         endpoint_file_path =
           if Timber.Integrations.phoenix?(),
-            do: PathHelper.find(["lib", name, "endpoint.ex"]),
+            do: PathHelper.find(["lib", mix_name, "endpoint.ex"]),
             else: nil
 
         # TODO: check that this module actually exists
@@ -30,7 +30,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
 
         repo_file_path =
           if Timber.Integrations.ecto?(),
-            do: PathHelper.find(["lib", name, "repo.ex"]),
+            do: PathHelper.find(["lib", mix_name, "repo.ex"]),
             else: nil
 
         # TODO: check that this module actually exists
@@ -39,23 +39,30 @@ defmodule Mix.Tasks.Timber.Install.Application do
             do: "#{module_name}.Repo",
             else: nil
 
+        web_file_path =
+          if Timber.Integrations.ecto?(),
+            do: PathHelper.find(["web", "web.ex"]),
+            else: nil
+
         application = %__MODULE__{
-          name: name,
-          subdomain: subdomain,
-          platform_type: platform_type,
           api_key: api_key,
-          mix_name: mix_name,
-          module_name: module_name,
           config_file_path: config_file_path,
           endpoint_file_path: endpoint_file_path,
           endpoint_module_name: endpoint_module_name,
+          heroku_drain_url: heroku_drain_url,
+          mix_name: mix_name,
+          module_name: module_name,
+          name: name,
+          platform_type: platform_type,
           repo_file_path: repo_file_path,
-          repo_module_name: repo_module_name
+          repo_module_name: repo_module_name,
+          slug: slug,
+          web_file_path: web_file_path
         }
 
-        {:ok, application}
+        application
 
-      {:error, reason} -> {:error, reason}
+      payload -> raise(MalformedApplicationPayload, payload: payload)
     end
   end
 
@@ -68,6 +75,25 @@ defmodule Mix.Tasks.Timber.Install.Application do
 
       {:error, _reason} ->
         IOHelper.ask("What's the name of your application? (please use snake_case, ex: my_app)")
+    end
+  end
+
+  #
+  # Errors
+  #
+
+  defmodule MalformedApplicationPayload do
+    defexception [:message]
+
+    def exception(opts) do
+      payload = Keyword.fetch!(opts, :payload)
+      message =
+        """
+        Uh oh! We received a malformed application payload:
+
+        #{inspect(payload)}
+        """
+      %__MODULE__{message: message}
     end
   end
 end
