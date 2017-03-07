@@ -8,13 +8,15 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
   def create!(%{mix_name: mix_name, endpoint_module_name: endpoint_module_name,
     repo_module_name: repo_module_name} = application)
   do
-    contents = "use Mix.Config"
+    contents =
+      """
+      use Mix.Config
+      """
 
     contents =
       if endpoint_module_name do
         contents <>
           """
-
 
           # Get existing instruments so that we don't overwrite.
           instrumenters =

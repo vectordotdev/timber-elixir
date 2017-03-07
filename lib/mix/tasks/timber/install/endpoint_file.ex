@@ -8,6 +8,6 @@ defmodule Mix.Tasks.Timber.Install.EndpointFile do
         "\\1plug Timber.Integrations.ContextPlug\n" <>
         "\\1plug Timber.Integrations.EventPlug\n\n\\0"
 
-    FileHelper.replace_once!(file_path, pattern, replacement)
+    FileHelper.replace_once!(file_path, pattern, replacement, "plug Timber.Integrations")
   end
 end

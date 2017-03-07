@@ -24,10 +24,10 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     end
   end
 
-  def replace_once!(path, pattern, replacement) do
+  def replace_once!(path, pattern, replacement, contains_pattern) do
     case Config.file_client().read(path) do
       {:ok, contents} ->
-        if String.contains?(contents, replacement) do
+        if String.contains?(contents, contains_pattern) do
           :ok
 
         else

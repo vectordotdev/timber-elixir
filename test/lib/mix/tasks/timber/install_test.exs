@@ -4,10 +4,6 @@ defmodule Mix.Tasks.Timber.InstallTest do
   alias Mix.Tasks.Timber.Install
   alias Timber.Installer.{FakeFile, FakeHTTPClient, FakeIO, FakeFileContents}
 
-  setup do
-    FakeIO.reset()
-  end
-
   describe "Mix.Tasks.Timber.Install.run/1" do
     test "without an API key" do
       Install.run([])

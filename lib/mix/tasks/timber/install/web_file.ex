@@ -4,6 +4,6 @@ defmodule Mix.Tasks.Timber.Install.WebFile do
   def update!(file_path) do
     pattern = ~r/use Phoenix\.Controller/
     replacement = "\\0, log: false"
-    FileHelper.replace_once!(file_path, pattern, replacement)
+    FileHelper.replace_once!(file_path, pattern, replacement, "use Phoenix.Controller, log: false")
   end
 end
