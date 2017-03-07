@@ -20,7 +20,7 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
           # Update the instrumenters so that we can structure Phoenix logs
           config :#{mix_name}, #{endpoint_module_name},
-            instrumenters: new_instrumenters
+            instrumenters: [Timber.Integrations.PhoenixInstrumenter]
           """
       else
         contents

@@ -6,7 +6,7 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md) [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber) [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html) [![CircleCI branch](https://img.shields.io/circleci/project/timberio/timber-elixir/master.svg?maxAge=18000=plastic)](https://circleci.com/gh/timberio/timber-elixir/tree/master)
 
-Timber solves Elixir monitoring by leveraging what you already have: the `Logger`. There are
+Timber solves Elixir insight by leveraging what you already have: the `Logger`. There are
 no agents or special APIs; it's just better logging. Timber gives you a _complete_ set of events
 so you'll always have the data you need to _efficiently_ resolve issues. Never feel lost again.
 
@@ -18,8 +18,9 @@ so you'll always have the data you need to _efficiently_ resolve issues. Never f
 ## Overview
 
 Timber for Elixir pairs with the [Timber console](https://app.timber.io) to provide a complete
-structured logging system. It automatically turns your raw text logs into rich structured events,
-allowing you to query, graph, and alert on them.
+structured logging system. Automatically turning your raw text logs into rich structured events.
+This gives you _complete_ insight into your application, allowing you to query, graph, and alert
+on log data.
 
 For example, it turns this:
 

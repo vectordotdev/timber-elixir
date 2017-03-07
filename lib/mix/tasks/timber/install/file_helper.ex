@@ -32,7 +32,8 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
 
         else
           new_contents = String.replace(contents, pattern, replacement)
-          if String.contains?(contents, contains_pattern) do
+
+          if String.contains?(new_contents, contains_pattern) do
             write!(path, new_contents)
           else
             raise(FileReplacePatternError, path: path, pattern: contains_pattern)

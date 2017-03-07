@@ -95,7 +95,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
         wait_for_logs(application, iteration + 1)
 
       {204, _body} ->
-        Messages.success()
+        "  " <> Messages.success()
         |> IOHelper.puts(:green)
 
         :ok

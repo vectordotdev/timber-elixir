@@ -36,6 +36,8 @@ defmodule Mix.Tasks.Timber.Install do
       stacktrace = Exception.format_stacktrace(System.stacktrace())
 
       """
+
+
       #{String.duplicate("!", 80)}
 
       #{message}
@@ -76,11 +78,11 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts(:green)
   end
 
-  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}) do
+  defp add_plugs!(%{endpoint_file_path: endpoint_file_path, module_name: module_name}) do
     Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
     |> IOHelper.write()
 
-    EndpointFile.update!(endpoint_file_path)
+    EndpointFile.update!(endpoint_file_path, module_name)
 
     Messages.success()
     |> IOHelper.puts(:green)
