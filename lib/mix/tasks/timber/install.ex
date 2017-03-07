@@ -117,14 +117,14 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url: heroku_drain_url}) do
+  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url: heroku_drain_url} = application) do
     Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
-    wait_for_logs()
+    Application.wait_for_logs(application)
   end
 
-  defp install_on_platform!(_application) do
+  defp install_on_platform!(application) do
     Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
@@ -133,25 +133,7 @@ defmodule Mix.Tasks.Timber.Install do
     Messages.success()
     |> IOHelper.puts(:green)
 
-    wait_for_logs()
-  end
-
-  defp wait_for_logs(iteration \\ 10)
-
-  defp wait_for_logs(10) do
-    Messages.success()
-    |> IOHelper.puts(:green)
-    :ok
-  end
-
-  defp wait_for_logs(iteration) do
-    :timer.sleep(500)
-    rem = rem(iteration, 4)
-
-    IO.ANSI.format(["\r", :clear_line, "Waiting for logs (this can sometimes take a minute)", String.duplicate(".", rem), "\e[u"])
-    |> IOHelper.write()
-
-    wait_for_logs(iteration + 1)
+    Application.wait_for_logs(application)
   end
 
   defp finish! do

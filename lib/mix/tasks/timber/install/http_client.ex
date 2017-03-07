@@ -16,10 +16,7 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
       [body, status_str] ->
         case Integer.parse(status_str) do
           {status, _units} when status in 200..299 ->
-            case Poison.decode(body) do
-              {:ok, %{"data" => data}} -> data
-              _other -> raise(MalformedAPIResponseError, url: url, response: response)
-            end
+            {status, decode_body(body, url, response)}
 
           {403, _units} -> raise(InvalidAPIKeyError)
 
@@ -27,6 +24,15 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
         end
 
       _result -> raise(MalformedAPIResponseError, url: url, response: response)
+    end
+  end
+
+  defp decode_body("", _url, _response), do: ""
+
+  defp decode_body(body, url, response) do
+    case Poison.decode(body) do
+      {:ok, %{"data" => data}} -> data
+      _other -> raise(MalformedAPIResponseError, url: url, response: response)
     end
   end
 
