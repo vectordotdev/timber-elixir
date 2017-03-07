@@ -72,6 +72,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
         cwd
         |> Path.split()
         |> List.last()
+        |> String.replace("-", "_")
 
       {:error, _reason} ->
         IOHelper.ask("What's the name of your application? (please use snake_case, ex: my_app)")

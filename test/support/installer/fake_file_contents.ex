@@ -146,6 +146,7 @@ defmodule Timber.Installer.FakeFileContents do
 
   def config_addition do
     """
+
     # Import Timber, structured logging
     import_config \"timber.exs\"
     """
@@ -271,23 +272,46 @@ defmodule Timber.Installer.FakeFileContents do
     """
     use Mix.Config
 
-    # Structure phoenix logs
-    config :elixir_phoenix_example_app, ElixirPhoenixExampleApp.Endpoint,
-      instrumenters: [Timber.Integrations.PhoenixInstrumenter]
+    # Get existing instruments so that we don't overwrite.
+    instrumenters =
+      Application.get_env(:timber_elixir, TimberElixir.Endpoint)
+      |> Keyword.get(:instrumenters, [])
+
+    # Add the Timber instrumenter
+    new_instrumenters =
+      [Timber.Integrations.PhoenixInstrumenter | instrumenters]
+      |> Enum.uniq()
+
+    # Update the instrumenters so that we can structure Phoenix logs
+    config :timber_elixir, TimberElixir.Endpoint,
+      instrumenters: new_instrumenters
 
     # Structure Ecto logs
-    config :elixir_phoenix_example_app, ElixirPhoenixExampleApp.Repo,
+    config :timber_elixir, TimberElixir.Repo,
       loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
 
     # Use Timber as the logger backend
+    # Feel free to add additional backends if you want to send you logs to multiple devices.
     config :logger,
       backends: [Timber.LoggerBackend]
 
-    # Direct logs to STDOUT
+    # Direct logs to STDOUT for Heroku. We'll use Heroku drains to deliver logs.
     config :timber,
       transport: Timber.Transports.IODevice
 
-    # Questions? Contact us at support@timber.io
+    # For dev / test environments, always log to STDOUt and format the logs properly
+    if Mix.env() == :dev || Mix.env() == :test do
+      config :timber, transport: Timber.Transports.IODevice
+
+      config :timber, :io_device,
+        colorize: true,
+        format: :logfmt,
+        print_timestamps: true,
+        print_log_level: true,
+        print_metadata: false # turn this on to view the additiional metadata
+    end
+
+    # Need help? Contact us at support@timber.io
     """
   end
 end

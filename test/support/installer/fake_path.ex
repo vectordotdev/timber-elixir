@@ -1,7 +1,7 @@
 defmodule Timber.Installer.FakePath do
   use Timber.Stubbing
 
-  def wildcard(path) do
-    get_stub(:wildcard).(path)
+  def join(parts) when is_list(parts) do
+    Path.join(parts)
   end
 end

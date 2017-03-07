@@ -5,6 +5,10 @@ defmodule Timber.Installer.FakeFile do
     get_stub(:close).(file)
   end
 
+  def exists?(file) do
+    get_stub(:exists?).(file)
+  end
+
   def open(path, opts) do
     get_stub(:open).(path, opts)
   end

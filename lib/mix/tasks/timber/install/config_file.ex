@@ -14,6 +14,8 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
       if endpoint_module_name do
         contents <>
           """
+
+
           # Get existing instruments so that we don't overwrite.
           instrumenters =
             Application.get_env(:#{mix_name}, #{endpoint_module_name})
@@ -36,6 +38,7 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
       if repo_module_name do
         contents <>
           """
+
           # Structure Ecto logs
           config :#{mix_name}, #{repo_module_name},
             loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
@@ -46,13 +49,13 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
     contents = contents <>
       """
+
       # Use Timber as the logger backend
       # Feel free to add additional backends if you want to send you logs to multiple devices.
       config :logger,
         backends: [Timber.LoggerBackend]
 
       #{timber_portion(application)}
-
       # For dev / test environments, always log to STDOUt and format the logs properly
       if Mix.env() == :dev || Mix.env() == :test do
         config :timber, transport: Timber.Transports.IODevice
@@ -108,6 +111,8 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
         api_key_portion(api_key)
     end
   end
+
+  def file_path, do: @file_path
 
   def link!(config_file_path) do
     contents =

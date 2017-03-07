@@ -28,6 +28,7 @@ defmodule Mix.Tasks.Timber.Install do
     install_user_context!()
     install_on_platform!(application)
     finish!()
+    Feedback.collect()
 
   rescue
     e ->
@@ -50,7 +51,7 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   defp create_config_file!(application) do
-    Messages.action_starting("Creating #{@timber_config_file_path}...")
+    Messages.action_starting("Creating #{ConfigFile.file_path()}...")
     |> IOHelper.write()
 
     case ConfigFile.create!(application) do
@@ -66,7 +67,7 @@ defmodule Mix.Tasks.Timber.Install do
 
   # Links config/timber.exs within config/config.exs
   defp link_config_file!(%{config_file_path: config_file_path}) do
-    Messages.action_starting("Linking #{@timber_config_file_path} in #{config_file_path}...")
+    Messages.action_starting("Linking #{ConfigFile.file_path()} in #{config_file_path}...")
     |> IOHelper.write()
 
     ConfigFile.link!(config_file_path)
@@ -116,14 +117,14 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url :heroku_drain_url} = application) do
+  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url: heroku_drain_url}) do
     Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
     wait_for_logs()
   end
 
-  defp install_on_platform(_application) do
+  defp install_on_platform!(_application) do
     Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
@@ -135,13 +136,15 @@ defmodule Mix.Tasks.Timber.Install do
     wait_for_logs()
   end
 
+  defp wait_for_logs(iteration \\ 10)
+
   defp wait_for_logs(10) do
     Messages.success()
     |> IOHelper.puts(:green)
     :ok
   end
 
-  defp wait_for_logs(iteration \\ 0) do
+  defp wait_for_logs(iteration) do
     :timer.sleep(500)
     rem = rem(iteration, 4)
 
