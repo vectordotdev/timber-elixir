@@ -4,35 +4,41 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
   @api_url "https://api.timber.io"
 
-  # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
-  # as a dependency just for this installer.
-  def request!("GET", path, api_key) do
-    url = @api_url <> path
-    encoded_api_key = Base.encode64(api_key)
-    flags = ["-s", "-H", "Authorization: Basic #{encoded_api_key}", "-w", " _STATUS_:%{http_code}", url]
-    {response, _} = System.cmd("curl", flags)
-
-    case String.split(response, " _STATUS_:", parts: 2) do
-      [body, status_str] ->
-        case Integer.parse(status_str) do
-          {status, _units} when status in 200..299 ->
-            {status, decode_body(body, url, response)}
-
-          {403, _units} -> raise(InvalidAPIKeyError)
-
-          _other -> raise(BadResponseError, url: url, response: response)
-        end
-
-      _result -> raise(MalformedAPIResponseError, url: url, response: response)
+  def start do
+    case :inets.start() do
+      :ok -> :ok
+      {:error, {:already_started, _name}} -> :ok
+      other -> other
     end
   end
 
-  defp decode_body("", _url, _response), do: ""
+  # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
+  # as a dependency just for this installer.
+  def request!(method, path, api_key) when method in [:get] do
+    url = @api_url <> path
+    encoded_api_key = Base.encode64(api_key)
+    headers = [{'Authorization', 'Basic #{encoded_api_key}'}]
+    case :httpc.request(method, {String.to_charlist(url), headers}, [], []) do
+      {:ok, {{_protocol, status, _status_name}, _headers, body}} ->
+        case status do
+          value when value in 200..299 ->
+            {status, decode_body("#{body}", url)}
 
-  defp decode_body(body, url, response) do
+          403 -> raise(InvalidAPIKeyError)
+
+          value -> raise(BadResponseError, url: url, body: body, status: value)
+        end
+
+      {:error, reason} -> raise(CommunicationError, url: url, reason: reason)
+    end
+  end
+
+  defp decode_body("", _url), do: ""
+
+  defp decode_body(body, url) do
     case Poison.decode(body) do
       {:ok, %{"data" => data}} -> data
-      _other -> raise(MalformedAPIResponseError, url: url, response: response)
+      _other -> raise(MalformedAPIResponseError, url: url, body: body)
     end
   end
 
@@ -45,14 +51,33 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
     def exception(opts) do
       url = Keyword.fetch!(opts, :url)
-      response = Keyword.fetch!(opts, :response)
+      body = Keyword.fetch!(opts, :body)
+      status = Keyword.fetch!(opts, :status)
 
       message =
         """
-        Uh oh! We got a bad response from #{url}.
+        Uh oh! We got a bad response (#{status}) from #{url}.
         The response received was:
 
-        #{response}
+        #{body}
+        """
+      %__MODULE__{message: message}
+    end
+  end
+
+  defmodule CommunicationError do
+    defexception [:message]
+
+    def exception(opts) do
+      url = Keyword.fetch!(opts, :url)
+      error = Keyword.fetch!(opts, :error)
+
+      message =
+        """
+        Uh oh! We encountered an error communicating with #{url}.
+        The error is:
+
+        #{error}
         """
       %__MODULE__{message: message}
     end
@@ -78,13 +103,13 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
     def exception(opts) do
       url = Keyword.fetch!(opts, :url)
-      response = Keyword.fetch!(opts, :response)
+      body = Keyword.fetch!(opts, :body)
       message =
         """
         We received a malformed response from #{url}.
         The response we received was:
 
-        #{inspect(response)}
+        #{inspect(body)}
 
         Please try again.
         """

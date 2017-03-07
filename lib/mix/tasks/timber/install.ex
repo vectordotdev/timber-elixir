@@ -1,7 +1,8 @@
 defmodule Mix.Tasks.Timber.Install do
   use Mix.Task
 
-  alias __MODULE__.{Application, ConfigFile, EndpointFile, Feedback, IOHelper, Messages, WebFile}
+  alias __MODULE__.{Application, ConfigFile, EndpointFile, Feedback, HTTPClient, IOHelper,
+    Messages, WebFile}
 
   require Logger
 
@@ -14,6 +15,8 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   def run([api_key]) do
+    :ok = HTTPClient.start()
+
     """
     #{Messages.header()}
     #{Messages.intro()}

@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
     :repo_module_name, :slug, :web_file_path]
 
   def new!(api_key) do
-    response = Config.http_client().request!("GET", "/installer/application", api_key)
+    response = Config.http_client().request!(:get, "/installer/application", api_key)
 
     case response do
       {200, %{"api_key" => api_key, "heroku_drain_url" => heroku_drain_url, "name" => name,
@@ -87,7 +87,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
     IO.ANSI.format(["\r", :clear_line, wait_for_logs_message(platform_type), String.duplicate(".", rem), "\e[u"])
     |> IOHelper.write()
 
-    response = Config.http_client().request!("GET", "/installer/has_logs", api_key)
+    response = Config.http_client().request!(:get, "/installer/has_logs", api_key)
 
     case response do
       {202, _body} ->
