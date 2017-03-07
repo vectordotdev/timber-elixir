@@ -90,7 +90,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
     response = Config.http_client().request!("GET", "/installer/has_logs", api_key)
 
     case response do
-      {201, _body} ->
+      {202, _body} ->
         :timer.sleep(1000)
         wait_for_logs(application, iteration + 1)
 

@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Timber.Install.FileHelper do
-  alias __MODULE__.FileWritingError
+  alias __MODULE__.{FileReplacePatternError, FileWritingError}
   alias Mix.Tasks.Timber.Install.Config
 
   def append_once!(path, contents) do
@@ -32,7 +32,11 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
 
         else
           new_contents = String.replace(contents, pattern, replacement)
-          write!(path, new_contents)
+          if String.contains?(contents, contains_pattern) do
+            write!(path, new_contents)
+          else
+            raise(FileReplacePatternError, path: path, pattern: contains_pattern)
+          end
         end
 
       {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
@@ -57,6 +61,21 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
   #
   # Errors
   #
+
+  defmodule FileReplacePatternError do
+    defexception [:message]
+
+    def exception(opts) do
+      path = Keyword.fetch!(opts, :path)
+      pattern = Keyword.fetch!(opts, :pattern)
+      message =
+        """
+        Uh oh! We had a problem updating #{path}. The pattern
+        #{pattern} was not found after writing!
+        """
+      %__MODULE__{message: message}
+    end
+  end
 
   defmodule FileWritingError do
     defexception [:message]

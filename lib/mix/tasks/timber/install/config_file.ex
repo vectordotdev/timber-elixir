@@ -18,16 +18,6 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
         contents <>
           """
 
-          # Get existing instruments so that we don't overwrite.
-          instrumenters =
-            Application.get_env(:#{mix_name}, #{endpoint_module_name})
-            |> Keyword.get(:instrumenters, [])
-
-          # Add the Timber instrumenter
-          new_instrumenters =
-            [Timber.Integrations.PhoenixInstrumenter | instrumenters]
-            |> Enum.uniq()
-
           # Update the instrumenters so that we can structure Phoenix logs
           config :#{mix_name}, #{endpoint_module_name},
             instrumenters: new_instrumenters
