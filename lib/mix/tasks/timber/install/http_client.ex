@@ -18,8 +18,9 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
   # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
   # as a dependency just for this installer.
-  def request("GET", url, headers) do
-    header_flags = Enum.map(headers, fn {key, val} -> "#{key}: #{val}" end)
+  def request("GET", path, headers) do
+    header_flags = Enum.map(headers, fn {key, val} -> "-H \"#{key}: #{val}\"" end)
+    url = @api_url <> path
     flags = header_flags ++ ["-s", "-w _STATUS_:%{http_code}", url]
     {response, _} = System.cmd("curl", flags)
 
@@ -35,7 +36,7 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
           {403, _units} -> {:error, invalid_api_key_message()}
 
-          {status, _units} -> {:error, @communication_error_message}
+          {status, _units} -> {:error, @communication_error_message <> "Response status: #{status}"}
 
           :error -> {:error, @communication_error_message}
         end
