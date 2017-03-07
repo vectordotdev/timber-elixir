@@ -17,7 +17,12 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   end
 
   def get_help do
-    "Still stuck? Shoot us an email: #{@support_email}"
+    """
+    Still stuck?
+
+    * Shoot us an email: #{@support_email}
+    * Or, file an issue: #{@repo_url}/issues
+    """
   end
 
   def finish do
@@ -32,7 +37,8 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     * Get ✨ 100mb✨ for starring our repo: #{@repo_url}
     * Get ✨ 50mb✨ for following #{@twitter_handle} on twitter
 
-    (your account will be credited within 2-3 business days)
+    (your account will be credited within 2-3 business days, if for any reason you
+     not notice a credit please contact us: #{@support_email})
     """
   end
 
