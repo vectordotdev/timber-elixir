@@ -15,7 +15,7 @@ env:
   - ECTO_VERSION_CONSTRAINT=2.1.0
   - ECTO_VERSION_CONSTRAINT=2.0.0
 install:
-  - test
+- test
 script:
 - MIX_ENV=test mix compile --warnings-as-errors && MIX_ENV=test mix test
 notifications:
