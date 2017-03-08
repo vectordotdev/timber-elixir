@@ -181,7 +181,7 @@ defmodule Timber.Mixfile do
   defp ecto_version_constraint("true") do
     case System.get_env("ECTO_VERSION_CONSTRAINT") do
       "latest" -> ecto_version_constraint("false")
-      version -> value
+      version -> version
     end
   end
 
@@ -190,7 +190,7 @@ defmodule Timber.Mixfile do
   defp phoenix_version_constraint("true") do
     case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
       "latest" -> phoenix_version_constraint("false")
-      version -> value
+      version -> version
     end
   end
 
