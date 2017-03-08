@@ -78,7 +78,7 @@ defmodule Timber.Utils.HTTPEvents do
   end
 
   # Sanitizes sensitive headers
-  defp sanitize_header({"authorization", value}) do
+  defp sanitize_header({"authorization", _value}) do
     {"authorization", "[sanitized]"}
   end
 
