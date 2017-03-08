@@ -64,6 +64,7 @@ defmodule Timber.Utils.HTTPEvents do
   def normalize_headers(headers) when is_map(headers) do
     headers
     |> Enum.map(&normalize_header/1)
+    |> Enum.map(&sanitize_header/1)
     |> Enum.into(%{})
   end
 
@@ -74,6 +75,11 @@ defmodule Timber.Utils.HTTPEvents do
   @spec normalize_header({String.t, String.t}) :: {String.t, String.t}
   defp normalize_header({name, value}) do
     {String.downcase(name), String.slice(value, 0..255)}
+  end
+
+  # Sanitizes sensitive headers
+  defp sanitize_header({"authorization", value}) do
+    {"authorization", "[sanitized]"}
   end
 
   @doc false
