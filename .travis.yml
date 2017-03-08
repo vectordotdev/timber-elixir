@@ -19,7 +19,7 @@ otp_release:
   - 17.5
   - 17.4
 script:
-- MIX_ENV=test mix compile --warnings-as-errors && MIX_ENV=test mix test
+  - MIX_ENV=test mix compile --warnings-as-errors && MIX_ENV=test mix test
 notifications:
   slack:
     rooms:
