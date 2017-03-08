@@ -47,6 +47,10 @@ defmodule Timber.Utils.HTTPEvents do
     end
   end
 
+  def normalize_body(body) when is_list(body) do
+    normalize_body(to_string(body))
+  end
+
   def normalize_body(body) when is_binary(body) do
     limit = Config.http_body_size_limit()
     String.slice(body, 0..limit)
