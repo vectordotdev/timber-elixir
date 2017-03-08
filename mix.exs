@@ -165,7 +165,7 @@ defmodule Timber.Mixfile do
       {:msgpax, "~> 1.0"},
       {:phoenix, get_phoenix_version_constraint(phoenix_version_constraint), optional: true},
       {:plug, "~> 1.2", optional: true},
-      {:poison, "~> 2.0 or ~> 3.0"}
+      {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
     ]
   end
 
