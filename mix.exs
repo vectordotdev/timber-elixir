@@ -31,7 +31,7 @@ defmodule Timber.Mixfile do
       source_url: @source_url,
       homepage_url: @homepage_url,
       package: package(),
-      deps: deps(),
+      deps: deps(Mix.env),
       docs: docs(),
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -140,6 +140,16 @@ defmodule Timber.Mixfile do
     ]
   end
 
+  defp deps(:test) do
+    if System.get_env("CI_USE_CUSTOM_DEPS") do
+      default_deps()
+      |> replace_ecto(System.get_env("ECTO_VERSION_CONSTRAINT"))
+      |> replace_phoenix(System.get_env("PHOENIX_VERSION_CONSTRAINT"))
+    else
+      default_deps()
+    end
+  end
+
   # Dependencies for this application
   #
   # See `mix help deps` for more information about the options used
@@ -150,19 +160,39 @@ defmodule Timber.Mixfile do
   #   - Keep this as the last section in `mix.exs` to make
   #     it easily discoverable
   #   - Keep this section sorted in alphabetical order
-  defp deps do
+  defp deps(_) do
+    use_custom_deps = System.get_env("CI_USE_CUSTOM_DEPS")
+
     [
       {:credo, "~> 0.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
       {:earmark, "~> 1.0", only: [:dev, :docs]},
-      {:ecto, "~> 2.0", optional: true},
+      {:ecto, ecto_version_constraint(use_custom_deps), optional: true},
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
-      {:hackney, "~> 1.6", optional: true},
       {:excoveralls, "~> 0.5", only: [:test]},
+      {:hackney, "~> 1.6", optional: true},
       {:msgpax, "~> 1.0"},
+      {:phoenix, ecto_version_constraint(use_custom_deps), optional: true},
       {:plug, "~> 1.2", optional: true},
-      {:phoenix, "~> 1.2", optional: true},
-      {:poison, "~> 2.0 or ~> 3.0"},
+      {:poison, "~> 2.0 or ~> 3.0"}
     ]
   end
+
+  defp ecto_version_constraint("true") do
+    case System.get_env("ECTO_VERSION_CONSTRAINT") do
+      "latest" -> ecto_version_constraint("false")
+      version -> value
+    end
+  end
+
+  defp ecto_version_constraint(_), do: "~> 2.0"
+
+  defp phoenix_version_constraint("true") do
+    case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
+      "latest" -> phoenix_version_constraint("false")
+      version -> value
+    end
+  end
+
+  defp phoenix_version_constraint(_), do: "~> 1.2"
 end
