@@ -31,7 +31,7 @@ defmodule Timber.Mixfile do
       source_url: @source_url,
       homepage_url: @homepage_url,
       package: package(),
-      deps: deps(Mix.env),
+      deps: deps(),
       docs: docs(),
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -140,16 +140,6 @@ defmodule Timber.Mixfile do
     ]
   end
 
-  defp deps(:test) do
-    if System.get_env("CI_USE_CUSTOM_DEPS") do
-      default_deps()
-      |> replace_ecto(System.get_env("ECTO_VERSION_CONSTRAINT"))
-      |> replace_phoenix(System.get_env("PHOENIX_VERSION_CONSTRAINT"))
-    else
-      default_deps()
-    end
-  end
-
   # Dependencies for this application
   #
   # See `mix help deps` for more information about the options used
@@ -160,7 +150,7 @@ defmodule Timber.Mixfile do
   #   - Keep this as the last section in `mix.exs` to make
   #     it easily discoverable
   #   - Keep this section sorted in alphabetical order
-  defp deps(_) do
+  defp deps() do
     use_custom_deps = System.get_env("CI_USE_CUSTOM_DEPS")
 
     [
@@ -172,7 +162,7 @@ defmodule Timber.Mixfile do
       {:excoveralls, "~> 0.5", only: [:test]},
       {:hackney, "~> 1.6", optional: true},
       {:msgpax, "~> 1.0"},
-      {:phoenix, ecto_version_constraint(use_custom_deps), optional: true},
+      {:phoenix, phoenix_version_constraint(use_custom_deps), optional: true},
       {:plug, "~> 1.2", optional: true},
       {:poison, "~> 2.0 or ~> 3.0"}
     ]
