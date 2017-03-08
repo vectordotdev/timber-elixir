@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.Messages do
-  @docs_url "http://timber.io/docs"
+  @app_url "https://app.timber.io"
+  @docs_url "https://timber.io/docs"
   @repo_url "https://github.com/timberio/timber-elixir"
   @support_email "support@timber.io"
   @twitter_handle "@timberdotio"
@@ -25,20 +26,20 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
   end
 
-  def finish do
+  def finish() do
     """
 
     #{separator()}
 
     Done! Commit these changes and deploy. 🎉
 
-    * Your Timber console URL: https://app.timber.io
+    * Timber URL: https://app.timber.io
     * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
     * Get ✨ 100mb✨ for starring our repo: #{@repo_url}
     * Get ✨ 50mb✨ for following #{@twitter_handle} on twitter
 
-    (your account will be credited within 2-3 business days, if for any reason you
-     not notice a credit please contact us: #{@support_email})
+    (Your account will be credited within 2-3 business days.
+     If you do not notice a credit please contact us: #{@support_email})
     """
   end
 

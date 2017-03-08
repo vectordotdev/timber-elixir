@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Timber.Install.IOHelper do
   end
 
   def ask_yes_no(prompt) do
-    case ask(prompt) do
+    case ask(prompt <> " (y/n)") do
       v when v in @yeses -> :yes
       v when v in @nos -> :no
 

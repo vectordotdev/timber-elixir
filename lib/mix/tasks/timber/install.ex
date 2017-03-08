@@ -30,8 +30,8 @@ defmodule Mix.Tasks.Timber.Install do
     disable_default_phoenix_logging!(application)
     install_user_context!()
     install_on_platform!(application)
-    finish!()
-    Feedback.collect()
+    finish!(api_key)
+    Feedback.collect(api_key)
 
   rescue
     e ->
@@ -53,6 +53,16 @@ defmodule Mix.Tasks.Timber.Install do
       #{stacktrace}
       """
       |> IOHelper.puts(:red)
+
+      case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
+        :yes ->
+          body = %{message: message, stacktrace: stacktrace}
+          HTTPClient.request!(:post, "/installer/error", body: body)
+
+        :no -> :ok
+      end
+
+      :ok
   end
 
   defp create_config_file!(application) do
@@ -108,12 +118,12 @@ defmodule Mix.Tasks.Timber.Install do
     """
     |> IOHelper.puts()
 
-    case IOHelper.ask_yes_no("Does your application have user accounts? (y/n)") do
+    case IOHelper.ask_yes_no("Does your application have user accounts?") do
       :yes ->
         Messages.user_context_instructions()
         |> IOHelper.puts()
 
-        case IOHelper.ask_yes_no("Ready to proceed? (y/n)") do
+        case IOHelper.ask_yes_no("Ready to proceed?") do
           :yes -> :ok
           :no -> install_user_context!()
         end
@@ -141,7 +151,9 @@ defmodule Mix.Tasks.Timber.Install do
     Application.wait_for_logs(application)
   end
 
-  defp finish! do
+  defp finish!(api_key) do
+    HTTPClient.request!(:post, "/installer/success", api_key: api_key)
+
     Messages.finish()
     |> IOHelper.puts()
   end

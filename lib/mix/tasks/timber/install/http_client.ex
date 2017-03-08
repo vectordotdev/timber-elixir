@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Timber.Install.HTTPClient do
-  alias __MODULE__.{BadResponseError, InvalidAPIKeyError, MalformedAPIResponseError}
+  alias __MODULE__.{BadResponseError, CommunicationError, InvalidAPIKeyError, MalformedAPIResponseError}
   alias Mix.Tasks.Timber.Install.Messages
 
   @api_url "https://api.timber.io"
@@ -10,15 +10,31 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
       {:error, {:already_started, _name}} -> :ok
       other -> other
     end
+
+    case :ssl.start() do
+      :ok -> :ok
+      {:error, {:already_started, _name}} -> :ok
+      other -> other
+    end
   end
 
   # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
   # as a dependency just for this installer.
-  def request!(method, path, api_key) when method in [:get] do
+  def request!(method, path, opts \\ []) when method in [:get, :post] do
     url = @api_url <> path
-    encoded_api_key = Base.encode64(api_key)
-    headers = [{'Authorization', 'Basic #{encoded_api_key}'}]
-    case :httpc.request(method, {String.to_charlist(url), headers}, [], []) do
+
+    api_key = Keyword.get(opts, :api_key)
+    vsn = Application.spec(:timber, :vsn)
+
+    headers =
+      [{'User-Agent', 'Timber Elixir/#{vsn} (HTTP)'}]
+      |> add_authorization_header(api_key)
+
+    body =
+      Keyword.get(opts, :body, "")
+      |> encode_body()
+
+    case do_request(method, url, headers, body) do
       {:ok, {{_protocol, status, _status_name}, _headers, body}} ->
         case status do
           value when value in 200..299 ->
@@ -32,6 +48,31 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
       {:error, reason} -> raise(CommunicationError, url: url, reason: reason)
     end
   end
+
+  defp do_request(:get, url, headers, _body) do
+    :httpc.request(:get, {String.to_charlist(url), headers}, [], [])
+  end
+
+  defp do_request(:post, url, headers, []) do
+    :httpc.request(:post, {String.to_charlist(url), headers, [], []}, [], [])
+  end
+
+  defp do_request(:post, url, headers, body) do
+    :httpc.request(:post, {String.to_charlist(url), headers, 'application/json', body}, [], [])
+  end
+
+  defp add_authorization_header(headers, nil), do: headers
+
+  defp add_authorization_header(headers, api_key) do
+    encoded_api_key = Base.encode64(api_key)
+    [{'Authorization', 'Basic #{encoded_api_key}'} | headers]
+  end
+
+  defp encode_body(body) when is_map(body) do
+    Poison.encode!(body)
+  end
+
+  defp encode_body(body) when is_binary(body), do: String.to_charlist(body)
 
   defp decode_body("", _url), do: ""
 
