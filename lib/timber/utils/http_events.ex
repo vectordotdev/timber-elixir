@@ -82,6 +82,8 @@ defmodule Timber.Utils.HTTPEvents do
     {"authorization", "[sanitized]"}
   end
 
+  defp sanitize_header(header), do: header
+
   @doc false
   # Normalizes HTTP methods into a value expected by the Timber API.
   def normalize_method(method) when is_atom(method) do
