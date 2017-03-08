@@ -69,6 +69,7 @@ defmodule Timber.Integrations.EventPlug do
   require Logger
 
   alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
+  alias Timber.Timer
   alias Timber.Utils.Plug, as: PlugUtils
 
   @doc """
@@ -90,29 +91,30 @@ defmodule Timber.Integrations.EventPlug do
   """
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
   def call(conn, opts) do
-    start = System.monotonic_time()
+    timer = Timer.start()
     log_level = Keyword.get(opts, :log_level, :info)
-    request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
-    request_id = PlugUtils.get_request_id(conn, request_id_header)
-    client_ip = PlugUtils.get_client_ip(conn)
-    remote_addr = {"remote-addr", client_ip}
+    request_id_header_name = Keyword.get(opts, :request_id_header, "x-request-id")
+    request_id_header = PlugUtils.get_request_id(conn, request_id_header_name)
+    request_id = request_id_from_header(request_id_header)
 
     method = conn.method
     host = conn.host
     port = conn.port
     scheme = conn.scheme
     path = conn.request_path
-    headers = List.flatten([request_id, remote_addr | conn.req_headers])
+    headers = List.flatten([request_id_header | conn.req_headers])
     query_string = conn.query_string
 
     event = HTTPServerRequestEvent.new(
+      body: conn.body_params, # the body is normalized and truncated if necessary
+      headers: headers,
       host: host,
-      port: port,
-      scheme: scheme,
       method: method,
       path: path,
-      headers: headers,
-      query_string: query_string
+      port: port,
+      query_string: query_string,
+      request_id: request_id,
+      scheme: scheme
     )
 
     message = HTTPServerRequestEvent.message(event)
@@ -121,28 +123,33 @@ defmodule Timber.Integrations.EventPlug do
     Logger.log(log_level, message, metadata)
 
     Plug.Conn.put_private(conn, :timber_opts, opts)
-    |> Plug.Conn.put_private(:timber_start, start)
+    |> Plug.Conn.put_private(:timber_timer, timer)
     |> Plug.Conn.register_before_send(&log_response_event/1)
   end
 
   @spec log_response_event(Plug.Conn.t) :: Plug.Conn.t
   defp log_response_event(conn) do
-    stop = System.monotonic_time()
-    start = conn.private.timber_start
-    elapsed_time = stop - start
-    time_ms = System.convert_time_unit(elapsed_time, :native, :milliseconds)
-
+    time_ms = Timber.duration_ms(conn.private.timber_timer)
     opts = conn.private.timber_opts
     log_level = Keyword.get(opts, :log_level, :info)
+
+    status = Plug.Conn.Status.code(conn.status)
+
+    request_id_header_name = Keyword.get(opts, :request_id_header, "x-request-id")
+    request_id_header = PlugUtils.get_request_id(conn, request_id_header_name)
 
     # The response body typing is iodata; it should not be assumed
     # to be a binary
     bytes = IO.iodata_length(conn.resp_body)
-    status = Plug.Conn.Status.code(conn.status)
-    headers = conn.resp_headers ++ [{"content-length", Integer.to_string(bytes)}]
+
+    headers = [{"content-length", Integer.to_string(bytes)}, request_id_header | conn.resp_headers]
+
+    request_id = request_id_from_header(request_id_header)
 
     event = HTTPServerResponseEvent.new(
+      body: conn.resp_body, # the body is normalized and truncated if necessary
       headers: headers,
+      request_id: request_id,
       status: status,
       time_ms: time_ms
     )
@@ -153,5 +160,12 @@ defmodule Timber.Integrations.EventPlug do
     Logger.log(log_level, message, metadata)
 
     conn
+  end
+
+  defp request_id_from_header(request_id_header) do
+    case request_id_header do
+      [{_, request_id}] -> request_id
+      [] -> nil
+    end
   end
 end

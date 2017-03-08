@@ -150,19 +150,34 @@ defmodule Timber.Mixfile do
   #   - Keep this as the last section in `mix.exs` to make
   #     it easily discoverable
   #   - Keep this section sorted in alphabetical order
-  defp deps do
+  defp deps() do
+    ecto_version_constraint = System.get_env("ECTO_VERSION_CONSTRAINT")
+    phoenix_version_constraint = System.get_env("PHOENIX_VERSION_CONSTRAINT")
+
     [
       {:credo, "~> 0.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
       {:earmark, "~> 1.0", only: [:dev, :docs]},
-      {:ecto, "~> 2.0", optional: true},
+      {:ecto, get_ecto_version_constraint(ecto_version_constraint), optional: true},
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
-      {:hackney, "~> 1.6", optional: true},
       {:excoveralls, "~> 0.5", only: [:test]},
+      {:hackney, "~> 1.6", optional: true},
       {:msgpax, "~> 1.0"},
+      {:phoenix, get_phoenix_version_constraint(phoenix_version_constraint), optional: true},
       {:plug, "~> 1.2", optional: true},
-      {:phoenix, "~> 1.2", optional: true},
-      {:poison, "~> 2.0 or ~> 3.0"},
+      {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
     ]
   end
+
+  defp get_ecto_version_constraint(constraint) when constraint in ["latest", nil] do
+    "~> 2.0"
+  end
+
+  defp get_ecto_version_constraint(constraint), do: constraint
+
+  defp get_phoenix_version_constraint(constraint) when constraint in ["latest", nil] do
+    "~> 1.2"
+  end
+
+  defp get_phoenix_version_constraint(constraint), do: constraint
 end
