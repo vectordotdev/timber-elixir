@@ -23,6 +23,11 @@ defmodule Timber.Utils.HTTPEventsTest do
     test "iodata" do
       assert HTTPEvents.normalize_body(["a", "b", ["c", "d"]]) == "abcd"
     end
+
+    test "exceeds length" do
+      body = String.duplicate("a", 20001)
+      assert HTTPEvents.normalize_body(body) == String.duplicate("a", 2000)
+    end
   end
 
   describe "Timber.Utils.HTTPEvents.normalize_headers/1" do
