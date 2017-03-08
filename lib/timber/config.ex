@@ -5,6 +5,8 @@ defmodule Timber.Config do
 
   def event_key, do: Application.get_env(@env_key, :event_key, :event)
 
+  def http_body_size_limit, do: Application.get_env(@env_key, :http_body_size_limit, 2000)
+
   def http_client, do: Application.get_env(@env_key, :http_client)
 
   def http_client!, do: Application.fetch_env!(@env_key, :http_client)

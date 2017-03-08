@@ -7,49 +7,37 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   lifecycle.
   """
 
-  alias Timber.Utils.HTTP, as: UtilsHTTP
+  alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:headers, :service_name, :status, :time_ms]
+  defstruct [:body, :headers, :request_id, :service_name, :status, :time_ms]
 
   @type t :: %__MODULE__{
-    headers: headers,
+    body: String.t | nil,
+    headers: map | nil,
+    request_id: String.t | nil,
     service_name: String.t | nil,
     status: pos_integer,
     time_ms: float
   }
 
-  @type headers :: %{
-    cache_control: String.t,
-    content_disposition: String.t,
-    content_length: non_neg_integer,
-    content_type: String.t,
-    location: String.t,
-    request_id: String.t
-  }
-
-  @recognized_headers ~w(
-    cache_control
-    content_disposition
-    content_length
-    content_type
-    location
-    x-request-id
-  )
-
   @doc """
-  Builds a new struct taking care to normalize data into a valid state. This should
-  be used, where possible, instead of creating the struct directly.
+  Builds a new struct taking care to:
+
+  * Truncate the body if it is too large.
+  * Normalize header values so they are consistent.
+  * Removes "" or nil values.
   """
   @spec new(Keyword.t) :: t
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:headers, nil, fn headers ->
-        UtilsHTTP.normalize_headers(headers, @recognized_headers)
-      end)
-      |> Keyword.delete(:timer)
-      |> Enum.filter(fn {_k,v} -> v != nil end)
+      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
+      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+
+    opts = Keyword.put_new_lazy(opts, :request_id, fn -> UtilsHTTPEvents.get_request_id_from_headers(opts[:headers]) end)
+
     struct!(__MODULE__, opts)
   end
 
@@ -66,17 +54,13 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{headers: headers, service_name: service_name, status: status,
-    time_ms: time_ms})
-  do
+  def message(%__MODULE__{service_name: service_name, status: status, time_ms: time_ms}) do
     message = ["Outgoing HTTP response "]
+
     message = if service_name,
       do: [message, "from ", service_name, " "],
       else: message
-    message = [message, Integer.to_string(status), " in ", UtilsHTTP.format_time_ms(time_ms)]
-    request_id = Map.get(headers || %{}, :request_id)
-    if request_id,
-      do: [message, ", ID ", request_id],
-      else: message
+
+    [message, Integer.to_string(status), " in ", UtilsHTTPEvents.format_time_ms(time_ms)]
   end
 end
