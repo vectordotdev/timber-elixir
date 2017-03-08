@@ -87,7 +87,34 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   end
 
   def obtain_key_instructions do
-    "You can obtain your key by adding an application in https://app.timber.io, or by clicking 'edit' next to your application."
+    """
+    You can obtain your key by adding an application in #{@app_url},
+    or by clicking 'edit' next to your application.
+    """
+  end
+
+  def outgoing_http_instructions do
+    """
+
+    Great! Timber can track all of your outgoing HTTP requests and
+    responses. You'll have access to the body contents, headers,
+    and all other request details. Offering all of the data you need
+    to solve an issue when it arises.
+
+    To install, please add this code wherever you issue HTTP requests:
+
+        Timber.Events.HTTPClient.log(method, headers, url, :stripe, fn ->
+          :hackney.request(method, path) # just an example, use any HTTP client you want
+        end)
+
+        time_ms = Timber.duration_ms(timer)
+        {event, message} =
+          HTTPClientResponseEvent.new_with_message(headers: headers, status: status, time_ms: time_ms)
+        level = response_logger_level(status, time_ms)
+        Logger.log(level, message, event: event)
+
+        %Timber.Events.HTTPClientRequest{id: id, name: name, email: email}
+    ""
   end
 
   def separator do

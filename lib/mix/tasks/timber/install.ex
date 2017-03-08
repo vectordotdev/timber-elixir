@@ -29,6 +29,7 @@ defmodule Mix.Tasks.Timber.Install do
     add_plugs!(application)
     disable_default_phoenix_logging!(application)
     install_user_context!()
+    install_http_client_context!()
     install_on_platform!(application)
     finish!(api_key)
     Feedback.collect(api_key)
@@ -121,6 +122,27 @@ defmodule Mix.Tasks.Timber.Install do
     case IOHelper.ask_yes_no("Does your application have user accounts?") do
       :yes ->
         Messages.user_context_instructions()
+        |> IOHelper.puts()
+
+        case IOHelper.ask_yes_no("Ready to proceed?") do
+          :yes -> :ok
+          :no -> install_user_context!()
+        end
+
+      :no -> false
+    end
+  end
+
+  defp install_http_client_context! do
+    """
+
+    #{Messages.separator()}
+    """
+    |> IOHelper.puts()
+
+    case IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?") do
+      :yes ->
+        Messages.outgoing_http_instructions()
         |> IOHelper.puts()
 
         case IOHelper.ask_yes_no("Ready to proceed?") do
