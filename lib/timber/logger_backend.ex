@@ -84,7 +84,7 @@ defmodule Timber.LoggerBackend do
   # to add Timber as a logger backend.
   @spec init(LoggerBackend) :: {:ok, t}
   def init(__MODULE__) do
-    transport = get_transport()
+    transport = Timber.Config.transport()
 
     case transport.init() do
       {:ok, transport_state} ->
@@ -202,12 +202,5 @@ defmodule Timber.LoggerBackend do
 
   defp event_level_adequate?(lvl, min) do
     Logger.compare_levels(lvl, min) != :lt
-  end
-
-  # Gets the transport by looking up the value in the Application
-  # configuration
-  @spec get_transport() :: module
-  defp get_transport() do
-    Timber.Config.transport()
   end
 end

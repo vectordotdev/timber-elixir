@@ -20,5 +20,5 @@ defmodule Timber.Events.SQLQueryEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{sql: sql, time_ms: time_ms}),
-    do: ["Processed ", sql, " in ", time_ms, "ms"]
+    do: ["Processed ", sql, " in ", to_string(time_ms), "ms"]
 end

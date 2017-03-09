@@ -14,6 +14,7 @@ defmodule Timber.Events.ExceptionEvent do
   }
 
   @type backtrace_entry :: %{
+    app_name: String.t | nil,
     function: String.t,
     file: String.t | nil,
     line: non_neg_integer | nil
