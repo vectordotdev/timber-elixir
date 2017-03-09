@@ -29,7 +29,6 @@ defmodule Mix.Tasks.Timber.Install.ApplicationTest do
         heroku_drain_url: "drain_url", mix_name: "timber_elixir",
         module_name: "TimberElixir", name: "Timber",
         platform_type: "heroku",
-        repo_file_path: "lib/timber_elixir/repo.ex",
         repo_module_name: "TimberElixir.Repo", slug: "timber",
         web_file_path: "web/web.ex"}
     end

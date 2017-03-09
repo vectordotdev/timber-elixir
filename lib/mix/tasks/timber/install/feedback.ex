@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Timber.Install.Feedback do
-  alias Mix.Tasks.Timber.Install.{Config, HTTPClient, IOHelper}
+  alias Mix.Tasks.Timber.Install.{Config, IOHelper}
 
   def collect(api_key) do
     case IOHelper.ask("How would rate this install experience? 1 (bad) - 5 (perfect)") do

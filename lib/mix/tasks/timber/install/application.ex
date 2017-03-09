@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
   alias Mix.Tasks.Timber.Install.{Config, IOHelper, Messages, PathHelper}
 
   defstruct [:api_key, :config_file_path, :endpoint_file_path, :endpoint_module_name,
-    :heroku_drain_url, :mix_name, :module_name, :name, :platform_type, :repo_file_path,
+    :heroku_drain_url, :mix_name, :module_name, :name, :platform_type,
     :repo_module_name, :slug, :web_file_path]
 
   def new!(api_key) do
@@ -28,14 +28,9 @@ defmodule Mix.Tasks.Timber.Install.Application do
             do: "#{module_name}.Endpoint",
             else: nil
 
-        repo_file_path =
-          if Timber.Integrations.ecto?(),
-            do: PathHelper.find(["lib", mix_name, "repo.ex"]),
-            else: nil
-
         # TODO: check that this module actually exists
         repo_module_name =
-          if repo_file_path,
+          if Timber.Integrations.ecto?(),
             do: "#{module_name}.Repo",
             else: nil
 
@@ -54,7 +49,6 @@ defmodule Mix.Tasks.Timber.Install.Application do
           module_name: module_name,
           name: name,
           platform_type: platform_type,
-          repo_file_path: repo_file_path,
           repo_module_name: repo_module_name,
           slug: slug,
           web_file_path: web_file_path

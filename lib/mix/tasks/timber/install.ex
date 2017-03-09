@@ -92,11 +92,11 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts(:green)
   end
 
-  defp add_plugs!(%{endpoint_file_path: endpoint_file_path, module_name: module_name}) do
+  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}) do
     Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
     |> IOHelper.write()
 
-    EndpointFile.update!(endpoint_file_path, module_name)
+    EndpointFile.update!(endpoint_file_path)
 
     Messages.success()
     |> IOHelper.puts(:green)
