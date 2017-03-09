@@ -55,13 +55,13 @@ defmodule Mix.Tasks.Timber.Install do
       """
       |> IOHelper.puts(:red)
 
-      # case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
-      #   :yes ->
-      #     body = %{message: message, stacktrace: stacktrace}
-      #     Config.http_client().request!(:post, "/installer/error", body: %{error: body})
+      case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
+        :yes ->
+          body = %{message: message, stacktrace: stacktrace}
+          Config.http_client().request!(:post, "/installer/error", body: %{error: body})
 
-      #   :no -> :ok
-      # end
+        :no -> :ok
+      end
 
       :ok
   end
@@ -162,15 +162,69 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   defp install_on_platform!(application) do
+    :ok = check_for_http_client()
+
     Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
-    Logger.info("testing")
+    now =
+      DateTime.utc_now()
+      |> DateTime.to_iso8601()
+
+    log_entry = %Timber.LogEntry{
+      dt: now,
+      level: :info,
+      message: "Testing"
+    }
+
+    {:ok, http_client} = Timber.Transports.HTTP.init()
+    {:ok, http_client} = Timber.Transports.HTTP.write(log_entry, http_client)
+    http_client = Timber.Transports.HTTP.flush(http_client)
 
     Messages.success()
     |> IOHelper.puts(:green)
 
     Application.wait_for_logs(application)
+  end
+
+  defp check_for_http_client() do
+    if Code.ensure_loaded?(:hackney) do
+      case :hackney.start() do
+        :ok -> :ok
+        {:error, {:already_started, _name}} -> :ok
+        other -> other
+      end
+
+      :ok
+    else
+      """
+      In order to proceed, an HTTP client must be specified:
+
+      1. Add :hackney to your dependencies:
+
+          def deps do
+            [{:hackney, "~> 1.6"}]
+          end
+
+      2. Add :hackney to your :applications list:
+
+          def application do
+            [applications: [:hackney]]
+          end
+
+      3. Run mix deps.get
+
+      4. Quit and re-run this installer. It is perfectly safe to do so.
+         This installer is idempotent.
+
+
+      * Note: advanced users can define their own HTTP client if desired.
+        Please see Timber.Transports.HTTP.Client for more details.
+      """
+      |> IOHelper.puts(:red)
+
+      exit :shutdown
+    end
   end
 
   defp finish!(api_key) do
