@@ -20,14 +20,17 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
 
   # This is rather crude way of making HTTP requests, but it beats requiring an HTTP client
   # as a dependency just for this installer.
-  def request!(method, path, opts \\ []) when method in [:get, :post] do
+  def request!(session_id, method, path, opts \\ []) when method in [:get, :post] do
     url = @api_url <> path
 
     api_key = Keyword.get(opts, :api_key)
     vsn = Application.spec(:timber, :vsn)
 
     headers =
-      [{'User-Agent', 'Timber Elixir/#{vsn} (HTTP)'}]
+      [
+        {'User-Agent', 'Timber Elixir/#{vsn} (HTTP)'},
+        {'X-Installer-Session-Id', String.to_charlist(session_id)}
+      ]
       |> add_authorization_header(api_key)
 
     body =

@@ -1,8 +1,9 @@
 defmodule Mix.Tasks.Timber.Install do
   use Mix.Task
 
-  alias __MODULE__.{Application, Config, ConfigFile, EndpointFile, Feedback, HTTPClient, IOHelper,
-    Messages, WebFile}
+  alias __MODULE__.{Application, ConfigFile, EndpointFile, Event, Feedback, HTTPClient,
+    IOHelper, Messages, WebFile}
+  alias Mix.Tasks.Timber.TestThePipes
 
   require Logger
 
@@ -15,70 +16,78 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   def run([api_key]) do
-    :ok = HTTPClient.start()
+    session_id = generate_session_id()
 
-    """
-    #{Messages.header()}
-    #{Messages.intro()}
-    """
-    |> IOHelper.puts()
+    try do
+      :ok = HTTPClient.start()
 
-    application = Application.new!(api_key)
-    create_config_file!(application)
-    link_config_file!(application)
-    add_plugs!(application)
-    disable_default_phoenix_logging!(application)
-    install_user_context!()
-    #install_http_client_context!()
-    install_on_platform!(application)
-    finish!(api_key)
-    Feedback.collect(api_key)
-
-  rescue
-    e ->
-      message = Exception.message(e)
-      stacktrace = Exception.format_stacktrace(System.stacktrace())
+      Event.send!(:started, session_id, api_key)
 
       """
-
-
-      #{String.duplicate("!", 80)}
-
-      #{message}
-      #{Messages.get_help()}
-
-      ---
-
-      Here's the stacktrace for reference:
-
-      #{stacktrace}
+      #{Messages.header()}
+      #{Messages.intro()}
       """
-      |> IOHelper.puts(:red)
+      |> IOHelper.puts()
 
-      case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
-        :yes ->
-          body = %{message: message, stacktrace: stacktrace}
-          Config.http_client().request!(:post, "/installer/error", body: %{error: body})
+      application = Application.new!(session_id, api_key)
+      create_config_file!(application)
+      link_config_file!(application)
+      add_plugs!(application)
+      disable_default_phoenix_logging!(application)
+      install_user_context!(session_id, api_key)
+      #install_http_client_context!(session_id, api_key)
+      install_on_platform!(session_id, application)
+      finish!(session_id, api_key)
+      Feedback.collect(session_id, api_key)
 
-        :no -> :ok
-      end
+    rescue
+      e ->
+        message = Exception.message(e)
+        stacktrace = Exception.format_stacktrace(System.stacktrace())
 
-      :ok
+        """
+
+
+        #{String.duplicate("!", 80)}
+
+        #{message}
+        #{Messages.get_help()}
+
+        ---
+
+        Here's the stacktrace for reference:
+
+        #{stacktrace}
+        """
+        |> IOHelper.puts(:red)
+
+        case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
+          :yes ->
+            data = %{message: message, stacktrace: stacktrace}
+            Event.send!(:exception, session_id, api_key, data: data)
+
+          :no -> :ok
+        end
+
+        :ok
+    end
+  end
+
+  def generate_session_id() do
+    32
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode16(case: :lower)
+    |> binary_part(0, 32)
   end
 
   defp create_config_file!(application) do
+    ConfigFile.create!(application)
+
     Messages.action_starting("Creating #{ConfigFile.file_path()}...")
     |> IOHelper.write()
 
-    case ConfigFile.create!(application) do
-      :ok ->
-        Messages.success()
-        |> IOHelper.puts(:green)
-
-        :ok
-
-      {:error, reason} -> {:error, reason}
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
   # Links config/timber.exs within config/config.exs
@@ -112,82 +121,87 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts(:green)
   end
 
-  defp install_user_context! do
+  defp install_user_context!(session_id, api_key) do
     """
 
     #{Messages.separator()}
     """
     |> IOHelper.puts()
 
-    case IOHelper.ask_yes_no("Does your application have user accounts?") do
+    answer = IOHelper.ask_yes_no("Does your application have user accounts?")
+    Event.send!(:user_context_answer, session_id, api_key, data: %{answer: answer})
+
+    case answer do
       :yes ->
         Messages.user_context_instructions()
         |> IOHelper.puts()
 
         case IOHelper.ask_yes_no("Ready to proceed?") do
           :yes -> :ok
-          :no -> install_user_context!()
+          :no -> install_user_context!(session_id, api_key)
         end
 
-      :no -> false
+      :no ->
+        false
     end
   end
 
-  # defp install_http_client_context! do
+  # defp install_http_client_context!(session_id, api_key) do
   #   """
 
   #   #{Messages.separator()}
   #   """
   #   |> IOHelper.puts()
 
-  #   case IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?") do
+  #    answer = IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?")
+  #    Event.send!(:http_tracking_answer, session_id, api_key, data: %{answer: answer})
+
+  #   case answer do
   #     :yes ->
   #       Messages.outgoing_http_instructions()
   #       |> IOHelper.puts()
 
   #       case IOHelper.ask_yes_no("Ready to proceed?") do
   #         :yes -> :ok
-  #         :no -> install_user_context!()
+  #         :no -> install_http_client_context!()
   #       end
 
   #     :no -> false
   #   end
   # end
 
-  defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url: heroku_drain_url} = application) do
+  defp install_on_platform!(session_id, %{platform_type: "heroku", heroku_drain_url: heroku_drain_url} = application) do
     Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
-    Application.wait_for_logs(application)
+    Application.wait_for_logs(application, session_id)
   end
 
-  defp install_on_platform!(application) do
-    :ok = check_for_http_client()
+  defp install_on_platform!(session_id, %{api_key: api_key} = application) do
+    :ok = check_for_http_client(session_id, api_key)
 
     Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
-    now =
-      DateTime.utc_now()
-      |> DateTime.to_iso8601()
-
-    log_entry = %Timber.LogEntry{
-      dt: now,
-      level: :info,
-      message: "Testing"
-    }
-
     {:ok, http_client} = Timber.Transports.HTTP.init()
-    {:ok, http_client} = Timber.Transports.HTTP.write(log_entry, http_client)
-    http_client = Timber.Transports.HTTP.flush(http_client)
+
+    log_entries = TestThePipes.log_entries()
+
+    http_client =
+      Enum.reduce(log_entries, http_client, fn log_entry, http_client ->
+        {:ok, http_client} = Timber.Transports.HTTP.write(log_entry, http_client)
+        http_client
+      end)
+
+    Timber.Transports.HTTP.flush(http_client)
 
     Messages.success()
     |> IOHelper.puts(:green)
 
-    Application.wait_for_logs(application)
+    Application.wait_for_logs(application, session_id)
   end
 
-  defp check_for_http_client() do
+  defp check_for_http_client(session_id, api_key) do
     if Code.ensure_loaded?(:hackney) do
       case :hackney.start() do
         :ok -> :ok
@@ -197,6 +211,8 @@ defmodule Mix.Tasks.Timber.Install do
 
       :ok
     else
+      Event.send!(:http_client_not_found, session_id, api_key)
+
       """
       In order to proceed, an HTTP client must be specified:
 
@@ -227,8 +243,8 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp finish!(api_key) do
-    Config.http_client().request!(:post, "/installer/success", api_key: api_key)
+  defp finish!(session_id, api_key) do
+    Event.send!(:success, session_id, api_key)
 
     Messages.finish()
     |> IOHelper.puts()

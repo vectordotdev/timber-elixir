@@ -14,15 +14,15 @@ defmodule Timber.Context do
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
     Contexts.OrganizationContext.t  |
-    Contexts.ServerContext.t        |
+    Contexts.RuntimeContext.t        |
     Contexts.SystemContext.t        |
     Contexts.UserContext.t
 
   @type t :: %{
     optional(:custom) => Context.CustomContext.m,
-    optional(:http_request) => Context.HTTPContext.m,
+    optional(:http) => Context.HTTPContext.m,
     optional(:organization) => Context.OrganizationContext.m,
-    optional(:server) => Context.ServerContext.m,
+    optional(:runtime) => Context.RuntimeContext.m,
     optional(:system) => Context.SystemContext.m,
     optional(:user) => Context.UserContext.m
   }
@@ -92,7 +92,6 @@ defmodule Timber.Context do
   defp type(%Contexts.HTTPContext{}), do: :http
   defp type(%Contexts.OrganizationContext{}), do: :organization
   defp type(%Contexts.RuntimeContext{}), do: :runtime
-  defp type(%Contexts.ServerContext{}), do: :server
   defp type(%Contexts.SystemContext{}), do: :system
   defp type(%Contexts.UserContext{}), do: :user
 end

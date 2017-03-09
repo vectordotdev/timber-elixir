@@ -1,10 +1,10 @@
 defmodule Mix.Tasks.Timber.Install.Feedback do
-  alias Mix.Tasks.Timber.Install.{Config, IOHelper}
+  alias Mix.Tasks.Timber.Install.{Event, IOHelper}
 
-  def collect(api_key) do
+  def collect(session_id, api_key) do
     case IOHelper.ask("How would rate this install experience? 1 (bad) - 5 (perfect)") do
       v when v in ["4", "5"] ->
-        send!(api_key, %{rating: v})
+        Event.send!(:feedback, session_id, api_key, data: %{rating: v})
 
         """
 
@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Timber.Install.Feedback do
 
         case IOHelper.ask("Type your comments (enter sends)") do
           comments ->
-            send!(api_key, %{rating: v, comments: comments})
+            Event.send!(:feedback, session_id, api_key, data: %{rating: v, comments: comments})
 
             """
 
@@ -36,13 +36,9 @@ defmodule Mix.Tasks.Timber.Install.Feedback do
 
       v ->
         IOHelper.puts("#{inspect(v)} is not a valid option. Please enter a number between 1 and 5.\n", :red)
-        collect(api_key)
+        collect(session_id, api_key)
     end
 
     :ok
-  end
-
-  defp send!(api_key, body) do
-    Config.http_client().request!(:post, "/installer/feedback", api_key: api_key, body: %{feedback: body})
   end
 end
