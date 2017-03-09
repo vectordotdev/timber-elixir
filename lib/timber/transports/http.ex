@@ -55,7 +55,7 @@ defmodule Timber.Transports.HTTP do
   @doc false
   @spec init() :: {:ok, t} | {:error, atom}
   def init() do
-    config = Keyword.put(config(), :api_key, Timber.Config.api_key())
+    config = Keyword.put(config(), :api_key, Timber.Config.api_key!())
 
     with {:ok, state} <- configure(config, %__MODULE__{}),
          state <- outlet(state),

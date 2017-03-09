@@ -1,4 +1,6 @@
 defmodule Timber.Config do
+  alias __MODULE__.MissingAPIKeyError
+
   @env_key :timber
 
   @doc """
@@ -11,7 +13,13 @@ defmodule Timber.Config do
   config :timber, :api_key, "abcd1234"
   ```
   """
-  def api_key, do: Application.get_env(@env_key, :api_key)
+  def api_key! do
+    case Application.get_env(@env_key, :api_key) do
+      {:system, env_var_name} -> System.get_env(env_var_name)
+      api_key when is_binary(api_key) -> api_key
+      _other -> raise(MissingAPIKeyError)
+    end
+  end
 
   @doc """
   Change the name of the `Logger` metadata key that Timber uses for events.
@@ -96,4 +104,21 @@ defmodule Timber.Config do
   `Timber.Transports.IODevice`.
   """
   def transport, do: Application.get_env(@env_key, :transport, Timber.Transports.IODevice)
+
+  #
+  # Errors
+  #
+
+  defmodule MissingAPIKeyError do
+    message =
+      """
+      We couldn't find an API key for Timber. Please ensure that you have configured your
+      Timber API properly. Ex:
+
+      config :timber,
+        api_key: {:system, "TIMBER_API_KEY"} # or pass the key directly
+      """
+
+    defexception message: message
+  end
 end

@@ -83,7 +83,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     action_name =
       conn
       |> Phoenix.Controller.action_name()
-      |> Atom.to_string
+      |> Atom.to_string()
 
     # Phoenix actions are always 2 arity function
     action = action_name <> "/2"

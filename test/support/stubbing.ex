@@ -17,6 +17,14 @@ defmodule Timber.Stubbing do
       def get_function_calls(name) do
         Agent.get(__MODULE__, &Map.get(&1, name, []))
       end
+
+      def stub(name, stub) do
+        Agent.update(__MODULE__, &Map.put(&1, String.to_atom("#{name}_stub"), stub))
+      end
+
+      def get_stub(name) do
+        Agent.get(__MODULE__, &Map.get(&1, String.to_atom("#{name}_stub"))) || raise("No stub found for #{__MODULE__}.#{name}")
+      end
     end
   end
 end
