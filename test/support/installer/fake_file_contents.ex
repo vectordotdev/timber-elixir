@@ -10,14 +10,14 @@ defmodule Timber.Installer.FakeFileContents do
 
     # General application configuration
     config :elixir_phoenix_example_app,
-      ecto_repos: [ElixirPhoenixExampleApp.Repo]
+      ecto_repos: [TimberElixir.Repo]
 
     # Configures the endpoint
-    config :elixir_phoenix_example_app, ElixirPhoenixExampleApp.Endpoint,
+    config :elixir_phoenix_example_app, TimberElixir.Endpoint,
       url: [host: "localhost"],
       secret_key_base: "PIW+jnFP5piAAlp679uxb3Px1YD2pA7IQXqnQz67AC/tZXiAoqMpjjJTEFZ6RQXp",
-      render_errors: [view: ElixirPhoenixExampleApp.ErrorView, accepts: ~w(html json)],
-      pubsub: [name: ElixirPhoenixExampleApp.PubSub,
+      render_errors: [view: TimberElixir.ErrorView, accepts: ~w(html json)],
+      pubsub: [name: TimberElixir.PubSub,
                adapter: Phoenix.PubSub.PG2],
       instrumenters: [Timber.Integrations.PhoenixInstrumenter]
 
@@ -34,10 +34,10 @@ defmodule Timber.Installer.FakeFileContents do
 
   def default_endpoint_contents do
     """
-    defmodule ElixirPhoenixExampleApp.Endpoint do
+    defmodule TimberElixir.Endpoint do
       use Phoenix.Endpoint, otp_app: :elixir_phoenix_example_app
 
-      socket "/socket", ElixirPhoenixExampleApp.UserSocket
+      socket "/socket", TimberElixir.UserSocket
 
       # Serve at "/" the static files from "priv/static" directory.
       #
@@ -73,14 +73,14 @@ defmodule Timber.Installer.FakeFileContents do
         key: "_elixir_phoenix_example_app_key",
         signing_salt: "abfd232"
 
-      plug ElixirPhoenixExampleApp.Router
+      plug TimberElixir.Router
     end
     """
   end
 
   def default_web_contents do
     """
-    defmodule ElixirPhoenixExampleApp.Web do
+    defmodule TimberElixir.Web do
       def model do
         quote do
           use Ecto.Schema
@@ -95,12 +95,12 @@ defmodule Timber.Installer.FakeFileContents do
         quote do
           use Phoenix.Controller
 
-          alias ElixirPhoenixExampleApp.Repo
+          alias TimberElixir.Repo
           import Ecto
           import Ecto.Query
 
-          import ElixirPhoenixExampleApp.Router.Helpers
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Router.Helpers
+          import TimberElixir.Gettext
         end
       end
 
@@ -114,9 +114,9 @@ defmodule Timber.Installer.FakeFileContents do
           # Use all HTML functionality (forms, tags, etc)
           use Phoenix.HTML
 
-          import ElixirPhoenixExampleApp.Router.Helpers
-          import ElixirPhoenixExampleApp.ErrorHelpers
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Router.Helpers
+          import TimberElixir.ErrorHelpers
+          import TimberElixir.Gettext
         end
       end
 
@@ -130,10 +130,10 @@ defmodule Timber.Installer.FakeFileContents do
         quote do
           use Phoenix.Channel
 
-          alias ElixirPhoenixExampleApp.Repo
+          alias TimberElixir.Repo
           import Ecto
           import Ecto.Query
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Gettext
         end
       end
 
@@ -154,10 +154,10 @@ defmodule Timber.Installer.FakeFileContents do
 
   def new_endpoint_contents do
     """
-    defmodule ElixirPhoenixExampleApp.Endpoint do
+    defmodule TimberElixir.Endpoint do
       use Phoenix.Endpoint, otp_app: :elixir_phoenix_example_app
 
-      socket "/socket", ElixirPhoenixExampleApp.UserSocket
+      socket "/socket", TimberElixir.UserSocket
 
       # Serve at "/" the static files from "priv/static" directory.
       #
@@ -197,14 +197,14 @@ defmodule Timber.Installer.FakeFileContents do
       plug Timber.Integrations.ContextPlug
       plug Timber.Integrations.EventPlug
 
-      plug ElixirPhoenixExampleApp.Router
+      plug TimberElixir.Router
     end
     """
   end
 
   def new_web_contents do
     """
-    defmodule ElixirPhoenixExampleApp.Web do
+    defmodule TimberElixir.Web do
       def model do
         quote do
           use Ecto.Schema
@@ -219,12 +219,12 @@ defmodule Timber.Installer.FakeFileContents do
         quote do
           use Phoenix.Controller, log: false
 
-          alias ElixirPhoenixExampleApp.Repo
+          alias TimberElixir.Repo
           import Ecto
           import Ecto.Query
 
-          import ElixirPhoenixExampleApp.Router.Helpers
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Router.Helpers
+          import TimberElixir.Gettext
         end
       end
 
@@ -238,9 +238,9 @@ defmodule Timber.Installer.FakeFileContents do
           # Use all HTML functionality (forms, tags, etc)
           use Phoenix.HTML
 
-          import ElixirPhoenixExampleApp.Router.Helpers
-          import ElixirPhoenixExampleApp.ErrorHelpers
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Router.Helpers
+          import TimberElixir.ErrorHelpers
+          import TimberElixir.Gettext
         end
       end
 
@@ -254,10 +254,10 @@ defmodule Timber.Installer.FakeFileContents do
         quote do
           use Phoenix.Channel
 
-          alias ElixirPhoenixExampleApp.Repo
+          alias TimberElixir.Repo
           import Ecto
           import Ecto.Query
-          import ElixirPhoenixExampleApp.Gettext
+          import TimberElixir.Gettext
         end
       end
 
@@ -272,19 +272,9 @@ defmodule Timber.Installer.FakeFileContents do
     """
     use Mix.Config
 
-    # Get existing instruments so that we don't overwrite.
-    instrumenters =
-      Application.get_env(:timber_elixir, TimberElixir.Endpoint)
-      |> Keyword.get(:instrumenters, [])
-
-    # Add the Timber instrumenter
-    new_instrumenters =
-      [Timber.Integrations.PhoenixInstrumenter | instrumenters]
-      |> Enum.uniq()
-
     # Update the instrumenters so that we can structure Phoenix logs
     config :timber_elixir, TimberElixir.Endpoint,
-      instrumenters: new_instrumenters
+      instrumenters: [Timber.Integrations.PhoenixInstrumenter]
 
     # Structure Ecto logs
     config :timber_elixir, TimberElixir.Repo,
@@ -311,7 +301,9 @@ defmodule Timber.Installer.FakeFileContents do
         print_metadata: false # turn this on to view the additiional metadata
     end
 
-    # Need help? Contact us at support@timber.io
+    # Need help?
+    # Email us: support@timber.io
+    # File an issue: https://github.com/timberio/timber-elixir/issues
     """
   end
 end

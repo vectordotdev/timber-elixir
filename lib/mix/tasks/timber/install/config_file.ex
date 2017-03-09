@@ -60,7 +60,9 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
           print_metadata: false # turn this on to view the additiional metadata
       end
 
-      # Need help? Contact us at support@timber.io
+      # Need help?
+      # Email us: support@timber.io
+      # File an issue: https://github.com/timberio/timber-elixir/issues
       """
 
     FileHelper.write!(@file_path, contents)

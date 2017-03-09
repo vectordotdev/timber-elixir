@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Timber.Install do
   use Mix.Task
 
-  alias __MODULE__.{Application, ConfigFile, EndpointFile, Feedback, HTTPClient, IOHelper,
+  alias __MODULE__.{Application, Config, ConfigFile, EndpointFile, Feedback, HTTPClient, IOHelper,
     Messages, WebFile}
 
   require Logger
@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Timber.Install do
     add_plugs!(application)
     disable_default_phoenix_logging!(application)
     install_user_context!()
-    install_http_client_context!()
+    #install_http_client_context!()
     install_on_platform!(application)
     finish!(api_key)
     Feedback.collect(api_key)
@@ -55,13 +55,13 @@ defmodule Mix.Tasks.Timber.Install do
       """
       |> IOHelper.puts(:red)
 
-      case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
-        :yes ->
-          body = %{message: message, stacktrace: stacktrace}
-          HTTPClient.request!(:post, "/installer/error", body: body)
+      # case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
+      #   :yes ->
+      #     body = %{message: message, stacktrace: stacktrace}
+      #     Config.http_client().request!(:post, "/installer/error", body: %{error: body})
 
-        :no -> :ok
-      end
+      #   :no -> :ok
+      # end
 
       :ok
   end
@@ -133,26 +133,26 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp install_http_client_context! do
-    """
+  # defp install_http_client_context! do
+  #   """
 
-    #{Messages.separator()}
-    """
-    |> IOHelper.puts()
+  #   #{Messages.separator()}
+  #   """
+  #   |> IOHelper.puts()
 
-    case IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?") do
-      :yes ->
-        Messages.outgoing_http_instructions()
-        |> IOHelper.puts()
+  #   case IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?") do
+  #     :yes ->
+  #       Messages.outgoing_http_instructions()
+  #       |> IOHelper.puts()
 
-        case IOHelper.ask_yes_no("Ready to proceed?") do
-          :yes -> :ok
-          :no -> install_user_context!()
-        end
+  #       case IOHelper.ask_yes_no("Ready to proceed?") do
+  #         :yes -> :ok
+  #         :no -> install_user_context!()
+  #       end
 
-      :no -> false
-    end
-  end
+  #     :no -> false
+  #   end
+  # end
 
   defp install_on_platform!(%{platform_type: "heroku", heroku_drain_url: heroku_drain_url} = application) do
     Messages.heroku_drain_instructions(heroku_drain_url)
@@ -174,7 +174,7 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   defp finish!(api_key) do
-    HTTPClient.request!(:post, "/installer/success", api_key: api_key)
+    Config.http_client().request!(:post, "/installer/success", api_key: api_key)
 
     Messages.finish()
     |> IOHelper.puts()

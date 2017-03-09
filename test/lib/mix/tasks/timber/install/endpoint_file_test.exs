@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Timber.Install.EndpointFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      result = EndpointFile.update!("file_path")
+      result = EndpointFile.update!("file_path", "TimberElixir")
       assert result == :ok
     end
 
@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Timber.Install.EndpointFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      result = EndpointFile.update!("file_path")
+      result = EndpointFile.update!("file_path", "TimberElixir")
       assert result == :ok
     end
   end

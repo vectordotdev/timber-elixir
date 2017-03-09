@@ -10,40 +10,9 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
         "config/timber.exs" = file_path, [:write] -> {:ok, "#{file_path} device"}
       end)
 
-      expected_file_contents =
-        """
-        use Mix.Config
-
-        # Structure Ecto logs
-        config :timber_elixir, TimberElixir.Repo,
-          loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
-
-        # Use Timber as the logger backend
-        # Feel free to add additional backends if you want to send you logs to multiple devices.
-        config :logger,
-          backends: [Timber.LoggerBackend]
-
-        # Direct logs to STDOUT for Heroku. We'll use Heroku drains to deliver logs.
-        config :timber,
-          transport: Timber.Transports.IODevice
-
-        # For dev / test environments, always log to STDOUt and format the logs properly
-        if Mix.env() == :dev || Mix.env() == :test do
-          config :timber, transport: Timber.Transports.IODevice
-
-          config :timber, :io_device,
-            colorize: true,
-            format: :logfmt,
-            print_timestamps: true,
-            print_log_level: true,
-            print_metadata: false # turn this on to view the additiional metadata
-        end
-
-        # Need help? Contact us at support@timber.io
-        """
-
-      FakeIO.stub(:binwrite, fn
-        "config/timber.exs device", ^expected_file_contents -> :ok
+      FakeIO.stub(:binwrite, fn "config/timber.exs device", file_contents ->
+          refute file_contents =~ "config :timber_elixir, TimberElixir.Endpoint"
+          :ok
       end)
 
       FakeFile.stub(:close, fn "config/timber.exs device" -> :ok end)
@@ -59,50 +28,9 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
         "config/timber.exs" = file_path, [:write] -> {:ok, "#{file_path} device"}
       end)
 
-      expected_file_contents =
-        """
-        use Mix.Config
-
-        # Get existing instruments so that we don't overwrite.
-        instrumenters =
-          Application.get_env(:timber_elixir, TimberElixir.Endpoint)
-          |> Keyword.get(:instrumenters, [])
-
-        # Add the Timber instrumenter
-        new_instrumenters =
-          [Timber.Integrations.PhoenixInstrumenter | instrumenters]
-          |> Enum.uniq()
-
-        # Update the instrumenters so that we can structure Phoenix logs
-        config :timber_elixir, TimberElixir.Endpoint,
-          instrumenters: new_instrumenters
-
-        # Use Timber as the logger backend
-        # Feel free to add additional backends if you want to send you logs to multiple devices.
-        config :logger,
-          backends: [Timber.LoggerBackend]
-
-        # Direct logs to STDOUT for Heroku. We'll use Heroku drains to deliver logs.
-        config :timber,
-          transport: Timber.Transports.IODevice
-
-        # For dev / test environments, always log to STDOUt and format the logs properly
-        if Mix.env() == :dev || Mix.env() == :test do
-          config :timber, transport: Timber.Transports.IODevice
-
-          config :timber, :io_device,
-            colorize: true,
-            format: :logfmt,
-            print_timestamps: true,
-            print_log_level: true,
-            print_metadata: false # turn this on to view the additiional metadata
-        end
-
-        # Need help? Contact us at support@timber.io
-        """
-
-      FakeIO.stub(:binwrite, fn
-        "config/timber.exs device", ^expected_file_contents -> :ok
+      FakeIO.stub(:binwrite, fn "config/timber.exs device", file_contents ->
+        refute file_contents =~ "config :timber_elixir, TimberElixir.Repo"
+        :ok
       end)
 
       FakeFile.stub(:close, fn "config/timber.exs device" -> :ok end)
@@ -122,19 +50,9 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
         """
         use Mix.Config
 
-        # Get existing instruments so that we don't overwrite.
-        instrumenters =
-          Application.get_env(:timber_elixir, TimberElixir.Endpoint)
-          |> Keyword.get(:instrumenters, [])
-
-        # Add the Timber instrumenter
-        new_instrumenters =
-          [Timber.Integrations.PhoenixInstrumenter | instrumenters]
-          |> Enum.uniq()
-
         # Update the instrumenters so that we can structure Phoenix logs
         config :timber_elixir, TimberElixir.Endpoint,
-          instrumenters: new_instrumenters
+          instrumenters: [Timber.Integrations.PhoenixInstrumenter]
 
         # Structure Ecto logs
         config :timber_elixir, TimberElixir.Repo,
@@ -161,7 +79,9 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
             print_metadata: false # turn this on to view the additiional metadata
         end
 
-        # Need help? Contact us at support@timber.io
+        # Need help?
+        # Email us: support@timber.io
+        # File an issue: https://github.com/timberio/timber-elixir/issues
         """
 
       FakeIO.stub(:binwrite, fn

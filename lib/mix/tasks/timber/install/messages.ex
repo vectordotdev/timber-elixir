@@ -17,15 +17,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     end
   end
 
-  def get_help do
-    """
-    Still stuck?
-
-    * Shoot us an email: #{@support_email}
-    * Or, file an issue: #{@repo_url}/issues
-    """
-  end
-
   def finish() do
     """
 
@@ -52,6 +43,15 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     #{obtain_key_instructions()}
 
     #{get_help()}
+    """
+  end
+
+  def get_help do
+    """
+    Still stuck?
+
+    * Shoot us an email: #{@support_email}
+    * Or, file an issue: #{@repo_url}/issues
     """
   end
 
@@ -114,7 +114,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         Logger.log(level, message, event: event)
 
         %Timber.Events.HTTPClientRequest{id: id, name: name, email: email}
-    ""
+    """
   end
 
   def separator do

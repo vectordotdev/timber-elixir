@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Timber.Install.Feedback do
-  alias Mix.Tasks.Timber.Install.{HTTPClient, IOHelper}
+  alias Mix.Tasks.Timber.Install.{Config, HTTPClient, IOHelper}
 
   def collect(api_key) do
     case IOHelper.ask("How would rate this install experience? 1 (bad) - 5 (perfect)") do
@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Timber.Install.Feedback do
 
         """
 
-        💖 We love you too! Let's get to loggin' 🌲
+        💖  We love you too! Let's get to loggin' 🌲
         """
         |> IOHelper.puts()
 
@@ -43,6 +43,6 @@ defmodule Mix.Tasks.Timber.Install.Feedback do
   end
 
   defp send!(api_key, body) do
-    HTTPClient.request!(:post, "/installer/feedback", api_key: api_key, body: %{feedback: body})
+    Config.http_client().request!(:post, "/installer/feedback", api_key: api_key, body: %{feedback: body})
   end
 end

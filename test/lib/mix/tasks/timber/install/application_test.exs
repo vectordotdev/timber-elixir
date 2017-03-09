@@ -7,14 +7,14 @@ defmodule Mix.Tasks.Timber.Install.ApplicationTest do
 
   describe "Mix.Tasks.Timber.Install.Application.new!/1" do
     test "bad application payload" do
-      FakeHTTPClient.stub(:request!, fn ("GET", "/installer/application", "api_key") -> {200, %{}} end)
+      FakeHTTPClient.stub(:request!, fn (:get, "/installer/application", [api_key: "api_key"]) -> {200, %{}} end)
       assert_raise MalformedApplicationPayload, fn ->
         Application.new!("api_key")
       end
     end
 
     test "valid application payload" do
-      FakeHTTPClient.stub(:request!, fn ("GET", "/installer/application", "api_key") ->
+      FakeHTTPClient.stub(:request!, fn (:get, "/installer/application", [api_key: "api_key"]) ->
         {200, %{"api_key" => "api_key", "heroku_drain_url" => "drain_url", "name" => "Timber",
           "platform_type" => "heroku", "slug" => "timber"}}
       end)
@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Timber.Install.ApplicationTest do
 
   describe "Mix.Tasks.Timber.Install.Application.wait_for_logs/2" do
     test "204" do
-      FakeHTTPClient.stub(:request!, fn ("GET", "/installer/has_logs", "api_key") -> {204, ""} end)
+      FakeHTTPClient.stub(:request!, fn (:get, "/installer/has_logs", [api_key: "api_key"]) -> {204, ""} end)
       result = Application.wait_for_logs(%{api_key: "api_key", platform_type: "heroku"})
       assert result == :ok
     end
