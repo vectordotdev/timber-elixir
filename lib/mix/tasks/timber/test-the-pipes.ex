@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     |> IOHelper.puts(:red)
   end
 
-  def run([api_key]) do
+  def run([_api_key]) do
 
   end
 
