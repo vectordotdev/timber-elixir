@@ -8,50 +8,43 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   `README.md` outlines how to set these up.
   """
 
-  alias Timber.Utils.HTTP, as: UtilsHTTP
+  alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @type t :: %__MODULE__{
+    body: String.t | nil,
     host: String.t,
-    headers: headers | nil,
+    headers: map | nil,
     method: String.t,
     path: String.t,
     port: pos_integer | nil,
     query_string: String.t | nil,
+    request_id: String.t | nil,
     scheme: String.t
   }
 
-  @type headers :: %{
-    content_type: String.t | nil,
-    remote_addr: String.t | nil,
-    referrer: String.t | nil,
-    request_id: String.t | nil,
-    user_agent: String.t | nil
-  }
-
   @enforce_keys [:host, :method, :path, :scheme]
-  defstruct [:host, :headers, :method, :path, :port, :query_string, :scheme]
-
-  @recognized_headers ~w(
-    content-type
-    remote-addr
-    referrer
-    user-agent
-    x-request-id
-  )
+  defstruct [:body, :host, :headers, :method, :path, :port, :query_string, :request_id, :scheme]
 
   @doc """
-  Builds a new struct taking care to normalize data into a valid state. This should
-  be used, where possible, instead of creating the struct directly.
+  Builds a new struct taking care to:
+
+  * Parsing the `:url` and mapping it to the appropriate attributes.
+  * Truncate the body if it is too large.
+  * Normalize header values so they are consistent.
+  * Normalize the method.
+  * Removes "" or nil values.
   """
   @spec new(Keyword.t) :: t
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTP.normalize_headers(headers, @recognized_headers) end)
-      |> Keyword.update(:method, nil, &UtilsHTTP.normalize_method/1)
-      |> Keyword.merge(UtilsHTTP.normalize_url(Keyword.get(opts, :url)))
+      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
+      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
+      |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
-      |> Enum.filter(fn {_k,v} -> v != nil end)
+      |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+
     struct!(__MODULE__, opts)
   end
 

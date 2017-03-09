@@ -40,6 +40,7 @@ defmodule Timber.Utils.Plug do
   defp handle_request_id([]) do
     []
   end
+
   defp handle_request_id([request_id | _]) do
     [{"x-request-id", request_id}]
   end
@@ -48,6 +49,7 @@ defmodule Timber.Utils.Plug do
   def get_client_ip(%{remote_ip: nil}) do
     nil
   end
+
   def get_client_ip(%{remote_ip: remote_ip}) do
     remote_ip
     |> :inet.ntoa()
