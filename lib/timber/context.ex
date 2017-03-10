@@ -53,12 +53,17 @@ defmodule Timber.Context do
 
   # Inserts the context_element into the main context map
   @spec insert(map, t, atom) :: map
-  defp insert(existing_context, _key, new_context) when map_size(new_context) == 0 do
-    existing_context
+  defp insert(context, _key, new_context) when map_size(new_context) == 0 do
+    context
   end
 
-  defp insert(existing_context, key, new_context) do
-    Map.put(existing_context, key, new_context)
+  defp insert(%{custom: custom_context} = context, :custom, new_context) do
+    merged_custom_context = Map.merge(custom_context, new_context)
+    Map.put(context, :custom, merged_custom_context)
+  end
+
+  defp insert(context, key, new_context) do
+    Map.put(context, key, new_context)
   end
 
   # Converts a context_element into a map the Timber API expects.

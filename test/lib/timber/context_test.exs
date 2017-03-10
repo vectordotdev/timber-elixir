@@ -16,6 +16,16 @@ defmodule Timber.ContextTest do
       assert result ==  %{custom: %{build: %{version: "1.0.0"}}}
     end
 
+    test "multiple custom contexts get merged" do
+      custom_context = %Timber.Contexts.CustomContext{type: "build", data: %{version: "1.0.0"}}
+      context = Context.add(%{}, custom_context)
+      assert context ==  %{custom: %{build: %{version: "1.0.0"}}}
+
+      custom_context = %Timber.Contexts.CustomContext{type: "weather", data: %{forecast: "rainy"}}
+      context = Context.add(context, custom_context)
+      assert context ==  %{custom: %{build: %{version: "1.0.0"}, weather: %{forecast: "rainy"}}}
+    end
+
     test "organization context with an integer id" do
       organization_context = %Timber.Contexts.OrganizationContext{id: 1}
       result = Context.add(%{}, organization_context)
