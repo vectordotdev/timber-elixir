@@ -15,30 +15,31 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   def log_entries do
+    request_id = generate_request_id()
     [
-      log_entry(:info, http_server_request()),
-      log_entry(:info, controller_call()),
-      log_entry(:info, sql_query()),
-      log_entry(:info, http_client_request_to_stripe()),
-      log_entry(:info, http_client_response_from_stripe()),
-      log_entry(:error, exception_event()),
-      log_entry(:error, custom_event()),
-      log_entry(:info, template_render()),
-      log_entry(:info, http_server_response())
+      log_entry(:info, request_id, http_server_request(request_id)),
+      log_entry(:info, request_id, controller_call()),
+      log_entry(:info, request_id, sql_query()),
+      log_entry(:info, request_id, http_client_request_to_stripe(request_id)),
+      log_entry(:info, request_id, http_client_response_from_stripe(request_id)),
+      log_entry(:error, request_id, exception_event()),
+      log_entry(:error, request_id, custom_event()),
+      log_entry(:info, request_id, template_render()),
+      log_entry(:info, request_id, http_server_response(request_id))
     ]
   end
 
-  defp log_entry(level, %{__struct__: Events.CustomEvent} = event) do
+  defp log_entry(level, request_id, %{__struct__: Events.CustomEvent} = event) do
     :timer.sleep(100)
     message = "Checkout failed for customer xd45bfd"
-    LogEntry.new(now(), level, message, [event: event, timber_context: context()])
+    LogEntry.new(now(), level, message, [event: event, timber_context: context(request_id)])
   end
 
-  defp log_entry(level, %{__struct__: module} = event) do
+  defp log_entry(level, request_id, %{__struct__: module} = event) do
     :timer.sleep(100)
     dt = now()
     message = module.message(event)
-    LogEntry.new(dt, level, message, [event: event, timber_context: context()])
+    LogEntry.new(dt, level, message, [event: event, timber_context: context(request_id)])
   end
 
   defp now do
@@ -46,12 +47,12 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     {{dt.year, dt.month, dt.day}, {dt.hour, dt.minute, dt.second, dt.microsecond}}
   end
 
-  defp context do
+  defp context(request_id) do
     %{
       http: %{
         method: "POST",
         path: "/orders",
-        request_id: request_id(),
+        request_id: request_id,
         remote_addr: "123.123.123.123"
       },
       system: %{
@@ -61,7 +62,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
       user: %{
         id: "24",
         name: "Paul Bunyan",
-        email: "paulbunyan@timber.io"
+        email: "hi@timber.io"
       }
     }
   end
@@ -98,7 +99,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp http_server_request do
+  defp http_server_request(request_id) do
     %Events.HTTPServerRequestEvent{
       body: "{\"credit_card_token\": \"abcd1234\"}",
       host: "timber-test-events.com",
@@ -107,31 +108,31 @@ defmodule Mix.Tasks.Timber.TestThePipes do
         "authorization": "Bearer [sanitized]",
         "content-type": "application/json",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
-        "x-request-id": request_id()
+        "x-request-id": request_id
       },
       method: "POST",
       path: "/orders",
       port: 443,
       query_string: "?secure=true",
-      request_id: request_id(),
+      request_id: request_id,
       scheme: "https"
     }
   end
 
-  defp http_server_response do
+  defp http_server_response(request_id) do
     %Events.HTTPServerResponseEvent{
       body: "{\"error\": \"Oops we had a problem\"}",
       headers: %{
         "content-type": "application/json",
-        "x-request-id": request_id()
+        "x-request-id": request_id
       },
-      request_id: request_id(),
+      request_id: request_id,
       status: 500,
       time_ms: 101.53
     }
   end
 
-  defp http_client_request_to_stripe do
+  defp http_client_request_to_stripe(request_id) do
     %Events.HTTPClientRequestEvent{
       body: "{\"credit_card_token\": \"abcd1234\", \"customer_id\": \"xd45bfd\"}",
       headers: %{
@@ -139,26 +140,26 @@ defmodule Mix.Tasks.Timber.TestThePipes do
         "authorization": "Basic [sanitized]",
         "content-type": "application/json",
         "user-agent": "Stripe Elixir Client v1.2",
-        "x-request-id": request_id()
+        "x-request-id": request_id
       },
       host: "api.stripe.com",
       method: "POST",
       path: "/charge",
       port: 443,
-      request_id: request_id(),
+      request_id: request_id,
       scheme: "https",
       service_name: "stripe"
     }
   end
 
-  defp http_client_response_from_stripe do
+  defp http_client_response_from_stripe(request_id) do
     %Events.HTTPClientResponseEvent{
       body: "{\"error\": \"credit card has expired\"}",
       headers: %{
         "content-type": "application/json",
-        "x-request-id": request_id()
+        "x-request-id": request_id
       },
-      request_id: request_id(),
+      request_id: request_id,
       service_name: "stripe",
       status: 422,
       time_ms: 86.23
@@ -179,5 +180,10 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp request_id, do: "abcd1234"
+  defp generate_request_id do
+    32
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode16(case: :lower)
+    |> binary_part(0, 32)
+  end
 end
