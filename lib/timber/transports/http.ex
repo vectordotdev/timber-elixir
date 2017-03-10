@@ -196,10 +196,15 @@ defmodule Timber.Transports.HTTP do
   defmodule NoTimberAPIKeyError do
     defexception message: \
       """
-      We couldn't not locate your Timber API key. Please specify it
-      in your configuration:
+      We couldn't not locate your Timber API key. If you specified it
+      as an environment variable, please ensure that this variable was
+      added to your environment. Otherwise, please ensure that the
+      api_key is specified during configuration:
 
-      config :timber, api_key: "my_api_key"
+      config :timber, api_key: "my_timber_api_key"
+
+      You can location your API key in the timber console by creating or
+      editing your app: https://app.timber.io
       """
   end
 end
