@@ -3,20 +3,31 @@ defmodule Timber.FakeHTTPClient do
 
   def async_request(method, url, headers, body) do
     # Track the function call
-    add_function_call(:request, {method, url, headers, body})
+    add_function_call(:async_request, {method, url, headers, body})
 
-    stream_reference = "1234"
+    stub = get_stub(:async_request)
 
-    # Send the response message so the client isn't waiting indefinitely
-    Process.send(self(), {:hackney_response, stream_reference, :done}, [])
+    if stub do
+      stub.(method, url, headers, body)
+    else
+      stream_reference = "1234"
 
-    # Return back with the same stream reference
-    {:ok, stream_reference}
+      # Send the response message so the client isn't waiting indefinitely
+      Process.send(self(), {:hackney_response, stream_reference, :done}, [])
+
+      # Return back with the same stream reference
+      {:ok, stream_reference}
+    end
   end
 
-  def done?(_message_type, _message_body), do: true
+  def wait_on_request(ref) do
+    receive do
+      {:hackney_response, ^ref, :done} -> :ok
+      _else -> wait_on_request(ref)
+    end
+  end
 
-  def get_request_calls do
-    get_function_calls(:request)
+  def get_async_request_calls do
+    get_function_calls(:async_request)
   end
 end

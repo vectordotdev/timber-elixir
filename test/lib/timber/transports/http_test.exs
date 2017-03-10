@@ -43,14 +43,18 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
       HTTP.flush(state)
-      calls = FakeHTTPClient.get_request_calls()
+
+      calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
+
       call = Enum.at(calls, 0)
       assert elem(call, 0) == :post
       assert elem(call, 1) == "https://logs.timber.io/frames"
+
       vsn = Application.spec(:timber, :vsn)
       assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
-      {:ok, encoded_body} = Msgpax.pack([LogEntry.to_map!(entry)])
+
+      encoded_body = log_entry_to_msgpack(entry)
       assert elem(call, 3) == encoded_body
     end
 
@@ -59,15 +63,32 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
       HTTP.flush(state)
-      calls = FakeHTTPClient.get_request_calls()
+
+      calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
+
       call = Enum.at(calls, 0)
-      log_entry_map =
-        entry
-        |> LogEntry.to_map!()
-        |> Map.put(:message, IO.chardata_to_string(entry.message))
-      {:ok, encoded_body} = Msgpax.pack([log_entry_map])
+      encoded_body = log_entry_to_msgpack(entry)
       assert elem(call, 3) == encoded_body
+    end
+
+    test "http client returns an error" do
+      entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
+
+      expected_method = :post
+      expected_url = "https://logs.timber.io/frames"
+      expected_headers = %{"Authorization" => "Basic YXBpX2tleQ==",
+        "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/1.1.6 (HTTP)"}
+
+      expected_body = log_entry_to_msgpack(entry)
+
+      FakeHTTPClient.stub :async_request, fn ^expected_method, ^expected_url, ^expected_headers, ^expected_body ->
+        {:error, :connect_timeout}
+      end
+
+      {:ok, state} = HTTP.init()
+      {:ok, state} = HTTP.write(entry, state)
+      HTTP.flush(state)
     end
   end
 
@@ -77,7 +98,7 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
       {:ok, new_state} = HTTP.handle_info(:outlet, state)
-      calls = FakeHTTPClient.get_request_calls()
+      calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
       assert length(new_state.buffer) == 0
       assert_receive(:outlet, 1100)
@@ -102,7 +123,7 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, state} = HTTP.init()
       {:ok, new_state} = HTTP.write(entry, state)
       assert new_state.buffer == [entry]
-      calls = FakeHTTPClient.get_request_calls()
+      calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 0
     end
 
@@ -111,12 +132,21 @@ defmodule Timber.Transports.HTTPTest do
       {:ok, state} = HTTP.init()
       state = %{state | max_buffer_size: 1}
       HTTP.write(entry, state)
-      calls = FakeHTTPClient.get_request_calls()
+      calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
     end
   end
 
   defp time do
     {{2016, 1, 21}, {12, 54, 56, {1234, 4}}}
+  end
+
+  defp log_entry_to_msgpack(log_entry) do
+    map =
+      log_entry
+      |> LogEntry.to_map!()
+      |> Map.put(:message, IO.chardata_to_string(log_entry.message))
+
+    Msgpax.pack!([map])
   end
 end

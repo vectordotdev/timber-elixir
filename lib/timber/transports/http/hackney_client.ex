@@ -27,12 +27,6 @@ if Code.ensure_loaded?(:hackney) do
       recv_timeout: 10_000 #  10 seconds, timeout to receive a response
     ]
 
-    defp config, do: Application.get_env(:timber, :hackney_client, [])
-
-    @doc false
-    @spec get_request_options() :: Keyword.t
-    defp get_request_options(), do: Keyword.get(config(), :request_options, @default_request_options)
-
     @doc """
     Issues a HTTP request via hackney.
     """
@@ -47,11 +41,24 @@ if Code.ensure_loaded?(:hackney) do
     end
 
     @doc """
-    Takes a process message type and body and determines if the async request sent in
-    `async_request/5` is complete.
+    Takes a reference to an async request and waits for it to complete.
     """
-    @spec done?(reference, any) :: boolean
-    def done?(ref, {:hackney_response, message_ref, :done}) when ref == message_ref, do: true
-    def done?(_ref, _message), do: false
+    @spec wait_on_request(reference) :: :ok
+    def wait_on_request(ref) do
+      receive do
+        {:hackney_response, ^ref, :done} -> :ok
+        _else -> wait_on_request(ref)
+      end
+    end
+
+    #
+    # Config
+    #
+
+    @spec config :: Keyword.t
+    defp config, do: Application.get_env(:timber, :hackney_client, [])
+
+    @spec get_request_options() :: Keyword.t
+    defp get_request_options(), do: Keyword.get(config(), :request_options, @default_request_options)
   end
 end
