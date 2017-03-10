@@ -29,11 +29,13 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   defp log_entry(level, %{__struct__: Events.CustomEvent} = event) do
+    :timer.sleep(100)
     message = "Checkout failed for customer xd45bfd"
     LogEntry.new(now(), level, message, [event: event, timber_context: context()])
   end
 
   defp log_entry(level, %{__struct__: module} = event) do
+    :timer.sleep(100)
     dt = now()
     message = module.message(event)
     LogEntry.new(dt, level, message, [event: event, timber_context: context()])
@@ -92,7 +94,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
         %{app_name: "my_app", function: "MyApp.Endpoint.call/2", file: "lib/my_app/endpoint.ex", line: 1}
       ],
       name: "CaseClauseError",
-      message: "no case clause matching: {:ok, 400}"
+      message: "no case clause matching: {:ok, 422}"
     }
   end
 
