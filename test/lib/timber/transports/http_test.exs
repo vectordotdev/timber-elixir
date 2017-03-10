@@ -87,8 +87,9 @@ defmodule Timber.Transports.HTTPTest do
 
       expected_method = :post
       expected_url = "https://logs.timber.io/frames"
+      vsn = Application.spec(:timber, :vsn)
       expected_headers = %{"Authorization" => "Basic YXBpX2tleQ==",
-        "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/1.1.6 (HTTP)"}
+        "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
 
       expected_body = log_entry_to_msgpack(entry)
 

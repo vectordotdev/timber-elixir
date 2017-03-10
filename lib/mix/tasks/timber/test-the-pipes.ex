@@ -15,41 +15,33 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   def log_entries do
-    dt = current_dt()
-
     [
-      log_entry(dt, :info, http_server_request()),
-      log_entry(dt_plus(dt, 2), :info, controller_call()),
-      log_entry(dt_plus(dt, 7), :info, sql_query()),
-      log_entry(dt_plus(dt, 13), :info, http_client_request_to_stripe()),
-      log_entry(dt_plus(dt, 101), :info, http_client_response_from_stripe()),
-      log_entry(dt_plus(dt, 125), :error, exception_event()),
-      log_entry(dt_plus(dt, 128), :error, custom_event()),
-      log_entry(dt_plus(dt, 131), :info, template_render()),
-      log_entry(dt_plus(dt, 131), :info, http_server_response())
+      log_entry(:info, http_server_request()),
+      log_entry(:info, controller_call()),
+      log_entry(:info, sql_query()),
+      log_entry(:info, http_client_request_to_stripe()),
+      log_entry(:info, http_client_response_from_stripe()),
+      log_entry(:error, exception_event()),
+      log_entry(:error, custom_event()),
+      log_entry(:info, template_render()),
+      log_entry(:info, http_server_response())
     ]
   end
 
-  defp current_dt do
-    case :calendar.universal_time() do
-      {days, {hour, minute, second}} ->
-        {days, {hour, minute, second, {0000, 4}}}
-    end
-  end
-
-  defp dt_plus({days, {hour, minute, second, {microsecond, 4}}}, ms_addition) do
-    new_microsecond = microsecond + (ms_addition * 10)
-    {days, {hour, minute, second, {new_microsecond, 4}}}
-  end
-
-  defp log_entry(dt, level, %{__struct__: Events.CustomEvent} = event) do
+  defp log_entry(level, %{__struct__: Events.CustomEvent} = event) do
     message = "Checkout failed for customer xd45bfd"
-    LogEntry.new(dt, level, message, [event: event, timber_context: context()])
+    LogEntry.new(now(), level, message, [event: event, timber_context: context()])
   end
 
-  defp log_entry(dt, level, %{__struct__: module} = event) do
+  defp log_entry(level, %{__struct__: module} = event) do
+    dt = now()
     message = module.message(event)
     LogEntry.new(dt, level, message, [event: event, timber_context: context()])
+  end
+
+  defp now do
+    dt = DateTime.utc_now()
+    {{dt.year, dt.month, dt.day}, {dt.hour, dt.minute, dt.second}, dt.microsecond}
   end
 
   defp context do
@@ -67,7 +59,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
       user: %{
         id: "24",
         name: "Paul Bunyan",
-        email: "paul@timber.io"
+        email: "paulbunyan@timber.io"
       }
     }
   end
