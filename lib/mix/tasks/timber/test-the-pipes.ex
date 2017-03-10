@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
 
   defp now do
     dt = DateTime.utc_now()
-    {{dt.year, dt.month, dt.day}, {dt.hour, dt.minute, dt.second}, dt.microsecond}
+    {{dt.year, dt.month, dt.day}, {dt.hour, dt.minute, dt.second, dt.microsecond}}
   end
 
   defp context do
