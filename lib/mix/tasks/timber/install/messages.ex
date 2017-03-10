@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
     #{separator()}
 
-    Done! Commit these changes and deploy. 🎉
+    Done! Commit these changes and deploy. 🚀
 
     * Timber URL: https://app.timber.io
     * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
