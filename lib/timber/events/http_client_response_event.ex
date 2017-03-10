@@ -34,6 +34,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
       opts
       |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Keyword.update(:service_name, nil, &UtilsHTTPEvents.try_atom_to_string/1)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
 
     opts = Keyword.put_new_lazy(opts, :request_id, fn -> UtilsHTTPEvents.get_request_id_from_headers(opts[:headers]) end)
