@@ -1,7 +1,7 @@
 # 🌲 Timber - Master your Elixir apps with structured logging
 
 <p align="center" style="background: #140f2a;">
-<a href="http://files.timber.io/images/readme-interface.gif"><img src="http://files.timber.io/images/readme-interface.gif" width="100%" /></a>
+<a href="http://files.timber.io/images/readme-interface-5.gif"><img src="http://files.timber.io/images/readme-interface-5.gif" width="100%" /></a>
 </p>
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
