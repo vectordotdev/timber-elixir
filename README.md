@@ -9,24 +9,22 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.png?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
-
-Timber solves Elixir insight by leveraging what you already have: the `Logger`. There are
-no agents or special APIs; just better logging. It's a _complete_ set of events
-so you'll always have the data you need to _efficiently_ resolve issues. Never feel lost again.
-
 * [Timber website](https://timber.io)
 * [Library documentation](https://hex.pm/packages/timber)
 * [Support](mailto:support@timber.io)
 
-
 ## Overview
 
-Timber for Elixir pairs with the [Timber console](https://app.timber.io) to provide a complete
-structured logging system. Automatically turning your raw text logs into rich structured events.
-This gives you _complete_ insight into your application, allowing you to query, graph, and alert
-on log data.
+Timber is structured logging solution, giving you _complete_ insight into your applications
+without the need for agents, or special APIs. It's just better logging, like it always
+should have been. 😄
 
-For example, it turns this:
+Timber works by automatically by turning your raw text logs into rich structured events. It
+pairs with the [Timber Console](https://app.timber.io) to maximize your productivity, allowing
+you to _quickly_ find what you need so that you get back to focusing on your core competencies.
+Never feel lost again, _always_ have the data you need.
+
+To provide an example, Timber turns this:
 
 ```
 Sent 200 in 45.ms
