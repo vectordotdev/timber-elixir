@@ -138,7 +138,7 @@ defmodule Timber.Transports.HTTP do
     state
   end
 
-  defp wait_on_request(%{ref: ref} = state) do
+  defp wait_on_request(%{ref: ref}) do
     Config.http_client!().wait_on_request(ref)
   end
 
