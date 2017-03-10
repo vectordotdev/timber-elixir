@@ -18,7 +18,7 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.configure/2" do
-    test "does not request an API key" do
+    test "does not require an API key" do
       {:ok, state} = HTTP.init()
       result = HTTP.configure([api_key: nil], state)
       assert elem(result, 0) == :ok
@@ -38,6 +38,16 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.flush/0" do
+    test "without an api key" do
+      entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
+      {:ok, state} = HTTP.init()
+      {:ok, state} = HTTP.configure([api_key: nil], state)
+      {:ok, state} = HTTP.write(entry, state)
+      assert_raise Timber.Transports.HTTP.NoTimberAPIKeyError, fn ->
+        HTTP.flush(state)
+      end
+    end
+
     test "issues a request" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
