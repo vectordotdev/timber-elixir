@@ -32,14 +32,15 @@ defmodule Timber.Transports.HTTP do
   alias Timber.Config
   alias Timber.LogEntry
 
-  @typep t :: %__MODULE__{
+  @type t :: %__MODULE__{
     api_key: String.t,
     buffer_size: non_neg_integer,
-    buffer: [] | [IO.chardata],
+    buffer: buffer,
     flush_interval: non_neg_integer,
     max_buffer_size: pos_integer,
     ref: reference
   }
+  @type buffer :: [] | [IO.chardata]
 
   @content_type "application/msgpack"
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
@@ -73,24 +74,11 @@ defmodule Timber.Transports.HTTP do
   end
 
   @doc false
-  @spec write(LogEntry.t, t) :: {:ok, t}
-  def write(log_entry, state) do
-    # Write to the buffer immediately because we want to batch lines and send
-    # them on an interval.
-    state = write_buffer(log_entry, state)
-
-    if state.buffer_size >= state.max_buffer_size do
-      # The buffer is full, flush immediately.
-      {:ok, flush(state)}
-    else
-      {:ok, state}
-    end
-  end
-
-  # Writes a log entry into the buffer
-  @spec write_buffer(LogEntry.t, t) :: t
-  defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size} = state) do
-    %{state | buffer: [log_entry | buffer], buffer_size: buffer_size + 1}
+  @spec flush(t) :: t
+  def flush(state) do
+    state
+    |> issue_request()
+    |> wait_on_request()
   end
 
   # Handle the outlet step, this recursively calls through process messaging via
@@ -104,9 +92,31 @@ defmodule Timber.Transports.HTTP do
       |> outlet()
     {:ok, new_state}
   end
+
   # Do nothing for everything else.
   def handle_info(_, state) do
     {:ok, state}
+  end
+
+  @doc false
+  @spec write(LogEntry.t, t) :: {:ok, t}
+  def write(log_entry, state) do
+    # Write to the buffer immediately because we want to batch lines and send
+    # them on an interval.
+    state = write_buffer(log_entry, state)
+
+    if buffer_full?(state) do
+      # The buffer is full, flush immediately.
+      {:ok, flush(state)}
+    else
+      {:ok, state}
+    end
+  end
+
+  # Writes a log entry into the buffer
+  @spec write_buffer(LogEntry.t, t) :: t
+  defp write_buffer(log_entry, %{buffer: buffer, buffer_size: buffer_size} = state) do
+    %{state | buffer: [log_entry | buffer], buffer_size: buffer_size + 1}
   end
 
   # The outlet recursively calls itself through process messaging via `Process.send_after/3`.
@@ -118,31 +128,14 @@ defmodule Timber.Transports.HTTP do
     state
   end
 
-  @doc false
-  @spec flush(t) :: t
-  def flush(state) do
-    state
-    |> issue_request()
-    |> wait_on_request()
-  end
-
   # Waits for the async request to complete
   @spec wait_on_request(t) :: t
   defp wait_on_request(%{ref: nil} = state) do
     state
   end
 
-  defp wait_on_request(%{ref: ref} = state) do
-    receive do
-      message ->
-        # Defer message detection to the client. Each client will have different
-        # messages and the check should be contained in there.
-        if Config.http_client!().done?(ref, message) do
-          %{state | ref: nil}
-        else
-          wait_on_request(state)
-        end
-    end
+  defp wait_on_request(%{ref: ref}) do
+    Config.http_client!().wait_on_request(ref)
   end
 
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
@@ -158,33 +151,67 @@ defmodule Timber.Transports.HTTP do
   end
 
   defp issue_request(%{api_key: api_key, buffer: buffer} = state) do
-    log_entries =
-      buffer
-      |> Enum.reverse()
-      |> Enum.map(&LogEntry.to_map!/1)
-      |> Enum.map(fn
-        %{message: nil} = log_entry_map -> log_entry_map
-
-        log_entry_map ->
-          Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
-      end)
-
-    {:ok, body} = Msgpax.pack(log_entries)
-
+    body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
     user_agent = "Timber Elixir/#{vsn} (HTTP)"
-    headers = %{
-      "Authorization" => "Basic #{auth_token}",
-      "Content-Type" => @content_type,
-      "User-Agent" => user_agent
-    }
+
+    headers =
+      %{
+        "Authorization" => "Basic #{auth_token}",
+        "Content-Type" => @content_type,
+        "User-Agent" => user_agent
+      }
+
     url = Config.http_url() || @url
 
-    {:ok, ref} = Config.http_client!().async_request(:post, url, headers, body)
+    case Config.http_client!().async_request(:post, url, headers, body) do
+      {:ok, ref} ->
+        new_buffer = clear_buffer(state)
+        %{ new_buffer | ref: ref }
 
-    %{state | ref: ref, buffer: [], buffer_size: 0}
+      {:error, _reason} ->
+        # If the buffer is full and we can't send the request, drop the messages.
+        if buffer_full?(state) do
+          clear_buffer(state)
+        else
+          # Ignore errors, keep the buffer, and allow the next attempt to retry.
+          state
+        end
+    end
   end
+
+  @spec buffer_full?(t) :: boolean
+  defp buffer_full?(state) do
+    state.buffer_size >= state.max_buffer_size
+  end
+
+  @spec clear_buffer(t) :: t
+  defp clear_buffer(state) do
+    %{ state | buffer: [], buffer_size: 0 }
+  end
+
+  # Encodes the buffer into msgpack
+  @spec buffer_to_msg_pack(buffer) :: IO.chardata
+  defp buffer_to_msg_pack(buffer) do
+    buffer
+    |> Enum.reverse()
+    |> Enum.map(&LogEntry.to_map!/1)
+    |> Enum.map(&prepare_for_msgpax/1)
+    |> Msgpax.pack!()
+  end
+
+  # Normalizes the LogEntry.message into a string if it is not.
+  @spec prepare_for_msgpax(LogEntry.t) :: LogEntry.t
+  defp prepare_for_msgpax(%{message: nil} = log_entry), do: log_entry
+
+  defp prepare_for_msgpax(log_entry_map) do
+    Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
+  end
+
+  #
+  # Config
+  #
 
   @spec config() :: Keyword.t
   defp config, do: Application.get_env(:timber, :http_transport, [])

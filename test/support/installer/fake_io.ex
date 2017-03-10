@@ -2,12 +2,12 @@ defmodule Timber.Installer.FakeIO do
   use Timber.Stubbing
 
   def binwrite(file, contents) do
-    get_stub(:binwrite).(file, contents)
+    get_stub!(:binwrite).(file, contents)
   end
 
   def gets(message) do
     write_output(message)
-    v = get_stub(:gets).(message)
+    v = get_stub!(:gets).(message)
     write_output(v)
     v
   end
