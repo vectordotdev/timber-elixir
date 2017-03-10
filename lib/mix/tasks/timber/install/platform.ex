@@ -16,6 +16,7 @@ defmodule Mix.Tasks.Timber.Install.Platform do
     |> IOHelper.write()
 
     {:ok, http_client} = Timber.Transports.HTTP.init()
+    {:ok, http_client} = Timber.Transports.HTTP.configure([api_key: api_key], http_client)
 
     log_entries = TestThePipes.log_entries()
 

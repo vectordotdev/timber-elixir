@@ -18,10 +18,10 @@ defmodule Timber.Transports.HTTPTest do
   end
 
   describe "Timber.Transports.HTTP.configure/2" do
-    test "requires an API key" do
+    test "does not request an API key" do
       {:ok, state} = HTTP.init()
       result = HTTP.configure([api_key: nil], state)
-      assert result == {:error, :no_api_key}
+      assert elem(result, 0) == :ok
     end
 
     test "updates the api key" do
