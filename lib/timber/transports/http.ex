@@ -28,6 +28,7 @@ defmodule Timber.Transports.HTTP do
 
   @behaviour Timber.Transport
 
+  alias __MODULE__.NoTimberAPIKeyError
   alias Timber.Config
   alias Timber.LogEntry
 
@@ -68,12 +69,7 @@ defmodule Timber.Transports.HTTP do
     api_key = Keyword.get(options, :api_key, current_api_key)
     max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
     new_state = %{ state | api_key: api_key, max_buffer_size: max_buffer_size }
-
-    if api_key == nil do
-      {:error, :no_api_key}
-    else
-      {:ok, new_state}
-    end
+    {:ok, new_state}
   end
 
   @doc false
@@ -157,6 +153,10 @@ defmodule Timber.Transports.HTTP do
     state
   end
 
+  defp issue_request(%{api_key: nil}) do
+    raise NoTimberAPIKeyError
+  end
+
   defp issue_request(%{api_key: api_key, buffer: buffer} = state) do
     log_entries =
       buffer
@@ -188,4 +188,23 @@ defmodule Timber.Transports.HTTP do
 
   @spec config() :: Keyword.t
   defp config, do: Application.get_env(:timber, :http_transport, [])
+
+  #
+  # Errors
+  #
+
+  defmodule NoTimberAPIKeyError do
+    defexception message: \
+      """
+      We couldn't not locate your Timber API key. If you specified it
+      as an environment variable, please ensure that this variable was
+      added to your environment. Otherwise, please ensure that the
+      api_key is specified during configuration:
+
+      config :timber, api_key: "my_timber_api_key"
+
+      You can location your API key in the timber console by creating or
+      editing your app: https://app.timber.io
+      """
+  end
 end
