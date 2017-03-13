@@ -7,7 +7,7 @@ config :logger, :utc_log, true
 config :logger, :handle_otp_reports, false
 
 config :logger, backends: [Timber.LoggerBackend]
-config :timber, transport: Timber.Transports.IODevice
+config :timber, transport: Timber.Transports.IODevice, debug_io_device: :stdio
 
 
 # The file config/config.secret.exs can be used for local
