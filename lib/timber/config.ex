@@ -20,8 +20,9 @@ defmodule Timber.Config do
   end
 
   @doc """
-  Prints a variety of messages to specified IO device. We can't use the logger directly,
-  because it would create an infinite loop of logging :(
+  Helpful to inspect internal Timber activity; a useful debugging utility.
+  If specified, Timber will write messages to this device. We cannot use the
+  standard Logger directly because it would create an infinite loop.
   """
   def debug_io_device do
     Application.get_env(@env_key, :debug_io_device)
