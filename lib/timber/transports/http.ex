@@ -28,9 +28,11 @@ defmodule Timber.Transports.HTTP do
 
   @behaviour Timber.Transport
 
-  alias __MODULE__.NoTimberAPIKeyError
+  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError}
   alias Timber.Config
   alias Timber.LogEntry
+
+  require Logger
 
   @type t :: %__MODULE__{
     api_key: String.t,
@@ -51,13 +53,19 @@ defmodule Timber.Transports.HTTP do
             buffer_size: 0,
             buffer: [],
             flush_interval: @default_flush_interval,
+            http_client: nil,
             max_buffer_size: @default_max_buffer_size,
             ref: nil
 
   @doc false
-  @spec init() :: {:ok, t} | {:error, atom}
-  def init() do
-    config = Keyword.put(config(), :api_key, Timber.Config.api_key())
+  @spec init(Keyword.t) :: {:ok, t} | {:error, atom}
+  def init(opts \\ []) do
+    config =
+      [
+        api_key: Timber.Config.api_key(),
+        http_client: Timber.Config.http_client()
+      ]
+      |> Keyword.merge(opts)
 
     with {:ok, state} <- configure(config, %__MODULE__{}),
          state <- outlet(state),
@@ -66,10 +74,17 @@ defmodule Timber.Transports.HTTP do
 
   @doc false
   @spec configure(Keyword.t, t) :: {:ok, t} | {:error, atom}
-  def configure(options, %{api_key: current_api_key} = state) do
-    api_key = Keyword.get(options, :api_key, current_api_key)
-    max_buffer_size = Keyword.get(options, :max_buffer_size, @default_max_buffer_size)
-    new_state = %{ state | api_key: api_key, max_buffer_size: max_buffer_size }
+  def configure(new_opts, state) do
+    new_state = struct!(state, new_opts)
+
+    if new_state.api_key == nil do
+      raise NoTimberAPIKeyError
+    end
+
+    if new_state.http_client == nil do
+      raise NoHTTPClientError
+    end
+
     {:ok, new_state}
   end
 
@@ -124,6 +139,7 @@ defmodule Timber.Transports.HTTP do
   # by the specified interval length.
   @spec outlet(t) :: t
   defp outlet(%{flush_interval: flush_interval} = state) do
+    Timber.debug fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end
     Process.send_after(self(), :outlet, flush_interval)
     state
   end
@@ -134,8 +150,12 @@ defmodule Timber.Transports.HTTP do
     state
   end
 
-  defp wait_on_request(%{ref: ref}) do
-    Config.http_client!().wait_on_request(ref)
+  defp wait_on_request(%{http_client: nil}) do
+    raise NoHTTPClientError
+  end
+
+  defp wait_on_request(%{http_client: http_client, ref: ref}) do
+    http_client.wait_on_request(ref)
   end
 
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
@@ -150,7 +170,13 @@ defmodule Timber.Transports.HTTP do
     raise NoTimberAPIKeyError
   end
 
-  defp issue_request(%{api_key: api_key, buffer: buffer} = state) do
+  defp issue_request(%{http_client: nil}) do
+    raise NoHTTPClientError
+  end
+
+  defp issue_request(%{api_key: api_key, buffer: buffer, buffer_size: buffer_size,
+    http_client: http_client} = state)
+  do
     body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
@@ -165,16 +191,30 @@ defmodule Timber.Transports.HTTP do
 
     url = Config.http_url() || @url
 
-    case Config.http_client!().async_request(:post, url, headers, body) do
+    case http_client.async_request(:post, url, headers, body) do
       {:ok, ref} ->
+        Timber.debug fn -> "Issued HTTP request with reference #{inspect(ref)}" end
+
         new_buffer = clear_buffer(state)
         %{ new_buffer | ref: ref }
 
-      {:error, _reason} ->
-        # If the buffer is full and we can't send the request, drop the messages.
+      {:error, reason} ->
+        # If the buffer is full and we can't send the request, drop the buffer.
         if buffer_full?(state) do
-          clear_buffer(state)
+          Timber.debug fn -> "Error issuing HTTP request #{inspect(reason)}. Buffer is full, dropping messages." end
+
+          new_state = clear_buffer(state)
+
+          Logger.error fn ->
+            "Timber HTTP client dropped #{buffer_size} messages due to communication " <> \
+              "errors with the Timber API"
+          end
+
+          new_state
         else
+          Timber.debug fn ->
+            "Error issuing HTTP request #{inspect(reason)}. Keeping buffer for retry next time."
+          end
           # Ignore errors, keep the buffer, and allow the next attempt to retry.
           state
         end
@@ -210,15 +250,18 @@ defmodule Timber.Transports.HTTP do
   end
 
   #
-  # Config
-  #
-
-  @spec config() :: Keyword.t
-  defp config, do: Application.get_env(:timber, :http_transport, [])
-
-  #
   # Errors
   #
+
+  defmodule NoHTTPClientError do
+    defexception message: \
+      """
+      An HTTP client could not be found. Timber allows you to choose your HTTP
+      client, but comes with a default :hackney click. Please use this via:
+
+        config :timber, http_client: Timber.Transports.HTTP.HackneyClient
+      """
+  end
 
   defmodule NoTimberAPIKeyError do
     defexception message: \
@@ -228,7 +271,7 @@ defmodule Timber.Transports.HTTP do
       added to your environment. Otherwise, please ensure that the
       api_key is specified during configuration:
 
-      config :timber, api_key: "my_timber_api_key"
+        config :timber, api_key: "my_timber_api_key"
 
       You can location your API key in the timber console by creating or
       editing your app: https://app.timber.io

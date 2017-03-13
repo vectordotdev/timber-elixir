@@ -49,6 +49,21 @@ defmodule Timber do
   defdelegate duration_ms(timer), to: Timber.Timer
 
   @doc false
+  def debug(message_fun) do
+    Timber.Config.debug_io_device()
+    |> debug(message_fun)
+  end
+
+  @doc false
+  def debug(nil, _message_fun) do
+     false
+  end
+
+  def debug(io_device, message_fun) when is_function(message_fun) do
+    IO.write(io_device, message_fun.())
+  end
+
+  @doc false
   # Handles the application callback start/2
   #
   # Starts an empty supervisor in order to comply with callback expectations

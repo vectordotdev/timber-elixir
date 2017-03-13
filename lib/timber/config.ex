@@ -20,6 +20,15 @@ defmodule Timber.Config do
   end
 
   @doc """
+  Helpful to inspect internal Timber activity; a useful debugging utility.
+  If specified, Timber will write messages to this device. We cannot use the
+  standard Logger directly because it would create an infinite loop.
+  """
+  def debug_io_device do
+    Application.get_env(@env_key, :debug_io_device)
+  end
+
+  @doc """
   Change the name of the `Logger` metadata key that Timber uses for events.
   By default, this is `:event`
 
@@ -58,7 +67,7 @@ defmodule Timber.Config do
   config :timber, :http_client, MyCustomHTTPClient
   ```
   """
-  def http_client!, do: Application.fetch_env!(@env_key, :http_client)
+  def http_client, do: Application.get_env(@env_key, :http_client)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
