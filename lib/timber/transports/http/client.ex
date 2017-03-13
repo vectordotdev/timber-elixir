@@ -22,7 +22,7 @@ defmodule Timber.Transports.HTTP.Client do
   Then specify it in your configuration:
 
   ```elixir
-  config :timber, :http_transport, http_client: MyHTTPClient
+  config :timber, :http_client, MyHTTPClient
   ```
   """
 

@@ -46,7 +46,18 @@ if Code.ensure_loaded?(:hackney) do
     @spec wait_on_request(reference) :: :ok
     def wait_on_request(ref) do
       receive do
-        {:hackney_response, ^ref, :done} -> :ok
+        {:hackney_response, ^ref, {:ok, status, reason}} ->
+          Timber.debug fn -> "HTTP request #{ref} received response #{status} #{reason}" end
+          wait_on_request(ref)
+
+        {:hackney_response, ^ref, {:error, error}} ->
+          Timber.debug fn -> "HTTP request #{ref} received error #{error}" end
+          wait_on_request(ref)
+
+        {:hackney_response, ^ref, :done} ->
+          Timber.debug fn -> "HTTP request #{ref} done" end
+          :ok
+
         _else -> wait_on_request(ref)
       end
     end
