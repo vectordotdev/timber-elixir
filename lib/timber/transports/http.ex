@@ -58,14 +58,10 @@ defmodule Timber.Transports.HTTP do
   @doc false
   @spec init() :: {:ok, t} | {:error, atom}
   def init() do
-    raise NoTimberAPIKeyError
-
     config = [
       api_key: Timber.Config.api_key(),
       http_client: Timber.Config.http_client()
     ]
-
-    Timber.debug fn -> "Initialize HTTP client with #{inspect(config)}" end
 
     with {:ok, state} <- configure(config, %__MODULE__{}),
          state <- outlet(state),
@@ -76,6 +72,15 @@ defmodule Timber.Transports.HTTP do
   @spec configure(Keyword.t, t) :: {:ok, t} | {:error, atom}
   def configure(new_opts, state) do
     new_state = struct!(state, new_opts)
+
+    if new_state.api_key == nil do
+      raise NoTimberAPIKeyError
+    end
+
+    if new_state.http_client == nil do
+      raise NoHTTPClientError
+    end
+
     {:ok, new_state}
   end
 
@@ -165,7 +170,9 @@ defmodule Timber.Transports.HTTP do
     raise NoHTTPClientError
   end
 
-  defp issue_request(%{api_key: api_key, buffer: buffer, http_client: http_client} = state) do
+  defp issue_request(%{api_key: api_key, buffer: buffer, buffer_size: buffer_size,
+    http_client: http_client} = state)
+  do
     body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
@@ -191,7 +198,15 @@ defmodule Timber.Transports.HTTP do
         # If the buffer is full and we can't send the request, drop the buffer.
         if buffer_full?(state) do
           Timber.debug fn -> "Error issuing HTTP request #{reason}. Buffer is full, dropping messages." end
-          clear_buffer(state)
+
+          new_state = clear_buffer(state)
+
+          Logger.error fn ->
+            "Timber HTTP client dropped #{buffer_size} messages due to communication " <> \
+              "errors with the Timber API"
+          end
+
+          new_state
         else
           Timber.debug fn -> "Error issuing HTTP request #{reason}. Keeping buffer for retry next time." end
           # Ignore errors, keep the buffer, and allow the next attempt to retry.
