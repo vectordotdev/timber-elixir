@@ -32,6 +32,8 @@ defmodule Timber.Transports.HTTP do
   alias Timber.Config
   alias Timber.LogEntry
 
+  require Logger
+
   @type t :: %__MODULE__{
     api_key: String.t,
     buffer_size: non_neg_integer,
