@@ -29,6 +29,12 @@ defmodule Timber.Events.ExceptionEvent do
   @enforce_keys [:backtrace, :name, :message]
   defstruct [:backtrace, :name, :message]
 
+  @app_name_limit 255
+  @file_limit 1_000
+  @function_limit 255
+  @message_limit 10_000
+  @name_limit 255
+
   @doc """
   Builds a new struct taking care to normalize data into a valid state. This should
   be used, where possible, instead of creating the struct directly.
@@ -42,6 +48,9 @@ defmodule Timber.Events.ExceptionEvent do
 
     case do_new({nil, "", []}, lines) do
       {name, message, backtrace} when is_binary(name) and length(backtrace) > 0 ->
+        name = String.slice(name, 0..(@name_limit - 1))
+        message = String.slice(message, 0..(@message_limit - 1))
+
         {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
 
       _ ->
@@ -70,6 +79,11 @@ defmodule Timber.Events.ExceptionEvent do
     [app_name, line_suffix] = String.split(line_suffix, ")", parts: 2)
     [file, line_suffix] = String.split(line_suffix, ":", parts: 2)
     [line_number, function] = String.split(line_suffix, ":", parts: 2)
+
+    app_name = String.slice(app_name, 0..(@app_name_limit - 1))
+    function = String.slice(function, 0..(@function_limit - 1))
+    file = String.slice(file, 0..(@file_limit - 1))
+
     line = %{
       app_name: app_name,
       function: String.trim(function),
