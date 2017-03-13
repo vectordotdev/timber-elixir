@@ -59,7 +59,7 @@ defmodule Timber do
      false
   end
 
-  def debug(io_device, message_fun) do
+  def debug(io_device, message_fun) when is_function(message_fun) do
     IO.write(io_device, message_fun.())
   end
 

@@ -63,7 +63,7 @@ defmodule Timber.Transports.HTTP do
       http_client: Timber.Config.http_client()
     ]
 
-    Timber.debug("Initialize HTTP client with #{inspect(config)}")
+    Timber.debug fn -> "Initialize HTTP client with #{inspect(config)}" end
 
     with {:ok, state} <- configure(config, %__MODULE__{}),
          state <- outlet(state),
@@ -128,7 +128,7 @@ defmodule Timber.Transports.HTTP do
   # by the specified interval length.
   @spec outlet(t) :: t
   defp outlet(%{flush_interval: flush_interval} = state) do
-    Timber.debug("Checking for logs to send, buffer size is #{state.buffer_size}")
+    Timber.debug fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end
     Process.send_after(self(), :outlet, flush_interval)
     state
   end
