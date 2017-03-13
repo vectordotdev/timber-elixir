@@ -58,6 +58,8 @@ defmodule Timber.Transports.HTTP do
   @doc false
   @spec init() :: {:ok, t} | {:error, atom}
   def init() do
+    raise NoTimberAPIKeyError
+
     config = [
       api_key: Timber.Config.api_key(),
       http_client: Timber.Config.http_client()
