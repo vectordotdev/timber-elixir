@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
           value when value in 200..299 ->
             {status, decode_body("#{body}", url)}
 
-          403 -> raise(InvalidAPIKeyError)
+          value when value in [401, 403] -> raise(InvalidAPIKeyError)
 
           value -> raise(BadResponseError, url: url, body: body, status: value)
         end

@@ -89,7 +89,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   def obtain_key_instructions do
     """
     You can obtain your key by adding an application in #{@app_url},
-    or by clicking 'edit' next to your application.
+    or by clicking 'settings' next to your application.
     """
   end
 

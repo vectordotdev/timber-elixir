@@ -3,6 +3,7 @@ defmodule Mix.Tasks.Timber.Install do
 
   alias __MODULE__.{Application, ConfigFile, EndpointFile, Event, Feedback, HTTPClient,
     IOHelper, Messages, Platform, WebFile}
+  alias Mix.Tasks.Timber.Install.HTTPClient.InvalidAPIKeyError
 
   require Logger
 
@@ -40,6 +41,17 @@ defmodule Mix.Tasks.Timber.Install do
       Feedback.collect(session_id, api_key)
 
     rescue
+      e in InvalidAPIKeyError ->
+        message = Exception.message(e)
+
+        """
+        #{String.duplicate("!", 80)}
+
+        #{message}
+        #{Messages.get_help()}
+        """
+        |> IOHelper.puts(:red)
+
       e ->
         message = Exception.message(e)
         stacktrace = Exception.format_stacktrace(System.stacktrace())
