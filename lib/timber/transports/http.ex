@@ -58,12 +58,14 @@ defmodule Timber.Transports.HTTP do
             ref: nil
 
   @doc false
-  @spec init() :: {:ok, t} | {:error, atom}
-  def init() do
-    config = [
-      api_key: Timber.Config.api_key(),
-      http_client: Timber.Config.http_client()
-    ]
+  @spec init(Keyword.t) :: {:ok, t} | {:error, atom}
+  def init(opts \\ []) do
+    config =
+      [
+        api_key: Timber.Config.api_key(),
+        http_client: Timber.Config.http_client()
+      ]
+      |> Keyword.merge(opts)
 
     with {:ok, state} <- configure(config, %__MODULE__{}),
          state <- outlet(state),
