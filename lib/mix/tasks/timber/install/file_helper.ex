@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Timber.Install.FileHelper do
-  alias __MODULE__.{FileReplacePatternError, FileWritingError}
+  alias __MODULE__.{FileReadingError, FileReplacePatternError, FileWritingError}
   alias Mix.Tasks.Timber.Install.Config
 
   def append_once!(path, contents) do
@@ -24,23 +24,29 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     end
   end
 
-  def replace_once!(path, pattern, replacement, contains_pattern) do
+  def read!(path) do
     case Config.file_client().read(path) do
-      {:ok, contents} ->
-        if String.contains?(contents, contains_pattern) do
-          :ok
+      {:ok, contents} -> contents
+      {:error, reason} -> raise(FileReadingError, path: path, reason: reason)
+    end
+  end
 
-        else
-          new_contents = String.replace(contents, pattern, replacement)
+  def remove_once!(contents, pattern) do
+    String.replace(contents, pattern, "")
+  end
 
-          if String.contains?(new_contents, contains_pattern) do
-            write!(path, new_contents)
-          else
-            raise(FileReplacePatternError, path: path, pattern: contains_pattern)
-          end
-        end
+  def replace_once!(contents, pattern, replacement, contains_pattern) do
+    if String.contains?(contents, contains_pattern) do
+      contents
 
-      {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
+    else
+      new_contents = String.replace(contents, pattern, replacement)
+
+      if String.contains?(new_contents, contains_pattern) do
+        new_contents
+      else
+        raise(FileReplacePatternError, pattern: contains_pattern)
+      end
     end
   end
 
@@ -67,12 +73,27 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     defexception [:message]
 
     def exception(opts) do
-      path = Keyword.fetch!(opts, :path)
       pattern = Keyword.fetch!(opts, :pattern)
       message =
         """
-        Uh oh! We had a problem updating #{path}. The pattern
+        Uh oh! We had a problem updating a file. The pattern
         #{pattern} was not found after writing!
+        """
+      %__MODULE__{message: message}
+    end
+  end
+
+  defmodule FileReadingError do
+    defexception [:message]
+
+    def exception(opts) do
+      path = Keyword.fetch!(opts, :path)
+      reason = Keyword.fetch!(opts, :reason)
+      message =
+        """
+        Uh oh! We had a problem reading #{path}:
+
+        #{reason}
         """
       %__MODULE__{message: message}
     end
