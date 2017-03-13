@@ -191,7 +191,7 @@ defmodule Timber.Transports.HTTP do
 
     case http_client.async_request(:post, url, headers, body) do
       {:ok, ref} ->
-        Timber.debug fn -> "Issued HTTP request with reference #{ref}" end
+        Timber.debug fn -> "Issued HTTP request with reference #{inspect(ref)}" end
 
         new_buffer = clear_buffer(state)
         %{ new_buffer | ref: ref }
@@ -199,7 +199,7 @@ defmodule Timber.Transports.HTTP do
       {:error, reason} ->
         # If the buffer is full and we can't send the request, drop the buffer.
         if buffer_full?(state) do
-          Timber.debug fn -> "Error issuing HTTP request #{reason}. Buffer is full, dropping messages." end
+          Timber.debug fn -> "Error issuing HTTP request #{inspect(reason)}. Buffer is full, dropping messages." end
 
           new_state = clear_buffer(state)
 
@@ -210,7 +210,9 @@ defmodule Timber.Transports.HTTP do
 
           new_state
         else
-          Timber.debug fn -> "Error issuing HTTP request #{reason}. Keeping buffer for retry next time." end
+          Timber.debug fn ->
+            "Error issuing HTTP request #{inspect(reason)}. Keeping buffer for retry next time."
+          end
           # Ignore errors, keep the buffer, and allow the next attempt to retry.
           state
         end
