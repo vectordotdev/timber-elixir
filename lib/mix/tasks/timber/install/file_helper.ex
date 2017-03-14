@@ -2,12 +2,10 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
   alias __MODULE__.{FileReadingError, FileReplacePatternError, FileWritingError}
   alias Mix.Tasks.Timber.Install.Config
 
-  def append_once!(path, contents) do
+  def append_once!(path, contents, contains_pattern) do
     case Config.file_client().read(path) do
       {:ok, current_contents} ->
-        trimmed_contents = String.trim(contents)
-
-        if String.contains?(current_contents, trimmed_contents) do
+        if String.contains?(current_contents, contains_pattern) do
           :ok
         else
           case Config.file_client().open(path, [:append]) do

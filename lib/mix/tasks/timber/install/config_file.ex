@@ -116,6 +116,8 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
       import_config \"#{@file_name}\"
       """
 
-    FileHelper.append_once!(config_file_path, contents)
+    check = "import_config \"#{@file_name}\""
+
+    FileHelper.append_once!(config_file_path, contents, check)
   end
 end
