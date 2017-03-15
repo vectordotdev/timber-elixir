@@ -305,7 +305,7 @@ defmodule Timber.Transports.HTTP do
 
         config :timber, api_key: "my_timber_api_key"
 
-      You can location your API key in the Timber console by creating or
+      You can locate your API key in the Timber console by creating or
       editing your app: https://app.timber.io
       """
     defexception [:api_key, message: @message]
