@@ -7,7 +7,7 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.init/0" do
     test "configures properly" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -16,7 +16,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "starts the flusher" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -27,7 +27,7 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.configure/2" do
     test "raises when the API key is not present" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -40,9 +40,9 @@ defmodule Timber.Transports.HTTPTest do
 
     test "raises when the API key is invalid" do
       FakeHTTPClient.stub :request, fn
-        :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
-        :get, "https://api.timber.io/application", %{"Authorization" => "Bearer invalid"}, _ ->
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer invalid"}, _ ->
           {:ok, 401, %{}, ""}
       end
 
@@ -55,9 +55,9 @@ defmodule Timber.Transports.HTTPTest do
 
     test "updates the api key" do
       FakeHTTPClient.stub :request, fn
-        :get, "https://api.timber.io/application", %{"Authorization" => "Bearer new_api_key"}, _ ->
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer new_api_key"}, _ ->
           {:ok, 204, %{}, ""}
-        :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -67,7 +67,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "updates the max_buffer_size" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -79,7 +79,7 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.flush/0" do
     test "without an api key" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -93,7 +93,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "issues a request" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -117,7 +117,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "issues a request with chardata" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -135,7 +135,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "http client returns an error" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -161,7 +161,7 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.handle_info/2" do
     test "handles the outlet properly" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -176,7 +176,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "ignores everything else" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
@@ -194,7 +194,7 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.write/0" do
     test "buffers the message if the buffer is not full" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
           {:ok, 204, %{}, ""}
       end
 
@@ -207,7 +207,7 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "flushes if the buffer is full" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/application", %{"Authorization" => "Bearer api_key"}, _ ->
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Bearer api_key"}, _ ->
         {:ok, 204, %{}, ""}
       end
 
