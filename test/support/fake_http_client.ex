@@ -1,6 +1,10 @@
 defmodule Timber.FakeHTTPClient do
   use Timber.Stubbing
 
+  def start() do
+    :ok
+  end
+
   def async_request(method, url, headers, body) do
     # Track the function call
     add_function_call(:async_request, {method, url, headers, body})

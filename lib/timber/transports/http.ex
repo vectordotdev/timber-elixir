@@ -86,6 +86,7 @@ defmodule Timber.Transports.HTTP do
       raise NoHTTPClientError
     end
 
+    new_state.http_client.start()
     run_http_preflight_check!(new_state.http_client, new_state.api_key)
 
     {:ok, new_state}

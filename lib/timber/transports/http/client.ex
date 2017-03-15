@@ -34,6 +34,7 @@ defmodule Timber.Transports.HTTP.Client do
   @type async_result :: {:ok, reference} | {:error, atom}
   @type result :: {:ok, integer, map, String.t} | {:error, atom}
 
+  @callback start() :: :ok
   @callback async_request(method, url, headers, body) :: async_result
   @callback request(method, url, headers, body) :: result
   @callback wait_on_request(reference) :: :ok
