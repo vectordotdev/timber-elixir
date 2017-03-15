@@ -30,12 +30,23 @@ if Code.ensure_loaded?(:hackney) do
     @doc """
     Issues a HTTP request via hackney.
     """
-    @spec async_request(Client.method, Client.url, Client.headers, Client.body) :: Client.result
     def async_request(method, url, headers, body) do
       req_headers = Enum.map(headers, &(&1))
       req_opts =
         get_request_options()
         |> Keyword.merge([async: true])
+
+      :hackney.request(method, url, req_headers, body, req_opts)
+    end
+
+    @doc """
+    Issues a HTTP request via hackney.
+    """
+    def request(method, url, headers, body) do
+      req_headers = Enum.map(headers, &(&1))
+      req_opts =
+        get_request_options()
+        |> Keyword.merge([with_body: true])
 
       :hackney.request(method, url, req_headers, body, req_opts)
     end

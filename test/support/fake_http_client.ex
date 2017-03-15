@@ -20,6 +20,12 @@ defmodule Timber.FakeHTTPClient do
     end
   end
 
+  def request(method, url, headers, body) do
+    add_function_call(:request, {method, url, headers, body})
+    stub = get_stub(:request)
+    stub.(method, url, headers, body)
+  end
+
   def wait_on_request(ref) do
     receive do
       {:hackney_response, ^ref, :done} -> :ok
