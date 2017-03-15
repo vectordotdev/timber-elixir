@@ -66,7 +66,7 @@ defmodule Timber.Mixfile do
 
   # Default list of applications to be loaded regardless
   # of Mix environment
-  defp apps(), do: [:poison, :logger, :msgpax]
+  defp apps(), do: [:poison, :logger, :msgpax, :hackney]
 
   # The environment to be configured by default
   defp env() do
