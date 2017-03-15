@@ -261,7 +261,7 @@ defmodule Timber.Transports.HTTP do
     }
 
     case http_client.request(:get, @preflight_url, headers, "") do
-      {:ok, 204, _, _} ->
+      {:ok, status, _, _} when status in 200..299 ->
         :ok
       _ ->
         raise TimberAPIKeyInvalid, api_key: api_key
