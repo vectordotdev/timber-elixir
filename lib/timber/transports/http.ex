@@ -254,8 +254,10 @@ defmodule Timber.Transports.HTTP do
   end
 
   defp run_http_preflight_check!(http_client, api_key) do
+    auth_token = Base.encode64(api_key)
+
     headers = %{
-      "Authorization" => "Bearer #{api_key}"
+      "Authorization" => "Basic #{auth_token}"
     }
 
     case http_client.request(:get, @preflight_url, headers, "") do
