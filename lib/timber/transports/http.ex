@@ -264,7 +264,7 @@ defmodule Timber.Transports.HTTP do
       {:ok, 204, _, _} ->
         :ok
       _ ->
-        raise TimberAPIKeyInvalid
+        raise TimberAPIKeyInvalid, api_key: api_key
     end
   end
 
@@ -298,7 +298,7 @@ defmodule Timber.Transports.HTTP do
   end
 
   defmodule TimberAPIKeyInvalid do
-    defexception message: \
+    @message \
       """
       The Timber service does not recognize your API key. Please check
       that you have specified your key correctly.
@@ -308,5 +308,6 @@ defmodule Timber.Transports.HTTP do
       You can location your API key in the Timber console by creating or
       editing your app: https://app.timber.io
       """
+    defexception [:api_key, message: @message]
   end
 end
