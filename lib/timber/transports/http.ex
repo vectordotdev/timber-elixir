@@ -28,7 +28,7 @@ defmodule Timber.Transports.HTTP do
 
   @behaviour Timber.Transport
 
-  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError}
+  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError, TimberAPIKeyInvalid}
   alias Timber.Config
   alias Timber.LogEntry
 
@@ -47,7 +47,8 @@ defmodule Timber.Transports.HTTP do
   @content_type "application/msgpack"
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
   @default_flush_interval 1000
-  @url "https://logs.timber.io/frames"
+  @frames_url "https://logs.timber.io/frames"
+  @preflight_url "https://api.timber.io/installer/application"
 
   defstruct api_key: nil,
             buffer_size: 0,
@@ -84,6 +85,9 @@ defmodule Timber.Transports.HTTP do
     if new_state.http_client == nil do
       raise NoHTTPClientError
     end
+
+    new_state.http_client.start()
+    run_http_preflight_check!(new_state.http_client, new_state.api_key)
 
     {:ok, new_state}
   end
@@ -189,7 +193,7 @@ defmodule Timber.Transports.HTTP do
         "User-Agent" => user_agent
       }
 
-    url = Config.http_url() || @url
+    url = Config.http_url() || @frames_url
 
     case http_client.async_request(:post, url, headers, body) do
       {:ok, ref} ->
@@ -249,6 +253,21 @@ defmodule Timber.Transports.HTTP do
     Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
   end
 
+  defp run_http_preflight_check!(http_client, api_key) do
+    auth_token = Base.encode64(api_key)
+
+    headers = %{
+      "Authorization" => "Basic #{auth_token}"
+    }
+
+    case http_client.request(:get, @preflight_url, headers, "") do
+      {:ok, status, _, _} when status in 200..299 ->
+        :ok
+      _ ->
+        raise TimberAPIKeyInvalid, api_key: api_key
+    end
+  end
+
   #
   # Errors
   #
@@ -273,8 +292,22 @@ defmodule Timber.Transports.HTTP do
 
         config :timber, api_key: "my_timber_api_key"
 
-      You can location your API key in the timber console by creating or
+      You can location your API key in the Timber console by creating or
       editing your app: https://app.timber.io
       """
+  end
+
+  defmodule TimberAPIKeyInvalid do
+    @message \
+      """
+      The Timber service does not recognize your API key. Please check
+      that you have specified your key correctly.
+
+        config :timber, api_key: "my_timber_api_key"
+
+      You can locate your API key in the Timber console by creating or
+      editing your app: https://app.timber.io
+      """
+    defexception [:api_key, message: @message]
   end
 end

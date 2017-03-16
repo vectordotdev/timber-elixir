@@ -1,6 +1,10 @@
 defmodule Timber.FakeHTTPClient do
   use Timber.Stubbing
 
+  def start() do
+    :ok
+  end
+
   def async_request(method, url, headers, body) do
     # Track the function call
     add_function_call(:async_request, {method, url, headers, body})
@@ -18,6 +22,12 @@ defmodule Timber.FakeHTTPClient do
       # Return back with the same stream reference
       {:ok, stream_reference}
     end
+  end
+
+  def request(method, url, headers, body) do
+    add_function_call(:request, {method, url, headers, body})
+    stub = get_stub(:request)
+    stub.(method, url, headers, body)
   end
 
   def wait_on_request(ref) do

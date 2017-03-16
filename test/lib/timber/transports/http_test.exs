@@ -7,31 +7,70 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.init/0" do
     test "configures properly" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       {:ok, state} = HTTP.init()
       assert state.api_key == "api_key"
     end
 
     test "starts the flusher" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       HTTP.init()
       assert_receive(:outlet, 1100)
     end
   end
 
   describe "Timber.Transports.HTTP.configure/2" do
-    test "requires an API key" do
+    test "raises when the API key is not present" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       {:ok, state} = HTTP.init()
+
       assert_raise Timber.Transports.HTTP.NoTimberAPIKeyError, fn ->
         HTTP.configure([api_key: nil], state)
       end
     end
 
+    test "raises when the API key is invalid" do
+      FakeHTTPClient.stub :request, fn
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic aW52YWxpZA=="}, _ ->
+          {:ok, 401, %{}, ""}
+      end
+
+      {:ok, state} = HTTP.init()
+
+      assert_raise Timber.Transports.HTTP.TimberAPIKeyInvalid, fn ->
+        HTTP.configure([api_key: "invalid"], state)
+      end
+    end
+
     test "updates the api key" do
+      FakeHTTPClient.stub :request, fn
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic bmV3X2FwaV9rZXk="}, _ ->
+          {:ok, 204, %{}, ""}
+        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       {:ok, state} = HTTP.init()
       {:ok, new_state} = HTTP.configure([api_key: "new_api_key"], state)
       assert new_state.api_key == "new_api_key"
     end
 
     test "updates the max_buffer_size" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       {:ok, state} = HTTP.init()
       {:ok, new_state} = HTTP.configure([max_buffer_size: 100], state)
       assert new_state.max_buffer_size == 100
@@ -40,6 +79,10 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.flush/0" do
     test "without an api key" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init([api_key: "api_key"])
       {:ok, state} = HTTP.write(entry, state)
@@ -50,6 +93,10 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "issues a request" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
@@ -70,6 +117,10 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "issues a request with chardata" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, ["this", "is", "a", "message"], [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
@@ -84,6 +135,10 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "http client returns an error" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
 
       expected_method = :post
@@ -106,6 +161,10 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.handle_info/2" do
     test "handles the outlet properly" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, state} = HTTP.write(entry, state)
@@ -117,6 +176,10 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "ignores everything else" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       {:ok, state} = HTTP.init()
       {:ok, new_state} = HTTP.handle_info(:unknown, state)
       assert state == new_state
@@ -131,6 +194,10 @@ defmodule Timber.Transports.HTTPTest do
 
   describe "Timber.Transports.HTTP.write/0" do
     test "buffers the message if the buffer is not full" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+          {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       {:ok, new_state} = HTTP.write(entry, state)
@@ -140,6 +207,10 @@ defmodule Timber.Transports.HTTPTest do
     end
 
     test "flushes if the buffer is full" do
+      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
+        {:ok, 204, %{}, ""}
+      end
+
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       {:ok, state} = HTTP.init()
       state = %{state | max_buffer_size: 1}
