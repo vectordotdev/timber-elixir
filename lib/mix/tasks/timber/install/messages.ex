@@ -78,18 +78,49 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
   end
 
+  def http_client_setup do
+    """
+    In order to proceed, an HTTP client must be specified:
+
+    1. In mix.exs, add :hackney to your dependencies:
+
+        def deps do
+          [{:hackney, "~> 1.6"}]
+        end
+
+    2. In mix.exs, add :hackney to your :applications list:
+
+        def application do
+          [applications: [:hackney]]
+        end
+
+    3. Run mix deps.get
+
+    4. Quit and re-run this installer. It is perfectly safe to do so.
+       This installer is idempotent.
+
+    * Note: advanced users can define their own HTTP client if desired.
+      Please see Timber.Transports.HTTP.Client for more details.
+    """
+  end
+
   def intro do
     """
     This installer will walk you through setting up Timber in your application.
-    At the end we'll make sure logs are flowing properly.
+    At the end we'll make sure logs are flowing properly. Please note, this
+    installer is idempotent, you can run it as many times as you need.
+
     Grab your axe!
     """
   end
 
   def obtain_key_instructions do
     """
-    You can obtain your key by adding an application in #{@app_url},
-    or by clicking 'settings' next to your application.
+    Don't have a key? Head over to:
+
+        #{@app_url}
+
+    Once there, create an application. Your API key will be displayed afterwards.
     """
   end
 

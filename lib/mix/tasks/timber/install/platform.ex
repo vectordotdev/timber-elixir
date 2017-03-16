@@ -45,30 +45,7 @@ defmodule Mix.Tasks.Timber.Install.Platform do
     else
       Event.send!(:http_client_not_found, session_id, api_key)
 
-      """
-      In order to proceed, an HTTP client must be specified:
-
-      1. Add :hackney to your dependencies:
-
-          def deps do
-            [{:hackney, "~> 1.6"}]
-          end
-
-      2. Add :hackney to your :applications list:
-
-          def application do
-            [applications: [:hackney]]
-          end
-
-      3. Run mix deps.get
-
-      4. Quit and re-run this installer. It is perfectly safe to do so.
-         This installer is idempotent.
-
-
-      * Note: advanced users can define their own HTTP client if desired.
-        Please see Timber.Transports.HTTP.Client for more details.
-      """
+      Messages.http_client_setup()
       |> IOHelper.puts(:red)
 
       exit :shutdown

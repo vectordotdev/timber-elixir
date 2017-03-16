@@ -161,7 +161,7 @@ defmodule Timber.Mixfile do
       {:ecto, get_ecto_version_constraint(ecto_version_constraint), optional: true},
       {:ex_doc, "~> 0.14", only: [:dev, :docs]},
       {:excoveralls, "~> 0.5", only: [:test]},
-      {:hackney, "~> 1.6", optional: true},
+      {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
       {:msgpax, "~> 1.0"},
       {:phoenix, get_phoenix_version_constraint(phoenix_version_constraint), optional: true},
       {:plug, "~> 1.2", optional: true},
