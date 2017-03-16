@@ -8,10 +8,13 @@ defmodule Mix.Tasks.Timber.Install do
   require Logger
 
   def run([]) do
-    """
-    #{Messages.header()}
-    #{Messages.forgot_key()}
-    """
+    Messages.header()
+    |> IOHelper.puts(:green)
+
+    Messages.contact_and_support()
+    |> IOHelper.puts()
+
+    Messages.forgot_key()
     |> IOHelper.puts(:red)
   end
 
@@ -23,10 +26,10 @@ defmodule Mix.Tasks.Timber.Install do
 
       Event.send!(:started, session_id, api_key)
 
-      """
-      #{Messages.header()}
-      #{Messages.intro()}
-      """
+      Messages.header()
+      |> IOHelper.puts(:green)
+
+      Messages.contact_and_support()
       |> IOHelper.puts()
 
       application = Application.new!(session_id, api_key)

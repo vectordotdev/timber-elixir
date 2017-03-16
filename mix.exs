@@ -2,10 +2,9 @@ defmodule Timber.Mixfile do
   use Mix.Project
 
   @project_description """
-  Timber is a specialized logging backend for Elixir built to contextualize
-  logs for use with the Timber.io service. Out-of-the-box, Timber supports
-  contextualizing logs for Plug-based frameworks with specific support
-  for Phoenix and Ecto as well.
+  Timber automatically enhances your logs, turning them into rich structured events.
+  Paried with the timber.io service, Timber helps you solve issues fast so you can go back
+  to doing what you do.
   """
 
   @source_url "https://github.com/timberio/timber-elixir"

@@ -57,7 +57,18 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def header do
     """
-    🌲 Timber installation
+
+    🌲 Timber.io Elixir Installer
+
+     ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
+    /|\\/|\\/|\\ /|\\    /\\-_--\\    /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+    /|\\/|\\/|\\ /|\\   /  \\_-__\\   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+    /|\\/|\\/|\\ /|\\   |[]| [] |   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+    """
+  end
+
+  def contact_and_support do
+    """
     #{separator()}
     Website:       #{@website_url}
     Documentation: #{@docs_url}

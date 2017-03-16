@@ -1,4 +1,4 @@
-# 🌲 Timber - Master your Elixir apps with structured logging
+# 🌲 Timber - Log Better. Solve Problems Faster.
 
 <p align="center" style="background: #140f2a;">
 <a href="http://files.timber.io/images/readme-interface-5.gif"><img src="http://files.timber.io/images/readme-interface-5.gif" width="100%" /></a>
@@ -15,14 +15,13 @@
 
 ## Overview
 
-Timber is structured logging solution, giving you _complete_ insight into your applications
-without the need for agents, or special APIs. It's just better logging, like it always
-should have been. 😄
+Timber improves your logs so you can solve issues faster. There are no agents, special APIs, or
+locked away data; just better logging.
 
 Timber works by automatically by turning your raw text logs into rich structured events. It
 pairs with the [Timber Console](https://app.timber.io) to maximize your productivity, allowing
-you to _quickly_ find what you need so that you get back to focusing on your core competencies.
-Never feel lost again, _always_ have the data you need.
+you to _quickly_ find what you need so that you get back to doing what you do.
+With Timber you'll _always_ have the data you need to resolve issues.
 
 To provide an example, Timber turns this:
 
