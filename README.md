@@ -57,8 +57,6 @@ Allowing you to run queries like:
 
 3. In your `shell`, run `mix timber.install`.
 
-    * You can obtain your API key by [adding your application within Timber](https://app.timber.io). Each app has it's own unique API key.
-
 
 ## Usage
 
