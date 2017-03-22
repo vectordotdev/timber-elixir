@@ -1,9 +1,5 @@
 # 🌲 Timber - Log Better. Solve Problems Faster.
 
-<p align="center" style="background: #140f2a;">
-<a href="http://files.timber.io/images/readme-interface-5.gif"><img src="http://files.timber.io/images/readme-interface-5.gif" width="100%" /></a>
-</p>
-
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber)
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
