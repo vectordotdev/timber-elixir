@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Timber.Install.Messages do
   @moduledoc false
 
+  alias Mix.Tasks.Timber.Install.IOHelper
+
   @app_url "https://app.timber.io"
   @docs_url "https://timber.io/docs"
   @repo_url "https://github.com/timberio/timber-elixir"
@@ -21,7 +23,12 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def commit_and_deploy_reminder do
     """
-    Last step! Commit these changes and deploy. 🚀
+    Last step!
+
+        #{IOHelper.colorize("git add config/timber.exs", :blue)}
+        #{IOHelper.colorize("git commit -am 'Install timber'", :blue)}
+
+    Push and deploy. 🚀
     """
   end
 
@@ -42,9 +49,10 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def forgot_key do
     """
-    Uh oh! You forgot to include your API key. Please specify it via:
+    Hey there! Welcome to Timber. In order to proceed, you'll need an API key.
+    If you already have one, you can run this installer like:
 
-        mix timber.install timber-application-api-key
+        #{IOHelper.colorize("mix timber.install timber-application-api-key", :blue)}
 
     #{obtain_key_instructions()}
 
@@ -138,9 +146,12 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
     Don't have a key? Head over to:
 
-        #{@app_url}
+        #{IOHelper.colorize(@app_url, :blue)}
 
     Once there, create an application. Your API key will be displayed afterwards.
+    For more detailed instructions, checkout our docs page:
+
+    https://timber.io/docs/app/obtain-api-key/
     """
   end
 

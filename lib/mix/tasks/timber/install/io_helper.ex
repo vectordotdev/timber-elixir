@@ -35,10 +35,14 @@ defmodule Mix.Tasks.Timber.Install.IOHelper do
     end
   end
 
+  def colorize(message, color) do
+    IO.ANSI.format([color, message])
+  end
+
   def puts(message), do: Config.io_client().puts(message)
 
   def puts(message, color) do
-    IO.ANSI.format([color, message])
+    colorize(message, color)
     |> Config.io_client().puts()
   end
 
@@ -47,7 +51,7 @@ defmodule Mix.Tasks.Timber.Install.IOHelper do
   end
 
   def write(message, color) do
-    IO.ANSI.format([color, message])
+    colorize(message, color)
     |> Config.io_client().write()
   end
 end

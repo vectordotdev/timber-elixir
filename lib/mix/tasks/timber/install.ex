@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts()
 
     Messages.forgot_key()
-    |> IOHelper.puts(:red)
+    |> IOHelper.puts()
   end
 
   def run([api_key]) do
@@ -57,7 +57,7 @@ defmodule Mix.Tasks.Timber.Install do
       |> IOHelper.puts()
 
       Messages.commit_and_deploy_reminder()
-      |> IOHelper.puts(:green)
+      |> IOHelper.puts()
 
       """
       #{Messages.separator()}

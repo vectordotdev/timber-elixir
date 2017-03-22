@@ -48,6 +48,10 @@ defimpl Timber.Contextable, for: Timber.Contexts.OrganizationContext do
   def to_context(context), do: context
 end
 
+defimpl Timber.Contextable, for: Timber.Contexts.SessionContext do
+  def to_context(context), do: context
+end
+
 defimpl Timber.Contextable, for: Timber.Contexts.SystemContext do
   def to_context(context), do: context
 end

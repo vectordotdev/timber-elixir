@@ -21,7 +21,8 @@ defmodule Timber.Context do
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
     Contexts.OrganizationContext.t  |
-    Contexts.RuntimeContext.t        |
+    Contexts.RuntimeContext.t       |
+    Contexts.SessionContext.t       |
     Contexts.SystemContext.t        |
     Contexts.UserContext.t
 
@@ -30,6 +31,7 @@ defmodule Timber.Context do
     optional(:http) => Context.HTTPContext.m,
     optional(:organization) => Context.OrganizationContext.m,
     optional(:runtime) => Context.RuntimeContext.m,
+    optional(:session) => Context.SessionContext.m,
     optional(:system) => Context.SystemContext.m,
     optional(:user) => Context.UserContext.m
   }
@@ -84,6 +86,10 @@ defmodule Timber.Context do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
 
+  defp to_api_map(%Contexts.SessionContext{id: id} = context_element) when is_integer(id) do
+    to_api_map(%{context_element | id: Integer.to_string(id)})
+  end
+
   defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_integer(pid) do
     to_api_map(%{context_element | pid: Integer.to_string(pid)})
   end
@@ -104,6 +110,7 @@ defmodule Timber.Context do
   defp type(%Contexts.HTTPContext{}), do: :http
   defp type(%Contexts.OrganizationContext{}), do: :organization
   defp type(%Contexts.RuntimeContext{}), do: :runtime
+  defp type(%Contexts.SessionContext{}), do: :session
   defp type(%Contexts.SystemContext{}), do: :system
   defp type(%Contexts.UserContext{}), do: :user
 end

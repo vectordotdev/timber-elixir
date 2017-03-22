@@ -1,9 +1,9 @@
 defmodule Timber.Integrations.ContextPlug do
   @moduledoc """
-  Automatically captures the HTTP request ID in Plug-based frameworks
+  Automatically captures the HTTP method, path, and request_id in Plug-based frameworks
   like Phoenix and adds it to the context.
 
-  By adding the request ID to the context, you'll be able to associate
+  By adding this data to the context, you'll be able to associate
   all the log statements that occur while processing that HTTP request.
 
   ## Adding the Plug
@@ -20,33 +20,14 @@ defmodule Timber.Integrations.ContextPlug do
   on your architecture. The call to `plug Timber.Integrations.ContextPlug` should be grouped
   with any other plugs you call prior to performing business logic.
 
-  Timber expects query paramters to have already been fetched on the
+  Timber expects query parameters to have already been fetched on the
   connection using `Plug.Conn.fetch_query_params/2`.
 
   ### Phoenix
 
   Phoenix's flexibility means there are multiple points in the plug pipeline
   where the `Timber.Integrations.ContextPlug` can be inserted. The recommended place is in
-  a `:logging` pipeline in your router, but if you have more complex needs
-  you can also place the plug in an endpoint or a controller.
-
-  ```elixir
-  defmodule MyApp.Router do
-    use MyApp.Web, :router
-
-    pipeline :logging do
-      plug Timber.Integrations.ContextPlug
-    end
-
-    scope "/api", MyApp do
-      pipe_through :logging
-    end
-  end
-  ```
-
-  If you place the plug call in your endpoint, you will need to make sure
-  that it appears after `Plug.RequestId` (if you are using it) but before
-  the call to your router.
+  `endpoint.ex`. Make sure that you insert this plug immediately before your `Router` plug.
 
   ## Request ID
 
@@ -68,8 +49,10 @@ defmodule Timber.Integrations.ContextPlug do
 
   require Logger
 
-  alias Timber.Contexts.HTTPContext
+  alias Timber.Contexts.{HTTPContext, SessionContext}
   alias Timber.Utils.Plug, as: PlugUtils
+
+  @session_id_key :_timber_session_id
 
   @doc """
   Prepares the given options for use in a plug pipeline
@@ -89,6 +72,14 @@ defmodule Timber.Integrations.ContextPlug do
   """
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
   def call(%{method: method, request_path: request_path} = conn, opts) do
+    conn = ensure_session_id(conn)
+    session_id = Plug.Conn.get_session(conn, @session_id_key)
+
+    if session_id do
+      %SessionContext{id: session_id}
+      |> Timber.add_context()
+    end
+
     request_id_header = Keyword.get(opts, :request_id_header, "x-request-id")
     remote_addr = PlugUtils.get_client_ip(conn)
     request_id =
@@ -106,5 +97,24 @@ defmodule Timber.Integrations.ContextPlug do
     |> Timber.add_context()
 
     conn
+  end
+
+  defp ensure_session_id(conn) do
+    # Plug does not expose the actual id, so we need to make our own.
+    conn = Plug.Conn.fetch_session(conn)
+    existing_session_id = Plug.Conn.get_session(conn, @session_id_key)
+
+    if !existing_session_id do
+      Plug.Conn.put_session(conn, @session_id_key, generate_session_id())
+    else
+      conn
+    end
+  end
+
+  defp generate_session_id do
+    32
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode16(case: :lower)
+    |> binary_part(0, 32)
   end
 end
