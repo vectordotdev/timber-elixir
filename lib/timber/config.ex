@@ -67,7 +67,7 @@ defmodule Timber.Config do
   config :timber, :http_client, MyCustomHTTPClient
   ```
   """
-  def http_client, do: Application.get_env(@env_key, :http_client)
+  def http_client, do: Application.get_env(@env_key, :http_client, Timber.Transports.HTTP.HackneyClient)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
