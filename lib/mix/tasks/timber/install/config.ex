@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.Config do
+  @moduledoc false
+
   alias Mix.Tasks.Timber.Install.HTTPClient
 
   def file_client do

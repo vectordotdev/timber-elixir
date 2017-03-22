@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.EndpointFile do
+  @moduledoc false
+
   alias Mix.Tasks.Timber.Install.FileHelper
 
   def update!(file_path) do

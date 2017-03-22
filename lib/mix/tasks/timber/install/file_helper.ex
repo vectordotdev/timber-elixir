@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.FileHelper do
+  @moduledoc false
+
   alias __MODULE__.{FileReadingError, FileReplacePatternError, FileWritingError}
   alias Mix.Tasks.Timber.Install.Config
 

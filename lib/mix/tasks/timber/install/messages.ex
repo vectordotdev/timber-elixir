@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.Messages do
+  @moduledoc false
+
   @app_url "https://app.timber.io"
   @docs_url "https://timber.io/docs"
   @repo_url "https://github.com/timberio/timber-elixir"
@@ -17,12 +19,16 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     end
   end
 
-  def finish() do
+  def commit_and_deploy_reminder do
+    """
+    Last step! Commit these changes and deploy. 🚀
+    """
+  end
+
+  def free_data() do
     """
 
     #{separator()}
-
-    Done! Commit these changes and deploy. 🚀
 
     * Timber URL: https://app.timber.io
     * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
@@ -163,6 +169,12 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     "--------------------------------------------------------------------------------"
   end
 
+  def spinner(0), do: "-"
+
+  def spinner(1), do: "\\"
+
+  def spinner(2), do: "/"
+
   def success do
     "✓ Success!"
   end
@@ -177,5 +189,9 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         %Timber.Contexts.UserContext{id: id, name: name, email: email}
         |> Timber.add_context()
     """
+  end
+
+  def waiting_for_logs do
+    "Waiting for logs (This can sometimes take a minute)"
   end
 end

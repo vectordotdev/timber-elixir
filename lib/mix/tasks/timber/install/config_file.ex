@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.ConfigFile do
+  @moduledoc false
+
   alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper}
 
   @file_name "timber.exs"

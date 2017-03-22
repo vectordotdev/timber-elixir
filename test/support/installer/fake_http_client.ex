@@ -1,7 +1,11 @@
 defmodule Timber.Installer.FakeHTTPClient do
   use Timber.Stubbing
 
-  def request!(session_id, method, path, opts \\ []) do
-    get_stub!(:request!).(session_id, method, path, opts)
+  def start do
+    :ok
+  end
+
+  def request(method, headers, url, opts \\ []) do
+    get_stub!(:request).(method, headers, url, opts)
   end
 end

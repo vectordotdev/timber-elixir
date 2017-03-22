@@ -1,13 +1,8 @@
 defmodule Timber do
   @moduledoc """
-  The functions in this module work by modifying the Logger metadata store which
-  is unique to every BEAM process. This is convenient in many ways. First and
-  foremost, it does not require you to manually manage the metadata. Second,
-  because we conform to the standard Logger principles, you can utilize Timber
-  alongside other Logger backends without issue. Timber prefixes its contextual
-  metadata keys so as not to interfere with other systems.
-
-  ## The Context Stack
+  The functions in this module are high level convenience functions instended to define
+  the broader / public API of the Timber library. It is recommended to use these functions
+  instead of their deeper counterparts.
   """
 
   use Application

@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Timber.Install.IOHelper do
+  @moduledoc false
+
   alias Mix.Tasks.Timber.Install.Config
 
   @nos ["n", "N", "No"]

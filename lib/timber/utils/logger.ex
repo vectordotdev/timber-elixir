@@ -1,4 +1,6 @@
 defmodule Timber.Utils.Logger do
+  @moduledoc false
+
   @doc """
   Convenience function for using the metadata logger key specified in the configuration.
   This is equivalent to:

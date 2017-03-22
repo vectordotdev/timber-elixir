@@ -1,4 +1,6 @@
 defmodule Timber.Integrations do
+  @moduledoc false
+
   def ecto? do
     Code.ensure_loaded?(Ecto)
   end
