@@ -112,6 +112,14 @@ Logger.info("My log message")
 
 </p></details>
 
+<details><summary><strong>Metrics</strong></summary><p>
+
+Logging metrics is accomplished by logging custom events. Please see our
+[metrics docs page](https://timber.io/docs/elixir/metrics/) for a more detailed explanation
+with examples.
+
+</p></details>
+
 
 ## Jibber-Jabber
 
