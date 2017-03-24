@@ -1,40 +1,56 @@
-defmodule Timber.Transports.HTTP do
+defmodule Timber.LoggerBackends.HTTP do
   @moduledoc """
-  An efficient HTTP transport that buffers and delivers log messages over HTTP to the
-  Timber API. It uses batching, keep-alive connections, and msgpack to deliver logs with
-  high-throughput and little overhead.
+  Provides a logger backend that dispatches logs via HTTP
 
-  The HTTP transport functions differently than a traditional buffer in that it is designed for
-  batch delivery. This means messages are buffered by default and flushed on an internval.
-  If the buffer size exceeds `:max_buffer_size` before the next intervaled flush, the buffer
-  will be immediately flushed.
+  The HTTP backend buffers and delivers log messages over HTTP to the Timber API.
+  It uses batching and msgpack to deliver logs with high-throughput and little overhead.
+
+  Messages are always written to the buffer first. The buffer is only drained when it reaches
+  its maximum allowed size or a specified amount of time has elapsed. This balances output with
+  batching so that logs are sent even when the application doesn't produce enough logs to fill
+  the buffer.
+
+  The maximum allowed size of the buffer can be controlled with the `:max_buffer_size` configuration
+  value.
 
   All outgoing requests are made asynchronously. If a second request is made while the
   previous (first) request is still being processed, then the transport will enter
   synchronous mode, waiting for a response before proceeding with the request.
+  Synchronous mode will cause any logging calls to block until the request completes.
 
   ## Configuration
 
   ### Custom HTTP client
 
-  By default, hackney is used via `Timber.Transports.HTTP.HackneyClient`. You can define your
-  own custom HTTP client by adhering to the `Timber.Transports.HTTP.Client` behaviour. Afterwards,
-  you must specify your client in the configuration:
+  The HTTP backend can use any HTTP client, so long as it supports asynchronous requests.
+  Suport for `:hackney` is built into the library and is the default client, supported via
+  `Timber.Transports.HTTP.HackneyClient`. You can define your own custom HTTP client by adhering
+  to the `Timber.Transports.HTTP.Client` behaviour. Afterwards, you must specify your client
+  in the configuration:
 
   ```
   config :timber, :http_client, MyHTTPClient
   ```
   """
+  use GenEvent
 
-  @behaviour Timber.Transport
-
-  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError, TimberAPIKeyInvalid}
-  alias Timber.Config
   alias Timber.LogEntry
+  alias Timber.Config
+  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError, TimberAPIKeyInvalid}
 
   require Logger
 
+  @typedoc """
+  A representation of stateful data for this module
+
+  ### min_level
+
+  The minimum level to be logged. The Elixir `Logger` module typically
+  handle filtering the log level, however this is a stop-gap for direct
+  testing as well as any custom levels.
+  """
   @type t :: %__MODULE__{
+    min_level: level | nil,
     api_key: String.t,
     buffer_size: non_neg_integer,
     buffer: buffer,
@@ -42,7 +58,42 @@ defmodule Timber.Transports.HTTP do
     max_buffer_size: pos_integer,
     ref: reference
   }
+
   @type buffer :: [] | [IO.chardata]
+
+
+  @typedoc """
+  The level of a log event is described as an atom
+  """
+  @type level :: Logger.level # Reference to Elixir.Logger package
+
+  @typedoc """
+  The message for a log event is given as IO.chardata. It is important _not_
+  to assume the message will be a `t:String.t/0`
+  """
+  @type message :: IO.chardata
+  @type timestamp :: {date, time}
+  @type date :: {year, month, day}
+
+  @type year :: pos_integer
+  @type month :: 1..12
+  @type day :: 1..31
+
+  @typedoc """
+  Time is represented both to the millisecond and to the microsecond with precision.
+  """
+  @type time :: {hour, minute, second, millisecond} | {hour, minute, second, {microsecond, precision}}
+  @type hour :: 0..23
+  @type minute :: 0..59
+  @type second :: 0..59
+  @type millisecond :: 0..999
+  @type microsecond :: 0..999999
+  @typedoc """
+  The precision of the microsecond represents the precision with which the fractional seconds are kept.
+
+  See `t:Calendar.microsecond/0` for more information.
+  """
+  @type precision :: 0..6
 
   @content_type "application/msgpack"
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
@@ -50,7 +101,8 @@ defmodule Timber.Transports.HTTP do
   @frames_url "https://logs.timber.io/frames"
   @preflight_url "https://api.timber.io/installer/application"
 
-  defstruct api_key: nil,
+  defstruct min_level: nil,
+            api_key: nil,
             buffer_size: 0,
             buffer: [],
             flush_interval: @default_flush_interval,
@@ -59,24 +111,95 @@ defmodule Timber.Transports.HTTP do
             ref: nil
 
   @doc false
-  @spec init(Keyword.t) :: {:ok, t} | {:error, atom}
-  def init(opts \\ []) do
-    config =
-      [
-        api_key: Timber.Config.api_key(),
-        http_client: Timber.Config.http_client()
-      ]
-      |> Keyword.merge(opts)
+  # Initializes the GenEvent system for this module. This
+  # will be called by the Elixir `Logger` module when it
+  # to add Timber as a logger backend.
+  @spec init(__MODULE__) :: {:ok, t}
+  def init(__MODULE__) do
+    config = [
+      api_key: Timber.Config.api_key(),
+      http_client: Timber.Config.http_client()
+    ]
 
-    with {:ok, state} <- configure(config, %__MODULE__{}),
-         state <- outlet(state),
-         do: {:ok, state}
+    with {:ok, conf_state} <- configure(config, %__MODULE__{}),
+         {:ok, state} <- outlet(conf_state)
+    do
+      {:ok, state}
+    end
   end
 
+  # handle_call/2
   @doc false
-  @spec configure(Keyword.t, t) :: {:ok, t} | {:error, atom}
-  def configure(new_opts, state) do
-    new_state = struct!(state, new_opts)
+  #
+  # Note that the handle_call/2 defined here has a different return
+  # structure than the one used in GenServers. This return structure
+  # is particular to GenEvent modules. See the GenEvent documentation
+  # for the handle_call/2 callback for more information.
+  @spec handle_call({:configure, Keyword.t}, t) :: {:ok, :ok, t}
+  def handle_call({:configure, options}, state) do
+    {:ok, new_state} = configure(options, state)
+    {:ok, :ok, new_state}
+  end
+
+  # handle_event/2
+  @doc false
+  # New logs and flush events are sent through event messages which
+  # are processed through this function. It is similar in structure
+  # to other handle_* type calls
+  @spec handle_event({level, pid, {Logger, IO.chardata, timestamp, Keyword.t}} | any, t) :: {:ok, t}
+  # Ignores log events from other nodes
+  def handle_event({_level, gl, _event}, state) when node(gl) != node() do
+    {:ok, state}
+  end
+
+  # Captures the event and outputs it (if appropriate) and buffers
+  # the output (if appropriate)
+  def handle_event({event_level, _gl, {Logger, msg, ts, md}}, state) do
+    if event_level_adequate?(event_level, state.min_level) do
+      output_event(ts, event_level, msg, md, state)
+    else
+      {:ok, state}
+    end
+  end
+
+  # Informs the transport to flush any buffer it may have
+  def handle_event(:flush, state) do
+    {:ok, flush(state)}
+  end
+
+  # Ignores unhandled events
+  def handle_event(_, state) do
+    {:ok, state}
+  end
+
+  # handle_info/2
+  @doc false
+  # Receives reports from monitored processes and forwards them to
+  # the transport. The transport _must_ implement at least
+  # `handle_info/2` that returns `{:ok, state}`
+  #
+  # Handle the outlet step, this recursively calls through process messaging via
+  # `Process.send_after/3`. This is how the flush interval is maintained.
+  @spec handle_info(any, t) :: {:ok, t}
+  def handle_info(:outlet, state) do
+    {:ok, new_state} =
+      state
+      |> issue_request()
+      |> outlet()
+    {:ok, new_state}
+  end
+
+  # Do nothing for everything else.
+  def handle_info(_, state) do
+    {:ok, state}
+  end
+
+  # Called both during initialization of the event handler and when the
+  # `{:config, _}` message is sent with configuration updates. Configuration
+  # is modified by changing the state.
+  @spec configure(Keyword.t, t) :: t
+  defp configure(new_options, state) do
+    new_state = struct!(state, new_options)
 
     if new_state.api_key == nil do
       raise NoTimberAPIKeyError
@@ -92,36 +215,11 @@ defmodule Timber.Transports.HTTP do
     {:ok, new_state}
   end
 
-  @doc false
-  @spec flush(t) :: t
-  def flush(state) do
-    state
-    |> issue_request()
-    |> wait_on_request()
-  end
+  # Outputs the event to the transport, first converting it to a LogEvent
+  @spec output_event(timestamp, level, IO.chardata, Keyword.t, t) :: t
+  defp output_event(ts, level, message, metadata, state) do
+    log_entry = LogEntry.new(ts, level, message, metadata)
 
-  # Handle the outlet step, this recursively calls through process messaging via
-  # `Process.send_after/3`. This is how the flush interval is maintained.
-  @doc false
-  @spec handle_info(atom(), t) :: {:ok, t}
-  def handle_info(:outlet, state) do
-    new_state =
-      state
-      |> issue_request()
-      |> outlet()
-    {:ok, new_state}
-  end
-
-  # Do nothing for everything else.
-  def handle_info(_, state) do
-    {:ok, state}
-  end
-
-  @doc false
-  @spec write(LogEntry.t, t) :: {:ok, t}
-  def write(log_entry, state) do
-    # Write to the buffer immediately because we want to batch lines and send
-    # them on an interval.
     state = write_buffer(log_entry, state)
 
     if buffer_full?(state) do
@@ -130,6 +228,13 @@ defmodule Timber.Transports.HTTP do
     else
       {:ok, state}
     end
+  end
+
+  @spec flush(t) :: t
+  defp flush(state) do
+    state
+    |> issue_request()
+    |> wait_on_request()
   end
 
   # Writes a log entry into the buffer
@@ -141,11 +246,11 @@ defmodule Timber.Transports.HTTP do
   # The outlet recursively calls itself through process messaging via `Process.send_after/3`.
   # This allows us to clear the buffer on an interval ensuring messages are delivered, at most,
   # by the specified interval length.
-  @spec outlet(t) :: t
+  @spec outlet(t) :: {:ok, t}
   defp outlet(%{flush_interval: flush_interval} = state) do
     Timber.debug fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end
     Process.send_after(self(), :outlet, flush_interval)
-    state
+    {:ok, state}
   end
 
   # Waits for the async request to complete
@@ -251,6 +356,18 @@ defmodule Timber.Transports.HTTP do
 
   defp prepare_for_msgpax(log_entry_map) do
     Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
+  end
+
+  # Checks whether the log event level meets or exceeds the
+  # desired logging level. In the case no desired level is
+  # configured, all levels pass
+  @spec event_level_adequate?(level, level | nil) :: boolean
+  defp event_level_adequate?(_lvl, nil) do
+    true
+  end
+
+  defp event_level_adequate?(lvl, min) do
+    Logger.compare_levels(lvl, min) != :lt
   end
 
   defp run_http_preflight_check!(http_client, api_key) do

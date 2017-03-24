@@ -1,5 +1,5 @@
 if Code.ensure_loaded?(:hackney) do
-  defmodule Timber.Transports.HTTP.HackneyClient do
+  defmodule Timber.HTTPClients.Hackney do
     @moduledoc """
     An efficient HTTP client that leverages hackney, keep alive connections, and connection
     pools to communicate with the Timber API.
@@ -18,9 +18,9 @@ if Code.ensure_loaded?(:hackney) do
 
     """
 
-    alias Timber.Transports.HTTP.Client
+    alias Timber.HTTPClient
 
-    @behaviour Client
+    @behaviour HTTPClient
 
     @default_request_options [
       connect_timeout: 5_000, # 5 seconds, timeout to connect

@@ -213,17 +213,21 @@ defmodule Mix.Tasks.Timber.Install do
     Messages.action_starting("Sending a few test logs...")
     |> IOHelper.write()
 
-    {:ok, http_client} = Timber.Transports.HTTP.init([api_key: api_key])
+    # We manually initialize the backend here and mimic the behavior
+    # of the GenEvent system
+
+    {:ok, http_client} = Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP)
+    {:ok, http_client} = Timber.LoggerBackends.HTTP.handle_call({:configure, [api_key: api_key]}, http_client)
 
     log_entries = TestThePipes.log_entries()
 
     http_client =
       Enum.reduce(log_entries, http_client, fn log_entry, http_client ->
-        {:ok, http_client} = Timber.Transports.HTTP.write(log_entry, http_client)
+        {:ok, http_client} = Timber.LoggerBackends.HTTP.handle_event(log_entry, http_client)
         http_client
       end)
 
-    Timber.Transports.HTTP.flush(http_client)
+    Timber.LoggerBackends.HTTP.handle_event(:flush, http_client)
 
     Messages.success()
     |> IOHelper.puts(:green)
