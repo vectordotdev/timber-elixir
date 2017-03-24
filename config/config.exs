@@ -6,9 +6,13 @@ use Mix.Config
 config :logger, :utc_log, true
 config :logger, :handle_otp_reports, false
 
-config :logger, backends: [Timber.LoggerBackend]
-config :timber, transport: Timber.Transports.IODevice
+config :logger, backends: [:console]
+config :logger, :console,
+  format: {Timber.Formatter, :format},
+  metadata: [:timber_context, :event]
 
+config :timber, Timber.Formatter,
+  format: :logfmt
 
 # The file config/config.secret.exs can be used for local
 # configuration
