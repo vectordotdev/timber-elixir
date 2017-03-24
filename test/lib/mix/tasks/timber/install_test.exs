@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Timber.InstallTest do
     test "without an API key" do
       Install.run([])
       output = FakeIO.get_output()
-      assert output =~ "Uh oh! You forgot to include your API key."
+      assert output =~ "Welcome to Timber. In order to proceed, you'll need an API key."
     end
 
     # This test is absurd, but it's important this works properly, end-to-end.
