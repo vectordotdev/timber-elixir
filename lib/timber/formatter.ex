@@ -2,6 +2,23 @@ defmodule Timber.Formatter do
   @moduledoc """
   Provides utilities for formatting log lines as text
 
+  This formatter is designed for use with the default `:console` backend provided by
+  Elixir Logger. To use is, you'll need to configure the console backend to call
+  the `Timber.Formatter.format/4` function instead of its default formatting function.
+  This is done with a simple configuration change. You'll also need to let `:console`
+  know that the metadata keys `:timber_context` and `:event` should be passed on.
+
+  The result of the configuration looks like:
+
+  ```elixir
+  config :logger, backends: [:console]
+  config :logger, :console,
+    format: {Timber.Formatter, :format},
+    metadata: [:timber_context, :event]
+  ```
+
+  Further configuration options available on this module are documented below.
+
   ## Configuration Recommendations: Development vs. Production
 
   In a standard Elixir project, you will probably have different configuration files
