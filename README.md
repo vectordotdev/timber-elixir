@@ -28,7 +28,7 @@ For example, Timber turns this raw text log:
 Sent 200 in 45.ms
 ```
 
-Into this rich JSON event:
+Into a rich [`http_server_response` event](https://timber.io/docs/elixir/events-and-context/http-server-response-event/).
 
 ```
 Sent 200 in 45.2ms @metadata {"dt": "2017-02-02T01:33:21.154345Z", "level": "info", "context": {"user": {"id": 1}, "http": {"method": "GET", "host": "timber.io", "path": "/path", "request_id": "abcd1234"}}, "event": {"http_response": {"status": 200, "time_ms": 45.2}}}
