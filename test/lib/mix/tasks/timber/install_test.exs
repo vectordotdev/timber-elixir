@@ -28,10 +28,18 @@ defmodule Mix.Tasks.Timber.InstallTest do
       new_web_contents = FakeFileContents.new_web_contents()
 
       FakeIO.stub(:binwrite, fn
-        "config/timber.exs device", ^timber_config_contents -> :ok
-        "config/config.exs device", ^config_addition -> :ok
-        "lib/timber_elixir/endpoint.ex device", ^new_endpoint_contents -> :ok
-        "web/web.ex device", ^new_web_contents -> :ok
+        "config/timber.exs device", contents ->
+          assert contents == timber_config_contents
+          :ok
+        "config/config.exs device", contents ->
+          assert contents == config_addition
+          :ok
+        "lib/timber_elixir/endpoint.ex device", contents ->
+          assert contents == new_endpoint_contents
+          :ok
+        "web/web.ex device", contents ->
+          assert contents == new_web_contents
+          :ok
       end)
 
       FakeFile.stub(:close, fn

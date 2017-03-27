@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Timber.TestThePipes do
   alias Mix.Tasks.Timber.Install.{IOHelper, Messages}
-  alias Timber.{Events, LogEntry}
+  alias Timber.Events
 
   def run([]) do
     """
@@ -32,14 +32,14 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   defp log_entry(level, request_id, %{__struct__: Events.CustomEvent} = event) do
     :timer.sleep(100)
     message = "Checkout failed for customer xd45bfd"
-    LogEntry.new(now(), level, message, [event: event, timber_context: context(request_id)])
+    {level, self(), {Logger, message, now(), [event: event, timber_context: context(request_id)]}}
   end
 
   defp log_entry(level, request_id, %{__struct__: module} = event) do
     :timer.sleep(100)
     dt = now()
     message = module.message(event)
-    LogEntry.new(dt, level, message, [event: event, timber_context: context(request_id)])
+    {level, self(), {Logger, message, dt, [event: event, timber_context: context(request_id)]}}
   end
 
   defp now do

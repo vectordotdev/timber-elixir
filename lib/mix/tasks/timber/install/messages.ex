@@ -122,10 +122,12 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         end
 
         def deps do
-          [{:hackney, "~> 1.6"}]
+          [{:hackney, "~> 1.7.1"}]
         end
 
     2. Run mix deps.get
+
+    3. Run mix deps.clean timber
 
     All done? Quit and re-run this installer. It is perfectly safe to do so.
     This installer is idempotent.

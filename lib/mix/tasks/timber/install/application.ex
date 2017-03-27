@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Timber.Install.Application do
             else: nil
 
         web_file_path =
-          if Timber.Integrations.ecto?(),
+          if Timber.Integrations.phoenix?(),
             do: PathHelper.find(["web", "web.ex"], api),
             else: nil
 

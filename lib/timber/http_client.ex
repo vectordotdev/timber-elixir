@@ -1,18 +1,18 @@
-defmodule Timber.Transports.HTTP.Client do
+defmodule Timber.HTTPClient do
   @moduledoc """
   Behavior for custom HTTP clients. If you opt not to use the default Timber HTTP client
-  (`Timber.Transports.HTTP.HackneyClient`) you can define your own here.
+  (`Timber.HTTPClients.Hackney`) you can define your own by adhering to this behavior.
 
   ## Example
 
   ```elixir
   defmodule MyHTTPClient do
-    alias Timber.Transports.HTTP.Client
+    alias Timber.HTTPClient
 
-    @behaviour Client
+    @behaviour HTTPClient
 
-    @spec request(Client.method, Client.url, Client.headers, Client.body, Client.options) ::
-      {:ok, Client.status, Client.Headers, Client.body} | {:error, any()}
+    @spec request(HTTPClient.method, HTTPClient.url, HTTPClient.headers, HTTPClient.body, HTTPClient.options) ::
+      {:ok, HTTPClient.status, HTTPClient.Headers, HTTPClient.body} | {:error, any()}
     def request(method, url, headers, body, opts) do
       # make request here
     end
