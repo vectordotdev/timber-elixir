@@ -283,18 +283,20 @@ defmodule Timber.Installer.FakeFileContents do
 
     # Use Timber as the logger backend
     # Feel free to add additional backends if you want to send you logs to multiple devices.
+    # For Heroku, use the `:console` backend provided with Logger but customize
+    # it to use Timber's internal formatting system
     config :logger,
-      backends: [Timber.LoggerBackend]
-
-    # Direct logs to STDOUT for Heroku. We'll use Heroku drains to deliver logs.
-    config :timber,
-      transport: Timber.Transports.IODevice
+      backends: [:console],
+      format: {Timber.Formatter, :format}
 
     # For dev / test environments, always log to STDOUt and format the logs properly
     if Mix.env() == :dev || Mix.env() == :test do
-      config :timber, transport: Timber.Transports.IODevice
+      # Fall back to the default `:console` backend with the Timber custom formatter
+      config :logger,
+        backends: [:console],
+        format: {Timber.Formatter, :format}
 
-      config :timber, :io_device,
+      config :timber, Timber.Formatter,
         colorize: true,
         format: :logfmt,
         print_timestamps: true,

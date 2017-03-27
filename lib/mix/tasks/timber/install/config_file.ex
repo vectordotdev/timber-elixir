@@ -46,15 +46,15 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
       # Use Timber as the logger backend
       # Feel free to add additional backends if you want to send you logs to multiple devices.
-      config :logger,
-        backends: [Timber.LoggerBackend]
-
       #{timber_portion(application)}
       # For dev / test environments, always log to STDOUt and format the logs properly
       if Mix.env() == :dev || Mix.env() == :test do
-        config :timber, transport: Timber.Transports.IODevice
+        # Fall back to the default `:console` backend with the Timber custom formatter
+        config :logger,
+          backends: [:console],
+          format: {Timber.Formatter, :format}
 
-        config :timber, :io_device,
+        config :timber, Timber.Formatter,
           colorize: true,
           format: :logfmt,
           print_timestamps: true,
@@ -72,17 +72,21 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
   defp timber_portion(%{platform_type: "heroku"}) do
     """
-    # Direct logs to STDOUT for Heroku. We'll use Heroku drains to deliver logs.
-    config :timber,
-      transport: Timber.Transports.IODevice
+    # For Heroku, use the `:console` backend provided with Logger but customize
+    # it to use Timber's internal formatting system
+    config :logger,
+      backends: [:console],
+      format: {Timber.Formatter, :format}
     """
   end
 
   defp timber_portion(%{api_key: api_key}) do
     """
-    # Deliver logs via HTTP to the Timber API
+    # Deliver logs via HTTP to the Timber API by using the Timber HTTP backend.
+    config :logger,
+      backends: [Timber.LoggerBackends.HTTP]
+
     config :timber,
-      transport: Timber.Transports.HTTP,
       api_key: #{api_key_portion(api_key)},
       http_client: Timber.Transports.HTTP.HackneyClient
     """
