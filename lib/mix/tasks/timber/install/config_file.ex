@@ -88,7 +88,7 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
     config :timber,
       api_key: #{api_key_portion(api_key)},
-      http_client: Timber.Transports.HTTP.HackneyClient
+      http_client: Timber.HTTPClients.Hackney
     """
   end
 
