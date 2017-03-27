@@ -216,8 +216,7 @@ defmodule Mix.Tasks.Timber.Install do
     # We manually initialize the backend here and mimic the behavior
     # of the GenEvent system
 
-    {:ok, http_client} = Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP)
-    {:ok, http_client} = Timber.LoggerBackends.HTTP.handle_call({:configure, [api_key: api_key]}, http_client)
+    {:ok, http_client} = Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP, [api_key: api_key])
 
     log_entries = TestThePipes.log_entries()
 

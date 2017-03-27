@@ -1,5 +1,5 @@
 defmodule Timber.Config do
-  @env_key :timber
+  @application :timber
 
   @doc """
   Your Timber application API key. This can be obtained after you create your
@@ -12,7 +12,7 @@ defmodule Timber.Config do
   ```
   """
   def api_key do
-    case Application.get_env(@env_key, :api_key) do
+    case Application.get_env(@application, :api_key) do
       {:system, env_var_name} -> System.get_env(env_var_name)
       api_key when is_binary(api_key) -> api_key
       _else -> nil
@@ -25,7 +25,7 @@ defmodule Timber.Config do
   standard Logger directly because it would create an infinite loop.
   """
   def debug_io_device do
-    Application.get_env(@env_key, :debug_io_device)
+    Application.get_env(@application, :debug_io_device)
   end
 
   @doc """
@@ -39,7 +39,7 @@ defmodule Timber.Config do
   Logger.info("test", timber_event: my_event)
   ```
   """
-  def event_key, do: Application.get_env(@env_key, :event_key, :event)
+  def event_key, do: Application.get_env(@application, :event_key, :event)
 
   @doc """
   Configuration for the `:body` size limit in the `Timber.Events.HTTP*` events.
@@ -54,7 +54,7 @@ defmodule Timber.Config do
   config :timber, :http_body_size_limit, 5000
   ```
   """
-  def http_body_size_limit, do: Application.get_env(@env_key, :http_body_size_limit, 2000)
+  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, 2000)
 
   @doc """
   Custom HTTP client to use for transmitting logs over HTTP. Timber comes packaged with a
@@ -67,7 +67,7 @@ defmodule Timber.Config do
   config :timber, :http_client, MyCustomHTTPClient
   ```
   """
-  def http_client, do: Application.get_env(@env_key, :http_client, Timber.Transports.HTTP.HackneyClient)
+  def http_client, do: Application.get_env(@application, :http_client, Timber.HTTPClients.Hackney)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
@@ -79,7 +79,7 @@ defmodule Timber.Config do
   config :timber, :http_url, "https://123.123.123.123"
   ```
   """
-  def http_url, do: Application.get_env(@env_key, :http_url)
+  def http_url, do: Application.get_env(@application, :http_url)
 
   @doc """
   Specify a different JSON encoder function. Timber uses `Poison` by default.
@@ -90,7 +90,7 @@ defmodule Timber.Config do
   config :timber, :json_encoder, fn map -> encode(map) end
   ```
   """
-  def json_encoder, do: Application.get_env(@env_key, :json_encoder, &Poison.encode_to_iodata!/1)
+  def json_encoder, do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
 
   @doc """
   Specify the log level that phoenix log lines write to. Such as template renders.
@@ -103,12 +103,20 @@ defmodule Timber.Config do
   """
   @spec phoenix_instrumentation_level(atom) :: atom
   def phoenix_instrumentation_level(default) do
-    Application.get_env(@env_key, :instrumentation_level, default)
+    Application.get_env(@application, :instrumentation_level, default)
+  end
+
+  @doc """
+  Retrieves the preflight URL 
+  """
+  def preflight_url() do
+    default_preflight_url = "https://api.timber.io/installer/application"
+    Application.get_env(@application, :preflight_url, default_preflight_url)
   end
 
   @doc """
   Gets the transport specificed in the :timber configuration. The default is
   `Timber.Transports.IODevice`.
   """
-  def transport, do: Application.get_env(@env_key, :transport, Timber.Transports.IODevice)
+  def transport, do: Application.get_env(@application, :transport, Timber.Transports.IODevice)
 end

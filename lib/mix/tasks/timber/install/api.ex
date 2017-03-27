@@ -8,8 +8,6 @@ defmodule Mix.Tasks.Timber.Install.API do
   @enforce_keys [:api_key, :session_id]
   defstruct [:api_key, :session_id]
 
-  @api_url "https://api.timber.io"
-
   #
   # Setup
   #
@@ -88,7 +86,7 @@ defmodule Mix.Tasks.Timber.Install.API do
     headers =
       [{'X-Installer-Session-Id', String.to_charlist(session_id)}]
       |> add_authorization_header(api_key)
-    url = @api_url <> path
+    url = Config.api_url() <> path
 
     case Config.http_client().request(method, headers, url, opts) do
       {:ok, status, body} when status in 200..299 ->

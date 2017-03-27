@@ -99,7 +99,6 @@ defmodule Timber.LoggerBackends.HTTP do
   @default_max_buffer_size 5000 # 5000 log line should be well below 5mb
   @default_flush_interval 1000
   @frames_url "https://logs.timber.io/frames"
-  @preflight_url "https://api.timber.io/installer/application"
 
   defstruct min_level: nil,
             api_key: nil,
@@ -114,14 +113,9 @@ defmodule Timber.LoggerBackends.HTTP do
   # Initializes the GenEvent system for this module. This
   # will be called by the Elixir `Logger` module when it
   # to add Timber as a logger backend.
-  @spec init(__MODULE__) :: {:ok, t}
-  def init(__MODULE__) do
-    config = [
-      api_key: Timber.Config.api_key(),
-      http_client: Timber.Config.http_client()
-    ]
-
-    with {:ok, conf_state} <- configure(config, %__MODULE__{}),
+  @spec init(__MODULE__, Keyword.t) :: {:ok, t}
+  def init(__MODULE__, options \\ []) do
+    with {:ok, conf_state} <- configure(options, %__MODULE__{}),
          {:ok, state} <- outlet(conf_state)
     do
       {:ok, state}
@@ -198,8 +192,16 @@ defmodule Timber.LoggerBackends.HTTP do
   # `{:config, _}` message is sent with configuration updates. Configuration
   # is modified by changing the state.
   @spec configure(Keyword.t, t) :: t
-  defp configure(new_options, state) do
-    new_state = struct!(state, new_options)
+  defp configure(options, state) do
+    api_key = Keyword.get(options, :api_key, Timber.Config.api_key())
+    http_client = Keyword.get(options, :http_client, Timber.Config.http_client())
+
+    changes = [
+      api_key: api_key,
+      http_client: http_client
+    ]
+
+    new_state = struct!(state, changes)
 
     if new_state.api_key == nil do
       raise NoTimberAPIKeyError
@@ -372,12 +374,13 @@ defmodule Timber.LoggerBackends.HTTP do
 
   defp run_http_preflight_check!(http_client, api_key) do
     auth_token = Base.encode64(api_key)
+    preflight_url = Config.preflight_url()
 
     headers = %{
       "Authorization" => "Basic #{auth_token}"
     }
 
-    case http_client.request(:get, @preflight_url, headers, "") do
+    case http_client.request(:get, preflight_url, headers, "") do
       {:ok, status, _, _} when status in 200..299 ->
         :ok
       _ ->

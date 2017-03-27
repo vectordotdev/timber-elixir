@@ -3,6 +3,11 @@ defmodule Mix.Tasks.Timber.Install.Config do
 
   alias Mix.Tasks.Timber.Install.HTTPClient
 
+  def api_url do
+    default_api_url = "https://api.timber.io"
+    Keyword.get(config(), :api_url, default_api_url)
+  end
+
   def file_client do
     Keyword.get(config(), :file_client, File)
   end
