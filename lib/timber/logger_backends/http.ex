@@ -194,11 +194,17 @@ defmodule Timber.LoggerBackends.HTTP do
   @spec configure(Keyword.t, t) :: t
   defp configure(options, state) do
     api_key = Keyword.get(options, :api_key, Timber.Config.api_key())
+    flush_interval = Keyword.get(options, :flush_interval, state.flush_interval)
     http_client = Keyword.get(options, :http_client, Timber.Config.http_client())
+    max_buffer_size = Keyword.get(options, :max_buffer_size, state.max_buffer_size)
+    min_level = Keyword.get(options, :min_level, state.min_level)
 
     changes = [
       api_key: api_key,
-      http_client: http_client
+      flush_interval: flush_interval,
+      http_client: http_client,
+      max_buffer_size: max_buffer_size,
+      min_level: min_level,
     ]
 
     new_state = struct!(state, changes)
