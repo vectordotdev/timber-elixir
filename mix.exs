@@ -156,9 +156,9 @@ defmodule Timber.Mixfile do
     [
       {:credo, "~> 0.4", only: [:dev, :test]},
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 1.0", only: [:dev, :docs]},
+      {:earmark, "~> 1.2", only: [:dev, :docs]},
       {:ecto, get_ecto_version_constraint(ecto_version_constraint), optional: true},
-      {:ex_doc, "~> 0.14", only: [:dev, :docs]},
+      {:ex_doc, "~> 0.15", only: [:dev, :docs]},
       {:excoveralls, "~> 0.5", only: [:test]},
 
       # Hackney is pinned because other versions are known to have bugs. This is the
