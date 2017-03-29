@@ -64,14 +64,16 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
         # it to use Timber's internal formatting system
         config :logger,
           backends: [:console],
-          format: {Timber.Formatter, :format}
+          format: {Timber.Formatter, :format},
+          metadata: [:timber_context, :event]
 
         # For dev / test environments, always log to STDOUt and format the logs properly
         if Mix.env() == :dev || Mix.env() == :test do
           # Fall back to the default `:console` backend with the Timber custom formatter
           config :logger,
             backends: [:console],
-            format: {Timber.Formatter, :format}
+            format: {Timber.Formatter, :format},
+            metadata: [:timber_context, :event]
 
           config :timber, Timber.Formatter,
             colorize: true,
