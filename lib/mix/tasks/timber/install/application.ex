@@ -17,11 +17,15 @@ defmodule Mix.Tasks.Timber.Install.Application do
       ->
         mix_name = get_mix_name()
         module_name = Macro.camelize(mix_name)
-        config_file_path = PathHelper.find(["config", "config.exs"], api)
 
+        file_explanation = "We need this file so that we can link the config/timber.exs file at the very bottom."
+        config_file_path = PathHelper.find(["config", "config.exs"], file_explanation, api)
+
+
+        file_explanation = "We need this file so that we can add the Timber plugs."
         endpoint_file_path =
-          if Timber.Integrations.phoenix?(),
-            do: PathHelper.find(["lib", mix_name, "endpoint.ex"], api),
+          if Code.ensure_loaded?(Phoenix),
+            do: PathHelper.find(["lib", "**", "endpoint.ex"], file_explanation api),
             else: nil
 
         # TODO: check that this module actually exists
@@ -32,13 +36,13 @@ defmodule Mix.Tasks.Timber.Install.Application do
 
         # TODO: check that this module actually exists
         repo_module_name =
-          if Timber.Integrations.ecto?(),
+          if Code.ensure_loaded?(Ecto),
             do: "#{module_name}.Repo",
             else: nil
 
         web_file_path =
-          if Timber.Integrations.phoenix?(),
-            do: PathHelper.find(["web", "web.ex"], api),
+          if Code.ensure_loaded?(Phoenix),
+            do: PathHelper.find(["web", "**", "web.ex"], api),
             else: nil
 
         application = %__MODULE__{

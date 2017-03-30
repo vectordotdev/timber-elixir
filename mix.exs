@@ -9,7 +9,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "2.0.0-rc2"
+  @version "2.0.0-rc3"
 
   # Project manifest for Mix
   #
@@ -150,36 +150,48 @@ defmodule Timber.Mixfile do
   #     it easily discoverable
   #   - Keep this section sorted in alphabetical order
   defp deps() do
-    ecto_version_constraint = System.get_env("ECTO_VERSION_CONSTRAINT")
-    phoenix_version_constraint = System.get_env("PHOENIX_VERSION_CONSTRAINT")
+    deps =
+      [
+        {:credo, "~> 0.4", only: [:dev, :test]},
+        {:dialyxir, "~> 0.3", only: [:dev, :test]},
+        {:earmark, "~> 1.2", only: [:dev, :docs]},
+        {:ex_doc, "~> 0.15", only: [:dev, :docs]},
+        {:excoveralls, "~> 0.5", only: [:test]},
 
-    [
-      {:credo, "~> 0.4", only: [:dev, :test]},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 1.2", only: [:dev, :docs]},
-      {:ecto, get_ecto_version_constraint(ecto_version_constraint), optional: true},
-      {:ex_doc, "~> 0.15", only: [:dev, :docs]},
-      {:excoveralls, "~> 0.5", only: [:test]},
+        # Hackney is pinned because other versions are known to have bugs. This is the
+        # safest route.
+        {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
+        {:msgpax, "~> 1.0"},
+        {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
+      ]
 
-      # Hackney is pinned because other versions are known to have bugs. This is the
-      # safest route.
-      {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
-      {:msgpax, "~> 1.0"},
-      {:phoenix, get_phoenix_version_constraint(phoenix_version_constraint), optional: true},
-      {:plug, "~> 1.2", optional: true},
-      {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
-    ]
+    # This is used for CI to ensure we can test across multiple versions.
+    # It defaults to nil for everything else, which we handle.
+    deps =
+      case System.get_env("ECTO_VERSION_CONSTRAINT") do
+        v when v in ["latest", nil] -> deps ++ [{:ecto, "~> 2.0", optional: true}]
+        "omit" -> deps
+        v -> deps ++ [{:ecto, v, optional: true}]
+      end
+
+    # This is used for CI to ensure we can test across multiple versions
+    # It defaults to nil for everything else, which we handle.
+    deps =
+      case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
+        v when v in ["latest", nil] -> deps ++ [{:phoenix, "~> 1.2", optional: true}]
+        "omit" -> deps
+        v -> deps ++ [{:phoenix, v, optional: true}]
+      end
+
+    # This is used for CI to ensure we can test across multiple versions
+    # It defaults to nil for everything else, which we handle.
+    deps =
+      case System.get_env("PLUG_VERSION_CONTRAINT") do
+        v when v in ["latest", nil] -> deps ++ [{:plug, "~> 1.2", optional: true}]
+        "omit" -> deps
+        v -> deps ++ [{:plug, v, optional: true}]
+      end
+
+    deps
   end
-
-  defp get_ecto_version_constraint(constraint) when constraint in ["latest", nil] do
-    "~> 2.0"
-  end
-
-  defp get_ecto_version_constraint(constraint), do: constraint
-
-  defp get_phoenix_version_constraint(constraint) when constraint in ["latest", nil] do
-    "~> 1.2"
-  end
-
-  defp get_phoenix_version_constraint(constraint), do: constraint
 end

@@ -72,8 +72,7 @@ defmodule Timber.Integrations.ContextPlug do
   """
   @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
   def call(%{method: method, request_path: request_path} = conn, opts) do
-    conn = ensure_session_id(conn)
-    session_id = Plug.Conn.get_session(conn, @session_id_key)
+    session_id = get_session_id(conn)
 
     if session_id do
       %SessionContext{id: session_id}
@@ -99,8 +98,20 @@ defmodule Timber.Integrations.ContextPlug do
     conn
   end
 
+  # Gets the session ID from the current connection.
+  defp get_session_id(conn) do
+    conn
+    |> ensure_session_id()
+    |> Plug.Conn.get_session(@session_id_key)
+  rescue
+    # Handles https://github.com/elixir-lang/plug/blob/master/lib/plug/conn.ex#L885
+    e in ArgumentError -> nil
+  end
+
   defp ensure_session_id(conn) do
     # Plug does not expose the actual id, so we need to make our own.
+    # This should be fine as it is simply a unique identifier that is shared across
+    # the context.
     conn = Plug.Conn.fetch_session(conn)
     existing_session_id = Plug.Conn.get_session(conn, @session_id_key)
 

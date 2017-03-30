@@ -64,7 +64,7 @@ defmodule Timber.Integrations.EventPlug do
   accepted by the router.
   """
 
-  @behaviour Plug
+  #@behaviour Plug
 
   require Logger
 

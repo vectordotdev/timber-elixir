@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Timber.Install do
 
       create_config_file!(application)
       link_config_file!(application)
-      add_plugs!(application)
+      add_plugs!(Code.ensure_loaded?(Phoenix), application)
       disable_default_phoenix_logging!(application)
       install_user_context!(api)
       #install_http_client_context!(session_id, api_key)
@@ -131,14 +131,26 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts(:green)
   end
 
-  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}) do
-    Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
-    |> IOHelper.write()
+  defp add_plugs!(false, _), do: nil
 
-    EndpointFile.update!(endpoint_file_path)
+  defp add_plugs!(true, %{endpoint_file_path: endpoint_file_path} = api) do
+    file_explanation = "We need this so that we can install the Timber plugs."
+    endpoint_file_path = PathHelper.find(["lib", "**", "endpoint.ex"], not_found_explanation, api)
 
-    Messages.success()
-    |> IOHelper.puts(:green)
+    if endpoint_file_path do
+      endpoint_module_name =
+        if endpoint_file_path,
+          do: "#{module_name}.Endpoint",
+          else: nil
+
+
+      Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
+      |> IOHelper.write()
+
+      EndpointFile.update!()
+
+      Messages.success()
+      |> IOHelper.puts(:green)
   end
 
   defp disable_default_phoenix_logging!(%{web_file_path: web_file_path}) do
@@ -236,6 +248,8 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp check_for_http_client(api) do
     if Code.ensure_loaded?(:hackney) do
+      API.event!(api, :http_client_found)
+
       case :hackney.start() do
         :ok -> :ok
         {:error, {:already_started, _name}} -> :ok
