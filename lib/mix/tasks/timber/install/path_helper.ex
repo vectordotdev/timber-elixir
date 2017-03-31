@@ -1,19 +1,32 @@
 defmodule Mix.Tasks.Timber.Install.PathHelper do
   @moduledoc false
 
-  alias Mix.Tasks.Timber.Install.{API, Config, IOHelper}
+  alias Mix.Tasks.Timber.Install.{API, Config, FileHelper, IOHelper}
 
   # Ensures that the specified file exists. If it does not, it prompts
   # the user to enter the file path.
-  def find(path_parts, file_explanation, api) when is_list(path_parts) do
+  def find(path_parts, file_explanation, api, opts \\ []) when is_list(path_parts) do
+    # Check to see if we're in an umbrella app
+    path_parts =
+      if Keyword.get(opts, :check_for_umbrella) do
+        if FileHelper.dir?("apps") do
+          ["apps", "**"] ++ path_parts
+        else
+          path_parts
+        end
+      else
+        path_parts
+      end
+
     path = Config.path_client().join(path_parts)
     file_name = Enum.at(path_parts, -1)
-    prompt_message =
+
+    missing_file_prompt_message =
       """
       If you prefer, you can skip this and manually install later following
       these instructions: https://timber.io/docs/elixir/installation/manual-installation/
 
-      Please enter the correct relative path, or type 'skip' to skip"
+      Please enter the correct relative path for the '#{IOHelper.colorize(file_name, :blue)}' file (or type 'skip' to skip)
       """
 
     case Config.path_client().wildcard(path) do
@@ -22,14 +35,17 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
 
         prompt =
           """
-          We couldn't find your #{file_name} file.
+
+          #{IOHelper.colorize("We couldn't find a '#{file_name}' file.", :yellow)}
 
           #{file_explanation}
 
-          #{prompt_message}
+          #{missing_file_prompt_message}
           """
+          |> String.trim_trailing()
 
         case IOHelper.ask(prompt, api) do
+          "skip" -> nil
           v -> find([v], file_explanation, api)
         end
 
@@ -45,14 +61,16 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
 
         prompt =
           """
-          Whoa! We found multiple #{file_name} files:
 
-          #{file_paths_list}
+          #{IOHelper.colorize("Whoa! We found multiple #{file_name} files:", :yellow)}
+
+          #{IOHelper.colorize(file_paths_list, :blue)}
 
           #{file_explanation}
 
-          #{prompt_message}
+          #{missing_file_prompt_message}
           """
+          |> String.trim_trailing()
 
         case IOHelper.ask(prompt, api) do
           v -> find([v], file_explanation, api)

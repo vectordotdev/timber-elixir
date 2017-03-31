@@ -24,7 +24,8 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
         config :logger,
           backends: [:console],
           format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event]
+          metadata: [:timber_context, :event],
+          utc_log: true
 
         config :timber, Timber.Formatter,
           colorize: true,
@@ -80,15 +81,17 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
     config :logger,
       backends: [:console],
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event]
+      metadata: [:timber_context, :event],
+      utc_log: true
     """
   end
 
-  defp timber_portion(%{api_key: api_key} = api) do
+  defp timber_portion(api) do
     """
     # Deliver logs via HTTP to the Timber API by using the Timber HTTP backend.
     config :logger,
-      backends: [Timber.LoggerBackends.HTTP]
+      backends: [Timber.LoggerBackends.HTTP],
+      utc_log: true
 
     config :timber,
       api_key: #{api_key_portion(api)},

@@ -153,7 +153,8 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp add_plugs!(true, api) do
     file_explanation = "We need this so that we can install the Timber plugs."
-    endpoint_file_path = PathHelper.find(["lib", "**", "endpoint.ex"], file_explanation, api)
+    endpoint_file_path = PathHelper.find(["{lib,web}", "**", "endpoint.ex"], file_explanation, api,
+      check_for_umbrella: true)
 
     if endpoint_file_path do
       Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
@@ -170,7 +171,8 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp disable_default_phoenix_logging!(true, api) do
     file_explanation = "We need this to disable default Phoenix controller logging."
-    web_file_path = PathHelper.find(["web", "**", "web.ex"], file_explanation, api)
+    web_file_path = PathHelper.find(["web", "web.ex"], file_explanation, api,
+      check_for_umbrella: true)
 
     if web_file_path do
       Messages.action_starting("Disabling default Phoenix logging #{web_file_path}...")

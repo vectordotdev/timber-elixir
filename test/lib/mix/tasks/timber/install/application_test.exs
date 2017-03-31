@@ -24,14 +24,9 @@ defmodule Mix.Tasks.Timber.Install.ApplicationTest do
       api = %API{api_key: "api_key", session_id: "session_id"}
       result = Application.new!(api)
       assert result == %Application{api_key: "api_key",
-        config_file_path: "config/config.exs",
-        endpoint_file_path: "lib/timber_elixir/endpoint.ex",
-        endpoint_module_name: "TimberElixir.Endpoint",
-        heroku_drain_url: "drain_url", mix_name: "timber_elixir",
-        module_name: "TimberElixir", name: "Timber",
-        platform_type: "heroku",
-        repo_module_name: "TimberElixir.Repo", slug: "timber",
-        web_file_path: "web/web.ex"}
+             heroku_drain_url: "drain_url", mix_name: "timber_elixir",
+             module_name: "TimberElixir", name: "Timber",
+             platform_type: "heroku", slug: "timber"}
     end
   end
 end

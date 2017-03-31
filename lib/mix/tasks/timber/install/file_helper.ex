@@ -27,6 +27,10 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     end
   end
 
+  def dir?(path) do
+    Config.file_client().dir?(path)
+  end
+
   def read!(path) do
     case Config.file_client().read(path) do
       {:ok, contents} -> contents

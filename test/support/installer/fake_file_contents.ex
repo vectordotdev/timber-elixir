@@ -273,14 +273,6 @@ defmodule Timber.Installer.FakeFileContents do
     """
     use Mix.Config
 
-    # Update the instrumenters so that we can structure Phoenix logs
-    config :timber_elixir, TimberElixir.Endpoint,
-      instrumenters: [Timber.Integrations.PhoenixInstrumenter]
-
-    # Structure Ecto logs
-    config :timber_elixir, TimberElixir.Repo,
-      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
-
     # Use Timber as the logger backend
     # Feel free to add additional backends if you want to send you logs to multiple devices.
     # For Heroku, use the `:console` backend provided with Logger but customize
@@ -288,7 +280,8 @@ defmodule Timber.Installer.FakeFileContents do
     config :logger,
       backends: [:console],
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event]
+      metadata: [:timber_context, :event],
+      utc_log: true
 
     # For dev / test environments, always log to STDOUt and format the logs properly
     if Mix.env() == :dev || Mix.env() == :test do
@@ -296,7 +289,8 @@ defmodule Timber.Installer.FakeFileContents do
       config :logger,
         backends: [:console],
         format: {Timber.Formatter, :format},
-        metadata: [:timber_context, :event]
+        metadata: [:timber_context, :event],
+        utc_log: true
 
       config :timber, Timber.Formatter,
         colorize: true,
