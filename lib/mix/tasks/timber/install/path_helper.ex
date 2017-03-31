@@ -29,11 +29,14 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
           #{prompt_message}
           """
 
-        case IOHelper.ask(prompt) do
-          v -> find([v], api)
+        case IOHelper.ask(prompt, api) do
+          v -> find([v], file_explanation, api)
         end
 
-      [file_path] -> file_path
+      [file_path] ->
+        API.event!(api, :file_found, %{path: path})
+
+        file_path
 
       file_paths ->
         API.event!(api, :multiple_files_found, %{path: path})
@@ -51,8 +54,8 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
           #{prompt_message}
           """
 
-        case IOHelper.ask(prompt) do
-          v -> find([v], api)
+        case IOHelper.ask(prompt, api) do
+          v -> find([v], file_explanation, api)
         end
     end
   end
