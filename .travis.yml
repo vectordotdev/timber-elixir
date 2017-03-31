@@ -19,7 +19,7 @@ env:
   - PLUG_VERSION_CONSTRAINT=omit
   - PLUG_VERSION_CONSTRAINT=latest
 script:
-- MIX_ENV=test mix compile --warnings-as-errors && MIX_ENV=test mix test
+- MIX_ENV=test mix compile && MIX_ENV=test mix test
 notifications:
   email: false
   slack:
