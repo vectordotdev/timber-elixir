@@ -14,10 +14,9 @@
 
 Timber for Elixir is an optional upgrade you can install for Elixir apps on the
 [Timber.io logging platform](https://timber.io). Instead of completely replacing your log messages,
-Timber automatically augments your logs with JSON metadata. Essentially turning them into
+Timber augments your logs with critical metadata. Turning them into
 [rich events with context](https://timber.io/docs/elixir/events-and-context). This preserves the
-readability of your logs while still dramatically improving the quality of your data.
-The end result: better logging and faster problem solving.
+readability of your logs while still improving the quality of your log data.
 
 
 ## How it works
