@@ -24,8 +24,7 @@ defmodule Mix.Tasks.Timber.Install.ApplicationTest do
       api = %API{api_key: "api_key", session_id: "session_id"}
       result = Application.new!(api)
       assert result == %Application{api_key: "api_key",
-             heroku_drain_url: "drain_url", mix_name: "timber_elixir",
-             module_name: "TimberElixir", name: "Timber",
+             heroku_drain_url: "drain_url", name: "Timber",
              platform_type: "heroku", slug: "timber"}
     end
   end
