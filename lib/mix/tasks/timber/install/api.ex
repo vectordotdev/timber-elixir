@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Timber.Install.API do
 
   def has_logs?(api) do
     case has_logs!(api) do
-      {202, _body} -> true
+      {204, _body} -> true
       _ -> false
     end
   end

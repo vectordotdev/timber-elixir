@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Timber.Install do
 
   use Mix.Task
 
-  alias __MODULE__.{API, Application, ConfigFile, EndpointFile, IOHelper, Messages, PathHelper,
+  alias __MODULE__.{API, Application, EndpointFile, IOHelper, Messages, Project, TimberConfigFile,
     WebFile}
   alias Mix.Tasks.Timber.Install.HTTPClient.InvalidAPIKeyError
   alias Mix.Tasks.Timber.TestThePipes
@@ -11,10 +11,9 @@ defmodule Mix.Tasks.Timber.Install do
   require Logger
 
   def run([]) do
-    Messages.header()
-    |> IOHelper.puts(:green)
+    explain_warnings()
 
-    Messages.contact_and_support()
+    Messages.header()
     |> IOHelper.puts()
 
     Messages.forgot_key()
@@ -29,32 +28,21 @@ defmodule Mix.Tasks.Timber.Install do
 
       API.event!(api, :started)
 
-      if !Code.ensure_loaded?(:hackney) || !Code.ensure_loaded?(Plug) do
-        """
-
-        ^ These warnings are perfectly normal :) We include various libraries as *optional*
-        depdencies, which logs these *expected* warnings. Now onto the good stuff...
-        """
-        |> IOHelper.puts(:yellow)
-
-        Messages.separator()
-        |> IOHelper.puts()
-      end
+      explain_warnings()
 
       Messages.header()
-      |> IOHelper.puts(:green)
-
-      Messages.contact_and_support()
       |> IOHelper.puts()
 
       application = Application.new!(api)
+      project = Project.new(api)
 
-      phoenix? = Code.ensure_loaded?(Phoenix)
+      create_config_file!(application, project, api)
+      link_config_file!(project, api)
+      add_plugs!(project, api)
+      disable_default_phoenix_logging!(project, api)
 
-      create_config_file!(application, api)
-      link_config_file!(api)
-      add_plugs!(phoenix?, api)
-      disable_default_phoenix_logging!(phoenix?, api)
+      IOHelper.puts ""
+
       install_user_context!(api)
       #install_http_client_context!(session_id, api_key)
       platform_install!(API.has_logs?(api), api, application)
@@ -65,7 +53,6 @@ defmodule Mix.Tasks.Timber.Install do
       |> IOHelper.puts()
 
       """
-
       #{Messages.separator()}
       """
       |> IOHelper.puts()
@@ -124,70 +111,71 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp create_config_file!(application, api) do
-    ConfigFile.create!(application, api)
+  defp explain_warnings do
+    if !Code.ensure_loaded?(:hackney) || !Code.ensure_loaded?(Plug) do
+      """
 
-    Messages.action_starting("Creating #{ConfigFile.file_path()}...")
+      ^ These warnings are perfectly normal :) We include various libraries as *optional*
+      depdencies, which logs these *expected* warnings. Now onto the good stuff...
+      """
+      |> IOHelper.puts(:yellow)
+
+      Messages.separator()
+      |> IOHelper.puts()
+    end
+  end
+
+  defp create_config_file!(application, project, api) do
+    Messages.action_starting("Creating #{TimberConfigFile.file_path()}...")
     |> IOHelper.write()
+
+    TimberConfigFile.create!(application, project, api)
 
     Messages.success()
     |> IOHelper.puts(:green)
   end
 
-  defp link_config_file!(api) do
-    file_explanation = "We need this to link config/timber.exs"
-    config_file_path = PathHelper.find(["config", "config.exs"], file_explanation, api)
+  # Links config/timber.exs within config/config.exs
+  defp link_config_file!(%{config_file_path: config_file_path}, api) do
+    Messages.action_starting("Linking #{TimberConfigFile.file_path()} in #{config_file_path}...")
+    |> IOHelper.write()
 
-    if config_file_path do
-      Messages.action_starting("Linking #{ConfigFile.file_path()} in #{config_file_path}...")
-      |> IOHelper.write()
+    TimberConfigFile.link!(config_file_path, api)
 
-      ConfigFile.link!(config_file_path, api)
-
-      Messages.success()
-      |> IOHelper.puts(:green)
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
-  defp add_plugs!(false, _), do: nil
+  # Adds the timber plugs in the endpoint.ex file
+  defp add_plugs!(%{endpoint_file_path: nil}, _), do: nil
 
-  defp add_plugs!(true, api) do
-    file_explanation = "We need this so that we can install the Timber plugs."
-    endpoint_file_path = PathHelper.find(["{lib,web}", "**", "endpoint.ex"], file_explanation, api,
-      check_for_umbrella: true)
+  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}, api) do
+    Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
+    |> IOHelper.write()
 
-    if endpoint_file_path do
-      Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
-      |> IOHelper.write()
+    EndpointFile.update!(endpoint_file_path, api)
 
-      EndpointFile.update!(endpoint_file_path, api)
-
-      Messages.success()
-      |> IOHelper.puts(:green)
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
-  defp disable_default_phoenix_logging!(false, _), do: nil
+  # Disables the default phoenix logging since we handle that with our Phoenix
+  # instrumenter
+  defp disable_default_phoenix_logging!(%{web_file_path: nil}, _), do: nil
 
-  defp disable_default_phoenix_logging!(true, api) do
-    file_explanation = "We need this to disable default Phoenix controller logging."
-    web_file_path = PathHelper.find(["web", "web.ex"], file_explanation, api,
-      check_for_umbrella: true)
+  defp disable_default_phoenix_logging!(%{web_file_path: web_file_path}, api) do
+    Messages.action_starting("Disabling default Phoenix logging in #{web_file_path}...")
+    |> IOHelper.write()
 
-    if web_file_path do
-      Messages.action_starting("Disabling default Phoenix logging #{web_file_path}...")
-      |> IOHelper.write()
+    WebFile.update!(web_file_path, api)
 
-      WebFile.update!(web_file_path, api)
-
-      Messages.success()
-      |> IOHelper.puts(:green)
-    end
+    Messages.success()
+    |> IOHelper.puts(:green)
   end
 
+  # Asks the user if they want to install user context to track users in their logs.
   defp install_user_context!(api) do
     """
-
     #{Messages.separator()}
     """
     |> IOHelper.puts()
@@ -199,7 +187,11 @@ defmodule Mix.Tasks.Timber.Install do
         Messages.user_context_instructions()
         |> IOHelper.puts()
 
-        case IOHelper.ask_yes_no("Ready to proceed?", api) do
+        answer = IOHelper.ask_yes_no("Ready to proceed?", api)
+
+        IOHelper.puts ""
+
+        case answer do
           :yes -> :ok
           :no -> install_user_context!(api)
         end
@@ -234,13 +226,12 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp platform_install!(true, _api, _application) do
     """
-
     #{Messages.separator()}
 
     """
     |> IOHelper.write()
 
-    Messages.action_starting("Checking if your application already has logs...")
+    Messages.action_starting("Checking if your application is already sending logs...")
     |> IOHelper.write()
 
     Messages.success()

@@ -55,25 +55,42 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
         file_path
 
       file_paths ->
-        API.event!(api, :multiple_files_found, %{path: path})
+        contents_filter = Keyword.get(opts, :contents_filter)
 
-        file_paths_list = Enum.join(file_paths, "\n")
+        file_paths =
+          if contents_filter do
+            Enum.filter(file_paths, fn file_path ->
+              contents = FileHelper.read!(file_path)
+              String.contains?(contents, contents_filter)
+            end)
+          else
+            file_paths
+          end
 
-        prompt =
-          """
+        case file_paths do
+          [file_path] -> file_path
 
-          #{IOHelper.colorize("Whoa! We found multiple #{file_name} files:", :yellow)}
+          file_paths ->
+            API.event!(api, :multiple_files_found, %{path: path})
 
-          #{IOHelper.colorize(file_paths_list, :blue)}
+            file_paths_list = Enum.join(file_paths, "\n")
 
-          #{file_explanation}
+            prompt =
+              """
 
-          #{missing_file_prompt_message}
-          """
-          |> String.trim_trailing()
+              #{IOHelper.colorize("Whoa! We found multiple #{file_name} files:", :yellow)}
 
-        case IOHelper.ask(prompt, api) do
-          v -> find([v], file_explanation, api)
+              #{IOHelper.colorize(file_paths_list, :blue)}
+
+              #{file_explanation}
+
+              #{missing_file_prompt_message}
+              """
+              |> String.trim_trailing()
+
+            case IOHelper.ask(prompt, api) do
+              v -> find([v], file_explanation, api)
+            end
         end
     end
   end

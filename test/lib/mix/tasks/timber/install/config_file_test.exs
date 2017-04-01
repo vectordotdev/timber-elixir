@@ -5,30 +5,34 @@ defmodule Mix.Tasks.Timber.Install.ConfigFileTest do
   alias Timber.Installer.{FakeFile, FakeHTTPClient, FakeIO}
 
   describe "Mix.Tasks.Timber.Install.ConfigFile.create!/1" do
-    # test "without an endpoint_module_name" do
-    #   FakeFile.stub(:open, fn
-    #     "config/timber.exs" = file_path, [:write] -> {:ok, "#{file_path} device"}
-    #   end)
+    test "Phoenix presence" do
+      FakeFile.stub(:open, fn
+        "config/timber.exs" = file_path, [:write] -> {:ok, "#{file_path} device"}
+      end)
 
-    #   FakeIO.stub(:binwrite, fn "config/timber.exs device", file_contents ->
-    #       refute file_contents =~ "config :timber_elixir, TimberElixir.Endpoint"
-    #       :ok
-    #   end)
+      FakeIO.stub(:binwrite, fn "config/timber.exs device", file_contents ->
+        endppoint_check = file_contents =~ "config :timber_elixir, TimberElixir.Endpoint"
+        if Code.ensure_loaded?(Phoenix)
+          assert endppoint_check
+        else
+          refute endppoint_check
+        end
+        :ok
+      end)
 
-    #   FakeFile.stub(:close, fn "config/timber.exs device" -> :ok end)
+      FakeFile.stub(:close, fn "config/timber.exs device" -> :ok end)
 
-    #   FakeHTTPClient.stub(:request, fn
-    #     :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
-    #       {:ok, 204, ""}
-    #   end)
+      FakeHTTPClient.stub(:request, fn
+        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
+          {:ok, 204, ""}
+      end)
 
-    #   api = %API{api_key: "api_key", session_id: "session_id"}
+      api = %API{api_key: "api_key", session_id: "session_id"}
 
-    #   application = build_application()
-    #   application = %{application | endpoint_module_name: nil}
-    #   result = ConfigFile.create!(application, api)
-    #   assert result == :ok
-    # end
+      application = build_application()
+      result = ConfigFile.create!(application, api)
+      assert result == :ok
+    end
 
     # test "without an repo_module_name" do
     #   FakeFile.stub(:open, fn

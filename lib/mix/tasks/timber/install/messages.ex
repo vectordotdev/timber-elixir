@@ -74,19 +74,20 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   end
 
   def header do
-    """
+    header =
+      """
 
-    🌲 Timber.io Elixir Installer
+      🌲 Timber.io Elixir Installer
 
-     ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
-    /|\\/|\\/|\\ /|\\    /\\-_--\\    /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    /|\\/|\\/|\\ /|\\   /  \\_-__\\   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    /|\\/|\\/|\\ /|\\   |[]| [] |   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    """
-  end
+       ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
+      /|\\/|\\/|\\ /|\\    /\\-_--\\    /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      /|\\/|\\/|\\ /|\\   /  \\_-__\\   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      /|\\/|\\/|\\ /|\\   |[]| [] |   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      """
+      |> IOHelper.colorize(:green)
 
-  def contact_and_support do
     """
+    #{header}
     #{separator()}
     Website:       #{@website_url}
     Documentation: #{@docs_url}
@@ -97,7 +98,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def heroku_drain_instructions(heroku_drain_url) do
     """
-
     #{separator()}
 
     Now we need to send your logs to the Timber service.
@@ -109,7 +109,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def http_client_setup do
     """
-
     #{separator()}
 
     Before we can proceed, you'll need to add hackney as a dependency.
@@ -126,7 +125,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         end
 
         def deps do
-          [{:hackney, "~> 1.7.1"}]
+          [{:hackney, "~> 1.7"}]
         end
 
     2. Run mix deps.get
@@ -195,9 +194,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def spinner(2), do: "/"
 
-  def success do
-    "✓ Success!"
-  end
+  def success, do: "✓ Success!"
 
   def user_context_instructions do
     code =
