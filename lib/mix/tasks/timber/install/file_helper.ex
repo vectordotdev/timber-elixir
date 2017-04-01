@@ -2,9 +2,9 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
   @moduledoc false
 
   alias __MODULE__.{FileReadingError, FileReplacePatternError, FileWritingError}
-  alias Mix.Tasks.Timber.Install.Config
+  alias Mix.Tasks.Timber.Install.{API, Config}
 
-  def append_once!(path, contents, contains_pattern) do
+  def append_once!(path, contents, contains_pattern, api) do
     case Config.file_client().read(path) do
       {:ok, current_contents} ->
         if String.contains?(current_contents, contains_pattern) do
@@ -14,6 +14,9 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
             {:ok, file} ->
               result = Config.io_client().binwrite(file, contents)
               Config.file_client().close(file)
+
+              API.event!(api, :file_written, %{path: path})
+
               result
 
             {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
@@ -22,6 +25,10 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
 
       {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
     end
+  end
+
+  def dir?(path) do
+    Config.file_client().dir?(path)
   end
 
   def read!(path) do
@@ -50,14 +57,17 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     end
   end
 
-  def write!(path, contents) do
+  def write!(path, contents, api) do
     case Config.file_client().open(path, [:write]) do
       {:ok, file} ->
         result = Config.io_client().binwrite(file, contents)
         Config.file_client().close(file)
 
         case result do
-          :ok -> :ok
+          :ok ->
+            API.event!(api, :file_written, %{path: path})
+            :ok
+
           {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
         end
 

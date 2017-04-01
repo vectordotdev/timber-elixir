@@ -33,15 +33,19 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   end
 
   def free_data() do
+    upgrades =
+      """
+      * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
+      * Get ✨ 100mb✨ for starring our repo: #{@repo_url}
+      * Get ✨ 50mb✨ for following #{@twitter_handle} on twitter
+      """
+      |> IOHelper.colorize(:yellow)
+
     """
 
     #{separator()}
 
-    * Timber URL: https://app.timber.io
-    * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
-    * Get ✨ 100mb✨ for starring our repo: #{@repo_url}
-    * Get ✨ 50mb✨ for following #{@twitter_handle} on twitter
-
+    #{upgrades}
     (Your account will be credited within 2-3 business days.
      If you do not notice a credit please contact us: #{@support_email})
     """
@@ -70,19 +74,20 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   end
 
   def header do
-    """
+    header =
+      """
 
-    🌲 Timber.io Elixir Installer
+      🌲 Timber.io Elixir Installer
 
-     ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
-    /|\\/|\\/|\\ /|\\    /\\-_--\\    /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    /|\\/|\\/|\\ /|\\   /  \\_-__\\   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    /|\\/|\\/|\\ /|\\   |[]| [] |   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
-    """
-  end
+       ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
+      /|\\/|\\/|\\ /|\\    /\\-_--\\    /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      /|\\/|\\/|\\ /|\\   /  \\_-__\\   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      /|\\/|\\/|\\ /|\\   |[]| [] |   /|\\/|\\ /|\\/|\\/|\\ /|\\/|\\
+      """
+      |> IOHelper.colorize(:green)
 
-  def contact_and_support do
     """
+    #{header}
     #{separator()}
     Website:       #{@website_url}
     Documentation: #{@docs_url}
@@ -93,19 +98,17 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def heroku_drain_instructions(heroku_drain_url) do
     """
-
     #{separator()}
 
     Now we need to send your logs to the Timber service.
     Please run this command in a separate terminal and return back here when complete:
 
-        heroku drains:add #{heroku_drain_url}
+        #{IOHelper.colorize("heroku drains:add #{heroku_drain_url}", :blue)}
     """
   end
 
   def http_client_setup do
     """
-
     #{separator()}
 
     Before we can proceed, you'll need to add hackney as a dependency.
@@ -122,7 +125,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         end
 
         def deps do
-          [{:hackney, "~> 1.7.1"}]
+          [{:hackney, "~> 1.7"}]
         end
 
     2. Run mix deps.get
@@ -191,19 +194,23 @@ defmodule Mix.Tasks.Timber.Install.Messages do
 
   def spinner(2), do: "/"
 
-  def success do
-    "✓ Success!"
-  end
+  def success, do: "✓ Success!"
 
   def user_context_instructions do
+    code =
+      """
+          %Timber.Contexts.UserContext{id: id, name: name, email: email}
+          |> Timber.add_context()
+      """
+      |> IOHelper.colorize(:blue)
+
     """
 
     Great! Timber can add user context to your logs, allowing you to search
     and tail logs for specific users. To install this, please add this
     code wherever you authenticate your user. Typically in a plug:
 
-        %Timber.Contexts.UserContext{id: id, name: name, email: email}
-        |> Timber.add_context()
+    #{code}
     """
   end
 

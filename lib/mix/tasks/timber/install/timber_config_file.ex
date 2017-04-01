@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Timber.Install.ConfigFile do
+defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
   @moduledoc false
 
   alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper}
@@ -7,51 +7,22 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
   @file_path Path.join(["config", @file_name])
 
   # Adds the config/timber.exs file to be linked in config/config.exs
-  def create!(%{mix_name: mix_name, endpoint_module_name: endpoint_module_name,
-    repo_module_name: repo_module_name} = application)
-  do
+  def create!(application, project, api) do
     contents =
       """
       use Mix.Config
-      """
-
-    contents =
-      if endpoint_module_name do
-        contents <>
-          """
-
-          # Update the instrumenters so that we can structure Phoenix logs
-          config :#{mix_name}, #{endpoint_module_name},
-            instrumenters: [Timber.Integrations.PhoenixInstrumenter]
-          """
-      else
-        contents
-      end
-
-    contents =
-      if repo_module_name do
-        contents <>
-          """
-
-          # Structure Ecto logs
-          config :#{mix_name}, #{repo_module_name},
-            loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
-          """
-      else
-        contents
-      end
-
-    contents = contents <>
-      """
-
+      #{endpoint_portion(project)}#{repo_portion(project)}
       # Use Timber as the logger backend
       # Feel free to add additional backends if you want to send you logs to multiple devices.
-      #{timber_portion(application)}
-      # For dev / test environments, always log to STDOUt and format the logs properly
+      #{timber_portion(application, api)}
+      # For dev / test environments, always log to STDOUT and format the logs properly
       if Mix.env() == :dev || Mix.env() == :test do
         # Fall back to the default `:console` backend with the Timber custom formatter
         config :logger,
           backends: [:console],
+          utc_log: true
+
+        config :logger, :console,
           format: {Timber.Formatter, :format},
           metadata: [:timber_context, :event]
 
@@ -68,33 +39,59 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
       # File an issue: https://github.com/timberio/timber-elixir/issues
       """
 
-    FileHelper.write!(@file_path, contents)
+    FileHelper.write!(@file_path, contents, api)
   end
 
-  defp timber_portion(%{platform_type: "heroku"}) do
+  defp endpoint_portion(%{endpoint_module_name: nil}), do: ""
+
+  defp endpoint_portion(%{mix_name: mix_name, endpoint_module_name: endpoint_module_name}) do
+    """
+
+    # Update the instrumenters so that we can structure Phoenix logs
+    config :#{mix_name}, #{endpoint_module_name},
+      instrumenters: [Timber.Integrations.PhoenixInstrumenter]
+    """
+  end
+
+  defp repo_portion(%{repo_module_name: nil}), do: ""
+
+  defp repo_portion(%{mix_name: mix_name, repo_module_name: repo_module_name}) do
+    """
+
+    # Structure Ecto logs
+    config :#{mix_name}, #{repo_module_name},
+      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+    """
+  end
+
+  defp timber_portion(%{platform_type: "heroku"}, _api) do
     """
     # For Heroku, use the `:console` backend provided with Logger but customize
     # it to use Timber's internal formatting system
     config :logger,
       backends: [:console],
+      utc_log: true
+
+    config :logger, :console,
       format: {Timber.Formatter, :format},
       metadata: [:timber_context, :event]
     """
   end
 
-  defp timber_portion(%{api_key: api_key}) do
+  defp timber_portion(_application, api) do
     """
     # Deliver logs via HTTP to the Timber API by using the Timber HTTP backend.
     config :logger,
-      backends: [Timber.LoggerBackends.HTTP]
+      backends: [Timber.LoggerBackends.HTTP],
+      utc_log: true
 
     config :timber,
-      api_key: #{api_key_portion(api_key)},
+      api_key: #{api_key_portion(api)},
       http_client: Timber.HTTPClients.Hackney
     """
   end
 
-  defp api_key_portion(api_key) do
+  defp api_key_portion(%{api_key: api_key} = api) do
     """
     How would you prefer to store your Timber API key?
 
@@ -103,20 +100,20 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
     """
     |> IOHelper.puts()
 
-    case IOHelper.ask("Enter your choice (1/2)") do
+    case IOHelper.ask("Enter your choice (1/2)", api) do
       "1" -> "{:system, \"TIMBER_LOGS_KEY\"}"
       "2" -> "\"#{api_key}\""
 
       other ->
         "Sorry #{inspect(other)} is not a valid input. Please try again."
         |> IOHelper.puts(:red)
-        api_key_portion(api_key)
+        api_key_portion(api)
     end
   end
 
   def file_path, do: @file_path
 
-  def link!(config_file_path) do
+  def link!(config_file_path, api) do
     contents =
       """
 
@@ -126,6 +123,6 @@ defmodule Mix.Tasks.Timber.Install.ConfigFile do
 
     check = "import_config \"#{@file_name}\""
 
-    FileHelper.append_once!(config_file_path, contents, check)
+    FileHelper.append_once!(config_file_path, contents, check, api)
   end
 end

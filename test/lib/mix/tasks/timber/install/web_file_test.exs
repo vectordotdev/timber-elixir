@@ -1,8 +1,8 @@
 defmodule Mix.Tasks.Timber.Install.WebFileTest do
   use Timber.TestCase
 
-  alias Mix.Tasks.Timber.Install.WebFile
-  alias Timber.Installer.{FakeFile, FakeFileContents, FakeIO}
+  alias Mix.Tasks.Timber.Install.{API, WebFile}
+  alias Timber.Installer.{FakeFile, FakeFileContents, FakeHTTPClient, FakeIO}
 
   describe "Mix.Tasks.Timber.Install.WebFile.update!/1" do
     test "updates properly" do
@@ -14,7 +14,14 @@ defmodule Mix.Tasks.Timber.Install.WebFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      result = WebFile.update!("file_path")
+      FakeHTTPClient.stub(:request, fn
+        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
+          {:ok, 204, ""}
+      end)
+
+      api = %API{api_key: "api_key", session_id: "session_id"}
+
+      result = WebFile.update!("file_path", api)
       assert result == :ok
     end
 
@@ -27,7 +34,14 @@ defmodule Mix.Tasks.Timber.Install.WebFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      result = WebFile.update!("file_path")
+      FakeHTTPClient.stub(:request, fn
+        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
+          {:ok, 204, ""}
+      end)
+
+      api = %API{api_key: "api_key", session_id: "session_id"}
+
+      result = WebFile.update!("file_path", api)
       assert result == :ok
     end
   end

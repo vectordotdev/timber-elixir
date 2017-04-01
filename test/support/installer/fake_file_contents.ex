@@ -79,6 +79,14 @@ defmodule Timber.Installer.FakeFileContents do
     """
   end
 
+  def default_repo_contents do
+    """
+    defmodule ElixirPhoenixExampleApp.Repo do
+      use Ecto.Repo, otp_app: :elixir_phoenix_example_app
+    end
+    """
+  end
+
   def default_web_contents do
     """
     defmodule TimberElixir.Web do
@@ -278,7 +286,7 @@ defmodule Timber.Installer.FakeFileContents do
       instrumenters: [Timber.Integrations.PhoenixInstrumenter]
 
     # Structure Ecto logs
-    config :timber_elixir, TimberElixir.Repo,
+    config :timber_elixir, ElixirPhoenixExampleApp.Repo,
       loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
 
     # Use Timber as the logger backend
@@ -287,14 +295,20 @@ defmodule Timber.Installer.FakeFileContents do
     # it to use Timber's internal formatting system
     config :logger,
       backends: [:console],
+      utc_log: true
+
+    config :logger, :console,
       format: {Timber.Formatter, :format},
       metadata: [:timber_context, :event]
 
-    # For dev / test environments, always log to STDOUt and format the logs properly
+    # For dev / test environments, always log to STDOUT and format the logs properly
     if Mix.env() == :dev || Mix.env() == :test do
       # Fall back to the default `:console` backend with the Timber custom formatter
       config :logger,
         backends: [:console],
+        utc_log: true
+
+      config :logger, :console,
         format: {Timber.Formatter, :format},
         metadata: [:timber_context, :event]
 

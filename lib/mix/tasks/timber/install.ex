@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Timber.Install do
 
   use Mix.Task
 
-  alias __MODULE__.{API, Application, ConfigFile, EndpointFile, IOHelper, Messages,
+  alias __MODULE__.{API, Application, EndpointFile, IOHelper, Messages, Project, TimberConfigFile,
     WebFile}
   alias Mix.Tasks.Timber.Install.HTTPClient.InvalidAPIKeyError
   alias Mix.Tasks.Timber.TestThePipes
@@ -11,10 +11,9 @@ defmodule Mix.Tasks.Timber.Install do
   require Logger
 
   def run([]) do
-    Messages.header()
-    |> IOHelper.puts(:green)
+    explain_warnings()
 
-    Messages.contact_and_support()
+    Messages.header()
     |> IOHelper.puts()
 
     Messages.forgot_key()
@@ -29,21 +28,24 @@ defmodule Mix.Tasks.Timber.Install do
 
       API.event!(api, :started)
 
-      Messages.header()
-      |> IOHelper.puts(:green)
+      explain_warnings()
 
-      Messages.contact_and_support()
+      Messages.header()
       |> IOHelper.puts()
 
       application = Application.new!(api)
+      project = Project.new(api)
 
-      create_config_file!(application)
-      link_config_file!(application)
-      add_plugs!(application)
-      disable_default_phoenix_logging!(application)
+      create_config_file!(application, project, api)
+      link_config_file!(project, api)
+      add_plugs!(project, api)
+      disable_default_phoenix_logging!(project, api)
+
+      IOHelper.puts ""
+
       install_user_context!(api)
       #install_http_client_context!(session_id, api_key)
-      platform_install!(api, application)
+      platform_install!(API.has_logs?(api), api, application)
 
       API.event!(api, :success)
 
@@ -51,7 +53,6 @@ defmodule Mix.Tasks.Timber.Install do
       |> IOHelper.puts()
 
       """
-
       #{Messages.separator()}
       """
       |> IOHelper.puts()
@@ -98,7 +99,7 @@ defmodule Mix.Tasks.Timber.Install do
         """
         |> IOHelper.puts(:red)
 
-        # case IOHelper.ask_yes_no("Permission to send this error to Timber?") do
+        # case IOHelper.ask_yes_no("Permission to send this error to Timber?", api) do
         #   :yes ->
         #     data = %{message: message, stacktrace: stacktrace}
         #     API.event!(api, :exception, data: data)
@@ -110,63 +111,87 @@ defmodule Mix.Tasks.Timber.Install do
     end
   end
 
-  defp create_config_file!(application) do
-    ConfigFile.create!(application)
+  defp explain_warnings do
+    if !Code.ensure_loaded?(:hackney) || !Code.ensure_loaded?(Plug) do
+      """
 
-    Messages.action_starting("Creating #{ConfigFile.file_path()}...")
+      ^ These warnings are perfectly normal :) We include various libraries as *optional*
+      depdencies, which logs these *expected* warnings. Now onto the good stuff...
+      """
+      |> IOHelper.puts(:yellow)
+
+      Messages.separator()
+      |> IOHelper.puts()
+    end
+  end
+
+  defp create_config_file!(application, project, api) do
+    Messages.action_starting("Creating #{TimberConfigFile.file_path()}...")
     |> IOHelper.write()
+
+    TimberConfigFile.create!(application, project, api)
 
     Messages.success()
     |> IOHelper.puts(:green)
   end
 
   # Links config/timber.exs within config/config.exs
-  defp link_config_file!(%{config_file_path: config_file_path}) do
-    Messages.action_starting("Linking #{ConfigFile.file_path()} in #{config_file_path}...")
+  defp link_config_file!(%{config_file_path: config_file_path}, api) do
+    Messages.action_starting("Linking #{TimberConfigFile.file_path()} in #{config_file_path}...")
     |> IOHelper.write()
 
-    ConfigFile.link!(config_file_path)
+    TimberConfigFile.link!(config_file_path, api)
 
     Messages.success()
     |> IOHelper.puts(:green)
   end
 
-  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}) do
+  # Adds the timber plugs in the endpoint.ex file
+  defp add_plugs!(%{endpoint_file_path: nil}, _), do: nil
+
+  defp add_plugs!(%{endpoint_file_path: endpoint_file_path}, api) do
     Messages.action_starting("Adding Timber plugs to #{endpoint_file_path}...")
     |> IOHelper.write()
 
-    EndpointFile.update!(endpoint_file_path)
+    EndpointFile.update!(endpoint_file_path, api)
 
     Messages.success()
     |> IOHelper.puts(:green)
   end
 
-  defp disable_default_phoenix_logging!(%{web_file_path: web_file_path}) do
-    Messages.action_starting("Disabling default Phoenix logging #{web_file_path}...")
+  # Disables the default phoenix logging since we handle that with our Phoenix
+  # instrumenter
+  defp disable_default_phoenix_logging!(%{web_file_path: nil}, _), do: nil
+
+  defp disable_default_phoenix_logging!(%{web_file_path: web_file_path}, api) do
+    Messages.action_starting("Disabling default Phoenix logging in #{web_file_path}...")
     |> IOHelper.write()
 
-    WebFile.update!(web_file_path)
+    WebFile.update!(web_file_path, api)
 
     Messages.success()
     |> IOHelper.puts(:green)
   end
 
+  # Asks the user if they want to install user context to track users in their logs.
   defp install_user_context!(api) do
     """
-
     #{Messages.separator()}
     """
     |> IOHelper.puts()
 
-    answer = IOHelper.ask_yes_no("Does your application have user accounts?")
-    API.event!(api, :user_context_answer, %{answer: Atom.to_string(answer)})
+    answer = IOHelper.ask_yes_no("Does your application have user accounts?", api)
 
     case answer do
       :yes ->
         Messages.user_context_instructions()
         |> IOHelper.puts()
 
-        case IOHelper.ask_yes_no("Ready to proceed?") do
+        answer = IOHelper.ask_yes_no("Ready to proceed?", api)
+
+        IOHelper.puts ""
+
+        case answer do
           :yes -> :ok
           :no -> install_user_context!(api)
         end
@@ -183,15 +208,14 @@ defmodule Mix.Tasks.Timber.Install do
   #   """
   #   |> IOHelper.puts()
 
-  #    answer = IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?")
-  #    API.event!(api, :http_tracking_answer, data: %{answer: answer})
+  #    answer = IOHelper.ask_yes_no("Does your application send outgoing HTTP requests?", api)
 
   #   case answer do
   #     :yes ->
   #       Messages.outgoing_http_instructions()
   #       |> IOHelper.puts()
 
-  #       case IOHelper.ask_yes_no("Ready to proceed?") do
+  #       case IOHelper.ask_yes_no("Ready to proceed?", api) do
   #         :yes -> :ok
   #         :no -> install_http_client_context!()
   #       end
@@ -200,14 +224,28 @@ defmodule Mix.Tasks.Timber.Install do
   #   end
   # end
 
-  defp platform_install!(api, %{platform_type: "heroku", heroku_drain_url: heroku_drain_url}) do
+  defp platform_install!(true, _api, _application) do
+    """
+    #{Messages.separator()}
+
+    """
+    |> IOHelper.write()
+
+    Messages.action_starting("Checking if your application is already sending logs...")
+    |> IOHelper.write()
+
+    Messages.success()
+    |> IOHelper.puts(:green)
+  end
+
+  defp platform_install!(false, api, %{platform_type: "heroku", heroku_drain_url: heroku_drain_url}) do
     Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
     API.wait_for_logs(api)
   end
 
-  defp platform_install!(%{api_key: api_key} = api, _application) do
+  defp platform_install!(false, %{api_key: api_key} = api, _application) do
     :ok = check_for_http_client(api)
 
     Messages.action_starting("Sending a few test logs...")
@@ -236,6 +274,8 @@ defmodule Mix.Tasks.Timber.Install do
 
   defp check_for_http_client(api) do
     if Code.ensure_loaded?(:hackney) do
+      API.event!(api, :http_client_found)
+
       case :hackney.start() do
         :ok -> :ok
         {:error, {:already_started, _name}} -> :ok
@@ -254,7 +294,7 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   defp collect_feedback(api) do
-    case IOHelper.ask("How would rate this install experience? 1 (bad) - 5 (perfect)") do
+    case IOHelper.ask("How would rate this install experience? 1 (bad) - 5 (perfect)", api) do
       v when v in ["4", "5"] ->
         API.event!(api, :feedback, %{rating: v})
 
@@ -275,7 +315,7 @@ defmodule Mix.Tasks.Timber.Install do
         """
         |> IOHelper.puts()
 
-        case IOHelper.ask("Type your comments (enter sends)") do
+        case IOHelper.ask("Type your comments (enter sends)", api) do
           comments ->
             API.event!(api, :feedback, %{rating: v, comments: comments})
 

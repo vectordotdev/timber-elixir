@@ -38,9 +38,25 @@ defmodule Mix.Tasks.Timber.Install.API do
     request!(api, :post, "/installer/events", body: %{event: %{name: name, data: data}})
   end
 
+  def has_logs!(api) do
+    request!(api, :get, "/installer/has_logs")
+  end
+
+  def has_logs?(api) do
+    case has_logs!(api) do
+      {204, _body} -> true
+      _ -> false
+    end
+  end
+
   def wait_for_logs(api, iteration \\ 0)
 
   def wait_for_logs(api, iteration) do
+    cond do
+      iteration == 0 -> event!(api, :waiting_for_logs)
+      iteration > 30 -> event!(api, :excessively_waiting_for_logs)
+    end
+
     IO.ANSI.format(["\r", :clear_line])
     |> IOHelper.write()
 
@@ -48,9 +64,7 @@ defmodule Mix.Tasks.Timber.Install.API do
     |> Messages.action_starting()
     |> IOHelper.write()
 
-    response = request!(api, :get, "/installer/has_logs")
-
-    case response do
+    case has_logs!(api) do
       {202, _body} ->
         rem = rem(iteration, 3)
 
