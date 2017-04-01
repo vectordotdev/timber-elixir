@@ -20,9 +20,11 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
         # Fall back to the default `:console` backend with the Timber custom formatter
         config :logger,
           backends: [:console],
-          format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event],
           utc_log: true
+
+        config :logger, :console,
+          format: {Timber.Formatter, :format},
+          metadata: [:timber_context, :event]
 
         config :timber, Timber.Formatter,
           colorize: true,
@@ -68,9 +70,11 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
     # it to use Timber's internal formatting system
     config :logger,
       backends: [:console],
-      format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event],
       utc_log: true
+
+    config :logger, :console,
+      format: {Timber.Formatter, :format},
+      metadata: [:timber_context, :event]
     """
   end
 
