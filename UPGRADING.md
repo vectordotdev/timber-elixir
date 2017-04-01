@@ -5,7 +5,7 @@ This documents outlines how to upgrade from major versions of Timber
 ## 1.x to 2.X
 
 The 2.X introduces a number of enhancements and improvements. You can read more about the
-new 2.X line [here]().
+new 2.X line [here](https://timber.io/changelog/2017/03/31/timber-for-elixir-2-0/).
 
 To upgrade, please follow these steps:
 
