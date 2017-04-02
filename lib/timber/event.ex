@@ -19,16 +19,26 @@ defmodule Timber.Event do
   @doc false
   @spec to_api_map(t) :: map
   def to_api_map(%Events.CustomEvent{type: type} = event) when is_binary(type) do
-    to_api_map(%{event | type: String.to_atom(type)})
+    atom_type = String.to_atom(type)
+
+    %{event | type: atom_type}
+    |> to_api_map()
   end
 
   def to_api_map(%Events.CustomEvent{type: type, data: data}) do
     %{custom: %{type => data}}
   end
 
+  def to_api_map(%Events.ControllerCallEvent{} = event) do
+    type = type(event)
+    map = Events.ControllerCallEvent.to_api_map(event)
+    %{server_side_app: %{type => map}}
+  end
+
   def to_api_map(event) do
     type = type(event)
-    %{server_side_app: %{type => Map.from_struct(event)}}
+    map = Map.from_struct(event)
+    %{server_side_app: %{type => map}}
   end
 
   @doc """

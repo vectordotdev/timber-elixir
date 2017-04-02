@@ -40,7 +40,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
     headers: map | nil,
     host: String.t,
     method: String.t,
-    path: String.t,
+    path: String.t | nil,
     port: pos_integer | nil,
     query_string: String.t | nil,
     request_id: String.t | nil,
@@ -61,7 +61,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
+      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
       |> Keyword.update(:service_name, nil, &UtilsHTTPEvents.try_atom_to_string/1)
