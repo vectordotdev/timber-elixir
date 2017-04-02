@@ -23,7 +23,7 @@ defmodule Timber.Events.ControllerCallEvent do
   @doc """
   Builds a new struct taking care to:
 
-  * Convert `:params` to `:params_json` that satifies the Timber API requirements
+  * Converts `:params` to `:params_json` that satifies the Timber API requirements
   """
   @spec new(Keyword.t) :: t
   def new(opts) do
@@ -32,8 +32,7 @@ defmodule Timber.Events.ControllerCallEvent do
       if params && params != %{} do
         params
         |> Timber.Utils.JSON.encode!()
-        |> to_string() # TODO: see if we can avoid this, we need it for the truncation below
-        |> String.slice(0..(@params_json_limit - 1))
+        |> Logger.Utils.truncate(@params_json_limit)
       else
         nil
       end
