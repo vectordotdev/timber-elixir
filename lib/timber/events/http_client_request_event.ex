@@ -18,7 +18,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   Logger.info req_message, event: req_event
 
   # Make the request
-  timer = Timber.Timer.start()
+  timer = Timber.start_timer()
   {:ok, status, headers, body} = :hackney.request(req_method, req_url, req_headers, "")
 
   # Log the response
@@ -31,7 +31,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
-  @enforce_keys [:host, :method, :path, :scheme]
+  @enforce_keys [:host, :method, :scheme]
   defstruct [:body, :headers, :host, :method, :path, :port, :query_string, :request_id, :scheme,
     :service_name]
 

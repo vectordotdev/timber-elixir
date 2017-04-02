@@ -22,12 +22,21 @@ defmodule Timber.Events.HTTPClientRequestEventTest do
       assert result.method == "GET"
     end
 
-    test "expands a url" do
+    test "expands a full url" do
       result = HTTPClientRequestEvent.new(method: :get, url: "https://timber.io/path?query")
       assert result.host == "timber.io"
       assert result.path == "/path"
       assert result.port == 443
       assert result.query_string == "query"
+      assert result.scheme == "https"
+    end
+
+    test "expands a url with just a host" do
+      result = HTTPClientRequestEvent.new(method: :get, url: "https://timber.io")
+      assert result.host == "timber.io"
+      assert result.path == nil
+      assert result.port == 443
+      assert result.query_string == nil
       assert result.scheme == "https"
     end
   end
