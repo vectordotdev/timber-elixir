@@ -32,7 +32,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
+      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
 

@@ -87,11 +87,15 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
     # Phoenix actions are always 2 arity function
     action = action_name <> "/2"
+    params = params(conn.params)
+    pipelines = conn.private[:phoenix_pipelines]
 
-    event = %ControllerCallEvent{
+    event = ControllerCallEvent.new(
       action: action,
-      controller: controller
-    }
+      controller: controller,
+      params: params,
+      pipelines: pipelines
+    )
 
     message = ControllerCallEvent.message(event)
     metadata = Timber.Utils.Logger.event_to_metadata(event)
@@ -137,5 +141,13 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   @spec get_log_level(atom) :: atom
   defp get_log_level(default) do
     Timber.Config.phoenix_instrumentation_level(default)
+  end
+
+  defp params(%Plug.Conn.Unfetched{}), do: "[UNFETCHED]"
+
+  defp params(params) do
+    params
+    |> Phoenix.Logger.filter_values()
+    |> inspect()
   end
 end
