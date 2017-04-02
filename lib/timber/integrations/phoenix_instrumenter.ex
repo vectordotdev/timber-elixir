@@ -151,5 +151,5 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   end
 
   # Unknown type, convert to a blank map for now
-  defp params(params), do: %{}
+  defp params(_params), do: %{}
 end
