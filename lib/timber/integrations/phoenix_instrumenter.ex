@@ -142,11 +142,10 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     Timber.Config.phoenix_instrumentation_level(default)
   end
 
-  defp params(%Plug.Conn.Unfetched{}), do: "[UNFETCHED]"
+  defp params(%Plug.Conn.Unfetched{}), do: %{}
 
   defp params(params) do
     params
     |> Phoenix.Logger.filter_values()
-    |> inspect()
   end
 end
