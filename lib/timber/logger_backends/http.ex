@@ -5,6 +5,10 @@ defmodule Timber.LoggerBackends.HTTP do
   The HTTP backend buffers and delivers log messages over HTTP to the Timber API.
   It uses batching and msgpack to deliver logs with high-throughput and little overhead.
 
+  Note: We use this transport strategy internally at Timber for our log ingestion pipeline;
+  generating ~250 logs per second with virtually no change in performance. For the curious,
+  we log metrics, and this is how we are able to optimize our pipeline.
+
   Messages are always written to the buffer first. The buffer is only drained when it reaches
   its maximum allowed size or a specified amount of time has elapsed. This balances output with
   batching so that logs are sent even when the application doesn't produce enough logs to fill
