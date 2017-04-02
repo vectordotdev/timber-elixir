@@ -22,7 +22,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
     scheme: String.t
   }
 
-  @enforce_keys [:method, :path, :scheme]
+  @enforce_keys [:method, :scheme]
   defstruct [:body, :host, :headers, :method, :path, :port, :query_string, :request_id, :scheme]
 
   @doc """

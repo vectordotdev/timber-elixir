@@ -31,7 +31,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
 
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
-  @enforce_keys [:host, :method, :path, :scheme]
+  @enforce_keys [:host, :method, :scheme]
   defstruct [:body, :headers, :host, :method, :path, :port, :query_string, :request_id, :scheme,
     :service_name]
 
