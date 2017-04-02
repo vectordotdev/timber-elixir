@@ -21,4 +21,13 @@ defmodule Timber.Utils.Logger do
   def get_event_from_metadata(metadata) do
     Keyword.get(metadata, Timber.Config.event_key(), nil)
   end
+
+  @doc """
+  Truncase a binary to the given length, taking into account the " (truncated)"
+  suffix that the Logger.Utils.truncate/1 method appends.
+  """
+  def truncate(binary, limit) do
+    adjusted_limit = limit - 15 # takes into account the " (truncated)" string that the below function appends
+    Logger.Utils.truncate(binary, adjusted_limit)
+  end
 end

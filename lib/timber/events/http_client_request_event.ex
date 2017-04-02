@@ -52,7 +52,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   Builds a new struct taking care to:
 
   * Parsing the `:url` and mapping it to the appropriate attributes.
-  * Truncate the body if it is too large.
+  * Truncates the body if it is too large.
   * Normalize header values so they are consistent.
   * Normalize the method.
   * Removes "" or nil values.
@@ -61,7 +61,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
+      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
       |> Keyword.update(:service_name, nil, &UtilsHTTPEvents.try_atom_to_string/1)

@@ -29,7 +29,6 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   Builds a new struct taking care to:
 
   * Parsing the `:url` and mapping it to the appropriate attributes.
-  * Truncate the body if it is too large.
   * Normalize header values so they are consistent.
   * Normalize the method.
   * Removes "" or nil values.
@@ -38,7 +37,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
+      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
       |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))

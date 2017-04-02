@@ -24,7 +24,7 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   @doc """
   Builds a new struct taking care to:
 
-  * Truncate the body if it is too large.
+  * Truncates the body if it is too large.
   * Normalize header values so they are consistent.
   * Removes "" or nil values.
   """

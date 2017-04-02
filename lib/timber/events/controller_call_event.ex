@@ -32,7 +32,7 @@ defmodule Timber.Events.ControllerCallEvent do
       if params && params != %{} do
         params
         |> Timber.Utils.JSON.encode!()
-        |> Logger.Utils.truncate(@params_json_limit)
+        |> Timber.Utils.Logger.truncate(@params_json_limit)
       else
         nil
       end

@@ -48,8 +48,8 @@ defmodule Timber.Events.ExceptionEvent do
 
     case do_new({nil, "", []}, lines) do
       {name, message, backtrace} when is_binary(name) and length(backtrace) > 0 ->
-        name = Logger.Utils.truncate(name, @name_limit)
-        message = Logger.Utils.truncate(message, @message_limit)
+        name = Timber.Utils.Logger.truncate(name, @name_limit)
+        message = Timber.Utils.Logger.truncate(message, @message_limit)
 
         {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
 
@@ -80,9 +80,9 @@ defmodule Timber.Events.ExceptionEvent do
     [file, line_suffix] = String.split(line_suffix, ":", parts: 2)
     [line_number, function] = String.split(line_suffix, ":", parts: 2)
 
-    app_name = Logger.Utils.truncate(app_name, @app_name_limit)
-    function = Logger.Utils.truncate(function, @function_limit)
-    file = Logger.Utils.truncate(file, @file_limit)
+    app_name = Timber.Utils.Logger.truncate(app_name, @app_name_limit)
+    function = Timber.Utils.Logger.truncate(function, @function_limit)
+    file = Timber.Utils.Logger.truncate(file, @file_limit)
 
     line = %{
       app_name: app_name,
