@@ -86,12 +86,11 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
       |> Atom.to_string()
 
     # Phoenix actions are always 2 arity function
-    action = action_name <> "/2"
     params = params(conn.params)
     pipelines = conn.private[:phoenix_pipelines]
 
     event = ControllerCallEvent.new(
-      action: action,
+      action: action_name,
       controller: controller,
       params: params,
       pipelines: pipelines

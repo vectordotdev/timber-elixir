@@ -29,7 +29,7 @@ defmodule Timber.Events.ControllerCallEvent do
   def new(opts) do
     params = Keyword.get(opts, :params)
     params_json =
-      if params do
+      if params && params != %{} do
         params
         |> Timber.Utils.JSON.encode!()
         |> to_string() # TODO: see if we can avoid this, we need it for the truncation below
@@ -51,7 +51,7 @@ defmodule Timber.Events.ControllerCallEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{action: action, controller: controller, pipelines: pipelines}) do
-    ["Processing with ", controller, ?., action, ?/, ?2, ?\n, "  Pipelines: ", inspect(pipelines)]
+    ["Processing with ", controller, ?., action, ?/, ?2, " Pipelines: ", inspect(pipelines)]
   end
 
   @doc """
