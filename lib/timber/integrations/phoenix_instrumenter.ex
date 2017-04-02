@@ -144,8 +144,12 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   defp params(%Plug.Conn.Unfetched{}), do: %{}
 
-  defp params(params) do
+  defp params(params) when is_list(params) or is_map(params) do
     params
     |> Phoenix.Logger.filter_values()
+    |> Enum.into(%{})
   end
+
+  # Unknown type, convert to a blank map for now
+  defp params(params), do: %{}
 end
