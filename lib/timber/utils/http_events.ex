@@ -117,6 +117,8 @@ defmodule Timber.Utils.HTTPEvents do
 
   @doc false
   # Convenience method that checks if the value is an atom and also converts it to a string.
+  def try_atom_to_string(nil), do: nil
+
   def try_atom_to_string(val) when is_atom(val), do: Atom.to_string(val)
 
   def try_atom_to_string(val), do: val
