@@ -11,7 +11,8 @@ To upgrade, please follow these steps:
 
 1. Delete `config/timber.exs`
 
-2. Re-run the single command installer (`mix timber.install`). This commend, with your API-key,
-   is located in the settings of your application. Here's a guide on locating your
-   installation instructions:
-   https://timber.io/docs/app/advanced/installation-instructions/
+2. Re-run the single command installer: `mix timber.install <your-api-key>`.
+   You can locate your api key by following this guide:
+   https://timber.io/docs/app/advanced/api-keys/
+
+If you have *any* issue, please reach out to us: support@timber.io
