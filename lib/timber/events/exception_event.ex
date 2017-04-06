@@ -47,7 +47,7 @@ defmodule Timber.Events.ExceptionEvent do
       |> Enum.map(&({&1, String.trim(&1)}))
 
     case do_new({nil, "", []}, lines) do
-      {name, message, backtrace} when is_binary(name) and length(backtrace) > 0 ->
+      {:ok, {name, message, backtrace}} when is_binary(name) and length(backtrace) > 0 ->
         name = Timber.Utils.Logger.truncate(name, @name_limit)
         message = Timber.Utils.Logger.truncate(message, @message_limit)
 
@@ -66,8 +66,12 @@ defmodule Timber.Events.ExceptionEvent do
   #    ** (RuntimeError) my message
   defp do_new({nil, _message, [] = backtrace}, [{_raw_line, ("** (" <> line_suffix)} | lines]) do
     # Using split since it is more performance with binary scanning
-    [name, message] = String.split(line_suffix, ")", parts: 2)
-    do_new({name, message, backtrace}, lines)
+    case String.split(line_suffix, ")", parts: 2) do
+      [name, message] ->
+        do_new({name, message, backtrace}, lines)
+
+      _ -> {:error, :malformed_error_message}
+    end
   end
 
   # Ignore other leading messages
@@ -76,21 +80,38 @@ defmodule Timber.Events.ExceptionEvent do
   #      (odin_client_api) web/controllers/page_controller.ex:5: Odin.ClientAPI.PageController.index/2
   defp do_new({name, message, backtrace}, [{_raw_line, ("(" <> line_suffix)} | lines]) when not is_nil(name) and not is_nil(message) do
     # Using split since it is more performance with binary scanning
-    [app_name, line_suffix] = String.split(line_suffix, ")", parts: 2)
-    [file, line_suffix] = String.split(line_suffix, ":", parts: 2)
-    [line_number, function] = String.split(line_suffix, ":", parts: 2)
+    with [app_name, line_suffix] <- String.split(line_suffix, ") ", parts: 2),
+         [file, line_suffix] <- String.split(line_suffix, ":", parts: 2),
+         [line_number, function] <- String.split(line_suffix, ":", parts: 2)
+    do
+      app_name = Timber.Utils.Logger.truncate(app_name, @app_name_limit)
 
-    app_name = Timber.Utils.Logger.truncate(app_name, @app_name_limit)
-    function = Timber.Utils.Logger.truncate(function, @function_limit)
-    file = Timber.Utils.Logger.truncate(file, @file_limit)
+      function =
+        function
+        |> String.trim()
+        |> Timber.Utils.Logger.truncate(@function_limit)
 
-    line = %{
-      app_name: app_name,
-      function: String.trim(function),
-      file: String.trim(file),
-      line: parse_line_number(line_number)
-    }
-    do_new({name, message, [line | backtrace]}, lines)
+      file =
+        file
+        |> String.trim()
+        |> Timber.Utils.Logger.truncate(@file_limit)
+
+      if function != "" && file != "" do
+        line = %{
+          app_name: app_name,
+          function: String.trim(function),
+          file: String.trim(file),
+          line: parse_line_number(line_number)
+        }
+        do_new({name, message, [line | backtrace]}, lines)
+      else
+        {:error, :malformed_stacktrace_line}
+      end
+
+    else
+      _ ->
+        {:error, :malformed_stacktrace_line}
+    end
   end
 
   # Ignore lines we don't recognize.
@@ -98,7 +119,7 @@ defmodule Timber.Events.ExceptionEvent do
 
   # Finish the iteration, reversing the backtrace for performance reasons.
   defp do_new({name, message, backtrace}, []) do
-    {name, String.trim(message), Enum.reverse(backtrace)}
+    {:ok, {name, String.trim(message), Enum.reverse(backtrace)}}
   end
 
   defp parse_line_number(line_str) do
