@@ -41,6 +41,28 @@ defmodule Timber.Events.ExceptionEventTest do
       }
     end
 
+    test "native functions" do
+      log_message =
+        """
+        ** (exit) an exception was raised:
+            ** (ArgumentError) argument error
+                (stdlib) :ets.lookup(:noproc, 111)
+        """
+      result = ExceptionEvent.new(log_message)
+      assert result == {:error, :could_not_parse_message}
+    end
+
+    test "malformed stacktrace" do
+      log_message =
+        """
+        ** (exit) an exception was raised:
+            ** (RuntimeError) boom
+                (my_app) malformed
+        """
+      result = ExceptionEvent.new(log_message)
+      assert result == {:error, :could_not_parse_message}
+    end
+
     test "malformed message" do
       {:error, :could_not_parse_message} = ExceptionEvent.new("testing")
     end
