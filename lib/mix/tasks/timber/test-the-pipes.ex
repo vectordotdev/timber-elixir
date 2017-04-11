@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   def log_entries do
     request_id = generate_request_id()
     [
+      log_entry(:info, request_id, "The following messages are test messages sent from the installer. They represent a real-world use case to demonstrate the power of context:"),
       log_entry(:info, request_id, http_server_request(request_id)),
       log_entry(:info, request_id, controller_call()),
       log_entry(:info, request_id, sql_query()),
@@ -40,6 +41,12 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     dt = now()
     message = module.message(event)
     {level, self(), {Logger, message, dt, [event: event, timber_context: context(request_id)]}}
+  end
+
+  defp log_entry(level, request_id, message) when is_binary(message) do
+    :timer.sleep(100)
+    dt = now()
+    {level, self(), {Logger, message, dt, [timber_context: context(request_id)]}}
   end
 
   defp now do
