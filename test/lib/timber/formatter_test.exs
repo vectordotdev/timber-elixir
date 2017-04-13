@@ -11,7 +11,7 @@ defmodule Timber.FormatterTest do
         Logger.error("log message")
       end)
 
-      assert log_output == "runtime.function"
+      assert log_output =~ "runtime.function"
     end
   end
 end
