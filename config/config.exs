@@ -9,7 +9,7 @@ config :logger, :handle_otp_reports, false
 config :logger, backends: [:console]
 config :logger, :console,
   format: {Timber.Formatter, :format},
-  metadata: [:timber_context, :event]
+  metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
 
 config :timber, Timber.Formatter,
   format: :logfmt
