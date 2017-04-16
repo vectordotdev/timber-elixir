@@ -32,13 +32,13 @@ defmodule Timber.Event do
   def to_api_map(%Events.ControllerCallEvent{} = event) do
     type = type(event)
     map = Events.ControllerCallEvent.to_api_map(event)
-    %{server_side_app: %{type => map}}
+    %{type => map}
   end
 
   def to_api_map(event) do
     type = type(event)
     map = Map.from_struct(event)
-    %{server_side_app: %{type => map}}
+    %{type => map}
   end
 
   @doc """
