@@ -393,6 +393,8 @@ defmodule Timber.LoggerBackends.HTTP do
     case http_client.request(:get, preflight_url, headers, "") do
       {:ok, status, _, _} when status in 200..299 ->
         :ok
+      {:ok, status, _, _} ->
+        raise TimberAPIKeyInvalid, api_key: api_key, status: status
       _ ->
         raise TimberAPIKeyInvalid, api_key: api_key
     end
@@ -428,16 +430,28 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   defmodule TimberAPIKeyInvalid do
-    @message \
-      """
-      The Timber service does not recognize your API key. Please check
-      that you have specified your key correctly.
+    defexception [:message]
 
-        config :timber, api_key: "my_timber_api_key"
+    def exception(opts) do
+      api_key = Keyword.get(opts, :api_key)
+      status = Keyword.get(opts, :status)
 
-      You can locate your API key in the Timber console by creating or
-      editing your app: https://app.timber.io
-      """
-    defexception [:api_key, message: @message]
+      message =
+        """
+        The Timber service does not recognize your API key. Please check
+        that you have specified your key correctly.
+
+          config :timber, api_key: "my_timber_api_key"
+
+        You can locate your API key in the Timber console by creating or
+        editing your app: https://app.timber.io
+
+        Debug info:
+        API key: #{inspect(api_key)}
+        Status from the Timber API: #{inspect(status)}
+        """
+
+      %__MODULE__{message: message}
+    end
   end
 end
