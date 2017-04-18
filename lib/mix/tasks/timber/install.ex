@@ -273,24 +273,15 @@ defmodule Mix.Tasks.Timber.Install do
   end
 
   defp check_for_http_client(api) do
-    if Code.ensure_loaded?(:hackney) do
-      API.event!(api, :http_client_found)
+    API.event!(api, :http_client_found)
 
-      case :hackney.start() do
-        :ok -> :ok
-        {:error, {:already_started, _name}} -> :ok
-        other -> other
-      end
-
-      :ok
-    else
-      API.event!(api, :http_client_not_found)
-
-      Messages.http_client_setup()
-      |> IOHelper.puts(:red)
-
-      exit :shutdown
+    case :hackney.start() do
+      :ok -> :ok
+      {:error, {:already_started, _name}} -> :ok
+      other -> other
     end
+
+    :ok
   end
 
   defp collect_feedback(api) do

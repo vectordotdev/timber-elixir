@@ -65,7 +65,7 @@ defmodule Timber.Mixfile do
 
   # Default list of applications to be loaded regardless
   # of Mix environment
-  defp apps(), do: [:poison, :logger, :msgpax]
+  defp apps(), do: [:logger, :poison, :msgpax, :hackney]
 
   # The environment to be configured by default
   defp env() do
@@ -160,7 +160,7 @@ defmodule Timber.Mixfile do
 
         # Hackney is pinned because other versions are known to have bugs. This is the
         # safest route.
-        {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
+        {:hackney, "1.6.3 or 1.6.5 or 1.7.1"},
         {:msgpax, "~> 1.0"},
         {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
       ]

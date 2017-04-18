@@ -57,19 +57,6 @@ defmodule Timber.Config do
   def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, 2000)
 
   @doc """
-  Custom HTTP client to use for transmitting logs over HTTP. Timber comes packaged with a
-  `:hackney` client. See `Timber.Transports.HTTP.HackneyClient`. If you do not want to use
-  `:hackney` you can easily write your own client to handle log transport.
-
-  # Example
-
-  ```elixir
-  config :timber, :http_client, MyCustomHTTPClient
-  ```
-  """
-  def http_client, do: Application.get_env(@application, :http_client, Timber.HTTPClients.Hackney)
-
-  @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
   for example.
 
