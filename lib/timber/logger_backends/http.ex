@@ -222,7 +222,6 @@ defmodule Timber.LoggerBackends.HTTP do
     end
 
     new_state.http_client.start()
-    run_http_preflight_check!(new_state.http_client, new_state.api_key)
 
     {:ok, new_state}
   end
@@ -380,24 +379,6 @@ defmodule Timber.LoggerBackends.HTTP do
 
   defp event_level_adequate?(lvl, min) do
     Logger.compare_levels(lvl, min) != :lt
-  end
-
-  defp run_http_preflight_check!(http_client, api_key) do
-    auth_token = Base.encode64(api_key)
-    preflight_url = Config.preflight_url()
-
-    headers = %{
-      "Authorization" => "Basic #{auth_token}"
-    }
-
-    case http_client.request(:get, preflight_url, headers, "") do
-      {:ok, status, _, _} when status in 200..299 ->
-        :ok
-      {:ok, status, _, _} ->
-        raise TimberAPIKeyInvalid, api_key: api_key, status: status
-      _ ->
-        raise TimberAPIKeyInvalid, api_key: api_key
-    end
   end
 
   #
