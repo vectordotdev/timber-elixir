@@ -55,6 +55,7 @@ defmodule Mix.Tasks.Timber.Install.API do
     cond do
       iteration == 0 -> event!(api, :waiting_for_logs)
       iteration == 30 -> event!(api, :excessively_waiting_for_logs)
+      true -> :ok
     end
 
     IO.ANSI.format(["\r", :clear_line])
