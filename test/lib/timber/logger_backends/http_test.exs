@@ -38,21 +38,6 @@ defmodule Timber.LoggerBackends.HTTPTest do
       end
     end
 
-    test "{:configure, options} message raises when the API key is invalid" do
-      FakeHTTPClient.stub :request, fn
-        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
-          {:ok, 204, %{}, ""}
-        :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic aW52YWxpZA=="}, _ ->
-          {:ok, 401, %{}, ""}
-      end
-
-      {:ok, state} = HTTP.init(HTTP)
-
-      assert_raise Timber.LoggerBackends.HTTP.TimberAPIKeyInvalid, fn ->
-        HTTP.handle_call({:configure, [api_key: "invalid"]}, state)
-      end
-    end
-
     test "{:configure, options} message updates the api key" do
       FakeHTTPClient.stub :request, fn
         :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic bmV3X2FwaV9rZXk="}, _ ->

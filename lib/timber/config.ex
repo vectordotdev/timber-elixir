@@ -107,14 +107,6 @@ defmodule Timber.Config do
   end
 
   @doc """
-  Retrieves the preflight URL 
-  """
-  def preflight_url() do
-    default_preflight_url = "https://api.timber.io/installer/application"
-    Application.get_env(@application, :preflight_url, default_preflight_url)
-  end
-
-  @doc """
   Gets the transport specificed in the :timber configuration. The default is
   `Timber.Transports.IODevice`.
   """
