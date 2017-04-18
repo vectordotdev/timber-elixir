@@ -107,36 +107,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
   end
 
-  def http_client_setup do
-    """
-    #{separator()}
-
-    Before we can proceed, you'll need to add hackney as a dependency.
-
-    This is completely normal. We opted to have you complete this step
-    so that you could choose your HTTP client instead of forcing one on you.
-
-    We recommend hackney. The process is very simple:
-
-    1. In mix.exs, add :hackney to your dependencies and applications:
-
-        def application do
-          [applications: [:hackney]]
-        end
-
-        def deps do
-          [{:hackney, "~> 1.7"}]
-        end
-
-    2. Run mix deps.get
-
-    3. Run mix deps.clean timber
-
-    All done? Quit and re-run this installer. It is perfectly safe to do so.
-    This installer is idempotent.
-    """
-  end
-
   def intro do
     """
     This installer will walk you through setting up Timber in your application.
