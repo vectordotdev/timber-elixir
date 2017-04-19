@@ -70,6 +70,7 @@ defmodule Timber.Events.LogEntryTest do
       _else -> nil
     end
   end
+
   defp pid do
     System.get_pid()
   end
