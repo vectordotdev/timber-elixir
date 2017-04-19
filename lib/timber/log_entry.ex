@@ -108,7 +108,13 @@ defmodule Timber.LogEntry do
   end
 
   defp add_system_context(context) do
-    system_context = %SystemContext{pid: System.get_pid()}
+    hostname =
+      case :inet.gethostname() do
+        {:ok, hostname} -> to_string(hostname)
+        _else -> nil
+      end
+    pid = System.get_pid()
+    system_context = %SystemContext{hostname: hostname, pid: pid}
     Context.add(context, system_context)
   end
 
