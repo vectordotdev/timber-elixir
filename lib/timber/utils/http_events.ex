@@ -32,6 +32,9 @@ defmodule Timber.Utils.HTTPEvents do
 
   def get_request_id_from_headers(%{"request-id" => request_id}), do: request_id
 
+  # Amazon uses their own *special* header
+  def get_request_id_from_headers(%{"x-amzn-requestid" => request_id}), do: request_id
+
   def get_request_id_from_headers(_headers), do: nil
 
   @doc false
