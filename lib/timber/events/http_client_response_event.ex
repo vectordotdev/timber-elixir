@@ -55,8 +55,14 @@ defmodule Timber.Events.HTTPClientResponseEvent do
   Message to be used when logging.
   """
   @spec message(t) :: IO.chardata
-  def message(%__MODULE__{service_name: service_name, status: status, time_ms: time_ms}) do
-    message = ["Outgoing HTTP response "]
+  def message(%__MODULE__{request_id: request_id, service_name: service_name, status: status, time_ms: time_ms}) do
+    message =
+      if request_id do
+        truncated_request_id = String.slice(request_id, 0..5)
+        ["Outgoing HTTP response (", truncated_request_id, "...) "]
+      else
+        ["Outgoing HTTP response "]
+      end
 
     message = if service_name,
       do: [message, "from ", service_name, " "],

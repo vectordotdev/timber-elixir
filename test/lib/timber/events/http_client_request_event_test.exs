@@ -47,7 +47,7 @@ defmodule Timber.Events.HTTPClientRequestEventTest do
       event = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get,
         path: "path", port: 12, query_string: "query", scheme: "https", service_name: :service)
       message = HTTPClientRequestEvent.message(event)
-      assert String.Chars.to_string(message) == "Outgoing HTTP request abcd12... to service [GET] https://host:12path?query"
+      assert String.Chars.to_string(message) == "Outgoing HTTP request (abcd12...) to service [GET] https://host:12path?query"
     end
 
     test "service name excluded" do

@@ -99,7 +99,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
     message =
       if request_id do
         truncated_request_id = String.slice(request_id, 0..5)
-        ["Outgoing HTTP request ", truncated_request_id, "... to "]
+        ["Outgoing HTTP request (", truncated_request_id, "...) to "]
       else
         ["Outgoing HTTP request to "]
       end
