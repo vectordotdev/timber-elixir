@@ -86,7 +86,7 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   @doc """
   Message to be used when logging. The format looks like:
 
-    Outgoing HTTP request to :service_name [GET] /path, ID: :request_id
+    Outgoing HTTP request XdF21 to :service_name [GET] /path
 
   Taking care to format the string properly if optional attributes like `:service_name` and
   `:request_id` are not present.
@@ -94,12 +94,20 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{host: host, method: method, path: path, port: port,
-    query_string: query_string, scheme: scheme, service_name: service_name})
+    query_string: query_string, request_id: request_id, scheme: scheme, service_name: service_name})
   do
-    message = ["Outgoing HTTP request to "]
+    message =
+      if request_id do
+        truncated_request_id = String.slice(request_id, 0..5)
+        ["Outgoing HTTP request ", truncated_request_id, "... to "]
+      else
+        ["Outgoing HTTP request to "]
+      end
+
+    full_url = UtilsHTTPEvents.full_url(scheme, host, path, port, query_string)
 
     if service_name,
-      do: [message, service_name, " [", method, "] ", UtilsHTTPEvents.full_path(path, query_string)],
-      else: [message, "[", method, "] ", UtilsHTTPEvents.full_url(scheme, host, path, port, query_string)]
+      do: [message, service_name, " [", method, "] ", full_url],
+      else: [message, "[", method, "] ", full_url]
   end
 end
