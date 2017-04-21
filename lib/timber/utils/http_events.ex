@@ -5,6 +5,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @multi_header_delimiter ","
   @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
+  @sanitized_value "[sanitized]"
 
   def format_time_ms(time_ms) when is_integer(time_ms),
     do: [Integer.to_string(time_ms), "ms"]
@@ -96,10 +97,16 @@ defmodule Timber.Utils.HTTPEvents do
 
   # Sanitizes sensitive headers
   defp sanitize_header({key, _value}) when key in @header_keys_to_sanitize do
-    {"authorization", "[sanitized]"}
+    {key, @sanitized_value}
   end
 
-  defp sanitize_header(header), do: header
+  defp sanitize_header({key, value} = header) do
+    if Enum.member?(Config.header_keys_to_sanitize(), key) do
+      {key, @sanitized_value}
+    else
+      header
+    end
+  end
 
   @doc false
   # Normalizes HTTP methods into a value expected by the Timber API.

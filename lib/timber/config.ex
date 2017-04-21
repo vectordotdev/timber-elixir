@@ -42,6 +42,12 @@ defmodule Timber.Config do
   def event_key, do: Application.get_env(@application, :event_key, :event)
 
   @doc """
+  Allows for the sanitizations of custom header keys. This should be used to
+  ensure sensitive data, such as API keys, do not get logged.
+  """
+  def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
+
+  @doc """
   Configuration for the `:body` size limit in the `Timber.Events.HTTP*` events.
   Bodies that exceed this limit will be truncated to this limit.
 
