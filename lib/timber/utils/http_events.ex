@@ -3,6 +3,9 @@ defmodule Timber.Utils.HTTPEvents do
 
   alias Timber.Config
 
+  @multi_header_delimiter ","
+  @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
+
   def format_time_ms(time_ms) when is_integer(time_ms),
     do: [Integer.to_string(time_ms), "ms"]
 
@@ -80,12 +83,19 @@ defmodule Timber.Utils.HTTPEvents do
   @doc false
   # Normalizes an individual header
   @spec normalize_header({String.t, String.t}) :: {String.t, String.t}
+
+  # Normalizes headers with multiple values in a comma delimited string as defined by the
+  # HTTP spec RFC 2616
+  defp normalize_header({name, value}) when is_list(value) do
+    normalize_header({String.downcase(name), Enum.join(value, @multi_header_delimiter)})
+  end
+
   defp normalize_header({name, value}) do
     {String.downcase(name), Timber.Utils.Logger.truncate(value, 255)}
   end
 
   # Sanitizes sensitive headers
-  defp sanitize_header({"authorization", _value}) do
+  defp sanitize_header({key, _value}) when key in @header_keys_to_sanitize do
     {"authorization", "[sanitized]"}
   end
 

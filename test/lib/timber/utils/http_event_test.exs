@@ -47,6 +47,10 @@ defmodule Timber.Utils.HTTPEventsTest do
       assert HTTPEvents.normalize_headers([]) == %{}
     end
 
+    test "array value" do
+      assert HTTPEvents.normalize_headers([{"key", ["value1", "value2"]}]) == %{"key" => "value1,value2"}
+    end
+
     test "authorization header" do
       assert HTTPEvents.normalize_headers([{"Authorization", "value"}]) == %{"authorization" => "[sanitized]"}
     end
