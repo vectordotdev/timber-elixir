@@ -44,6 +44,17 @@ defmodule Timber.Config do
   @doc """
   Allows for the sanitizations of custom header keys. This should be used to
   ensure sensitive data, such as API keys, do not get logged.
+
+  **Note, the keys passed must be lowercase!**
+
+  Timber normalizes headers to be downcased before comparing them here. For
+  performance reasons it is advised that you pass lower cased keys.
+
+  # Example
+
+  ```elixir
+  config :timber, :header_keys_to_sanitize, ["my-sensitive-header-name"]
+  ```
   """
   def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
 
