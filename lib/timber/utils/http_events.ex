@@ -100,7 +100,7 @@ defmodule Timber.Utils.HTTPEvents do
     {key, @sanitized_value}
   end
 
-  defp sanitize_header({key, value} = header) do
+  defp sanitize_header({key, _value} = header) do
     if Enum.member?(Config.header_keys_to_sanitize(), key) do
       {key, @sanitized_value}
     else
