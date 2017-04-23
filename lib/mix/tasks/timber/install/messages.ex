@@ -177,8 +177,14 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
 
     Great! Timber can add user context to your logs, allowing you to search
-    and tail logs for specific users. To install this, please add this
-    code wherever you authenticate your user. Typically in a plug:
+    and tail logs for specific users. To install this, please follow the
+    appropraite instructions below:
+
+    1. If you're using Gaurdian (an elixir authentication library), checkout
+       this gist: https://gist.github.com/binarylogic/50901f453587748c3d70295e49f5797a
+
+    2. For everything else, simply add the following code immediately after
+       you load (or build) your user:
 
     #{code}
     """
