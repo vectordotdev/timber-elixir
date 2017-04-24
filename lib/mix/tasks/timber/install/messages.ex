@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
       """
       |> IOHelper.colorize(:yellow)
 
-    """
+      """
 
     #{separator()}
 
@@ -86,7 +86,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
       """
       |> IOHelper.colorize(:green)
 
-    """
+      """
     #{header}
     #{separator()}
     Website:       #{@website_url}
