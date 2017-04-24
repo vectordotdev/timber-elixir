@@ -11,6 +11,9 @@ config :logger, :console,
   format: {Timber.Formatter, :format},
   metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
 
+config :timber,
+  header_keys_to_sanitize: ["sensitive-key"]
+
 config :timber, Timber.Formatter,
   format: :logfmt
 

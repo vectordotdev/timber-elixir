@@ -42,6 +42,23 @@ defmodule Timber.Config do
   def event_key, do: Application.get_env(@application, :event_key, :event)
 
   @doc """
+  Allows for the sanitizations of custom header keys. This should be used to
+  ensure sensitive data, such as API keys, do not get logged.
+
+  **Note, the keys passed must be lowercase!**
+
+  Timber normalizes headers to be downcased before comparing them here. For
+  performance reasons it is advised that you pass lower cased keys.
+
+  # Example
+
+  ```elixir
+  config :timber, :header_keys_to_sanitize, ["my-sensitive-header-name"]
+  ```
+  """
+  def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
+
+  @doc """
   Configuration for the `:body` size limit in the `Timber.Events.HTTP*` events.
   Bodies that exceed this limit will be truncated to this limit.
 
@@ -55,19 +72,6 @@ defmodule Timber.Config do
   ```
   """
   def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, 2000)
-
-  @doc """
-  Custom HTTP client to use for transmitting logs over HTTP. Timber comes packaged with a
-  `:hackney` client. See `Timber.Transports.HTTP.HackneyClient`. If you do not want to use
-  `:hackney` you can easily write your own client to handle log transport.
-
-  # Example
-
-  ```elixir
-  config :timber, :http_client, MyCustomHTTPClient
-  ```
-  """
-  def http_client, do: Application.get_env(@application, :http_client, Timber.HTTPClients.Hackney)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
@@ -104,14 +108,6 @@ defmodule Timber.Config do
   @spec phoenix_instrumentation_level(atom) :: atom
   def phoenix_instrumentation_level(default) do
     Application.get_env(@application, :instrumentation_level, default)
-  end
-
-  @doc """
-  Retrieves the preflight URL 
-  """
-  def preflight_url() do
-    default_preflight_url = "https://api.timber.io/installer/application"
-    Application.get_env(@application, :preflight_url, default_preflight_url)
   end
 
   @doc """

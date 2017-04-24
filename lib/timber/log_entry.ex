@@ -39,7 +39,7 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/2.0.0/schema.json"
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/2.0.1/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
@@ -108,7 +108,13 @@ defmodule Timber.LogEntry do
   end
 
   defp add_system_context(context) do
-    system_context = %SystemContext{pid: System.get_pid()}
+    hostname =
+      case :inet.gethostname() do
+        {:ok, hostname} -> to_string(hostname)
+        _else -> nil
+      end
+    pid = System.get_pid()
+    system_context = %SystemContext{hostname: hostname, pid: pid}
     Context.add(context, system_context)
   end
 

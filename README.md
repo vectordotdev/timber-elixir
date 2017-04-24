@@ -58,7 +58,7 @@ For a complete overview, see the [Timber for Elixir docs](https://timber.io/docs
     end
 
     def deps do
-      [{:timber, "~> 2.0"}]
+      [{:timber, "~> 2.1"}]
     end
     ```
 

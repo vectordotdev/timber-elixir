@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
       """
       |> IOHelper.colorize(:yellow)
 
-    """
+      """
 
     #{separator()}
 
@@ -86,7 +86,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
       """
       |> IOHelper.colorize(:green)
 
-    """
+      """
     #{header}
     #{separator()}
     Website:       #{@website_url}
@@ -104,36 +104,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     Please run this command in a separate terminal and return back here when complete:
 
         #{IOHelper.colorize("heroku drains:add #{heroku_drain_url}", :blue)}
-    """
-  end
-
-  def http_client_setup do
-    """
-    #{separator()}
-
-    Before we can proceed, you'll need to add hackney as a dependency.
-
-    This is completely normal. We opted to have you complete this step
-    so that you could choose your HTTP client instead of forcing one on you.
-
-    We recommend hackney. The process is very simple:
-
-    1. In mix.exs, add :hackney to your dependencies and applications:
-
-        def application do
-          [applications: [:hackney]]
-        end
-
-        def deps do
-          [{:hackney, "~> 1.7"}]
-        end
-
-    2. Run mix deps.get
-
-    3. Run mix deps.clean timber
-
-    All done? Quit and re-run this installer. It is perfectly safe to do so.
-    This installer is idempotent.
     """
   end
 
@@ -207,8 +177,14 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     """
 
     Great! Timber can add user context to your logs, allowing you to search
-    and tail logs for specific users. To install this, please add this
-    code wherever you authenticate your user. Typically in a plug:
+    and tail logs for specific users. To install this, please follow the
+    appropraite instructions below:
+
+    1. If you're using Gaurdian (an elixir authentication library), checkout
+       this gist: https://gist.github.com/binarylogic/50901f453587748c3d70295e49f5797a
+
+    2. For everything else, simply add the following code immediately after
+       you load (or build) your user:
 
     #{code}
     """

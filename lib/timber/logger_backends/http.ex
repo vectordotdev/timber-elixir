@@ -21,26 +21,12 @@ defmodule Timber.LoggerBackends.HTTP do
   previous (first) request is still being processed, then the transport will enter
   synchronous mode, waiting for a response before proceeding with the request.
   Synchronous mode will cause any logging calls to block until the request completes.
-
-  ## Configuration
-
-  ### Custom HTTP client
-
-  The HTTP backend can use any HTTP client, so long as it supports asynchronous requests.
-  Suport for `:hackney` is built into the library and is the default client, supported via
-  `Timber.Transports.HTTP.HackneyClient`. You can define your own custom HTTP client by adhering
-  to the `Timber.Transports.HTTP.Client` behaviour. Afterwards, you must specify your client
-  in the configuration:
-
-  ```
-  config :timber, :http_client, MyHTTPClient
-  ```
   """
   use GenEvent
 
   alias Timber.LogEntry
   alias Timber.Config
-  alias __MODULE__.{NoHTTPClientError, NoTimberAPIKeyError, TimberAPIKeyInvalid}
+  alias __MODULE__.{NoTimberAPIKeyError, TimberAPIKeyInvalid}
 
   require Logger
 
@@ -104,6 +90,9 @@ defmodule Timber.LoggerBackends.HTTP do
   @default_flush_interval 1000
   @frames_url "https://logs.timber.io/frames"
 
+  # Despite there being an `http_client` field, this is only for testing; the HTTP client is
+  # not actually configurable since it's impossible to support clients when we do not understand
+  # the response messages in advance
   defstruct min_level: nil,
             api_key: nil,
             buffer_size: 0,
@@ -187,6 +176,13 @@ defmodule Timber.LoggerBackends.HTTP do
     {:ok, new_state}
   end
 
+  # Handles responses for asynchronous requests from Hackney for the last request made;
+  # note that any other requests will fail the ref=ref pattern match and fall to the next
+  # handle_info/2 definition
+  def handle_info(msg = {:hackney_response, ref, _}, state = %{ref: ref}) do
+    handle_hackney_response(msg, state)
+  end
+
   # Do nothing for everything else.
   def handle_info(_, state) do
     {:ok, state}
@@ -199,7 +195,7 @@ defmodule Timber.LoggerBackends.HTTP do
   defp configure(options, state) do
     api_key = Keyword.get(options, :api_key, Timber.Config.api_key())
     flush_interval = Keyword.get(options, :flush_interval, state.flush_interval)
-    http_client = Keyword.get(options, :http_client, Timber.Config.http_client())
+    http_client = Keyword.get(options, :http_client, Timber.HTTPClients.Hackney)
     max_buffer_size = Keyword.get(options, :max_buffer_size, state.max_buffer_size)
     min_level = Keyword.get(options, :min_level, state.min_level)
 
@@ -217,12 +213,7 @@ defmodule Timber.LoggerBackends.HTTP do
       raise NoTimberAPIKeyError
     end
 
-    if new_state.http_client == nil do
-      raise NoHTTPClientError
-    end
-
     new_state.http_client.start()
-    run_http_preflight_check!(new_state.http_client, new_state.api_key)
 
     {:ok, new_state}
   end
@@ -265,18 +256,34 @@ defmodule Timber.LoggerBackends.HTTP do
     {:ok, state}
   end
 
-  # Waits for the async request to complete
   @spec wait_on_request(t) :: t
+  # Blocks until the last asynchronous request is received
+  #
+  # The function first checks whether there is a reference to a previous request.
+  # If there isn't, it returns immediately.
+  #
+  # If there is an existing request, the function enters a `receive` block to look
+  # for responses from Hackney. If it cannot find a response after 5 seconds, it will
+  # abandon the previous request. If it finds a response, it sends it to the
+  # handle_hackney_response/2 function which modifies the state apropriately based on
+  # the message. It then loops on the new state.
+  #
   defp wait_on_request(%{ref: nil} = state) do
     state
   end
 
-  defp wait_on_request(%{http_client: nil}) do
-    raise NoHTTPClientError
-  end
+  defp wait_on_request(state = %{ref: ref}) do
+    receive do
+      {:hackney_response, ^ref, msg} ->
+        {:ok, new_state} = handle_hackney_response({:hackney_response, ref, msg}, state)
 
-  defp wait_on_request(%{http_client: http_client, ref: ref}) do
-    http_client.wait_on_request(ref)
+        wait_on_request(new_state)
+      after 5000 ->
+        Timber.debug fn -> "HTTP request #{inspect(ref)} exceeded timeout; abandoning it." end
+
+        new_state = %{ state | ref: nil }
+        wait_on_request(new_state)
+    end
   end
 
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
@@ -289,10 +296,6 @@ defmodule Timber.LoggerBackends.HTTP do
 
   defp issue_request(%{api_key: nil}) do
     raise NoTimberAPIKeyError
-  end
-
-  defp issue_request(%{http_client: nil}) do
-    raise NoHTTPClientError
   end
 
   defp issue_request(%{api_key: api_key, buffer: buffer, buffer_size: buffer_size,
@@ -382,35 +385,51 @@ defmodule Timber.LoggerBackends.HTTP do
     Logger.compare_levels(lvl, min) != :lt
   end
 
-  defp run_http_preflight_check!(http_client, api_key) do
-    auth_token = Base.encode64(api_key)
-    preflight_url = Config.preflight_url()
+  @spec handle_hackney_response({:hackney_response, reference, term}, t) :: {:ok, t}
+  # Handles responses from Hackney asynchronous requests and modifies the state appropriately
+  #
+  # This function assumes that its caller has already matched the reference being given to
+  # the one existing in the state
+  defp handle_hackney_response({:hackney_response, ref, {:ok, 401, reason}}, state) do
+    Timber.debug fn -> "HTTP request #{inspect(ref)} received response 401 #{reason}" end
 
-    headers = %{
-      "Authorization" => "Basic #{auth_token}"
-    }
+    raise TimberAPIKeyInvalid, status: 401, api_key: state.api_key
+  end
 
-    case http_client.request(:get, preflight_url, headers, "") do
-      {:ok, status, _, _} when status in 200..299 ->
-        :ok
-      _ ->
-        raise TimberAPIKeyInvalid, api_key: api_key
-    end
+  defp handle_hackney_response({:hackney_response, ref, {:ok, 403, reason}}, state) do
+    Timber.debug fn -> "HTTP request #{inspect(ref)} received response 403 #{reason}" end
+
+    {:ok, state}
+  end
+
+  defp handle_hackney_response({:hackney_response, ref, {:ok, status, reason}}, state) do
+    Timber.debug fn -> "HTTP request #{inspect(ref)} received response #{status} #{reason}" end
+
+    {:ok, state}
+  end
+
+  defp handle_hackney_response({:hackney_response, ref, {:error, error}}, state) do
+    # In the event of an error on Hackney's part, we simply clear the reference.
+    Timber.debug fn -> "HTTP request #{inspect(ref)} received error #{inspect(error)}" end
+
+    new_state = %{ state | ref: nil }
+    {:ok, new_state}
+  end
+
+  defp handle_hackney_response({:hackney_response, ref, :done}, state) do
+    Timber.debug fn -> "HTTP request #{inspect(ref)} done" end
+
+    new_state = %{ state | ref: nil }
+    {:ok, new_state}
+  end
+
+  defp handle_hackney_response({:hackney_response, _ref, _}, state) do
+    {:ok, state}
   end
 
   #
   # Errors
   #
-
-  defmodule NoHTTPClientError do
-    defexception message: \
-      """
-      An HTTP client could not be found. Timber allows you to choose your HTTP
-      client, but comes with a default :hackney click. Please use this via:
-
-        config :timber, http_client: Timber.Transports.HTTP.HackneyClient
-      """
-  end
 
   defmodule NoTimberAPIKeyError do
     defexception message: \
@@ -428,16 +447,28 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   defmodule TimberAPIKeyInvalid do
-    @message \
-      """
-      The Timber service does not recognize your API key. Please check
-      that you have specified your key correctly.
+    defexception [:message]
 
-        config :timber, api_key: "my_timber_api_key"
+    def exception(opts) do
+      api_key = Keyword.get(opts, :api_key)
+      status = Keyword.get(opts, :status)
 
-      You can locate your API key in the Timber console by creating or
-      editing your app: https://app.timber.io
-      """
-    defexception [:api_key, message: @message]
+      message =
+        """
+        The Timber service does not recognize your API key. Please check
+        that you have specified your key correctly.
+
+          config :timber, api_key: "my_timber_api_key"
+
+        You can locate your API key in the Timber console by creating or
+        editing your app: https://app.timber.io
+
+        Debug info:
+        API key: #{inspect(api_key)}
+        Status from the Timber API: #{inspect(status)}
+        """
+
+      %__MODULE__{message: message}
+    end
   end
 end

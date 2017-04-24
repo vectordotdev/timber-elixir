@@ -3,6 +3,10 @@ defmodule Timber.Utils.HTTPEvents do
 
   alias Timber.Config
 
+  @multi_header_delimiter ","
+  @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
+  @sanitized_value "[sanitized]"
+
   def format_time_ms(time_ms) when is_integer(time_ms),
     do: [Integer.to_string(time_ms), "ms"]
 
@@ -31,6 +35,9 @@ defmodule Timber.Utils.HTTPEvents do
   def get_request_id_from_headers(%{"x-request-id" => request_id}), do: request_id
 
   def get_request_id_from_headers(%{"request-id" => request_id}), do: request_id
+
+  # Amazon uses their own *special* header
+  def get_request_id_from_headers(%{"x-amzn-requestid" => request_id}), do: request_id
 
   def get_request_id_from_headers(_headers), do: nil
 
@@ -77,16 +84,29 @@ defmodule Timber.Utils.HTTPEvents do
   @doc false
   # Normalizes an individual header
   @spec normalize_header({String.t, String.t}) :: {String.t, String.t}
+
+  # Normalizes headers with multiple values in a comma delimited string as defined by the
+  # HTTP spec RFC 2616
+  defp normalize_header({name, value}) when is_list(value) do
+    normalize_header({String.downcase(name), Enum.join(value, @multi_header_delimiter)})
+  end
+
   defp normalize_header({name, value}) do
     {String.downcase(name), Timber.Utils.Logger.truncate(value, 255)}
   end
 
   # Sanitizes sensitive headers
-  defp sanitize_header({"authorization", _value}) do
-    {"authorization", "[sanitized]"}
+  defp sanitize_header({key, _value}) when key in @header_keys_to_sanitize do
+    {key, @sanitized_value}
   end
 
-  defp sanitize_header(header), do: header
+  defp sanitize_header({key, _value} = header) do
+    if Enum.member?(Config.header_keys_to_sanitize(), key) do
+      {key, @sanitized_value}
+    else
+      header
+    end
+  end
 
   @doc false
   # Normalizes HTTP methods into a value expected by the Timber API.

@@ -56,28 +56,6 @@ defmodule Timber.HTTPClients.Hackney do
     :hackney.request(method, url, req_headers, body, req_opts)
   end
 
-  @doc """
-  Takes a reference to an async request and waits for it to complete.
-  """
-  @spec wait_on_request(reference) :: :ok
-  def wait_on_request(ref) do
-    receive do
-      {:hackney_response, ^ref, {:ok, status, reason}} ->
-        Timber.debug fn -> "HTTP request #{inspect(ref)} received response #{status} #{reason}" end
-        wait_on_request(ref)
-
-      {:hackney_response, ^ref, {:error, error}} ->
-        Timber.debug fn -> "HTTP request #{inspect(ref)} received error #{inspect(error)}" end
-        wait_on_request(ref)
-
-      {:hackney_response, ^ref, :done} ->
-        Timber.debug fn -> "HTTP request #{inspect(ref)} done" end
-        :ok
-
-      _else -> wait_on_request(ref)
-    end
-  end
-
   #
   # Config
   #

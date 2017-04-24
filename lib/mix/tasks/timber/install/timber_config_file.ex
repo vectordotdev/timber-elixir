@@ -15,8 +15,10 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
       # Use Timber as the logger backend
       # Feel free to add additional backends if you want to send you logs to multiple devices.
       #{timber_portion(application, api)}
-      # For dev / test environments, always log to STDOUT and format the logs properly
-      if Mix.env() == :dev || Mix.env() == :test do
+      # For the following environments, do not log to the Timber service. Instead, log to STDOUT
+      # and format the logs properly so they are human readable.
+      environments_to_exclude = [:dev, :test]
+      if Enum.member?(environments_to_exclude, Mix.env()) do
         # Fall back to the default `:console` backend with the Timber custom formatter
         config :logger,
           backends: [:console],
@@ -36,7 +38,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
       # Need help?
       # Email us: support@timber.io
-      # File an issue: https://github.com/timberio/timber-elixir/issues
+      # Or, file an issue: https://github.com/timberio/timber-elixir/issues
       """
 
     FileHelper.write!(@file_path, contents, api)
@@ -86,8 +88,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
       utc_log: true
 
     config :timber,
-      api_key: #{api_key_portion(api)},
-      http_client: Timber.HTTPClients.Hackney
+      api_key: #{api_key_portion(api)}
     """
   end
 

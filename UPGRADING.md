@@ -2,6 +2,24 @@
 
 This documents outlines how to upgrade from major versions of Timber
 
+## 2.0 to 2.1
+
+Custom HTTP clients have been deprecated as of version 2.1.0. You can remove the
+`:http_client` key from any Timber configuration. For example, the following:
+
+```elixir
+config :timber,
+  api_key: "123",
+  http_client: Timber.HTTPClients.Hackney
+```
+
+can become:
+
+```elixir
+config :timber,
+  api_key: "123"
+```
+
 ## 1.x to 2.X
 
 The 2.X introduces a number of enhancements and improvements. You can read more about the
