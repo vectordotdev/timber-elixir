@@ -39,7 +39,7 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/2.0.1/schema.json"
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v2.0.1/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
