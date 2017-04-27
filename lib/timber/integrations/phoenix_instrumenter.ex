@@ -142,7 +142,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     Timber.Config.phoenix_instrumentation_level(default)
   end
 
-  defp params(%Plug.Conn.Unfetched{}), do: %{}
+  defp params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}), do: %{}
 
   defp params(params) when is_list(params) or is_map(params) do
     params
