@@ -27,19 +27,8 @@ defmodule Timber.Utils.Logger do
   suffix that the Logger.Utils.truncate/1 method appends.
   """
   @spec truncate(IO.chardata, pos_integer) :: IO.chardata
-  def truncate(message, limit) do
+  def truncate(chardata, limit) do
     adjusted_limit = limit - 15 # takes into account the " (truncated)" string that the below function appends
-    do_truncate(message, adjusted_limit)
-  end
-
-  # Ensure that binaries return as binaries
-  defp do_truncate(binary, limit) when is_binary(binary) do
-    binary
-    |> Logger.Utils.truncate(limit)
-    |> to_string()
-  end
-
-  defp do_truncate(chardata, limit) do
     Logger.Utils.truncate(chardata, limit)
   end
 end

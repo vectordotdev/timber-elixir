@@ -60,7 +60,9 @@ defmodule Timber.Utils.HTTPEvents do
 
   def normalize_body(body) when is_binary(body) do
     limit = Config.http_body_size_limit()
-    Timber.Utils.Logger.truncate(body, limit)
+    body
+    |> Timber.Utils.Logger.truncate(limit)
+    |> to_string()
   end
 
   @doc false
@@ -92,7 +94,12 @@ defmodule Timber.Utils.HTTPEvents do
   end
 
   defp normalize_header({name, value}) do
-    {String.downcase(name), Timber.Utils.Logger.truncate(value, 255)}
+    value =
+      value
+      |> Timber.Utils.Logger.truncate(255)
+      |> to_string()
+
+    {String.downcase(name), value}
   end
 
   # Sanitizes sensitive headers
