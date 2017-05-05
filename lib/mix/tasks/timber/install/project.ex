@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Timber.Install.Project do
 
   defp get_repo_file_path(api) do
     if Code.ensure_loaded?(Ecto) do
-      file_explanation = "We need this to determine the module name of your Repo module"
+      file_explanation = "We need this to capture Ecto log events"
       PathHelper.find(["{lib,web}", "**", "repo.ex"], file_explanation, api,
         check_for_umbrella: true, contents_filter: "use Ecto.Repo")
     else
