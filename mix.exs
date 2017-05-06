@@ -178,7 +178,7 @@ defmodule Timber.Mixfile do
     # It defaults to nil for everything else, which we handle.
     deps =
       case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:phoenix, "~> 1.2", optional: true}]
+        v when v in ["latest", nil] -> deps ++ [{:phoenix, "~> 1.2 or 1.3.0-rc1", optional: true}]
         "omit" -> deps
         v -> deps ++ [{:phoenix, v, optional: true}]
       end
