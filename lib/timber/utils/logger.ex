@@ -29,6 +29,6 @@ defmodule Timber.Utils.Logger do
   @spec truncate(IO.chardata, pos_integer) :: IO.chardata
   def truncate(chardata, limit) do
     adjusted_limit = limit - 15 # takes into account the " (truncated)" string that the below function appends
-    Logger.Utils.truncate(chardata, limit)
+    Logger.Utils.truncate(chardata, adjusted_limit)
   end
 end
