@@ -68,22 +68,27 @@ defmodule Timber.Integrations.EctoLogger do
   """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
   def log(%{query: query, query_time: time_native} = entry, level) do
-    query_text = resolve_query(query, entry)
-    # The time is given in native units which the VM determines. We have
-    # to convert them to the desired unit
-    time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
+    case resolve_query(query, entry) do
+      {:ok, query_text} ->
+        # The time is given in native units which the VM determines. We have
+        # to convert them to the desired unit
+        time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
 
-    event = %SQLQueryEvent{
-      sql: query_text,
-      time_ms: time_ms
-    }
+        event = %SQLQueryEvent{
+          sql: query_text,
+          time_ms: time_ms
+        }
 
-    message = SQLQueryEvent.message(event)
-    metadata = Timber.Utils.Logger.event_to_metadata(event)
+        message = SQLQueryEvent.message(event)
+        metadata = Timber.Utils.Logger.event_to_metadata(event)
 
-    Logger.log(level, message, metadata)
+        Logger.log(level, message, metadata)
 
-    entry
+        entry
+
+      {:error, :no_query} ->
+        entry
+    end
   end
 
   # Interestingly, the query is not necessarily a String.t, it
@@ -94,7 +99,9 @@ defmodule Timber.Integrations.EctoLogger do
   # return it or resolve the function to get a String.t
   #
   # It's possible this is a hold-over from Ecto 1
-  @spec resolve_query(String.t | (Ecto.LogEntry.t -> String.t), Ecto.LogEntry.t) :: String.t
-  defp resolve_query(q, entry) when is_function(q), do: q.(entry)
-  defp resolve_query(q, _) when is_binary(q), do: q
+  @spec resolve_query(String.t | (Ecto.LogEntry.t -> String.t), Ecto.LogEntry.t) ::
+    {:ok, String.t} | {:error, :no_query}
+  defp resolve_query(q, entry) when is_function(q), do: {:ok, q.(entry)}
+  defp resolve_query(q, _) when is_binary(q), do: {:ok, q}
+  defp resolve_query(_q, _entry), do: {:error, :no_query}
 end
