@@ -140,7 +140,7 @@ defmodule Timber.Integrations.EventPlug do
 
     # The response body typing is iodata; it should not be assumed
     # to be a binary
-    bytes = IO.iodata_length(conn.resp_body)
+    bytes = body_bytes(conn.resp_body)
 
     headers = [{"content-length", Integer.to_string(bytes)}, request_id_header | conn.resp_headers]
 
@@ -161,6 +161,9 @@ defmodule Timber.Integrations.EventPlug do
 
     conn
   end
+
+  defp body_bytes(nil), do: 0
+  defp body_bytes(body), do: IO.iodata_length(conn.resp_body)
 
   defp request_id_from_header(request_id_header) do
     case request_id_header do
