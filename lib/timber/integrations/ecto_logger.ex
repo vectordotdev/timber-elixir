@@ -83,9 +83,11 @@ defmodule Timber.Integrations.EctoLogger do
         metadata = Timber.Utils.Logger.event_to_metadata(event)
 
         Logger.log(level, message, metadata)
+
         entry
 
-      {:error, :no_query} -> entry
+      {:error, :no_query} ->
+        entry
     end
   end
 
