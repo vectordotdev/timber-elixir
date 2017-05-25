@@ -26,7 +26,7 @@ defmodule Timber.LoggerBackends.HTTP do
 
   alias Timber.LogEntry
   alias Timber.Config
-  alias __MODULE__.{NoTimberAPIKeyError, TimberAPIKeyInvalid}
+  alias __MODULE__.TimberAPIKeyInvalid
 
   require Logger
 
@@ -210,7 +210,12 @@ defmodule Timber.LoggerBackends.HTTP do
     new_state = struct!(state, changes)
 
     if new_state.api_key == nil do
-      raise NoTimberAPIKeyError
+      Timber.debug fn ->
+        "The Timber API key is nil! Please be sure to include an API key when configuring " <>
+          "the Timber logger."
+      end
+    else
+      Timber.debug fn -> "The Timber API is present." end
     end
 
     new_state.http_client.start()
@@ -294,8 +299,9 @@ defmodule Timber.LoggerBackends.HTTP do
     state
   end
 
-  defp issue_request(%{api_key: nil}) do
-    raise NoTimberAPIKeyError
+  defp issue_request(%{api_key: nil} = state) do
+    Timber.debug fn -> "Timber API key is nil! Logs cannot be delivered without an API key." end
+    state
   end
 
   defp issue_request(%{api_key: api_key, buffer: buffer, buffer_size: buffer_size,
@@ -325,19 +331,16 @@ defmodule Timber.LoggerBackends.HTTP do
       {:error, reason} ->
         # If the buffer is full and we can't send the request, drop the buffer.
         if buffer_full?(state) do
-          Timber.debug fn -> "Error issuing HTTP request #{inspect(reason)}. Buffer is full, dropping messages." end
-
-          new_state = clear_buffer(state)
-
-          Logger.error fn ->
-            "Timber HTTP client dropped #{buffer_size} messages due to communication " <> \
-              "errors with the Timber API"
+          Timber.debug fn ->
+            "Error issuing asynchronous HTTP request #{inspect(reason)}. Buffer is full, " <>
+              "dropping messages."
           end
 
-          new_state
+          clear_buffer(state)
         else
           Timber.debug fn ->
-            "Error issuing HTTP request #{inspect(reason)}. Keeping buffer for retry next time."
+            "Error issuing asynchronous HTTP request #{inspect(reason)}. Keeping buffer " <>
+              "for retry next time."
           end
           # Ignore errors, keep the buffer, and allow the next attempt to retry.
           state
@@ -430,21 +433,6 @@ defmodule Timber.LoggerBackends.HTTP do
   #
   # Errors
   #
-
-  defmodule NoTimberAPIKeyError do
-    defexception message: \
-      """
-      We couldn't not locate your Timber API key. If you specified it
-      as an environment variable, please ensure that this variable was
-      added to your environment. Otherwise, please ensure that the
-      api_key is specified during configuration:
-
-        config :timber, api_key: "my_timber_api_key"
-
-      You can location your API key in the Timber console by creating or
-      editing your app: https://app.timber.io
-      """
-  end
 
   defmodule TimberAPIKeyInvalid do
     defexception [:message]
