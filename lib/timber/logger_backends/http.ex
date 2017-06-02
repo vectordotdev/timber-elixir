@@ -211,11 +211,11 @@ defmodule Timber.LoggerBackends.HTTP do
 
     if new_state.api_key == nil do
       Timber.debug fn ->
-        "The Timber API key is nil! Please be sure to include an API key when configuring " <>
-          "the Timber logger."
+        "The Timber API key is nil! Please check the documentation for how to specify an API key " <>
+          "in your configuration file."
       end
     else
-      Timber.debug fn -> "The Timber API is present." end
+      Timber.debug fn -> "The Timber API key is present." end
     end
 
     new_state.http_client.start()
