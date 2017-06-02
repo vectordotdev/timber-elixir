@@ -163,7 +163,7 @@ defmodule Timber.Integrations.EventPlug do
   end
 
   defp body_bytes(nil), do: 0
-  defp body_bytes(body), do: IO.iodata_length(conn.resp_body)
+  defp body_bytes(body), do: IO.iodata_length(body)
 
   defp request_id_from_header(request_id_header) do
     case request_id_header do
