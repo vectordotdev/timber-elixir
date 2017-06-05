@@ -29,6 +29,12 @@ defmodule Timber.LoggerBackends.HTTPTest do
   end
 
   describe "Timber.LoggerBackends.HTTP.handle_call/2" do
+    test "{:configure, options} allows the API key to be nil", %{state: state} do
+      {:ok, :ok, new_state} = HTTP.handle_call({:configure, [api_key: nil]}, state)
+
+      assert is_nil(new_state.api_key)
+    end
+
     test "{:configure, options} message updates the api key", %{state: state} do
       {:ok, :ok, new_state} = HTTP.handle_call({:configure, [api_key: "new_api_key"]}, state)
       assert new_state.api_key == "new_api_key"
@@ -41,6 +47,15 @@ defmodule Timber.LoggerBackends.HTTPTest do
   end
 
   describe "Timber.LoggerBackends.HTTP.handle_event/2" do
+    test ":flush message fails silently without an API key", %{state: state} do
+      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+
+      {:ok, :ok, state} = HTTP.handle_call({:configure, [api_key: nil]}, state)
+      {:ok, state} = HTTP.handle_event(entry, state)
+
+      {:ok, _state} = HTTP.handle_event(:flush, state)
+    end
+
     test ":flush message issues a request", %{state: state} do
       entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
