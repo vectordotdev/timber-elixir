@@ -52,9 +52,11 @@ defmodule Mix.Tasks.Timber.Install.API do
   def wait_for_logs(api, iteration \\ 0)
 
   def wait_for_logs(api, iteration) do
+    excessive_threshold = 30
+
     cond do
       iteration == 0 -> event!(api, :waiting_for_logs)
-      iteration == 30 -> event!(api, :excessively_waiting_for_logs)
+      iteration == excessive_threshold -> event!(api, :excessive_log_waiting)
       true -> :ok
     end
 
@@ -72,11 +74,7 @@ defmodule Mix.Tasks.Timber.Install.API do
         Messages.spinner(rem)
         |> IOHelper.write()
 
-        if iteration == 30 do
-          event!(api, :excessive_log_waiting)
-        end
-
-        if iteration > 30 do
+        if iteration > excessive_threshold do
           " (Having trouble? We'd love to help: support@timber.io)"
           |> IOHelper.write()
         end

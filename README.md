@@ -106,8 +106,8 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 <details><summary><strong>Custom contexts</strong></summary><p>
 
 Context is additional data shared across log lines. Think of it like log join data.
-Custom contexts allow you to extend beyond contexts already defined in
-the [`Timber.Contexts`](lib/timber/contexts) namespace.
+It's stored in the local process dictionary and is incldued in every log written
+within that process. Custom contexts, specifically, allow you to extend beyond contexts already defined in the [`Timber.Contexts`](lib/timber/contexts) namespace.
 
 ```elixir
 Timber.add_context(%{build: %{version: "1.0.0"}})
