@@ -10,14 +10,13 @@ defmodule Timber.Contexts.JobContext do
   """
 
   @type t :: %__MODULE__{
-    id: String.t,
-    name: String.t
+    id: String.t
   }
 
   @type m :: %{
-    id: String.t,
-    name: String.t
+    id: String.t
   }
 
-  defstruct [:id, :name]
+  @enforce_keys [:id]
+  defstruct [:id]
 end
