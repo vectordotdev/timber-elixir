@@ -304,9 +304,7 @@ defmodule Timber.LoggerBackends.HTTP do
     state
   end
 
-  defp issue_request(%{api_key: api_key, buffer: buffer, buffer_size: buffer_size,
-    http_client: http_client} = state)
-  do
+  defp issue_request(%{api_key: api_key, buffer: buffer, http_client: http_client} = state) do
     body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
