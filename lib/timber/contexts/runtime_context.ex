@@ -2,6 +2,9 @@ defmodule Timber.Contexts.RuntimeContext do
   @moduledoc """
   The Runtime context tracks information about the current runtime, such as the module, file,
   function, and line number that called the log line.
+
+  Note: This is automatically provided by the default `Elixir.Logger`. There is no need
+  to add this yourself.
   """
 
   @type t :: %__MODULE__{

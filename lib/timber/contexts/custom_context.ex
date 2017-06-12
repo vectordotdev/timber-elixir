@@ -27,7 +27,7 @@ defmodule Timber.Contexts.CustomContext do
     and that it can relied upon.
 
     ```elixir
-    def BuildContext do
+    defmodule BuildContext do
       use Timber.Contexts.CustomContext, type: :build
       @enforce_keys [:version]
       defstruct [:version]
@@ -35,7 +35,6 @@ defmodule Timber.Contexts.CustomContext do
 
     Timber.add_context(%BuildContext{version: "1.0.0"})
     ```
-
   """
 
   @type t :: %__MODULE__{
