@@ -102,9 +102,8 @@ defmodule Timber.LogEntry do
     fun = Keyword.get(metadata, :function)
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
-    vm_pid = inspect(self())
     runtime_context = %RuntimeContext{application: application, module_name: module_name,
-      function: fun, file: file, line: line, vm_pid: vm_pid}
+      function: fun, file: file, line: line}
     Context.add(context, runtime_context)
   end
 
