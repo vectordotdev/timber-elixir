@@ -3,7 +3,7 @@ defmodule Timber.Contexts.SessionContext do
   The Session context tracks the current session. It it's a way to track users without the
   need for authentication.
 
-  Timber can automatically add context information about HTTP requests if
+  Note: Timber can automatically add context information about HTTP requests if
   you use a `Plug` based framework through the `Timber.Integrations.ContextPlug`.
   """
 

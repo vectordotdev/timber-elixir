@@ -44,6 +44,10 @@ defimpl Timber.Contextable, for: Timber.Contexts.HTTPContext do
   def to_context(context), do: context
 end
 
+defimpl Timber.Contextable, for: Timber.Contexts.JobContext do
+  def to_context(context), do: context
+end
+
 defimpl Timber.Contextable, for: Timber.Contexts.OrganizationContext do
   def to_context(context), do: context
 end

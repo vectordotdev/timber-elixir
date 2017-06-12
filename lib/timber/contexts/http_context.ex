@@ -1,9 +1,9 @@
 defmodule Timber.Contexts.HTTPContext do
   @moduledoc """
   The HTTP context tracks information about an HTTP request currently
-  being handled
+  being handled.
 
-  Timber can automatically add context information about HTTP requests if
+  Note: Timber can automatically add context information about HTTP requests if
   you use a `Plug` based framework through the `Timber.Integrations.ContextPlug`.
   """
 

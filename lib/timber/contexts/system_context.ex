@@ -1,6 +1,9 @@
 defmodule Timber.Contexts.SystemContext do
   @moduledoc """
-  Tracks system information such as the current Process ID (pid).
+  The system context tracks OS level information, such as the process ID and hostname.
+
+  Note: This context is automatically added when each `Timber.Logentry` is created.
+  There is no need to add it yourself.
   """
 
   @type t :: %__MODULE__{

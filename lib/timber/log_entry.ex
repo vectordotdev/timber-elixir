@@ -39,7 +39,7 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v2.0.1/schema.json"
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v2.1.0/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
@@ -103,7 +103,7 @@ defmodule Timber.LogEntry do
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
     runtime_context = %RuntimeContext{application: application, module_name: module_name,
-      function: fun, file: file,line: line}
+      function: fun, file: file, line: line}
     Context.add(context, runtime_context)
   end
 

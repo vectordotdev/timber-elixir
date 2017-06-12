@@ -20,6 +20,7 @@ defmodule Timber.Context do
   @type context_element ::
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
+    Contexts.JobContext.t           |
     Contexts.OrganizationContext.t  |
     Contexts.RuntimeContext.t       |
     Contexts.SessionContext.t       |
@@ -29,6 +30,7 @@ defmodule Timber.Context do
   @type t :: %{
     optional(:custom) => Context.CustomContext.m,
     optional(:http) => Context.HTTPContext.m,
+    optional(:job) => Context.JobContext.m,
     optional(:organization) => Context.OrganizationContext.m,
     optional(:runtime) => Context.RuntimeContext.m,
     optional(:session) => Context.SessionContext.m,
@@ -82,6 +84,10 @@ defmodule Timber.Context do
     |> UtilsMap.recursively_drop_blanks()
   end
 
+  defp to_api_map(%Contexts.JobContext{id: id} = context_element) when is_integer(id) do
+    to_api_map(%{context_element | id: Integer.to_string(id)})
+  end
+
   defp to_api_map(%Contexts.OrganizationContext{id: id} = context_element) when is_integer(id) do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
@@ -108,6 +114,7 @@ defmodule Timber.Context do
   @spec type(context_element) :: atom
   defp type(%Contexts.CustomContext{}), do: :custom
   defp type(%Contexts.HTTPContext{}), do: :http
+  defp type(%Contexts.JobContext{}), do: :job
   defp type(%Contexts.OrganizationContext{}), do: :organization
   defp type(%Contexts.RuntimeContext{}), do: :runtime
   defp type(%Contexts.SessionContext{}), do: :session
