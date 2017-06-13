@@ -203,7 +203,8 @@ defmodule Timber.Installer.FakeFileContents do
         signing_salt: "abfd232"
 
       # Add Timber plugs for capturing HTTP context and events
-      plug Timber.Integrations.ContextPlug
+      plug Timber.Integrations.SessionContextPlug
+      plug Timber.Integrations.HTTPContextPlug
       plug Timber.Integrations.EventPlug
 
       plug TimberElixir.Router

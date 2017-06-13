@@ -7,7 +7,7 @@ defmodule Timber.Integrations.EventPlug do
   adding this plug to your pipeline will automatically create events
   for incoming HTTP requests and responses for your log statements.
 
-  Note: If you're using `Timber.Integrations.ContextPlug`, that plug should come before
+  Note: If you're using `Timber.Integrations.HTTPContextPlug`, that plug should come before
   `Timber.Integrations.EventPlug` in any pipeline. This will give you the best results.
 
   ## Adding the Plug
