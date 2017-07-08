@@ -1,5 +1,6 @@
 defmodule Timber.Config do
   @application :timber
+  @default_http_body_max_bytes 2048
 
   @doc """
   Your Timber application API key. This can be obtained after you create your
@@ -59,19 +60,17 @@ defmodule Timber.Config do
   def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
 
   @doc """
-  Configuration for the `:body` size limit in the `Timber.Events.HTTP*` events.
-  Bodies that exceed this limit will be truncated to this limit.
-
-  Please take care with this value, increasing it too high can mean very large
-  payloads and very high outgoing network activity.
+  Configuration for the `:body` byte size limit in the `Timber.Events.HTTP*` events.
+  Bodies that exceed this limit will be truncated to this byte limit. The default is
+  `2048` with a maximum allowed value of `8192`.
 
   # Example
 
   ```elixir
-  config :timber, :http_body_size_limit, 5000
+  config :timber, :http_body_size_limit, 2048
   ```
   """
-  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, 2000)
+  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, @default_http_body_max_bytes)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
