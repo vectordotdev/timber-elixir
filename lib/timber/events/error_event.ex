@@ -58,6 +58,8 @@ defmodule Timber.Events.ErrorEvent do
           |> Timber.Utils.Logger.truncate_bytes(@message_byte_limit)
           |> to_string()
 
+        backtrace = Enum.slice(backtrace, 0..9)
+
         {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
 
       _ ->

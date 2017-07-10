@@ -35,8 +35,7 @@ defmodule Timber.Events.ErrorEventTest do
           %{app_name: "my_app", file: "lib/plug/error_handler.ex", function: "MyApp.Router.call/2", line: 64},
           %{app_name: "my_app", file: "lib/my_app/endpoint.ex", function: "MyApp.Endpoint.phoenix_pipeline/1", line: 1},
           %{app_name: "my_app", file: "lib/my_app/endpoint.ex", function: "MyApp.Endpoint.call/2", line: 1},
-          %{app_name: "plug", file: "lib/plug/adapters/cowboy/handler.ex", function: "Plug.Adapters.Cowboy.Handler.upgrade/4", line: 15},
-          %{app_name: "cowboy", file: "/Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl", function: ":cowboy_protocol.execute/4", line: 442}
+          %{app_name: "plug", file: "lib/plug/adapters/cowboy/handler.ex", function: "Plug.Adapters.Cowboy.Handler.upgrade/4", line: 15}
         ]
       }
     end
