@@ -29,7 +29,7 @@ defmodule Timber.Events.CustomEvent do
 
     ```elixir
     event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+    Logger.info("Payment rejected", event: %{payment_rejected: event_data})
     ```
 
   2. Log a struct (recommended)

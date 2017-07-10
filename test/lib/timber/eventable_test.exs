@@ -19,5 +19,12 @@ defmodule Timber.EventableTest do
       event = Eventable.to_event(%{type: :build, data: %{version: "1.0.0"}})
       assert event == %Timber.Events.CustomEvent{data: %{version: "1.0.0"}, type: :build}
     end
+
+    test "exception" do
+      error = %RuntimeError{message: "boom"}
+      raise inspect(error.__struct__)
+      event = Eventable.to_event(error)
+      assert event == %Timber.Events.ErrorEvent{name: "RuntimeError", message: "boom"}
+    end
   end
 end

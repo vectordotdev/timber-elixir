@@ -26,7 +26,7 @@ defmodule Timber.Events.ErrorEvent do
     message: String.t,
   }
 
-  @enforce_keys [:backtrace, :name, :message]
+  @enforce_keys [:name, :message]
   defstruct [:backtrace, :name, :message]
 
   @app_name_byte_limit 256

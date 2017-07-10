@@ -14,6 +14,7 @@ defmodule Timber.Context do
   metadata keys so as not to interfere with other systems.
   """
 
+  alias Timber.Contextable
   alias Timber.Contexts
   alias Timber.Utils.Map, as: UtilsMap
 
@@ -42,7 +43,7 @@ defmodule Timber.Context do
   def new(), do: %{}
 
   @doc """
-  Takes an existing context element and inserts it into the global context.
+  Takes an existing context element and inserts it into the provided context.
   """
   @spec add(t, context_element) :: t
   def add(context, %Contexts.CustomContext{type: type} = context_element) when is_binary(type) do
@@ -56,10 +57,11 @@ defmodule Timber.Context do
     insert(context, key, api_map)
   end
 
-  def add(existing_context_map, context_element) do
+  def add(context, data) do
+    context_element = Contextable.to_context(data)
     key = type(context_element)
     context_element_map = to_api_map(context_element)
-    insert(existing_context_map, key, context_element_map)
+    insert(context, key, context_element_map)
   end
 
   # Inserts the context_element into the main context map
@@ -75,6 +77,20 @@ defmodule Timber.Context do
 
   defp insert(context, key, new_context) do
     Map.put(context, key, new_context)
+  end
+
+  @doc false
+  @spec load :: t
+  def load do
+    current_metadata = Elixir.Logger.metadata()
+    Keyword.get(current_metadata, :timber_context, Context.new())
+  end
+
+  @doc false
+  @spec save(t) :: :ok
+  def save(context) do
+    Elixir.Logger.metadata([timber_context: context])
+    :ok
   end
 
   # Converts a context_element into a map the Timber API expects.

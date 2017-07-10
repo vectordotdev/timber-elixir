@@ -17,7 +17,7 @@ defmodule Timber.Contexts.CustomContext do
   1. Use a map (simplest)
 
     ```elixir
-    Timber.add_context(%{type: :build, data: %{version: "1.0.0"}})
+    Timber.add_context(build: %{version: "1.0.0"})
     ```
 
   2. Use a struct

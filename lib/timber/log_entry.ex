@@ -70,13 +70,16 @@ defmodule Timber.LogEntry do
               message = Timber.Events.ErrorEvent.message(event)
               {message, event}
 
-            {:error, _reason} -> {message, nil}
+            {:error, _reason} ->
+              {message, nil}
           end
         else
           {message, nil}
         end
 
-      data -> {message, Eventable.to_event(data)}
+      data ->
+        event = Eventable.to_event(data)
+        {message, event}
     end
 
     %__MODULE__{
@@ -94,16 +97,23 @@ defmodule Timber.LogEntry do
   defp add_runtime_context(context, metadata) do
     application = Keyword.get(metadata, :application)
     module_name = Keyword.get(metadata, :module)
-    module_name = if module_name do
-      UtilsModule.name(module_name)
-    else
-      module_name
-    end
+    module_name =
+      if module_name do
+        UtilsModule.name(module_name)
+      else
+        module_name
+      end
     fun = Keyword.get(metadata, :function)
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
-    runtime_context = %RuntimeContext{application: application, module_name: module_name,
-      function: fun, file: file, line: line}
+    runtime_context =
+      %RuntimeContext{
+        application: application,
+        module_name: module_name,
+        function: fun,
+        file: file,
+        line: line
+      }
     Context.add(context, runtime_context)
   end
 
