@@ -15,7 +15,9 @@ defmodule Timber.LogEntry do
   """
 
   alias Timber.Context
-  alias Timber.Contexts.{RuntimeContext, SystemContext}
+  alias Timber.Contexts.RuntimeContext
+  alias Timber.Contexts.SystemContext
+  alias Timber.CurrentContext
   alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
@@ -58,29 +60,11 @@ defmodule Timber.LogEntry do
 
     context =
       metadata
-      |> Keyword.get(:timber_context, %{})
+      |> CurrentContext.extract()
       |> add_runtime_context(metadata)
       |> add_system_context()
 
-    {message, event} = case UtilsLogger.get_event_from_metadata(metadata) do
-      nil ->
-        if Keyword.has_key?(metadata, :error_logger) do
-          case Timber.Events.ErrorEvent.new(to_string(message)) do
-            {:ok, event} ->
-              message = Timber.Events.ErrorEvent.message(event)
-              {message, event}
-
-            {:error, _reason} ->
-              {message, nil}
-          end
-        else
-          {message, nil}
-        end
-
-      data ->
-        event = Eventable.to_event(data)
-        {message, event}
-    end
+    {message, event} = extract_message_and_event(metadata, message)
 
     %__MODULE__{
       dt: io_timestamp,
@@ -126,6 +110,31 @@ defmodule Timber.LogEntry do
     pid = System.get_pid()
     system_context = %SystemContext{hostname: hostname, pid: pid}
     Context.add(context, system_context)
+  end
+
+  # Attemps to extract the message and event from the given logger metadata and message.
+  # We take the message so that we can convert upstream error logger messages into actual
+  # `ErrorEvent.t` events.
+  defp extract_message_and_event(metadata, message) do
+    case UtilsLogger.get_event_from_metadata(metadata) do
+      nil ->
+        if Keyword.has_key?(metadata, :error_logger) do
+          case Timber.Events.ErrorEvent.new(to_string(message)) do
+            {:ok, event} ->
+              message = Timber.Events.ErrorEvent.message(event)
+              {message, event}
+
+            {:error, _reason} ->
+              {message, nil}
+          end
+        else
+          {message, nil}
+        end
+
+      data ->
+        event = Eventable.to_event(data)
+        {message, event}
+    end
   end
 
   def schema, do: @schema

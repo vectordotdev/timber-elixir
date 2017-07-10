@@ -51,6 +51,10 @@ defimpl Timber.Contextable, for: Timber.Contexts.OrganizationContext do
   def to_context(context), do: context
 end
 
+defimpl Timber.Contextable, for: Timber.Contexts.RuntimeContext do
+  def to_context(context), do: context
+end
+
 defimpl Timber.Contextable, for: Timber.Contexts.SessionContext do
   def to_context(context), do: context
 end
@@ -64,7 +68,7 @@ defimpl Timber.Contextable, for: Timber.Contexts.UserContext do
 end
 
 defimpl Timber.Contextable, for: List do
-  def to_context(list) when length(list) == 1 do
+  def to_context(list) do
     if Keyword.keyword?(list) do
       list
       |> Enum.into(%{})

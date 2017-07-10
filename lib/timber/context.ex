@@ -79,20 +79,6 @@ defmodule Timber.Context do
     Map.put(context, key, new_context)
   end
 
-  @doc false
-  @spec load :: t
-  def load do
-    current_metadata = Elixir.Logger.metadata()
-    Keyword.get(current_metadata, :timber_context, Context.new())
-  end
-
-  @doc false
-  @spec save(t) :: :ok
-  def save(context) do
-    Elixir.Logger.metadata([timber_context: context])
-    :ok
-  end
-
   # Converts a context_element into a map the Timber API expects.
   @spec to_api_map(context_element) :: map
   defp to_api_map(%Contexts.CustomContext{type: type, data: data}) do
