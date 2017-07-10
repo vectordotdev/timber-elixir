@@ -29,11 +29,11 @@ defmodule Timber.Events.ErrorEvent do
   @enforce_keys [:backtrace, :name, :message]
   defstruct [:backtrace, :name, :message]
 
-  @app_name_limit 255
-  @file_limit 1_000
-  @function_limit 255
-  @message_limit 10_000
-  @name_limit 255
+  @app_name_byte_limit 256
+  @file_byte_limit 1_024
+  @function_byte_limit 256
+  @message_byte_limit 8_192
+  @name_byte_limit 256
 
   @doc """
   Builds a new struct taking care to normalize data into a valid state. This should
@@ -50,12 +50,12 @@ defmodule Timber.Events.ErrorEvent do
       {:ok, {name, message, backtrace}} when is_binary(name) and length(backtrace) > 0 ->
         name =
           name
-          |> Timber.Utils.Logger.truncate(@name_limit)
+          |> Timber.Utils.Logger.truncate_bytes(@name_byte_limit)
           |> to_string()
 
         message =
           message
-          |> Timber.Utils.Logger.truncate(@message_limit)
+          |> Timber.Utils.Logger.truncate_bytes(@message_byte_limit)
           |> to_string()
 
         {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
@@ -93,19 +93,19 @@ defmodule Timber.Events.ErrorEvent do
     do
       app_name =
         app_name
-        |> Timber.Utils.Logger.truncate(@app_name_limit)
+        |> Timber.Utils.Logger.truncate_bytes(@app_name_byte_limit)
         |> to_string()
 
       function =
         function
         |> String.trim()
-        |> Timber.Utils.Logger.truncate(@function_limit)
+        |> Timber.Utils.Logger.truncate_bytes(@function_byte_limit)
         |> to_string()
 
       file =
         file
         |> String.trim()
-        |> Timber.Utils.Logger.truncate(@file_limit)
+        |> Timber.Utils.Logger.truncate_bytes(@file_byte_limit)
         |> to_string()
 
       if function != "" && file != "" do

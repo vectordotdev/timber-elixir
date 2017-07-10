@@ -18,7 +18,7 @@ defmodule Timber.Events.ControllerCallEvent do
     :pipelines
   ]
 
-  @params_json_limit 5_000
+  @params_json_max_bytes 8_192
 
   @doc """
   Builds a new struct taking care to:
@@ -32,7 +32,7 @@ defmodule Timber.Events.ControllerCallEvent do
       if params && params != %{} do
         params
         |> Timber.Utils.JSON.encode!()
-        |> Timber.Utils.Logger.truncate(@params_json_limit)
+        |> Timber.Utils.Logger.truncate_bytes(@params_json_max_bytes)
         |> to_string()
       else
         nil

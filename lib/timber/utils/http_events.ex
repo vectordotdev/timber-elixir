@@ -5,6 +5,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @multi_header_delimiter ","
   @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
+  @header_value_byte_limit 256
   @sanitized_value "[sanitized]"
 
   def format_time_ms(time_ms) when is_integer(time_ms),
@@ -61,7 +62,7 @@ defmodule Timber.Utils.HTTPEvents do
   def normalize_body(body) when is_binary(body) do
     limit = Config.http_body_size_limit()
     body
-    |> Timber.Utils.Logger.truncate(limit)
+    |> Timber.Utils.Logger.truncate_bytes(limit)
     |> to_string()
   end
 
@@ -96,7 +97,7 @@ defmodule Timber.Utils.HTTPEvents do
   defp normalize_header({name, value}) do
     value =
       value
-      |> Timber.Utils.Logger.truncate(255)
+      |> Timber.Utils.Logger.truncate_bytes(@header_value_byte_limit)
       |> to_string()
 
     {String.downcase(name), value}
