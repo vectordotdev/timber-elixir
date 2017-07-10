@@ -8,7 +8,7 @@ defmodule Timber.Event do
   @type t ::
     Events.ControllerCallEvent     |
     Events.CustomEvent             |
-    Events.ExceptionEvent          |
+    Events.ErrorEvent              |
     Events.HTTPClientRequestEvent  |
     Events.HTTPClientResponseEvent |
     Events.HTTPServerRequestEvent  |
@@ -48,7 +48,7 @@ defmodule Timber.Event do
   @spec type(t) :: atom()
   def type(%Events.ControllerCallEvent{}), do: :controller_call
   def type(%Events.CustomEvent{}), do: :custom
-  def type(%Events.ExceptionEvent{}), do: :exception
+  def type(%Events.ErrorEvent{}), do: :error
   def type(%Events.HTTPClientRequestEvent{}), do: :http_client_request
   def type(%Events.HTTPClientResponseEvent{}), do: :http_client_response
   def type(%Events.HTTPServerRequestEvent{}), do: :http_server_request

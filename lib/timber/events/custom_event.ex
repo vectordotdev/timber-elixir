@@ -29,14 +29,16 @@ defmodule Timber.Events.CustomEvent do
 
     ```elixir
     event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-    Logger.info("Payment rejected", event: %{type: :payment_rejected, data: event_data})
+    Logger.info("Payment rejected", event: %{payment_rejected: event_data})
     ```
 
-  2. Log a struct (recommended)
+    The `:payment_rejected` key is the event `type`, and of course the value is the `data`.
 
-    Defining structs for your important events just feels oh so good :) It creates a strong contract
-    with down stream consumers and gives you compile time guarantees. It makes a statement that
-    this event means something and that it can relied upon.
+  2. Log a struct (advanced)
+
+    Defining structs for your events creates a contract around your data structure.
+    We recommend this approach when you have downstream consumers that will be affected
+    by data structure changes.
 
     ```elixir
     def PaymentRejectedEvent do

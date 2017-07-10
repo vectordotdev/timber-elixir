@@ -14,6 +14,7 @@ defmodule Timber.Context do
   metadata keys so as not to interfere with other systems.
   """
 
+  alias Timber.Contextable
   alias Timber.Contexts
   alias Timber.Utils.Map, as: UtilsMap
 
@@ -42,7 +43,7 @@ defmodule Timber.Context do
   def new(), do: %{}
 
   @doc """
-  Takes an existing context element and inserts it into the global context.
+  Takes an existing context element and inserts it into the provided context.
   """
   @spec add(t, context_element) :: t
   def add(context, %Contexts.CustomContext{type: type} = context_element) when is_binary(type) do
@@ -56,10 +57,11 @@ defmodule Timber.Context do
     insert(context, key, api_map)
   end
 
-  def add(existing_context_map, context_element) do
+  def add(context, data) do
+    context_element = Contextable.to_context(data)
     key = type(context_element)
     context_element_map = to_api_map(context_element)
-    insert(existing_context_map, key, context_element_map)
+    insert(context, key, context_element_map)
   end
 
   # Inserts the context_element into the main context map

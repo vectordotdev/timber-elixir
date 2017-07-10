@@ -40,7 +40,7 @@ defmodule Timber.Events.LogEntryTest do
                 (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
         """
       entry = LogEntry.new(time(), :info, log_message, [error_logger: true])
-      assert entry.event.__struct__ == Timber.Events.ExceptionEvent
+      assert entry.event.__struct__ == Timber.Events.ErrorEvent
     end
   end
 

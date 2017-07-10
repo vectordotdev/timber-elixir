@@ -29,10 +29,12 @@ defprotocol Timber.Eventable do
   This takes care of everything automatically. See `Timber.Events.CustomEvent` for examples.
   """
 
+  @fallback_to_any true
+
   @doc """
   Converts the data structure into a `Timber.Event.t`.
   """
-  @spec to_event(any()) :: Timber.Event.t
+  @spec to_event(any) :: Timber.Event.t
   def to_event(data)
 end
 
@@ -44,7 +46,7 @@ defimpl Timber.Eventable, for: Timber.Events.CustomEvent do
   def to_event(event), do: event
 end
 
-defimpl Timber.Eventable, for: Timber.Events.ExceptionEvent do
+defimpl Timber.Eventable, for: Timber.Events.ErrorEvent do
   def to_event(event), do: event
 end
 
@@ -86,6 +88,18 @@ defimpl Timber.Eventable, for: Map do
     %Timber.Events.CustomEvent{
       type: type,
       data: data
+    }
+  end
+end
+
+defimpl Timber.Eventable, for: Any do
+  def to_event(%{__exception__: true, __struct__: module} = error) do
+    message = Exception.message(error)
+    module_name = Timber.Utils.Module.name(module)
+
+    %Timber.Events.ErrorEvent{
+      name: module_name,
+      message: message
     }
   end
 end
