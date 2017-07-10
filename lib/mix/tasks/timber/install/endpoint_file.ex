@@ -7,7 +7,8 @@ defmodule Mix.Tasks.Timber.Install.EndpointFile do
     router_pattern = ~r/( *)plug [^\n\r]*.Router/
     router_replacement =
       "\\1# Add Timber plugs for capturing HTTP context and events\n" <>
-        "\\1plug Timber.Integrations.ContextPlug\n" <>
+        "\\1plug Timber.Integrations.SessionContextPlug\n" <>
+        "\\1plug Timber.Integrations.HTTPContextPlug\n" <>
         "\\1plug Timber.Integrations.EventPlug\n\n\\0"
 
     logger_pattern = ~r/( *)plug Plug\.Logger\n?/

@@ -4,8 +4,8 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   insight into the HTTP requests coming into your app.
 
   Timber can automatically track incoming HTTP requests if you use a `Plug` based framework.
-  See `Timber.Integrations.ContextPlug` and `Timber.Integerations.EventPlug`. Also, the
-  `README.md` outlines how to set these up.
+  See the documentation for `Timber.Integerations.EventPlug` for more information. The `README.md`
+  also outlines how to set this up.
   """
 
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents

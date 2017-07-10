@@ -4,7 +4,7 @@ defmodule Timber.Contexts.HTTPContext do
   being handled.
 
   Note: Timber can automatically add context information about HTTP requests if
-  you use a `Plug` based framework through the `Timber.Integrations.ContextPlug`.
+  you use a `Plug` based framework through the `Timber.Integrations.HTTPContextPlug`.
   """
 
   @type t :: %__MODULE__{
