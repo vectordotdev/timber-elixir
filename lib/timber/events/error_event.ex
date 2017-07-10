@@ -1,9 +1,9 @@
-defmodule Timber.Events.ExceptionEvent do
+defmodule Timber.Events.ErrorEvent do
   @moduledoc """
-  The `ExceptionEvent` is used to track exceptions.
+  The `ErrorEvent` is used to track errors and exceptions.
 
-  Timber automatically tracks and structures exceptions in your application. Giving
-  you detailed stack traces, context, and exception data.
+  Timber automatically tracks and structures errors and exceptions in your application. Giving
+  you detailed stack traces, context, and error data.
   """
 
   @type stacktrace_entry :: {

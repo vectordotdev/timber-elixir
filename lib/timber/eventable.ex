@@ -44,7 +44,7 @@ defimpl Timber.Eventable, for: Timber.Events.CustomEvent do
   def to_event(event), do: event
 end
 
-defimpl Timber.Eventable, for: Timber.Events.ExceptionEvent do
+defimpl Timber.Eventable, for: Timber.Events.ErrorEvent do
   def to_event(event), do: event
 end
 

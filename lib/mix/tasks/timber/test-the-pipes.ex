@@ -92,7 +92,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   defp exception_event do
-    %Events.ExceptionEvent{
+    %Events.ErrorEvent{
       backtrace: [
         %{app_name: "my_app", function: "MyApp.OrderController.create/2", file: "web/controllers/order_controller.ex", line: 23},
         %{app_name: "my_app", function: "MyApp.OrderController.phoenix_controller_pipeline/2", file: "web/controllers/order_controller.ex", line: 1},
