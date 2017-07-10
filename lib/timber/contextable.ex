@@ -13,7 +13,9 @@ defprotocol Timber.Contextable do
 
   ```elixir
   defimpl Timber.Contextable, for: Map do
-    def to_context(%{type: type, data: data}) do
+    def to_context(map) when map_size(map) == 1 do
+      [type] = Map.keys(map)
+      [data] = Map.values(map)
       %Timber.Contexts.CustomContext{
         type: type,
         data: data

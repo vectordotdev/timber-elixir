@@ -1,7 +1,7 @@
 defmodule Timber.CurrentContext do
   @moduledoc """
   Represents the current context stored in the `Elixir.Logger` metadata.
-  This modules sole purposes is to load and persis context from that metadata.
+  This module's sole purposes is to load and persist context from that metadata.
   The actual context data structure is defined and managed in `Timber.Context`.
   """
 

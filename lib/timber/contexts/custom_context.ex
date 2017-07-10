@@ -20,11 +20,13 @@ defmodule Timber.Contexts.CustomContext do
     Timber.add_context(build: %{version: "1.0.0"})
     ```
 
-  2. Use a struct
+    The root key `:build` is the `type` and the value is the `data`.
 
-    Defining structs for your contexts creates a strong contract with down stream consumers
-    and gives you compile time guarantees. It makes a statement that this context means something
-    and that it can relied upon.
+  2. Use a struct (advanced)
+
+    Defining structs for your contexts creates a contract around your data structure.
+    We recommend this approach when you have downstream consumers that will be affected
+    by data structure changes.
 
     ```elixir
     defmodule BuildContext do
