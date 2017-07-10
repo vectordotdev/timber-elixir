@@ -25,8 +25,8 @@ defmodule Timber.Utils.HTTPEventsTest do
     end
 
     test "exceeds length" do
-      body = String.duplicate("a", 20001)
-      assert HTTPEvents.normalize_body(body) == "#{String.duplicate("a", 1985)} (truncated)"
+      body = String.duplicate("a", 2049)
+      assert HTTPEvents.normalize_body(body) == "#{String.duplicate("a", 2033)} (truncated)"
     end
   end
 
