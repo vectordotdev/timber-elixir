@@ -7,13 +7,15 @@ defmodule Timber.Events.HTTPServerRequestEventTest do
     test "normalizes headers from a list" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
       result = HTTPServerRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
-      assert result.headers == %{"user-agent" => "agent", "x-request-id" => "value"}
+      assert result.headers == nil
+      assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\"}"
     end
 
     test "filters headers" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}, {"random-header", "value"}]
       result = HTTPServerRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
-      assert result.headers == %{"random-header" => "value", "user-agent" => "agent", "x-request-id" => "value"}
+      assert result.headers == nil
+      assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
     end
 
     test "deletes body" do

@@ -12,14 +12,15 @@ defmodule Timber.Events.HTTPServerResponseEvent do
 
   @type t :: %__MODULE__{
     body: String.t | nil,
-    headers: map,
+    headers: map | nil,
+    headers_json: String.t | nil,
     request_id: Strin.t | nil,
     status: pos_integer,
     time_ms: float
   }
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:body, :headers, :request_id, :status, :time_ms]
+  defstruct [:body, :headers, :headers_json, :request_id, :status, :time_ms]
 
   @doc """
   Builds a new struct taking care to:
@@ -34,6 +35,7 @@ defmodule Timber.Events.HTTPServerResponseEvent do
       |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+      |> UtilsHTTPEvents.move_headers_to_headers_json()
 
     struct!(__MODULE__, opts)
   end

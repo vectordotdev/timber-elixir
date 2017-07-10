@@ -86,6 +86,8 @@ defmodule Timber.Config do
 
   @doc """
   Specify a different JSON encoder function. Timber uses `Poison` by default.
+  The specified function must take any data structure and return `iodata`. It
+  should raise on encode failures.
 
   # Example
 
@@ -93,6 +95,7 @@ defmodule Timber.Config do
   config :timber, :json_encoder, fn map -> encode(map) end
   ```
   """
+  @spec json_encoder() :: ((any) -> iodata)
   def json_encoder, do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
 
   @doc """

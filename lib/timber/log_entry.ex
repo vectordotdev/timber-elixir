@@ -21,6 +21,7 @@ defmodule Timber.LogEntry do
   alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
+  alias Timber.Utils.JSON
   alias Timber.Utils.Logger, as: UtilsLogger
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
@@ -140,17 +141,17 @@ defmodule Timber.LogEntry do
   def schema, do: @schema
 
   @doc """
-  Encodes the log event to a string
+  Encodes the log event to chardata
 
   ## Options
 
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
-  @spec to_string!(t, format, Keyword.t) :: IO.chardata
-  def to_string!(log_entry, format, options \\ []) do
+  @spec to_iodata!(t, format, Keyword.t) :: iodata
+  def to_iodata!(log_entry, format, options \\ []) do
     log_entry
     |> to_map!(options)
-    |> encode!(format)
+    |> encode_to_iodata!(format)
   end
 
   @spec to_map!(t, Keyword.t) :: map()
@@ -177,15 +178,15 @@ defmodule Timber.LogEntry do
     |> UtilsMap.recursively_drop_blanks()
   end
 
-  @spec encode!(format, map) :: IO.chardata
-  defp encode!(value, :json) do
-    Timber.Config.json_encoder().(value)
+  @spec encode_to_iodata!(format, map) :: iodata
+  defp encode_to_iodata!(value, :json) do
+    JSON.encode_to_iodata!(value)
   end
 
   # The logfmt encoding will actually use a pretty-print style
   # of encoding rather than converting the data structure directly to
   # logfmt
-  defp encode!(value, :logfmt) do
+  defp encode_to_iodata!(value, :logfmt) do
     context =
       case Map.get(value, :context) do
         nil -> []

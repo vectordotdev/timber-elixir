@@ -32,12 +32,13 @@ defmodule Timber.Events.HTTPClientRequestEvent do
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @enforce_keys [:host, :method, :scheme]
-  defstruct [:body, :headers, :host, :method, :path, :port, :query_string, :request_id, :scheme,
+  defstruct [:body, :headers, :headers_json, :host, :method, :path, :port, :query_string, :request_id, :scheme,
     :service_name]
 
   @type t :: %__MODULE__{
     body: String.t | nil,
     headers: map | nil,
+    headers_json: String.t | nil,
     host: String.t,
     method: String.t,
     path: String.t | nil,
@@ -69,7 +70,10 @@ defmodule Timber.Events.HTTPClientRequestEvent do
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
 
-    opts = Keyword.put_new_lazy(opts, :request_id, fn -> UtilsHTTPEvents.get_request_id_from_headers(opts[:headers]) end)
+    opts =
+      opts
+      |> Keyword.put_new_lazy(:request_id, fn -> UtilsHTTPEvents.get_request_id_from_headers(opts[:headers]) end)
+      |> UtilsHTTPEvents.move_headers_to_headers_json()
 
     struct!(__MODULE__, opts)
   end

@@ -31,7 +31,7 @@ defmodule Timber.Events.ControllerCallEvent do
     params_json =
       if params && params != %{} do
         params
-        |> Timber.Utils.JSON.encode!()
+        |> Timber.Utils.JSON.encode_to_iodata!()
         |> Timber.Utils.Logger.truncate_bytes(@params_json_max_bytes)
         |> to_string()
       else

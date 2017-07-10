@@ -14,8 +14,9 @@ defmodule Timber.Events.HTTPServerRequestEvent do
     body: String.t | nil,
     host: String.t,
     headers: map | nil,
+    headers_json: String.t | nil,
     method: String.t,
-    path: String.t,
+    path: String.t | nil,
     port: pos_integer | nil,
     query_string: String.t | nil,
     request_id: String.t | nil,
@@ -23,7 +24,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
   }
 
   @enforce_keys [:host, :method, :scheme]
-  defstruct [:body, :host, :headers, :method, :path, :port, :query_string, :request_id, :scheme]
+  defstruct [:body, :host, :headers, :headers_json, :method, :path, :port, :query_string, :request_id, :scheme]
 
   @doc """
   Builds a new struct taking care to:
@@ -43,6 +44,7 @@ defmodule Timber.Events.HTTPServerRequestEvent do
       |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+      |> UtilsHTTPEvents.move_headers_to_headers_json()
 
     struct!(__MODULE__, opts)
   end

@@ -161,7 +161,7 @@ defmodule Timber.Formatter do
     metadata =
       if configuration.print_metadata do
         log_entry
-        |> LogEntry.to_string!(configuration.format, only: [:dt, :level, :event, :context])
+        |> LogEntry.to_iodata!(configuration.format, only: [:dt, :level, :event, :context])
         |> wrap_metadata()
       else
         []
