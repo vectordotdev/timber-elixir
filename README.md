@@ -209,28 +209,6 @@ Logger.info("Received parameters", meta: %{parameters: %{key: "val"}})
 
 </p></details>
 
-<details><summary><strong>How is Timber different?</strong></summary><p>
-
-1. **It's just _better_ logging**. Nothing beats well structured raw data. And that's exactly
-   what Timber aims to provide. There are no agents, special APIs, or proprietary data
-   sets that you can't access.
-2. **Improved log data quality.** Instead of relying on parsing alone, Timber ships libraries that
-   structure and augment your logs from _within_ your application. Improving your log data at the
-   source.
-3. **Human readability.** Timber _augments_ your logs without sacrificing human readability. For
-   example: `log message @metadata {...}`. And when you view your logs in the
-   [Timber console](https://app.timber.io), you'll see the human friendly messages
-   with the ability to view the associated metadata.
-4. **Long retention**. Logging is notoriously expensive with low retention. Timber
-   offers _6 months_ of retention by default with sane prices.
-5. **Normalized schema.** Have multiple apps? All of Timber's libraries adhere to our
-   [JSON schema](https://github.com/timberio/log-event-json-schema). This means queries, alerts,
-   and graphs for your ruby app can also be applied to your elixir app (for example).
-
----
-
-</p></details>
-
 ---
 
 <p align="center" style="background: #221f40;">
