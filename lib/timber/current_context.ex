@@ -13,12 +13,12 @@ defmodule Timber.CurrentContext do
   @spec load :: Context.t
   def load do
     Elixir.Logger.metadata()
-    |> extract()
+    |> extract_from_metadata()
   end
 
   @doc false
-  @spec extract(Keyword.t) :: Context.t
-  def extract(metadata) do
+  @spec extract_from_metadata(Keyword.t) :: Context.t
+  def extract_from_metadata(metadata) do
     Keyword.get(metadata, :timber_context, Context.new())
   end
 

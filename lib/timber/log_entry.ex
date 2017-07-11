@@ -22,13 +22,12 @@ defmodule Timber.LogEntry do
   alias Timber.Event
   alias Timber.Eventable
   alias Timber.Utils.JSON
-  alias Timber.Utils.Logger, as: UtilsLogger
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
 
-  defstruct context: %{}, dt: nil, level: nil, message: nil, event: nil, tags: nil, time_ms: nil
+  defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
 
   @type format :: :json | :logfmt
 
@@ -37,7 +36,8 @@ defmodule Timber.LogEntry do
     level: LoggerBackend.level,
     message: LoggerBackend.message,
     context: Context.t,
-    event: Event.t | nil,
+    event: nil | Event.t,
+    meta: nil | Map.t,
     tags: nil | [String.t],
     time_ms: nil | float
   }
@@ -61,20 +61,24 @@ defmodule Timber.LogEntry do
 
     context =
       metadata
-      |> CurrentContext.extract()
+      |> CurrentContext.extract_from_metadata()
       |> add_runtime_context(metadata)
       |> add_system_context()
 
+    meta = Keyword.get(metadata, :meta)
     {message, event} = extract_message_and_event(metadata, message)
+    tags = Keyword.get(metadata, :tags)
+    time_ms = Keyword.get(metadata, :time_ms)
 
     %__MODULE__{
       dt: io_timestamp,
       level: level,
-      event: event,
       message: message,
       context: context,
-      tags: Keyword.get(metadata, :tags),
-      time_ms: Keyword.get(metadata, :time_ms)
+      event: event,
+      meta: meta,
+      tags: tags,
+      time_ms: time_ms
     }
   end
 
@@ -117,7 +121,7 @@ defmodule Timber.LogEntry do
   # We take the message so that we can convert upstream error logger messages into actual
   # `ErrorEvent.t` events.
   defp extract_message_and_event(metadata, message) do
-    case UtilsLogger.get_event_from_metadata(metadata) do
+    case Event.extract_from_metadata(metadata) do
       nil ->
         if Keyword.has_key?(metadata, :error_logger) do
           case Timber.Events.ErrorEvent.new(to_string(message)) do
@@ -199,6 +203,12 @@ defmodule Timber.LogEntry do
         val -> [?\n, ?\t, "Event: ", LogfmtEncoder.encode!(val)]
       end
 
-    [context, event]
+    meta =
+      case Map.get(value, :meta) do
+        nil -> []
+        val -> [?\n, ?\t, "Meta: ", LogfmtEncoder.encode!(val)]
+      end
+
+    [context, event, meta]
   end
 end

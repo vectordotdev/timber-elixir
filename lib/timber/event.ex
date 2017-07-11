@@ -17,6 +17,18 @@ defmodule Timber.Event do
     Events.TemplateRenderEvent
 
   @doc false
+  @spec extract_from_metadata(Keyword.t) :: nil | t
+  def extract_from_metadata(metadata) do
+    Keyword.get(metadata, Timber.Config.event_key(), nil)
+  end
+
+  @doc false
+  @spec to_metadata(Timber.Event.t) :: Keyword.t
+  def to_metadata(event) do
+    Keyword.put([], Timber.Config.event_key(), event)
+  end
+
+  @doc false
   @spec to_api_map(t) :: map
   def to_api_map(%Events.CustomEvent{type: type} = event) when is_binary(type) do
     atom_type = String.to_atom(type)

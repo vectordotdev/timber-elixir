@@ -47,6 +47,7 @@ defmodule Timber.Integrations.EctoLogger do
 
   require Logger
 
+  alias Timber.Event
   alias Timber.Events.SQLQueryEvent
 
   @doc """
@@ -80,7 +81,7 @@ defmodule Timber.Integrations.EctoLogger do
         }
 
         message = SQLQueryEvent.message(event)
-        metadata = Timber.Utils.Logger.event_to_metadata(event)
+        metadata = Event.to_metadata(event)
 
         Logger.log(level, message, metadata)
 
