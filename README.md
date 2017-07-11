@@ -96,7 +96,7 @@ Logger.info("Payment rejected", meta: %{customer_id: "abcd1234", amount: 100, cu
 * In the [Timber console](https://app.timber.io) use the query: `customer_id:abcd1234` or `amount:>100`.
 * **Warning:** metadata keys must use consistent types as the values. If `customer_id` key was
   sent an integer, it would not be indexed because it was first sent a string. See the
-  "Custom events" example if you'd like to avoid this.
+  "Custom events" example below if you'd like to avoid this.
   See [when to use metadata or events](#jibber-jabber).
 
 ---
