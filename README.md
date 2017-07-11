@@ -207,8 +207,7 @@ Logger.info("Received parameters", meta: %{parameters: %{key: "val"}})
 
 ---
 
-</p>
-
+</p></details>
 
 <details><summary><strong>How is Timber different?</strong></summary><p>
 
