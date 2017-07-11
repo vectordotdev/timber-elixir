@@ -101,6 +101,8 @@ Logger.info("Payment rejected", meta: %{customer_id: "abcd1234", amount: 100, cu
 
 ---
 
+</p></details>
+
 <details><summary><strong>Custom events</strong></summary><p>
 
 Events are just defined structures with a namespace. They are more formal and avoid type collisions.
