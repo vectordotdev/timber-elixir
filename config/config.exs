@@ -9,7 +9,7 @@ config :logger, :handle_otp_reports, false
 config :logger, backends: [:console]
 config :logger, :console,
   format: {Timber.Formatter, :format},
-  metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+  metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
 config :timber,
   header_keys_to_sanitize: ["sensitive-key"]
