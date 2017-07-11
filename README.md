@@ -69,7 +69,7 @@ For a complete overview, see the [Timber for Elixir docs](https://timber.io/docs
 
 ## Usage
 
-<details><summary><strong>Basic logging</strong></summary><p>
+<details><summary><strong>Basic text logging</strong></summary><p>
 
 No special API, Timber works directly with `Logger`:
 
@@ -83,9 +83,30 @@ Logger.info("My log message")
 
 </p></details>
 
+<details><summary><strong>Structured logging (metadata)</strong></summary><p>
+
+Simply use Elixir's native Logger metadata:
+
+```elixir
+Logger.info("Payment rejected", meta: %{customer_id: "abcd1234", amount: 100, currency: "USD"})
+
+# => My log message @metadata {"level": "info", "meta": {"customer_id": "abcd1234", "amount": 100}}
+```
+
+* In the [Timber console](https://app.timber.io) use the query: `customer_id:abcd1234` or `amount:>100`.
+* **Warning:** metadata keys must use consistent types as the values. If `customer_id` key was
+  sent an integer, it would not be indexed because it was first sent a string. See the
+  "Custom events" example below if you'd like to avoid this.
+  See [when to use metadata or events](#jibber-jabber).
+
+---
+
+</p></details>
+
 <details><summary><strong>Custom events</strong></summary><p>
 
-Custom events allow you to extend beyond events already defined in
+Events are just defined structures with a namespace. They are more formal and avoid type collisions.
+Custom events, specifically, allow you to extend beyond events already defined in
 the [`Timber.Events`](lib/timber/events) namespace.
 
 ```elixir
@@ -95,9 +116,8 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 # => Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
 ```
 
-* Notice the `:payment_rejected` root key. Timber will classify this event as such.
 * In the [Timber console](https://app.timber.io) use the query: `type:payment_rejected` or `payment_rejected.amount:>100`.
-
+* See [when to use metadata or events](#jibber-jabber)
 
 ---
 
@@ -155,23 +175,35 @@ encouraged. In cases where the data is meaningful, consider [logging a custom ev
 
 </p></details>
 
-<details><summary><strong>How is Timber different?</strong></summary><p>
+<details><summary><strong>When to use metadata or events?</strong></summary><p>
 
-1. **It's just _better_ logging**. Nothing beats well structured raw data. And that's exactly
-   what Timber aims to provide. There are no agents, special APIs, or proprietary data
-   sets that you can't access.
-2. **Improved log data quality.** Instead of relying on parsing alone, Timber ships libraries that
-   structure and augment your logs from _within_ your application. Improving your log data at the
-   source.
-3. **Human readability.** Timber _augments_ your logs without sacrificing human readability. For
-   example: `log message @metadata {...}`. And when you view your logs in the
-   [Timber console](https://app.timber.io), you'll see the human friendly messages
-   with the ability to view the associated metadata.
-4. **Long retention**. Logging is notoriously expensive with low retention. Timber
-   offers _6 months_ of retention by default with sane prices.
-5. **Normalized schema.** Have multiple apps? All of Timber's libraries adhere to our
-   [JSON schema](https://github.com/timberio/log-event-json-schema). This means queries, alerts,
-   and graphs for your ruby app can also be applied to your elixir app (for example).
+At it's basic level, both metadata and eventa serve the same purpose: they add structured
+data to your logs. And anyone that's implemented structured logging know's this can quickly get
+out of hand. This is why we created events. Here's how we recommend using them:
+
+1. Use `events` when the log cleanly maps to an event that is core to your business. Something
+   that you'd like to alert on, graph, or use in a meaningful way.
+2. Use metadata for debugging purposes; when you simply want additional insight without
+   polluting the message.
+
+### Example: Logging that a payment was rejected
+
+This is clearly an event that is meaningful to your business. You'll probably want to alert and
+graph this data. So let's log it as an official event:
+
+```elixir
+event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+Logger.info("Payment rejected", event: %{payment_rejected: event_data})
+```
+
+### Example: Gaining additional insight before an error occurs
+
+This is not an event, but it is helpful data. Let's add it as metadata so that we don't pollute
+the message, ensuring the log is reable:
+
+```elixir
+Logger.info("Received parameters", meta: %{parameters: %{key: "val"}})
+```
 
 ---
 
