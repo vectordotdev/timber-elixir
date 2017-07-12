@@ -12,7 +12,8 @@ config :logger, :console,
   metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
 config :timber,
-  header_keys_to_sanitize: ["sensitive-key"]
+  header_keys_to_sanitize: ["sensitive-key"],
+  nanosecond_timestamps: false
 
 config :timber, Timber.Formatter,
   format: :logfmt
