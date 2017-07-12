@@ -3,13 +3,13 @@ defmodule Timber.Mixfile do
 
   @project_description """
   Timber automatically enhances your logs, turning them into rich structured events.
-  Paried with the timber.io service, Timber helps you solve issues fast so you can go back
-  to doing what you do.
+  Paired with the timber.io service, Timber helps you solve issues fast so you can
+  focus on your app, not logging.
   """
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "2.3.3"
+  @version "2.3.4"
 
   # Project manifest for Mix
   #
