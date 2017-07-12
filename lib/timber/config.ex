@@ -99,6 +99,23 @@ defmodule Timber.Config do
   def json_encoder, do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
 
   @doc """
+  Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
+  In a high volume system, this can produce logs with matching timestamps, making it
+  impossible to preseve the order of the logs. By enabling this, Timber will discard
+  the default `Elixir.Logger` timestamps and use it's own with nanosecond precision.
+
+  # Example
+
+  ```elixir
+  config :timber, :nanosecond_timestamps, true
+  ```
+  """
+  @spec use_nanosecond_timestamps? :: boolean
+  def use_nanosecond_timestamps? do
+    Application.get_env(@application, :nanosecond_timestamps, true)
+  end
+
+  @doc """
   Specify the log level that phoenix log lines write to. Such as template renders.
 
   # Example
@@ -111,10 +128,4 @@ defmodule Timber.Config do
   def phoenix_instrumentation_level(default) do
     Application.get_env(@application, :instrumentation_level, default)
   end
-
-  @doc """
-  Gets the transport specificed in the :timber configuration. The default is
-  `Timber.Transports.IODevice`.
-  """
-  def transport, do: Application.get_env(@application, :transport, Timber.Transports.IODevice)
 end

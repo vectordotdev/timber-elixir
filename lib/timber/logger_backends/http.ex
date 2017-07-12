@@ -227,7 +227,6 @@ defmodule Timber.LoggerBackends.HTTP do
   @spec output_event(timestamp, level, IO.chardata, Keyword.t, t) :: t
   defp output_event(ts, level, message, metadata, state) do
     log_entry = LogEntry.new(ts, level, message, metadata)
-
     state = write_buffer(log_entry, state)
 
     if buffer_full?(state) do

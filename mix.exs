@@ -69,9 +69,7 @@ defmodule Timber.Mixfile do
 
   # The environment to be configured by default
   defp env() do
-    [
-      transport: Timber.Transports.IODevice,
-    ]
+    []
   end
 
   # Compiler paths switched on the Mix environment

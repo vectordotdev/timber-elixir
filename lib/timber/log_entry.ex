@@ -14,6 +14,7 @@ defmodule Timber.LogEntry do
   See the main `Timber` module for more information.
   """
 
+  alias Timber.Config
   alias Timber.Context
   alias Timber.Contexts.RuntimeContext
   alias Timber.Contexts.SystemContext
@@ -54,10 +55,15 @@ defmodule Timber.LogEntry do
   """
   @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
-    io_timestamp =
-      timestamp
-      |> UtilsTimestamp.format_timestamp()
-      |> IO.chardata_to_string()
+    dt_iso8601 =
+      if Config.use_nanosecond_timestamps? do
+        DateTime.utc_now()
+        |> DateTime.to_iso8601()
+      else
+        timestamp
+        |> UtilsTimestamp.format_timestamp()
+        |> IO.chardata_to_string()
+      end
 
     context =
       metadata
@@ -71,7 +77,7 @@ defmodule Timber.LogEntry do
     time_ms = Keyword.get(metadata, :time_ms)
 
     %__MODULE__{
-      dt: io_timestamp,
+      dt: dt_iso8601,
       level: level,
       message: message,
       context: context,
