@@ -300,7 +300,7 @@ defmodule Timber.Installer.FakeFileContents do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+      metadata: :all
 
     # For the following environments, do not log to the Timber service. Instead, log to STDOUT
     # and format the logs properly so they are human readable.
@@ -313,7 +313,7 @@ defmodule Timber.Installer.FakeFileContents do
 
       config :logger, :console,
         format: {Timber.Formatter, :format},
-        metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+        metadata: :all
 
       config :timber, Timber.Formatter,
         colorize: true,
