@@ -189,7 +189,7 @@ Logger.info("Received parameters", parameters: %{key: "val"})
 
 ## The Timber Console
 
-![Timber Console](http://files.timber.io/images/readme-interface6.gif)
+![Timber Console](http://files.timber.io/images/readme-interface7.gif)
 
 ---
 
