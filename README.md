@@ -3,8 +3,7 @@
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber)
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
-[![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
-- [Timber website](https://timber.io) - [Timber docs](https://timber.io/docs) - [Support](mailto:support@timber.io)
+[![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir) - [Timber website](https://timber.io) - [Timber docs](https://timber.io/docs) - [Support](mailto:support@timber.io)
 
 ## Overview
 
