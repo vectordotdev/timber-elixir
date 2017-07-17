@@ -164,16 +164,16 @@ encouraged. In cases where the data is meaningful, consider [logging a custom ev
 
 <details><summary><strong>When to use metadata or events?</strong></summary><p>
 
-At it's basic level, both metadata and eventa serve the same purpose: they add structured
+At it's basic level, both metadata and events serve the same purpose: they add structured
 data to your logs. And anyone that's implemented structured logging know's this can quickly get
 out of hand. This is why we created events. Here's how we recommend using them:
 
-1. Use `events` when the log cleanly maps to an event that is core to your business. Something
-   that you'd like to alert on, graph, or use in a meaningful way.
+1. Use `events` when the log cleanly maps to an event that you'd like to alert on, graph, or use
+   in a meaningful way. Typically something that is core to your business or application.
 2. Use metadata for debugging purposes; when you simply want additional insight without
    polluting the message.
 
-### Example: Logging that a payment was rejected
+### Example 1: Logging that a payment was rejected
 
 This is clearly an event that is meaningful to your business. You'll probably want to alert and
 graph this data. So let's log it as an official event:
@@ -183,13 +183,13 @@ event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
 Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 ```
 
-### Example: Gaining additional insight before an error occurs
+### Example 2: Logging that an email was changed
 
-This is not an event, but it is helpful data. Let's add it as metadata so that we don't pollute
-the message, ensuring the log is reable:
+This is definitely log worthy, but not something that is core to your business or application.
+Instead of an event, use metadata:
 
 ```elixir
-Logger.info("Received parameters", parameters: %{key: "val"})
+Logger.info("Email successfully changed", meta: %{old_email: old_email, new_email: new_email})
 ```
 
 ---
