@@ -124,7 +124,7 @@ with examples.
 
 <details><summary><strong>Searching, graphing, alerting, etc</strong></summary><p>
 
-Checkout the official [Timber console docs](https://timber.io/docs). It walks you through
+Checkout the official [Timber console docs](https://timber.io/docs/app/overview/). It walks you through
 everything from our search syntax to alerting and graphin.
 
 </p></details>
