@@ -5,9 +5,6 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
-[Timber website](https://timber.io) - [Timber docs](https://timber.io/docs) - [Support](mailto:support@timber.io)
-
-
 ## Overview
 
 [Timber](https://timber.io) is the logging platform we always wanted. It's the first logging
@@ -125,6 +122,12 @@ with examples.
 
 </p></details>
 
+<details><summary><strong>Searching, graphing, alerting, etc</strong></summary><p>
+
+Checkout the official [Timber console docs](https://timber.io/docs). It walks you through
+everything from our search syntax to alerting and graphin.
+
+</p></details>
 
 ## Jibber-Jabber
 
