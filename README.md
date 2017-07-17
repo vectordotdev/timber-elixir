@@ -3,7 +3,10 @@
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber)
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
-[![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir) - [Timber website](https://timber.io) - [Timber docs](https://timber.io/docs) - [Support](mailto:support@timber.io)
+[![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
+
+[Timber website](https://timber.io) - [Timber docs](https://timber.io/docs) - [Support](mailto:support@timber.io)
+
 
 ## Overview
 
@@ -186,7 +189,7 @@ Logger.info("Received parameters", parameters: %{key: "val"})
 
 [![Timber Console](http://files.timber.io/images/readme-interface7.gif)](https://app.timber.io)
 
-## The Timber Lumberjack
+## Your Moment of Zen
 
 <p align="center" style="background: #221f40;">
 <a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/readme-log-truth.png" height="947" /></a>
