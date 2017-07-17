@@ -112,6 +112,8 @@ Logger.info("My log message")
 * Notice the `:build` root key. Timber will classify this context as such.
 * In the [Timber console](https://app.timber.io) use the query `build.version:1.0.0`
 
+---
+
 </p></details>
 
 <details><summary><strong>Metrics</strong></summary><p>
@@ -120,12 +122,16 @@ Logging metrics is accomplished by logging custom events. Please see our
 [metrics docs page](https://timber.io/docs/elixir/metrics/) for a more detailed explanation
 with examples.
 
+---
+
 </p></details>
 
 <details><summary><strong>Searching, graphing, alerting, etc</strong></summary><p>
 
 Checkout the official [Timber console docs](https://timber.io/docs/app/overview/). It walks you through
 everything from our search syntax to alerting and graphin.
+
+---
 
 </p></details>
 
