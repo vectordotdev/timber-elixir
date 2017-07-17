@@ -31,7 +31,6 @@ defmodule Timber.LogEntry do
   defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
 
   @type format :: :json | :logfmt
-
   @type t :: %__MODULE__{
     dt: IO.chardata,
     level: LoggerBackend.level,
@@ -43,6 +42,7 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
+  @reserved_keys [:application, :file, :function, :line, :module, :tags, :timber_context, :time_ms,]
   @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v2.4.0/schema.json"
 
   @doc """
@@ -71,7 +71,13 @@ defmodule Timber.LogEntry do
       |> add_runtime_context(metadata)
       |> add_system_context()
 
-    meta = Keyword.get(metadata, :meta)
+    event_key = Timber.Config.event_key()
+    reserved_keys = [event_key | @reserved_keys]
+    meta =
+      metadata
+      |> Keyword.drop(reserved_keys)
+      |> Enum.into(%{})
+
     {message, event} = extract_message_and_event(metadata, message)
     tags = Keyword.get(metadata, :tags)
     time_ms = Keyword.get(metadata, :time_ms)

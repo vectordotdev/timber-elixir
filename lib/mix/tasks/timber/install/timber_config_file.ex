@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
         config :logger, :console,
           format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+          metadata: :all
 
         config :timber, Timber.Formatter,
           colorize: true,
@@ -76,7 +76,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+      metadata: :all
     """
   end
 

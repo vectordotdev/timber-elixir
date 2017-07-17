@@ -60,7 +60,7 @@ Logger.info("My log message")
 Simply use Elixir's native Logger metadata:
 
 ```elixir
-Logger.info("Payment rejected", meta: %{customer_id: "abcd1234", amount: 100, currency: "USD"})
+Logger.info("Payment rejected", customer_id: "abcd1234", amount: 100, currency: "USD")
 
 # => My log message @metadata {"level": "info", "meta": {"customer_id": "abcd1234", "amount": 100}}
 ```
