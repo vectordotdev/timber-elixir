@@ -18,9 +18,9 @@ the standard Elixir `Logger`, capturing context and metadata you couldn't otherw
 automatically transforms your messy raw text logs into insanely useful structured events with
 context.
 
-1. **Easy setup** - `mix timber.install`
-2. **Seamlessly integrates with popular libraries and frameworks**
-3. **Modern fast console, designed specifically for your application:**
+1. [**Easy setup** - `mix timber.install`](#installation)
+2. [**Seamlessly integrates with popular libraries and frameworks**](#jibber-jabber)
+3. [**Modern fast console, designed specifically for your application:**](#the-timber-console)
 
 
 ## Installation
@@ -189,10 +189,10 @@ Logger.info("Received parameters", parameters: %{key: "val"})
 
 ## The Timber Console
 
-![Timber Console](http://files.timber.io/images/readme-interface7.gif)
+[![Timber Console](http://files.timber.io/images/readme-interface7.gif)](https://app.timber.io)
 
----
+## The Timber Lumberjack
 
 <p align="center" style="background: #221f40;">
-<a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/ruby-library-readme-log-truth.png" height="947" /></a>
+<a href="http://github.com/timberio/timber-elixir"><img src="http://files.timber.io/images/readme-log-truth.png" height="947" /></a>
 </p>
