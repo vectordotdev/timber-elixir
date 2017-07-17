@@ -93,7 +93,7 @@ Logger.info("Payment rejected", customer_id: "abcd1234", amount: 100, currency: 
 # => My log message @metadata {"level": "info", "meta": {"customer_id": "abcd1234", "amount": 100}}
 ```
 
-* In the [Timber console](https://app.timber.io) use the query: `customer_id:abcd1234` or `amount:>100`.
+* In the [Timber console](https://app.timber.io) use the queries like `customer_id:abcd1234` or `amount:>100`.
 * **Warning:** metadata keys must use consistent types as the values. If `customer_id` key was
   sent an integer, it would not be indexed because it was first sent a string. See the
   "Custom events" example below if you'd like to avoid this.
@@ -116,7 +116,7 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 # => Payment rejected @metadata {"level": "warn", "event": {"payment_rejected": {"customer_id": "xiaus1934", "amount": 100, "reason": "Card expired"}}, "context": {...}}
 ```
 
-* In the [Timber console](https://app.timber.io) use the query: `type:payment_rejected` or `payment_rejected.amount:>100`.
+* In the [Timber console](https://app.timber.io) use the queries like `type:payment_rejected` or `payment_rejected.amount:>100`.
 * See [when to use metadata or events](#jibber-jabber)
 
 ---
@@ -138,7 +138,7 @@ Logger.info("My log message")
 ```
 
 * Notice the `:build` root key. Timber will classify this context as such.
-* In the [Timber console](https://app.timber.io) use the query: `build.version:1.0.0`
+* In the [Timber console](https://app.timber.io) use the query `build.version:1.0.0`
 
 </p></details>
 
