@@ -7,15 +7,14 @@
 
 ## Overview
 
-[Timber](https://timber.io) is the logging platform we always wanted. It's the first logging
-platform to integrate directly with your application. Instead of parsing, Timber integrates with
-the standard Elixir `Logger`, capturing context and metadata you couldn't otherwise. It
-automatically transforms your messy raw text logs into insanely useful structured events with
-context.
+[Timber](https://timber.io) is a different approach to logging. Instead of parsing, which
+relies on unreadable, unpredictable, hard to use text logs, Timber integrates directly with
+your application, producing rich structured events containing metadata and context you couldn't
+capture otherwise. It fundamentally changes the way you use your logs.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Seamlessly integrates with popular libraries and frameworks**](#jibber-jabber)
-3. [**Modern fast console, designed specifically for your application:**](#the-timber-console)
+3. [**Modern fast console, designed specifically for your application**](#the-timber-console)
 
 
 ## Installation
