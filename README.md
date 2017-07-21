@@ -7,7 +7,7 @@
 
 ## Overview
 
-[Timber](https://timber.io) is a different approach to logging. Instead of parsing, which
+[Timber](https://timber.io) takes a different approach to logging. Instead of parsing, which
 relies on unreadable, unpredictable, hard to use text logs, Timber integrates directly with
 your application, producing rich structured events containing metadata and context you couldn't
 capture otherwise. It fundamentally changes the way you use your logs.
