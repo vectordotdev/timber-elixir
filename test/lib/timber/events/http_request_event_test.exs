@@ -1,31 +1,35 @@
-defmodule Timber.Events.HTTPClientRequestEventTest do
+defmodule Timber.Events.HTTPRequestEventTest do
   use Timber.TestCase
-  doctest Timber.Events.HTTPClientRequestEvent
 
-  alias Timber.Events.HTTPClientRequestEvent
+  alias Timber.Events.HTTPRequestEvent
 
-  describe "Timber.Events.HTTPClientRequestEvent.new/1" do
+  describe "Timber.Events.HTTPRequestEvent.new/1" do
     test "normalizes headers from a list" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
-      result = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      result = HTTPRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
       assert result.headers == nil
       assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\"}"
     end
 
     test "filters headers" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}, {"random-header", "value"}]
-      result = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      result = HTTPRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
       assert result.headers == nil
       assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
     end
 
+    test "deletes body" do
+      result = HTTPRequestEvent.new(body: String.duplicate("a", 2001), host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      assert result.body == nil
+    end
+
     test "normalizes method" do
-      result = HTTPClientRequestEvent.new(host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      result = HTTPRequestEvent.new(host: "host", method: :get, path: "path", port: 12, scheme: "https")
       assert result.method == "GET"
     end
 
     test "expands a full url" do
-      result = HTTPClientRequestEvent.new(method: :get, url: "https://timber.io/path?query")
+      result = HTTPRequestEvent.new(method: :get, url: "https://timber.io/path?query")
       assert result.host == "timber.io"
       assert result.path == "/path"
       assert result.port == 443
@@ -34,7 +38,7 @@ defmodule Timber.Events.HTTPClientRequestEventTest do
     end
 
     test "expands a url with just a host" do
-      result = HTTPClientRequestEvent.new(method: :get, url: "https://timber.io")
+      result = HTTPRequestEvent.new(method: :get, url: "https://timber.io")
       assert result.host == "timber.io"
       assert result.path == nil
       assert result.port == 443
@@ -43,20 +47,20 @@ defmodule Timber.Events.HTTPClientRequestEventTest do
     end
   end
 
-  describe "Timber.Events.HTTPClientRequestEvent.message/1" do
-    test "includes service name and query string" do
+  describe "Timber.Events.HTTPRequestEvent.message/1" do
+    test "outgoing, service name and query string" do
       headers = [{"user-agent", "agent"}, {"x-request-id", "abcd1234"}]
-      event = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get,
-        path: "path", port: 12, query_string: "query", scheme: "https", service_name: :service)
-      message = HTTPClientRequestEvent.message(event)
+      event = HTTPRequestEvent.new(direction: "outgoing", headers: headers, host: "host", method: :get,
+        path: "path", port: 12, query_string: "query", request_id: "abcd1234", scheme: "https", service_name: "service")
+      message = HTTPRequestEvent.message(event)
       assert String.Chars.to_string(message) == "Outgoing HTTP request (abcd12...) to service [GET] https://host:12path?query"
     end
 
-    test "service name excluded" do
+    test "outgoing, service name excluded" do
       headers = [{"user-agent", "agent"}]
-      event = HTTPClientRequestEvent.new(headers: headers, host: "host", method: :get,
+      event = HTTPRequestEvent.new(direction: "outgoing", headers: headers, host: "host", method: :get,
         path: "path", port: 12, query_string: "query", scheme: "https")
-      message = HTTPClientRequestEvent.message(event)
+      message = HTTPRequestEvent.message(event)
       assert String.Chars.to_string(message) == "Outgoing HTTP request to [GET] https://host:12path?query"
     end
   end

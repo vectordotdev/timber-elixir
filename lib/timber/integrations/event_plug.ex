@@ -69,8 +69,8 @@ defmodule Timber.Integrations.EventPlug do
   require Logger
 
   alias Timber.Event
-  alias Timber.Events.HTTPServerRequestEvent
-  alias Timber.Events.HTTPServerResponseEvent
+  alias Timber.Events.HTTPRequestEvent
+  alias Timber.Events.HTTPResponseEvent
   alias Timber.Timer
   alias Timber.Utils.Plug, as: PlugUtils
 
@@ -107,8 +107,9 @@ defmodule Timber.Integrations.EventPlug do
     headers = List.flatten([request_id_header | conn.req_headers])
     query_string = conn.query_string
 
-    event = HTTPServerRequestEvent.new(
+    event = HTTPRequestEvent.new(
       body: conn.body_params, # the body is normalized and truncated if necessary
+      direction: "incoming",
       headers: headers,
       host: host,
       method: method,
@@ -119,7 +120,7 @@ defmodule Timber.Integrations.EventPlug do
       scheme: scheme
     )
 
-    message = HTTPServerRequestEvent.message(event)
+    message = HTTPRequestEvent.message(event)
     metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
@@ -148,15 +149,16 @@ defmodule Timber.Integrations.EventPlug do
 
     request_id = request_id_from_header(request_id_header)
 
-    event = HTTPServerResponseEvent.new(
+    event = HTTPResponseEvent.new(
       body: conn.resp_body, # the body is normalized and truncated if necessary
+      direction: "outgoing",
       headers: headers,
       request_id: request_id,
       status: status,
       time_ms: time_ms
     )
 
-    message = HTTPServerResponseEvent.message(event)
+    message = HTTPResponseEvent.message(event)
     metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
