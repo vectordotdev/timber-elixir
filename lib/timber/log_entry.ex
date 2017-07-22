@@ -130,7 +130,7 @@ defmodule Timber.LogEntry do
     case Event.extract_from_metadata(metadata) do
       nil ->
         if Keyword.has_key?(metadata, :error_logger) do
-          case Timber.Events.ErrorEvent.new(to_string(message)) do
+          case Timber.Events.ErrorEvent.from_log_message(to_string(message)) do
             {:ok, event} ->
               message = Timber.Events.ErrorEvent.message(event)
               {message, event}

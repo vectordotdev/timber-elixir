@@ -57,21 +57,22 @@ defmodule Timber.Events.HTTPRequestEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{direction: "outgoing"} = event) do
+    full_url = UtilsHTTPEvents.full_url(event.scheme, event.host, event.path, event.port, event.query_string)
+    message = ["Sent ", event.method, " ", full_url]
+
     message =
       if event.request_id do
         truncated_request_id = String.slice(event.request_id, 0..5)
-        ["Outgoing HTTP request (", truncated_request_id, "...) to "]
+        [message, " (", truncated_request_id, "...)"]
       else
-        ["Outgoing HTTP request to "]
+        message
       end
 
-    full_url = UtilsHTTPEvents.full_url(event.scheme, event.host, event.path, event.port, event.query_string)
-
     if event.service_name,
-      do: [message, event.service_name, " [", event.method, "] ", full_url],
-      else: [message, "[", event.method, "] ", full_url]
+      do: [message, " to ", event.service_name],
+      else: message
   end
 
   def message(%__MODULE__{} = event),
-    do: [event.method, " ", event.path]
+    do: ["Received ", event.method, " ", event.path]
 end

@@ -23,19 +23,19 @@ defmodule Timber.Events.HTTPResponseEventTest do
     test "incoming, includes the service name" do
       event = HTTPResponseEvent.new(direction: "incoming", request_id: "abcd1234", service_name: "timber", status: 200, time_ms: 502.2)
       message = HTTPResponseEvent.message(event)
-      assert String.Chars.to_string(message) == "Incoming HTTP response (abcd12...) from timber 200 in 502.20ms"
+      assert String.Chars.to_string(message) == "Received 200 response (abcd12...) from timber in 502.20ms"
     end
 
     test "incoming, integer time_ms" do
       event = HTTPResponseEvent.new(direction: "incoming", status: 200, time_ms: 1)
       message = HTTPResponseEvent.message(event)
-      assert String.Chars.to_string(message) == "Incoming HTTP response 200 in 1ms"
+      assert String.Chars.to_string(message) == "Received 200 response in 1ms"
     end
 
     test "incoming, nanoseconds time_ms" do
       event = HTTPResponseEvent.new(direction: "incoming", status: 200, time_ms: 0.56)
       message = HTTPResponseEvent.message(event)
-      assert String.Chars.to_string(message) == "Incoming HTTP response 200 in 560µs"
+      assert String.Chars.to_string(message) == "Received 200 response in 560µs"
     end
   end
 end

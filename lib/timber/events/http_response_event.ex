@@ -51,18 +51,18 @@ defmodule Timber.Events.HTTPResponseEvent do
     message =
       if event.request_id do
         truncated_request_id = String.slice(event.request_id, 0..5)
-        ["Incoming HTTP response (", truncated_request_id, "...) "]
+        ["Received ", Integer.to_string(event.status), " response (", truncated_request_id, "...)"]
       else
-        ["Incoming HTTP response "]
+        ["Received ", Integer.to_string(event.status), " response"]
       end
 
     message = if event.service_name,
-      do: [message, "from ", to_string(event.service_name), " "],
+      do: [message, " from ", to_string(event.service_name)],
       else: message
 
-    [message, Integer.to_string(event.status), " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
+    [message, " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
   end
 
   def message(%__MODULE__{} = event),
-    do: ["Sent ", Integer.to_string(event.status), " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
+    do: ["Sent ", Integer.to_string(event.status), " response in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
 end

@@ -24,43 +24,108 @@ defmodule Timber.Events.ErrorEvent do
     backtrace: [backtrace_entry] | [],
     name: String.t,
     message: String.t,
+    metadata_json: nil | binary
   }
 
   @enforce_keys [:name, :message]
-  defstruct [:backtrace, :name, :message]
+  defstruct [:backtrace, :name, :message, :metadata_json]
 
   @app_name_byte_limit 256
   @file_byte_limit 1_024
   @function_byte_limit 256
   @message_byte_limit 8_192
+  @metadata_json_byte_limit 8_192
   @name_byte_limit 256
 
   @doc """
-  Builds a new struct taking care to normalize data into a valid state. This should
-  be used, where possible, instead of creating the struct directly.
+  Convenience methods for building error events, taking care to normalize values
+  and ensure they meet the validation requirements of the Timber API.
   """
-  @spec new(String.t) :: {:ok, t} | {:error, atom}
-  def new(log_message) do
+  def new(name, message, opts \\ []) do
+    name =
+      name
+      |> Timber.Utils.Logger.truncate_bytes(@name_byte_limit)
+      |> to_string()
+
+    message =
+      message
+      |> Timber.Utils.Logger.truncate_bytes(@message_byte_limit)
+      |> to_string()
+
+    backtrace =
+      case Keyword.get(opts, :backtrace, nil) do
+        nil -> nil
+        backtrace -> Enum.slice(backtrace, 0..9)
+      end
+
+    metadata_json =
+      case Keyword.get(opts, :metadata_json, nil) do
+        nil ->
+          nil
+
+        metadata_json ->
+          metadata_json
+          |> Timber.Utils.Logger.truncate_bytes(@metadata_json_byte_limit)
+          |> to_string()
+      end
+
+    %__MODULE__{
+      name: name,
+      message: message,
+      backtrace: backtrace,
+      metadata_json: metadata_json
+    }
+  end
+
+  @doc """
+  Builds a new error event from an error / exception.
+  """
+  @spec from_exception(Exception.t) :: t
+  def from_exception(%{__exception__: true, __struct__: module} = error) do
+    message = Exception.message(error)
+    module_name = Timber.Utils.Module.name(module)
+    metadata_map =
+      error
+      |> Map.from_struct()
+      |> Map.delete(:__exception__)
+      |> Map.delete(:__struct__)
+      |> Map.delete(:message)
+    metadata_json =
+      if metadata_map == nil || metadata_map == %{} do
+        nil
+      else
+        case Timber.Utils.JSON.encode_to_iodata(metadata_map) do
+          {:ok, json} -> json
+          {:error, _error} -> nil
+        end
+      end
+
+    %__MODULE__{
+      name: module_name,
+      message: message,
+      metadata_json: metadata_json
+    }
+  end
+
+  @doc """
+  Builds an error from the given log message. This allows us to create Error events
+  downstream in the logging flow. Because of the complicated nature around Elixir
+  exception handling, this is a reliable catch-all to ensure all error are capture
+  and processed properly.
+  """
+  @spec from_log_message(String.t) ::
+    {:ok, t} |
+    {:error, atom}
+  def from_log_message(log_message) do
     lines =
       log_message
       |> String.split("\n")
       |> Enum.map(&({&1, String.trim(&1)}))
 
-    case do_new({nil, "", []}, lines) do
+    case do_from_log_message({nil, "", []}, lines) do
       {:ok, {name, message, backtrace}} when is_binary(name) and length(backtrace) > 0 ->
-        name =
-          name
-          |> Timber.Utils.Logger.truncate_bytes(@name_byte_limit)
-          |> to_string()
-
-        message =
-          message
-          |> Timber.Utils.Logger.truncate_bytes(@message_byte_limit)
-          |> to_string()
-
-        backtrace = Enum.slice(backtrace, 0..9)
-
-        {:ok, %__MODULE__{name: name, message: message, backtrace: backtrace}}
+        error = new(name, message, backtrace: backtrace)
+        {:ok, error}
 
       _ ->
         {:error, :could_not_parse_message}
@@ -68,26 +133,26 @@ defmodule Timber.Events.ErrorEvent do
   end
 
   # ** (exit) an exception was raised:
-  defp do_new({nil, message, [] = backtrace}, [{_raw_line, ("** (exit) " <> _suffix)} | lines]) do
-    do_new({nil, message, backtrace}, lines)
+  defp do_from_log_message({nil, message, [] = backtrace}, [{_raw_line, ("** (exit) " <> _suffix)} | lines]) do
+    do_from_log_message({nil, message, backtrace}, lines)
   end
 
   #    ** (RuntimeError) my message
-  defp do_new({nil, _message, [] = backtrace}, [{_raw_line, ("** (" <> line_suffix)} | lines]) do
+  defp do_from_log_message({nil, _message, [] = backtrace}, [{_raw_line, ("** (" <> line_suffix)} | lines]) do
     # Using split since it is more performance with binary scanning
     case String.split(line_suffix, ")", parts: 2) do
       [name, message] ->
-        do_new({name, message, backtrace}, lines)
+        do_from_log_message({name, message, backtrace}, lines)
 
       _ -> {:error, :malformed_error_message}
     end
   end
 
   # Ignore other leading messages
-  defp do_new({nil, _message, _backtrace} = acc, [_line | lines]), do: do_new(acc, lines)
+  defp do_from_log_message({nil, _message, _backtrace} = acc, [_line | lines]), do: do_from_log_message(acc, lines)
 
   #      (odin_client_api) web/controllers/page_controller.ex:5: Odin.ClientAPI.PageController.index/2
-  defp do_new({name, message, backtrace}, [{_raw_line, ("(" <> line_suffix)} | lines]) when not is_nil(name) and not is_nil(message) do
+  defp do_from_log_message({name, message, backtrace}, [{_raw_line, ("(" <> line_suffix)} | lines]) when not is_nil(name) and not is_nil(message) do
     # Using split since it is more performance with binary scanning
     with [app_name, line_suffix] <- String.split(line_suffix, ") ", parts: 2),
          [file, line_suffix] <- String.split(line_suffix, ":", parts: 2),
@@ -117,7 +182,7 @@ defmodule Timber.Events.ErrorEvent do
           file: String.trim(file),
           line: parse_line_number(line_number)
         }
-        do_new({name, message, [line | backtrace]}, lines)
+        do_from_log_message({name, message, [line | backtrace]}, lines)
       else
         {:error, :malformed_stacktrace_line}
       end
@@ -129,10 +194,10 @@ defmodule Timber.Events.ErrorEvent do
   end
 
   # Ignore lines we don't recognize.
-  defp do_new(acc, [_line | lines]), do: do_new(acc, lines)
+  defp do_from_log_message(acc, [_line | lines]), do: do_from_log_message(acc, lines)
 
   # Finish the iteration, reversing the backtrace for performance reasons.
-  defp do_new({name, message, backtrace}, []) do
+  defp do_from_log_message({name, message, backtrace}, []) do
     {:ok, {name, String.trim(message), Enum.reverse(backtrace)}}
   end
 
