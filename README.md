@@ -182,7 +182,9 @@ debug issues by understanding exactly which data was sent to your controller.
 ### Installation
 
 To install this integration, please run the `mix timber.install` command as noted in the
-[installation section](#installation). For manual installation, please see the
+[installation section](#installation).
+
+For manual installation, please see the
 [`Timber.Integrations.PhoenixInstrumenter` docs](https://hexdocs.pm/timber/Timber.Integrations.PhoenixInstrumenter.html#content).
 
 ---
@@ -201,7 +203,9 @@ performance and find slow queries.
 ### Installation
 
 To install this integration, please run the `mix timber.install` command as noted in the
-[installation section](#installation). For manual installation, please see the
+[installation section](#installation).
+
+For manual installation, please see the
 [`Timber.Integrations.EctoLogger` docs](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content).
 
 ---
@@ -221,7 +225,9 @@ the performance of your application.
 ### Installation
 
 To install this integration, please run the `mix timber.install` command as noted in the
-[installation section](#installation). For manual installation, please see the
+[installation section](#installation).
+
+For manual installation, please see the
 [`Timber.Integrations.EventPlug`](https://hexdocs.pm/timber/Timber.Integrations.EventPlug.html#content),
 [`Timber.Integrations.HTTPContextPlug`](https://hexdocs.pm/timber/Timber.Integrations.HTTPContextPlug.html#content),
 and [`Timber.Integrations.SessionContextPlug`](https://hexdocs.pm/timber/Timber.Integrations.SessionContextPlug.html#content)
