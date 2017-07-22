@@ -9,10 +9,8 @@ defmodule Timber.Event do
     Events.ControllerCallEvent     |
     Events.CustomEvent             |
     Events.ErrorEvent              |
-    Events.HTTPClientRequestEvent  |
-    Events.HTTPClientResponseEvent |
-    Events.HTTPServerRequestEvent  |
-    Events.HTTPServerResponseEvent |
+    Events.HTTPRequestEvent  |
+    Events.HTTPResponseEvent |
     Events.SQLQueryEvent           |
     Events.TemplateRenderEvent
 
@@ -61,10 +59,8 @@ defmodule Timber.Event do
   def type(%Events.ControllerCallEvent{}), do: :controller_call
   def type(%Events.CustomEvent{}), do: :custom
   def type(%Events.ErrorEvent{}), do: :error
-  def type(%Events.HTTPClientRequestEvent{}), do: :http_client_request
-  def type(%Events.HTTPClientResponseEvent{}), do: :http_client_response
-  def type(%Events.HTTPServerRequestEvent{}), do: :http_server_request
-  def type(%Events.HTTPServerResponseEvent{}), do: :http_server_response
+  def type(%Events.HTTPRequestEvent{}), do: :http_request
+  def type(%Events.HTTPResponseEvent{}), do: :http_response
   def type(%Events.SQLQueryEvent{}), do: :sql_query
   def type(%Events.TemplateRenderEvent{}), do: :template_render
 end

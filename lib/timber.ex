@@ -21,14 +21,14 @@ defmodule Timber do
   end
 
   @doc """
-  Used to time runtime execution. For example, when timing a `Timber.Events.HTTPClientRequestEvent`:
+  Used to time runtime execution. For example, when timing a `Timber.Events.HTTPResponseEvent`:
 
   ```elixir
   timer = Timber.start_timer()
   # .... make request
   time_ms = Timber.duration_ms(timer)
-  event = HTTPClientResponseEvent.new(status: 200, time_ms: time_ms)
-  message = HTTPClientResponseEvent.message(event)
+  event = HTTPResponseEvent.new(status: 200, time_ms: time_ms)
+  message = HTTPResponseEvent.message(event)
   Logger.info(message, event: event)
   ```
 

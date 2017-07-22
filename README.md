@@ -7,8 +7,8 @@
 
 ## Overview
 
-[Timber](https://timber.io) takes a different approach to logging. Instead of parsing, which
-relies on unreadable, unpredictable, hard to use text logs, Timber integrates directly with
+[Timber](https://timber.io) is a logging platform with one major difference: Instead of parsing,
+which relies on unreadable, unpredictable, hard to use text logs, Timber integrates directly with
 your application, producing rich structured events containing metadata and context you couldn't
 capture otherwise. It fundamentally changes the way you use your logs.
 
@@ -123,6 +123,35 @@ Logger.info("My log message")
 Logging metrics is accomplished by logging custom events. Please see our
 [metrics docs page](https://timber.io/docs/elixir/metrics/) for a more detailed explanation
 with examples.
+
+---
+
+</p></details>
+
+<details><summary><strong>Adding metadata to your errors</strong></summary><p>
+
+By default, Timber will capture and structure all of your errors and exceptions, there
+is nothing additional you need to do. You'll get the exception message, name, and backtrace.
+But, an very useful feature that Timber provides is error metadata. This enables you to
+get deeper insight into your exceptions without sacrificing readability. Just add fields
+like you would for any other struct:
+
+```elixir
+defmodule StripeCommunicationError do
+  defexception [:message, :customer_id, :card_token, :stripe_response]
+end
+
+raise(
+  StripeCommunicationError,
+  message: "Bad response #{response} from Stripe!",
+  customer_id: "xiaus1934",
+  card_token: "mwe42f64",
+  stripe_response: response_body
+)
+```
+
+* Run the query `type:error` to view all errors.
+* Within the [Timber console](https://app.timber.io) you can click the log to view all of this data.
 
 ---
 
