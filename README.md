@@ -7,11 +7,10 @@
 
 ## Overview
 
-[Timber](https://timber.io) is an application logging strategy that takes a different appraoch:
-Instead of parsing, which relies on unreadable, unpredictable, hard to use text logs,
-Timber integrates directly with your application, producing rich structured events containing
-metadata and context you couldn't capture otherwise. It fundamentally changes the way you use your
-logs.
+[Timber](https://timber.io) is a logging platform with one major difference: Instead of parsing,
+which relies on unreadable, unpredictable, hard to use text logs, Timber integrates directly with
+your application, producing rich structured events containing metadata and context you couldn't
+capture otherwise. It fundamentally changes the way you use your logs.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Seamlessly integrates with popular libraries and frameworks**](#jibber-jabber)
