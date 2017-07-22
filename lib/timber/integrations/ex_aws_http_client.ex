@@ -35,7 +35,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   # the timeout event from AWS before we receive it internally, preventing orphaned requests.
   @default_opts [recv_timeout: 62_000]
   @destructive_methods [:patch, :post, :put, :delete]
-  @service_name :aws
+  @service_name "aws"
 
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
     opts =
