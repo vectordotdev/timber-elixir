@@ -165,6 +165,82 @@ everything from our search syntax to alerting and graphin.
 
 </p></details>
 
+
+## Integrations
+
+<details><summary><strong>Phoenix</strong></summary><p>
+
+The [`Phoenix` integration](https://hexdocs.pm/timber/Timber.Integrations.PhoenixInstrumenter.html#content)
+structures your existing `Phoenix` logs into
+[`controller_call`](https://timber.io/docs/elixir/events-and-context/controller-call-event/) and
+[`template_render`](https://timber.io/docs/elixir/events-and-context/template-render-event/) events.
+
+Pro-tip: this integration captures the parameters sent to your controller, making it easy to
+debug issues by understanding exactly which data was sent to your controller.
+
+
+### Installation
+
+To install this integration, please run the `mix timber.install` command as noted in the
+[installation section](#installation). For manual installation, please see the
+[`Timber.Integrations.PhoenixInstrumenter` docs](https://hexdocs.pm/timber/Timber.Integrations.PhoenixInstrumenter.html#content).
+
+---
+
+</p></details>
+
+<details><summary><strong>Ecto</strong></summary><p>
+
+The [`Ecto` integration](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content)
+structures your existing `Ecto` logs into structured
+[`sql_query`](https://timber.io/docs/elixir/events-and-context/sql-query-event/) events.
+
+Pro-tip: this integration captures SQL query times, making it easy to visualize SQL query
+performance and find slow queries.
+
+### Installation
+
+To install this integration, please run the `mix timber.install` command as noted in the
+[installation section](#installation). For manual installation, please see the
+[`Timber.Integrations.EctoLogger` docs](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content).
+
+---
+
+</p></details>
+
+<details><summary><strong>Plug</strong></summary><p>
+
+The [`Plug` integration](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content)
+structures your existing `Plug` logs into
+[`http_request`](https://timber.io/docs/elixir/events-and-context/http-request-event/) and
+[`http_response`](https://timber.io/docs/elixir/events-and-context/http-response-event/) events.
+
+Pro-tip: this integration captures HTTP response codes and times, making it easy to visualize
+the performance of your application.
+
+### Installation
+
+To install this integration, please run the `mix timber.install` command as noted in the
+[installation section](#installation). For manual installation, please see the
+[`Timber.Integrations.EventPlug`](https://hexdocs.pm/timber/Timber.Integrations.EventPlug.html#content),
+[`Timber.Integrations.HTTPContextPlug`](https://hexdocs.pm/timber/Timber.Integrations.HTTPContextPlug.html#content),
+and [`Timber.Integrations.SessionContextPlug`](https://hexdocs.pm/timber/Timber.Integrations.SessionContextPlug.html#content)
+docs. We highly recommend using the installer!
+
+---
+
+</p></details>
+
+<details><summary><strong>ExAws</strong></summary><p>
+
+The [`ExAws` integration](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content)
+logs and structures AWS HTTP communication
+[`http_request`](https://timber.io/docs/elixir/events-and-context/http-request-event/) and
+[`http_response`](https://timber.io/docs/elixir/events-and-context/http-response-event/) events.
+
+
+</p></details>
+
 ## Jibber-Jabber
 
 <details><summary><strong>Which log events does Timber structure for me?</strong></summary><p>
