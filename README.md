@@ -132,9 +132,8 @@ with examples.
 
 By default, Timber will capture and structure all of your errors and exceptions, there
 is nothing additional you need to do. You'll get the exception message, name, and backtrace.
-But, an very useful feature that Timber provides is error metadata. This enables you to
-get deeper insight into your exceptions without sacrificing readability. Just add fields
-like you would for any other struct:
+But, in many cases you need additional context and data. Timber supports additional fields
+in your exceptions, simply add fields as you would any other struct:
 
 ```elixir
 defmodule StripeCommunicationError do
