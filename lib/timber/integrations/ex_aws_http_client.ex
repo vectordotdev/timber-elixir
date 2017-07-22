@@ -118,5 +118,5 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   #
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
-  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, @only_log_methods_default) == true
+  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, @only_log_methods_default)
 end
