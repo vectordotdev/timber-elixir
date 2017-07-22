@@ -34,7 +34,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   # Set a timeout slightly over the general AWS timeout. This ensures that we receive
   # the timeout event from AWS before we receive it internally, preventing orphaned requests.
   @default_opts [recv_timeout: 62_000]
-  @non_idempotent_methods [:patch, :post, :put, :delete]
+  @only_log_methods_default [:patch, :post, :put, :delete]
   @service_name "aws"
 
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
@@ -118,5 +118,5 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   #
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
-  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, true) == true
+  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, @only_log_methods_default) == true
 end

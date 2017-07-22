@@ -44,6 +44,7 @@ defmodule Timber.Events.HTTPRequestEvent do
       |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
+      |> Keyword.update(:service_name, nil, &to_string/1)
       |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
