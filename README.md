@@ -238,8 +238,20 @@ logs and structures AWS HTTP communication
 [`http_request`](https://timber.io/docs/elixir/events-and-context/http-request-event/) and
 [`http_response`](https://timber.io/docs/elixir/events-and-context/http-response-event/) events.
 
+### Installation
+
+```elixir
+config :ex_aws,
+  http_client: Timber.Integrations.ExAwsHTTPClient
+```
+
+For more details, please see the
+[`Timber.Integrations.ExAwsHTTPClient` docs](https://hexdocs.pm/timber/Timber.Integrations.ExAwsHTTPClient.html#content).
+
+---
 
 </p></details>
+
 
 ## Jibber-Jabber
 
