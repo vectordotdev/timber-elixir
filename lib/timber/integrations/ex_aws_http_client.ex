@@ -19,11 +19,11 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
 
   ```elixir
   config :timber, Timber.Integrations.ExAWSHTTPClient,
-    log_destructive_requests_only: true
+    only_log_methods: [:post, :put, :delete, :patch]
   ```
 
-  * `log_destructive_requests_only` - (default: `true`) Only log `POST`, `PUT`, `DELETE`,
-    and `PATCH` requests.
+  * `only_log_methods` - (default: `[:post, :put, :delete, :patch]`). Only log requests whose method
+    is included in the list. Use `:all` to log all methods.
   """
 
   alias Timber.Events.HTTPRequestEvent
@@ -34,7 +34,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   # Set a timeout slightly over the general AWS timeout. This ensures that we receive
   # the timeout event from AWS before we receive it internally, preventing orphaned requests.
   @default_opts [recv_timeout: 62_000]
-  @destructive_methods [:patch, :post, :put, :delete]
+  @non_idempotent_methods [:patch, :post, :put, :delete]
   @service_name "aws"
 
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
@@ -45,7 +45,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
       |> Keyword.put(:with_body, true)
 
     timer = Timber.start_timer()
-    should_log = should_log?(method, log_destructive_requests_only?())
+    should_log = should_log?(method, only_log_methods())
     log_request(should_log, method, url, body, headers)
 
     case :hackney.request(method, url, headers, body, opts) do
@@ -64,11 +64,12 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     end
   end
 
-  defp should_log?(method, true) when method in @destructive_methods,
+  defp should_log?(_method, :all),
     do: true
 
-  defp should_log?(_method, _log_destructive_requests_only),
-    do: true
+  defp should_log?(method, allowed_methods) do
+    Enum.member?(allowed_methods, method)
+  end
 
   defp log_request(false, _method, _url, _body, _headers),
     do: nil
@@ -117,5 +118,5 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   #
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
-  defp log_destructive_requests_only?, do: Keyword.get(config(), :log_destructive_requests_only, true) == true
+  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, true) == true
 end
