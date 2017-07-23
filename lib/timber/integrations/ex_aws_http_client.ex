@@ -19,11 +19,16 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
 
   ```elixir
   config :timber, Timber.Integrations.ExAWSHTTPClient,
-    only_log_methods: [:post, :put, :delete, :patch]
+    http_methods_to_log: [:post, :put, :delete, :patch],
+    capture_bodies: false
   ```
 
   * `http_methods_to_log` - (default: `[:post, :put, :delete, :patch]`). Only log requests whose method
     is included in the list. Use `:all` to log all methods.
+  * `capture_bodies` - (default: `false`). When enabled, The first 2048 characters of the body will
+    be included in the metadata of the log. It is recommended to enable this for debug purposes
+    only as it can get excessive. You can also lower the size via
+    `config :timber, :http_body_size_limit, 2048`.
 
 
   ## Only log specific services
@@ -107,6 +112,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
 
   defp log_request(true, service_name, method, url, body, headers) do
     Logger.info fn ->
+      body = if capture_bodies?(), do: body, else: nil
       event =
         HTTPRequestEvent.new(
           direction: "outgoing",
@@ -130,6 +136,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     Logger.info fn ->
       time_ms = Timber.duration_ms(timer)
       body = Keyword.get(opts, :body)
+      body = if capture_bodies?(), do: body, else: nil
       event =
         HTTPResponseEvent.new(
           direction: "incoming",
@@ -149,5 +156,6 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   #
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
+  defp capture_bodies?, do: Keyword.get(config(), :capture_bodies, false)
   defp http_methods_to_log, do: Keyword.get(config(), :http_methods_to_log, @http_methods_to_log_default)
 end
