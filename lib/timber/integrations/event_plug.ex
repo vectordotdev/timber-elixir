@@ -108,7 +108,9 @@ defmodule Timber.Integrations.EventPlug do
     query_string = conn.query_string
 
     event = HTTPRequestEvent.new(
-      body: conn.body_params, # the body is normalized and truncated if necessary
+      # Disabled for now since the body can be excessive and the params should be captured
+      # in the controller_call event.
+      # body: conn.body_params,
       direction: "incoming",
       headers: headers,
       host: host,
@@ -150,7 +152,6 @@ defmodule Timber.Integrations.EventPlug do
     request_id = request_id_from_header(request_id_header)
 
     event = HTTPResponseEvent.new(
-      body: conn.resp_body, # the body is normalized and truncated if necessary
       direction: "outgoing",
       headers: headers,
       request_id: request_id,

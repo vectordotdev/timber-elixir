@@ -17,6 +17,11 @@ defmodule Timber.Events.HTTPResponseEventTest do
       assert result.headers == nil
       assert result.headers_json == "{\"x-request-id\":\"value\",\"random-header\":\"value\",\"content_type\":\"type\"}"
     end
+
+    test "truncates body" do
+      result = HTTPResponseEvent.new(body: String.duplicate("a", 2049), status: 200, time_ms: 52)
+      assert result.body == String.duplicate("a", 2033) <> " (truncated)"
+    end
   end
 
   describe "Timber.Events.HTTPResponseEvent.message/1" do

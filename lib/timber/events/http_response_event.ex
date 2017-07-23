@@ -35,8 +35,9 @@ defmodule Timber.Events.HTTPResponseEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
+      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Keyword.update(:service_name, nil, &to_string/1)
       |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
       |> UtilsHTTPEvents.move_headers_to_headers_json()
 
@@ -57,7 +58,7 @@ defmodule Timber.Events.HTTPResponseEvent do
       end
 
     message = if event.service_name,
-      do: [message, " from ", to_string(event.service_name)],
+      do: [message, " from ", event.service_name],
       else: message
 
     [message, " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
