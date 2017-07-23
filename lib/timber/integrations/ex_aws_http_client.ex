@@ -44,7 +44,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
       |> Keyword.merge(http_opts)
       |> Keyword.put(:with_body, true)
 
-    url =
+    service_name =
       case String.split(url, ".", parts: 2) do
         [prefix, _suffix] ->
           String.replace(prefix, "https://", "")
@@ -55,15 +55,15 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
 
     timer = Timber.start_timer()
     should_log = should_log?(method, only_log_methods())
-    log_request(should_log, method, url, body, headers)
+    log_request(should_log, service_name, method, url, body, headers)
 
     case :hackney.request(method, url, headers, body, opts) do
       {:ok, status, headers} ->
-        log_response(should_log, status, headers, timer)
+        log_response(should_log, service_name, status, headers, timer)
         {:ok, %{status_code: status, headers: headers}}
 
       {:ok, status, headers, body} ->
-        log_response(should_log, status, headers, timer, body: body)
+        log_response(should_log, service_name, status, headers, timer, body: body)
         {:ok, %{status_code: status, headers: headers, body: body}}
 
       {:error, reason} ->
@@ -80,10 +80,10 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     Enum.member?(allowed_methods, method)
   end
 
-  defp log_request(false, _method, _url, _body, _headers),
+  defp log_request(false, _service_name, _method, _url, _body, _headers),
     do: nil
 
-  defp log_request(true, method, url, body, headers) do
+  defp log_request(true, service_name, method, url, body, headers) do
     Logger.info fn ->
       event =
         HTTPRequestEvent.new(
@@ -92,19 +92,19 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
           url: url,
           body: body,
           headers: headers,
-          service_name: @service_name
+          service_name: service_name
         )
       message = HTTPRequestEvent.message(event)
       {message, event: event}
     end
   end
 
-  defp log_response(should_log, status, headers, timer, opts \\ [])
+  defp log_response(should_log, service_name, status, headers, timer, opts \\ [])
 
-  defp log_response(false, _status, _headers, _timer, _opts),
+  defp log_response(false, _service_name, _status, _headers, _timer, _opts),
     do: nil
 
-  defp log_response(true, status, headers, timer, opts) do
+  defp log_response(true, service_name, status, headers, timer, opts) do
     Logger.info fn ->
       time_ms = Timber.duration_ms(timer)
       body = Keyword.get(opts, :body)
@@ -114,7 +114,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
           body: body,
           status: status,
           headers: headers,
-          service_name: @service_name,
+          service_name: service_name,
           time_ms: time_ms
         )
       message = HTTPResponseEvent.message(event)
