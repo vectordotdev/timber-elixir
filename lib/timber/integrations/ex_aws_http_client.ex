@@ -22,8 +22,29 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     only_log_methods: [:post, :put, :delete, :patch]
   ```
 
-  * `only_log_methods` - (default: `[:post, :put, :delete, :patch]`). Only log requests whose method
+  * `http_methods_to_log` - (default: `[:post, :put, :delete, :patch]`). Only log requests whose method
     is included in the list. Use `:all` to log all methods.
+
+
+  ## Only log specific services
+
+  ExAws offers the ability to configure on a per service basis:
+
+  ```elixir
+  config :ex_aws, :lambda,
+    http_client: Timber.Integrations.ExAwsHTTPClient
+  ```
+
+  Alternatively you can exclude services in the same way:
+
+  ```elixir
+  config :ex_aws,
+    http_client: Timber.Integrations.ExAwsHTTPClient
+
+  # Fallback to the defualt, non-logging HTTP client
+  config :ex_aws, :lambda,
+    http_client: ExAws.Request.Hackney
+  ```
   """
 
   alias Timber.Events.HTTPRequestEvent
@@ -35,7 +56,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   # the timeout event from AWS before we receive it internally, preventing orphaned requests.
   @default_opts [recv_timeout: 62_000]
   @default_service_name "aws"
-  @only_log_methods_default [:patch, :post, :put, :delete]
+  @http_methods_to_log_default [:patch, :post, :put, :delete]
 
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
     opts =
@@ -54,7 +75,8 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
       end
 
     timer = Timber.start_timer()
-    should_log = should_log?(method, only_log_methods())
+    should_log = should_log_method?(method, http_methods_to_log())
+
     log_request(should_log, service_name, method, url, body, headers)
 
     case :hackney.request(method, url, headers, body, opts) do
@@ -73,10 +95,10 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     end
   end
 
-  defp should_log?(_method, :all),
+  defp should_log_method?(_method, :all),
     do: true
 
-  defp should_log?(method, allowed_methods) do
+  defp should_log_method?(method, allowed_methods) do
     Enum.member?(allowed_methods, method)
   end
 
@@ -127,5 +149,5 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   #
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
-  defp only_log_methods, do: Keyword.get(config(), :only_log_methods, @only_log_methods_default)
+  defp http_methods_to_log, do: Keyword.get(config(), :http_methods_to_log, @http_methods_to_log_default)
 end
