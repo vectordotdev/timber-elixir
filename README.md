@@ -240,9 +240,16 @@ docs. We highly recommend using the installer!
 <details><summary><strong>ExAws</strong></summary><p>
 
 The [`ExAws` integration](https://hexdocs.pm/timber/Timber.Integrations.EctoLogger.html#content)
-logs and structures AWS HTTP communication
+logs and structures outgoing AWS HTTP communication via the
 [`http_request`](https://timber.io/docs/elixir/events-and-context/http-request-event/) and
 [`http_response`](https://timber.io/docs/elixir/events-and-context/http-response-event/) events.
+This gives you complete insight into how your application is communicating with AWS services,
+including timings, errors, etc.
+
+By default this will only log change requests (`POST`, `PUT`, `DELETE`, `PATCH`). This reduces
+noise while still logging requests that are meaningful. Please see the
+[`Timber.Integrations.ExAwsHTTPClient` docs](https://hexdocs.pm/timber/Timber.Integrations.ExAwsHTTPClient.html#content)
+docs for more configuration options.
 
 ### Installation
 
