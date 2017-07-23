@@ -18,9 +18,9 @@ defmodule Timber.Events.HTTPRequestEventTest do
       assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
     end
 
-    test "deletes body" do
-      result = HTTPRequestEvent.new(body: String.duplicate("a", 2001), host: "host", method: :get, path: "path", port: 12, scheme: "https")
-      assert result.body == nil
+    test "truncates body" do
+      result = HTTPRequestEvent.new(body: String.duplicate("a", 2049), host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      assert result.body == String.duplicate("a", 2033) <> " (truncated)"
     end
 
     test "normalizes method" do
@@ -51,9 +51,9 @@ defmodule Timber.Events.HTTPRequestEventTest do
     test "outgoing, service name and query string" do
       headers = [{"user-agent", "agent"}, {"x-request-id", "abcd1234"}]
       event = HTTPRequestEvent.new(direction: "outgoing", headers: headers, host: "host", method: :get,
-        path: "path", port: 12, query_string: "query", request_id: "abcd1234", scheme: "https", service_name: "service")
+        path: "/path", port: 12, query_string: "query", request_id: "abcd1234", scheme: "https", service_name: "service")
       message = HTTPRequestEvent.message(event)
-      assert String.Chars.to_string(message) == "Sent GET https://host:12path?query (abcd12...) to service"
+      assert String.Chars.to_string(message) == "Sent GET /path (abcd12...) to service"
     end
 
     test "outgoing, service name excluded" do

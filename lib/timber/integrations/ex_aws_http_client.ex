@@ -34,8 +34,8 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
   # Set a timeout slightly over the general AWS timeout. This ensures that we receive
   # the timeout event from AWS before we receive it internally, preventing orphaned requests.
   @default_opts [recv_timeout: 62_000]
+  @default_service_name "aws"
   @only_log_methods_default [:patch, :post, :put, :delete]
-  @service_name "aws"
 
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
     opts =
@@ -43,6 +43,15 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
       |> Application.get_env(:hackney_opts, @default_opts)
       |> Keyword.merge(http_opts)
       |> Keyword.put(:with_body, true)
+
+    url =
+      case String.split(url, ".", parts: 2) do
+        [prefix, _suffix] ->
+          String.replace(prefix, "https://", "")
+
+        _else ->
+          @default_service_name
+      end
 
     timer = Timber.start_timer()
     should_log = should_log?(method, only_log_methods())

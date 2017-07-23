@@ -41,7 +41,7 @@ defmodule Timber.Events.HTTPRequestEvent do
   def new(opts) do
     opts =
       opts
-      |> Keyword.delete(:body) # Don't store the body for now. We store the params in the ControllerCallEvent. We can re-enable this upon request.
+      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
       |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
       |> Keyword.update(:service_name, nil, &to_string/1)
@@ -58,8 +58,13 @@ defmodule Timber.Events.HTTPRequestEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{direction: "outgoing"} = event) do
-    full_url = UtilsHTTPEvents.full_url(event.scheme, event.host, event.path, event.port, event.query_string)
-    message = ["Sent ", event.method, " ", full_url]
+    message =
+      if event.service_name do
+        ["Sent ", event.method, " ", event.path]
+      else
+        full_url = UtilsHTTPEvents.full_url(event.scheme, event.host, event.path, event.port, event.query_string)
+        ["Sent ", event.method, " ", full_url]
+      end
 
     message =
       if event.request_id do
