@@ -57,6 +57,16 @@ defmodule Timber.Context do
     insert(context, key, api_map)
   end
 
+  def add(context, data) when is_list(data) do
+    Enum.reduce(data, context, fn item, context ->
+      add(context, item)
+    end)
+  end
+
+  def add(context, {key, val}) do
+    add(context, %{key => val})
+  end
+
   def add(context, data) do
     context_element = Contextable.to_context(data)
     key = type(context_element)

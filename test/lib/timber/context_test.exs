@@ -4,6 +4,11 @@ defmodule Timber.ContextTest do
   alias Timber.Context
 
   describe "Timber.Context.add/2" do
+    test "keyword list" do
+      result = Context.add(%{}, key1: %{value1: "value"}, key2: %{value2: "value"})
+      assert result ==  %{custom: %{key1: %{value1: "value"}, key2: %{value2: "value"}}}
+    end
+
     test "custom context with a symbol type" do
       custom_context = %Timber.Contexts.CustomContext{type: :build, data: %{version: "1.0.0"}}
       result = Context.add(%{}, custom_context)
