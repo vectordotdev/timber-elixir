@@ -128,10 +128,29 @@ with examples.
 
 </p></details>
 
-<details><summary><strong>Adding metadata to your errors</strong></summary><p>
+<details><summary><strong>Tracking tasks and jobs</strong></summary><p>
+
+Elixir is a highly concurrent language and capturing the relevant task context can be very
+powerful. It allows you to segment logs by individual task executions, providing focused
+logs for that individual task. Implementing it is simple:
+
+```elixir
+%Timber.Contexts.JobContext{queue_name: "my_queue", id: "abcd1234", attempt: 1}
+|> Timber.add_context()
+
+Logger.info("Task execution started")
+
+# => Task execution started @metadata {"context": {"job": {"queue_name": "my_queue", "id": "abcd1234", "attempt": 1}}}
+```
+
+---
+
+</p></details>
+
+<details><summary><strong>Adding metadata to errors</strong></summary><p>
 
 By default, Timber will capture and structure all of your errors and exceptions, there
-is nothing additional you need to do. You'll get the exception message, name, and backtrace.
+is nothing additional you need to do. You'll get the exception `message`, `name`, and `backtrace`.
 But, in many cases you need additional context and data. Timber supports additional fields
 in your exceptions, simply add fields as you would any other struct:
 
@@ -149,6 +168,7 @@ raise(
 )
 ```
 
+* These fields will be available in the `event.error.metadata_json` field.
 * Run the query `type:error` to view all errors.
 * Within the [Timber console](https://app.timber.io) you can click the log to view all of this data.
 
