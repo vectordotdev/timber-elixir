@@ -47,7 +47,10 @@ defmodule Timber.Event do
 
   def to_api_map(event) do
     type = type(event)
-    map = Map.from_struct(event)
+    map =
+      event
+      |> UtilsMap.deep_from_struct()
+      |> UtilsMap.recursively_drop_blanks()
     %{type => map}
   end
 

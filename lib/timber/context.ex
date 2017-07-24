@@ -118,7 +118,7 @@ defmodule Timber.Context do
 
   defp to_api_map(context_element) do
     context_element
-    |> Map.from_struct()
+    |> UtilsMap.deep_from_struct()
     |> UtilsMap.recursively_drop_blanks()
   end
 
