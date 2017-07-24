@@ -7,12 +7,12 @@ defmodule Timber.Event do
   alias Timber.Utils.Map, as: UtilsMap
 
   @type t ::
-    Events.ControllerCallEvent     |
-    Events.CustomEvent             |
-    Events.ErrorEvent              |
-    Events.HTTPRequestEvent  |
-    Events.HTTPResponseEvent |
-    Events.SQLQueryEvent           |
+    Events.ControllerCallEvent |
+    Events.CustomEvent         |
+    Events.ErrorEvent          |
+    Events.HTTPRequestEvent    |
+    Events.HTTPResponseEvent   |
+    Events.SQLQueryEvent       |
     Events.TemplateRenderEvent
 
   @doc false
