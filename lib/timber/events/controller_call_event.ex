@@ -53,13 +53,4 @@ defmodule Timber.Events.ControllerCallEvent do
   def message(%__MODULE__{action: action, controller: controller, pipelines: pipelines}) do
     ["Processing with ", controller, ?., action, ?/, ?2, " Pipelines: ", inspect(pipelines)]
   end
-
-  @doc """
-  Converts the struct into a map that the Timber API expects. This is the data
-  that is sent to the Timber API.
-  """
-  @spec to_api_map(t) :: map
-  def to_api_map(%__MODULE__{action: action, controller: controller, params_json: params_json}) do
-    %{action: action, controller: controller, params_json: params_json}
-  end
 end

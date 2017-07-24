@@ -4,6 +4,7 @@ defmodule Timber.Event do
   """
 
   alias Timber.Events
+  alias Timber.Utils.Map, as: UtilsMap
 
   @type t ::
     Events.ControllerCallEvent     |
@@ -36,22 +37,29 @@ defmodule Timber.Event do
   end
 
   def to_api_map(%Events.CustomEvent{type: type, data: data}) do
+    data = normalize_data(data)
     %{custom: %{type => data}}
   end
 
   def to_api_map(%Events.ControllerCallEvent{} = event) do
     type = type(event)
-    map = Events.ControllerCallEvent.to_api_map(event)
+    map =
+      event
+      |> normalize_data()
+      |> Map.delete(:pipelines)
     %{type => map}
   end
 
   def to_api_map(event) do
     type = type(event)
-    map =
-      event
-      |> UtilsMap.deep_from_struct()
-      |> UtilsMap.recursively_drop_blanks()
+    map = normalize_data(event)
     %{type => map}
+  end
+
+  defp normalize_data(data) do
+    data
+    |> UtilsMap.deep_from_struct()
+    |> UtilsMap.recursively_drop_blanks()
   end
 
   @doc """
