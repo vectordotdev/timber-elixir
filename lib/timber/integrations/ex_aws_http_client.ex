@@ -111,7 +111,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     do: nil
 
   defp log_request(true, service_name, method, url, body, headers) do
-    Logger.info fn ->
+    Logger.debug fn ->
       body = if capture_bodies?(), do: body, else: nil
       event =
         HTTPRequestEvent.new(
@@ -133,7 +133,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     do: nil
 
   defp log_response(true, service_name, status, headers, timer, opts) do
-    Logger.info fn ->
+    Logger.debug fn ->
       time_ms = Timber.duration_ms(timer)
       body = Keyword.get(opts, :body)
       body = if capture_bodies?(), do: body, else: nil
