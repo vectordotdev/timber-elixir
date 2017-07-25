@@ -74,7 +74,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
 
         # Structure Ecto logs
         config :my_project, MyRepoModule,
-          loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+          loggers: [{Timber.Integrations.EctoLogger, :log, [:debug]}]
 
         # Use Timber as the logger backend
         # Feel free to add additional backends if you want to send you logs to multiple devices.
