@@ -288,7 +288,7 @@ defmodule Timber.Installer.FakeFileContents do
 
     # Structure Ecto logs
     config :timber_elixir, ElixirPhoenixExampleApp.Repo,
-      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+      loggers: [{Timber.Integrations.EctoLogger, :log, []}]
 
     # Use Timber as the logger backend
     # Feel free to add additional backends if you want to send you logs to multiple devices.

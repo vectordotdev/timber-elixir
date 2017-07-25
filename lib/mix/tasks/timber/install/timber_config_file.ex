@@ -62,7 +62,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     # Structure Ecto logs
     config :#{mix_name}, #{repo_module_name},
-      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+      loggers: [{Timber.Integrations.EctoLogger, :log, []}]
     """
   end
 

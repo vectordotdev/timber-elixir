@@ -28,7 +28,7 @@ defmodule Timber.Integrations.EctoLogger do
   ```
 
   By default, queries are logged at the `:debug` level. If you want
-  to use a custom level, simple add it to the list of arguments.
+  to use a custom level, simply add it to the list of arguments.
   For example, to log every query at the `:info` level:
 
 
