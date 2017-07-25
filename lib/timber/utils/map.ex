@@ -25,6 +25,12 @@ defmodule Timber.Utils.Map do
   @doc """
   Recursively drops keys with blank values in a map.
   """
+  def recursively_drop_blanks(%{__struct__: _mod} = struct) do
+    struct
+    |> Map.from_struct()
+    |> recursively_drop_blanks()
+  end
+
   def recursively_drop_blanks(map) when is_map(map) do
     map
     |> Enum.reduce(%{}, fn

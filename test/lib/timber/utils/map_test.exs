@@ -1,4 +1,8 @@
 defmodule Timber.Utils.MapTest do
+  defmodule TestStruct do
+    defstruct [:key]
+  end
+
   use Timber.TestCase
 
   alias Timber.Utils.Map, as: UtilsMap
@@ -54,6 +58,13 @@ defmodule Timber.Utils.MapTest do
       m = %{a: %{a: %{a: %{}, b: 1, c: nil}}, b: 1}
       r = UtilsMap.recursively_drop_blanks(m)
       assert r == %{b: 1, a: %{a: %{b: 1}}}
+    end
+
+    test "handles structs" do
+      struct = %TestStruct{key: %TestStruct{key: "value"}}
+      m = %{a: struct}
+      r = UtilsMap.recursively_drop_blanks(m)
+      assert r == %{a: %{key: %{key: "value"}}}
     end
   end
 end
