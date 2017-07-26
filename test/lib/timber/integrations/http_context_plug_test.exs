@@ -43,9 +43,9 @@ defmodule Timber.Integrations.HTTPContextPlugTest do
     test "captures X-Request-ID header", %{conn: conn} do
       request_id = "abcdefg"
 
-      conn = Plug.Conn.put_req_header(conn, "x-request-id", request_id)
+      new_conn = Plug.Conn.put_req_header(conn, "x-request-id", request_id)
 
-      HTTPContextPlug.call(conn, [])
+      HTTPContextPlug.call(new_conn, [])
 
       context = get_request_context()
 
@@ -58,9 +58,9 @@ defmodule Timber.Integrations.HTTPContextPlugTest do
       request_id_header = "x-timbertrace-id"
       request_id = "abcdefg"
 
-      conn = Plug.Conn.put_req_header(conn, request_id_header, request_id)
+      new_conn = Plug.Conn.put_req_header(conn, request_id_header, request_id)
 
-      HTTPContextPlug.call(conn, [request_id_header: request_id_header])
+      HTTPContextPlug.call(new_conn, [request_id_header: request_id_header])
 
       context = get_request_context()
 

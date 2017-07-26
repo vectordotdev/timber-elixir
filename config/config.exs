@@ -11,6 +11,9 @@ config :logger, :console,
   format: {Timber.Formatter, :format},
   metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
+config :plug,
+  validate_header_keys_during_test: true
+
 config :timber,
   header_keys_to_sanitize: ["sensitive-key"],
   nanosecond_timestamps: false
