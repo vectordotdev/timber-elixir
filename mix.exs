@@ -158,7 +158,7 @@ defmodule Timber.Mixfile do
 
         # Hackney is pinned because other versions are known to have bugs. This is the
         # safest route.
-        {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or ~> 1.8.0"},
+        {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6"},
         {:msgpax, "~> 1.0"},
         {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
       ]
