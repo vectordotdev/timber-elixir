@@ -1,6 +1,9 @@
 defmodule Timber.Events.HTTPRequestEvent do
   @moduledoc """
-  The `HTTPRequestEvent` tracks HTTP requests. This gives you structured into the HTTP request
+  The `HTTPRequestEvent` tracks HTTP requests as defined by the Timber log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
+
+  This gives you structured into the HTTP request
   coming into your app as well as the ones going out (if you choose to track them).
 
   Timber can automatically track incoming HTTP requests if you use a `Plug` based framework.
@@ -25,9 +28,21 @@ defmodule Timber.Events.HTTPRequestEvent do
     service_name: nil | String.t
   }
 
-  @enforce_keys [:host, :method, :scheme]
-  defstruct [:body, :direction, :host, :headers, :headers_json, :method, :path, :port, :query_string,
-    :request_id, :scheme, :service_name]
+  @enforce_keys [:method]
+  defstruct [
+    :body,
+    :direction,
+    :host,
+    :headers,
+    :headers_json,
+    :method,
+    :path,
+    :port,
+    :query_string,
+    :request_id,
+    :scheme,
+    :service_name
+  ]
 
   @doc """
   Builds a new struct taking care to:

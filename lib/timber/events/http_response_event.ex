@@ -1,8 +1,10 @@
 defmodule Timber.Events.HTTPResponseEvent do
   @moduledoc """
   The `HTTPResponseEvent` tracks HTTP responses in your app, both outgoing and
-  incoming from external services (should you choose to track these). This gives
-  you structured insight into all of your HTTP response events.
+  incoming from external services (should you choose to track these) as defined by the
+  Timber log event JSON schema: https://github.com/timberio/log-event-json-schema
+
+  This gives you structured insight into all of your HTTP response events.
 
   Timber can automatically track response events if you use a `Plug` based framework
   through `Timber.Plug`.
@@ -22,8 +24,16 @@ defmodule Timber.Events.HTTPResponseEvent do
   }
 
   @enforce_keys [:status, :time_ms]
-  defstruct [:body, :direction, :headers, :headers_json, :request_id, :service_name, :status,
-    :time_ms]
+  defstruct [
+    :body,
+    :direction,
+    :headers,
+    :headers_json,
+    :request_id,
+    :service_name,
+    :status,
+    :time_ms
+  ]
 
   @doc """
   Builds a new struct taking care to:

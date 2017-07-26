@@ -1,7 +1,8 @@
 defmodule Timber.Events.ControllerCallEvent do
   @moduledoc """
   The `ControllerCallEvent` represents a controller being called during the HTTP request
-  cycle.
+  cycle as defined by the Timber log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
   """
 
   @type t :: %__MODULE__{
