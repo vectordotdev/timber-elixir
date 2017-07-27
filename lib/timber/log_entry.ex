@@ -118,7 +118,13 @@ defmodule Timber.LogEntry do
         {:ok, hostname} -> to_string(hostname)
         _else -> nil
       end
-    pid = System.get_pid()
+
+    pid =
+      case Integer.parse(System.get_pid()) do
+        {pid, _units} -> pid
+        _ -> nil
+      end
+
     system_context = %SystemContext{hostname: hostname, pid: pid}
     Context.add(context, system_context)
   end

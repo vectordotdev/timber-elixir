@@ -6,7 +6,7 @@ defmodule Timber.Events.LogEntryTest do
   describe "Timber.LogEntry.new/4" do
     test "success" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
-      assert entry == %Timber.LogEntry{context: %{system: %{hostname: hostname(), pid: "#{pid()}"}},
+      assert entry == %Timber.LogEntry{context: %{system: %{hostname: hostname(), pid: String.to_integer(pid())}},
          dt: "2016-01-21T12:54:56.001234Z",
          event: %Timber.Events.CustomEvent{data: %{}, type: :type},
          level: :info, message: "message"}
@@ -48,13 +48,13 @@ defmodule Timber.Events.LogEntryTest do
     test "drops blanks" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
       result = LogEntry.to_iodata!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{pid()}\",\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{pid()},\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes JSON properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{test: "value"}}])
       result = LogEntry.to_iodata!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{pid()}\",\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{pid()},\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes logfmt properly" do

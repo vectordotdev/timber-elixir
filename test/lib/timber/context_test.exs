@@ -43,16 +43,16 @@ defmodule Timber.ContextTest do
       assert result ==  %{organization: %{id: "1"}}
     end
 
-    test "system context with an integer id" do
+    test "system context with an integer pid" do
       user_context = %Timber.Contexts.SystemContext{pid: 1}
       result = Context.add(%{}, user_context)
-      assert result ==  %{system: %{pid: "1"}}
+      assert result ==  %{system: %{pid: 1}}
     end
 
-    test "system context with a string id" do
+    test "system context with a string ipd" do
       user_context = %Timber.Contexts.SystemContext{pid: "1"}
       result = Context.add(%{}, user_context)
-      assert result ==  %{system: %{pid: "1"}}
+      assert result ==  %{system: %{pid: 1}}
     end
 
     test "user context with an integer id" do

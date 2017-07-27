@@ -108,8 +108,14 @@ defmodule Timber.Context do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
 
-  defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_integer(pid) do
-    to_api_map(%{context_element | pid: Integer.to_string(pid)})
+  defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_binary(pid) do
+    pid =
+      case Integer.parse(pid) do
+        {pid, _units} -> pid
+        _ -> nil
+      end
+
+    to_api_map(%{context_element | pid: pid})
   end
 
   defp to_api_map(%Contexts.UserContext{id: id} = context_element) when is_integer(id) do
