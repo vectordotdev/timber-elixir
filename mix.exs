@@ -163,33 +163,22 @@ defmodule Timber.Mixfile do
         {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
       ]
 
-    # This is used for CI to ensure we can test across multiple versions.
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("ECTO_VERSION_CONSTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:ecto, "~> 2.0", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:ecto, v, optional: true}]
-      end
-
-    # This is used for CI to ensure we can test across multiple versions
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:phoenix, "~> 1.2 or ~> 1.3.0-rc", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:phoenix, v, optional: true}]
-      end
-
-    # This is used for CI to ensure we can test across multiple versions
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("PLUG_VERSION_CONTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:plug, "~> 1.2", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:plug, v, optional: true}]
-      end
+    ecto_version_constraint = System.get_env("ECTO_VERSION_CONSTRAINT")
+    phoenix_version_constraint = System.get_env("PHOENIX_VERSION_CONSTRAINT")
+    plug_version_constraint = System.get_env("PLUG_VERSION_CONTRAINT")
 
     deps
+    |> add_test_dependency(:ecto, ecto_version_constraint)
+    |> add_test_dependency(:phoenix, phoenix_version_constraint)
+    |> add_test_dependency(:plug, plug_version_constraint)
+  end
+
+  # Adds test dependencies for use in the continuous integration matrix
+  defp add_test_dependency(deps, dependency, nil) do
+    deps ++ [{dependency, "> 0.0.0", only: [:test]}]
+  end
+
+  defp add_test_dependency(deps, dependency, constraint) do
+    deps ++ [{dependency, constraint, only: [:test]}]
   end
 end
