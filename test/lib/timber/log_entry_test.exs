@@ -85,7 +85,7 @@ defmodule Timber.Events.LogEntryTest do
       system_pid = "#{entry.context.system.pid}"
       vm_pid = entry.context.runtime.vm_pid
       result = LogEntry.to_iodata!(entry, :logfmt)
-      assert result == [[10, 9, "Context: ", ["system.pid", 61, system_pid, 32, "system.hostname", 61, "Bens-MacBook-Pro-2", 32, "runtime.vm_pid", 61, vm_pid]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]], []]
+      assert result == [[10, 9, "Context: ", ["system.pid", 61, system_pid, 32, "system.hostname", 61, "#{hostname()}", 32, "runtime.vm_pid", 61, vm_pid]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]], []]
     end
   end
 
