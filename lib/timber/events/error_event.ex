@@ -96,7 +96,7 @@ defmodule Timber.Events.ErrorEvent do
         nil
       else
         case Timber.Utils.JSON.encode_to_iodata(metadata_map) do
-          {:ok, json} -> json
+          {:ok, json} -> IO.iodata_to_binary(json)
           {:error, _error} -> nil
         end
       end
