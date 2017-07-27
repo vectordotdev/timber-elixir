@@ -119,9 +119,9 @@ Logger.info("My log message")
 </p></details>
 
 
-### Pro-tips 💪
+#### Pro-tips 💪
 
-<details><summary><strong>Metrics</strong></summary><p>
+<details><summary><strong>Timings & Metrics</strong></summary><p>
 
 Logging metrics is accomplished by logging custom events. Please see our
 [metrics docs page](https://timber.io/docs/elixir/metrics/) for a more detailed explanation
@@ -131,17 +131,22 @@ with examples.
 
 </p></details>
 
-<details><summary><strong>Tracking tasks and jobs</strong></summary><p>
+<details><summary><strong>Tracking background jobs and tasks</strong></summary><p>
 
-Elixir is a highly concurrent language and capturing the relevant task context can be very
-powerful. It allows you to segment logs by individual task executions, providing focused
-logs for that individual task. Implementing it is simple:
+**Note:** This tip refers to traditional background jobs backed by a queue. For native Elixir
+processes we capture the `context.runtime.vm_pid` automatically. So calls like `spawn/1` and
+`Task.async/1` will automatially have their `pid` included in the context.
+
+For traditional background jobs / tasks backed by a queue you'll want to capture relevant
+job context. Most importantly, the `id`:
 
 ```elixir
 %Timber.Contexts.JobContext{queue_name: "my_queue", id: "abcd1234", attempt: 1}
 |> Timber.add_context()
 
 Logger.info("Task execution started")
+# ...
+Logger.info("Task execution completed")
 
 # => Task execution started @metadata {"context": {"job": {"queue_name": "my_queue", "id": "abcd1234", "attempt": 1}}}
 ```
