@@ -1,6 +1,7 @@
 defmodule Timber.Events.ErrorEvent do
   @moduledoc """
-  The `ErrorEvent` is used to track errors and exceptions.
+  The `ErrorEvent` is used to track errors and exceptions as defined by the Timber log event
+  JSON schema: https://github.com/timberio/log-event-json-schema
 
   Timber automatically tracks and structures errors and exceptions in your application. Giving
   you detailed stack traces, context, and error data.

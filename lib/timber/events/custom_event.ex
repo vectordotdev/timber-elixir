@@ -1,6 +1,7 @@
 defmodule Timber.Events.CustomEvent do
   @moduledoc ~S"""
-  The `CustomEvent` represents events that aren't covered elsewhere.
+  The `CustomEvent` represents events that aren't covered elsewhere as defined by the Timber
+  log event JSON schema: https://github.com/timberio/log-event-json-schema
 
   Custom events can be used to structure information about events that are central
   to your line of business like receiving credit card payments, saving a draft of a post,
