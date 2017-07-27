@@ -14,12 +14,14 @@ defmodule Timber.Context do
   metadata keys so as not to interfere with other systems.
   """
 
+  alias Timber.Contextable
   alias Timber.Contexts
   alias Timber.Utils.Map, as: UtilsMap
 
   @type context_element ::
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
+    Contexts.JobContext.t           |
     Contexts.OrganizationContext.t  |
     Contexts.RuntimeContext.t       |
     Contexts.SessionContext.t       |
@@ -29,6 +31,7 @@ defmodule Timber.Context do
   @type t :: %{
     optional(:custom) => Context.CustomContext.m,
     optional(:http) => Context.HTTPContext.m,
+    optional(:job) => Context.JobContext.m,
     optional(:organization) => Context.OrganizationContext.m,
     optional(:runtime) => Context.RuntimeContext.m,
     optional(:session) => Context.SessionContext.m,
@@ -40,7 +43,7 @@ defmodule Timber.Context do
   def new(), do: %{}
 
   @doc """
-  Takes an existing context element and inserts it into the global context.
+  Takes an existing context element and inserts it into the provided context.
   """
   @spec add(t, context_element) :: t
   def add(context, %Contexts.CustomContext{type: type} = context_element) when is_binary(type) do
@@ -54,10 +57,21 @@ defmodule Timber.Context do
     insert(context, key, api_map)
   end
 
-  def add(existing_context_map, context_element) do
+  def add(context, data) when is_list(data) do
+    Enum.reduce(data, context, fn item, context ->
+      add(context, item)
+    end)
+  end
+
+  def add(context, {key, val}) do
+    add(context, %{key => val})
+  end
+
+  def add(context, data) do
+    context_element = Contextable.to_context(data)
     key = type(context_element)
     context_element_map = to_api_map(context_element)
-    insert(existing_context_map, key, context_element_map)
+    insert(context, key, context_element_map)
   end
 
   # Inserts the context_element into the main context map
@@ -82,6 +96,10 @@ defmodule Timber.Context do
     |> UtilsMap.recursively_drop_blanks()
   end
 
+  defp to_api_map(%Contexts.JobContext{id: id} = context_element) when is_integer(id) do
+    to_api_map(%{context_element | id: Integer.to_string(id)})
+  end
+
   defp to_api_map(%Contexts.OrganizationContext{id: id} = context_element) when is_integer(id) do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
@@ -90,8 +108,14 @@ defmodule Timber.Context do
     to_api_map(%{context_element | id: Integer.to_string(id)})
   end
 
-  defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_integer(pid) do
-    to_api_map(%{context_element | pid: Integer.to_string(pid)})
+  defp to_api_map(%Contexts.SystemContext{pid: pid} = context_element) when is_binary(pid) do
+    pid =
+      case Integer.parse(pid) do
+        {pid, _units} -> pid
+        _ -> nil
+      end
+
+    to_api_map(%{context_element | pid: pid})
   end
 
   defp to_api_map(%Contexts.UserContext{id: id} = context_element) when is_integer(id) do
@@ -100,7 +124,7 @@ defmodule Timber.Context do
 
   defp to_api_map(context_element) do
     context_element
-    |> Map.from_struct()
+    |> UtilsMap.deep_from_struct()
     |> UtilsMap.recursively_drop_blanks()
   end
 
@@ -108,6 +132,7 @@ defmodule Timber.Context do
   @spec type(context_element) :: atom
   defp type(%Contexts.CustomContext{}), do: :custom
   defp type(%Contexts.HTTPContext{}), do: :http
+  defp type(%Contexts.JobContext{}), do: :job
   defp type(%Contexts.OrganizationContext{}), do: :organization
   defp type(%Contexts.RuntimeContext{}), do: :runtime
   defp type(%Contexts.SessionContext{}), do: :session

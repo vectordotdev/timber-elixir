@@ -4,17 +4,28 @@ defmodule Timber.Event do
   """
 
   alias Timber.Events
+  alias Timber.Utils.Map, as: UtilsMap
 
   @type t ::
-    Events.ControllerCallEvent     |
-    Events.CustomEvent             |
-    Events.ExceptionEvent          |
-    Events.HTTPClientRequestEvent  |
-    Events.HTTPClientResponseEvent |
-    Events.HTTPServerRequestEvent  |
-    Events.HTTPServerResponseEvent |
-    Events.SQLQueryEvent           |
+    Events.ControllerCallEvent |
+    Events.CustomEvent         |
+    Events.ErrorEvent          |
+    Events.HTTPRequestEvent    |
+    Events.HTTPResponseEvent   |
+    Events.SQLQueryEvent       |
     Events.TemplateRenderEvent
+
+  @doc false
+  @spec extract_from_metadata(Keyword.t) :: nil | t
+  def extract_from_metadata(metadata) do
+    Keyword.get(metadata, Timber.Config.event_key(), nil)
+  end
+
+  @doc false
+  @spec to_metadata(Timber.Event.t) :: Keyword.t
+  def to_metadata(event) do
+    Keyword.put([], Timber.Config.event_key(), event)
+  end
 
   @doc false
   @spec to_api_map(t) :: map
@@ -26,19 +37,29 @@ defmodule Timber.Event do
   end
 
   def to_api_map(%Events.CustomEvent{type: type, data: data}) do
+    data = normalize_data(data)
     %{custom: %{type => data}}
   end
 
   def to_api_map(%Events.ControllerCallEvent{} = event) do
     type = type(event)
-    map = Events.ControllerCallEvent.to_api_map(event)
+    map =
+      event
+      |> normalize_data()
+      |> Map.delete(:pipelines)
     %{type => map}
   end
 
   def to_api_map(event) do
     type = type(event)
-    map = Map.from_struct(event)
+    map = normalize_data(event)
     %{type => map}
+  end
+
+  defp normalize_data(data) do
+    data
+    |> UtilsMap.deep_from_struct()
+    |> UtilsMap.recursively_drop_blanks()
   end
 
   @doc """
@@ -48,11 +69,9 @@ defmodule Timber.Event do
   @spec type(t) :: atom()
   def type(%Events.ControllerCallEvent{}), do: :controller_call
   def type(%Events.CustomEvent{}), do: :custom
-  def type(%Events.ExceptionEvent{}), do: :exception
-  def type(%Events.HTTPClientRequestEvent{}), do: :http_client_request
-  def type(%Events.HTTPClientResponseEvent{}), do: :http_client_response
-  def type(%Events.HTTPServerRequestEvent{}), do: :http_server_request
-  def type(%Events.HTTPServerResponseEvent{}), do: :http_server_response
+  def type(%Events.ErrorEvent{}), do: :error
+  def type(%Events.HTTPRequestEvent{}), do: :http_request
+  def type(%Events.HTTPResponseEvent{}), do: :http_response
   def type(%Events.SQLQueryEvent{}), do: :sql_query
   def type(%Events.TemplateRenderEvent{}), do: :template_render
 end

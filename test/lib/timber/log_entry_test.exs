@@ -6,7 +6,7 @@ defmodule Timber.Events.LogEntryTest do
   describe "Timber.LogEntry.new/4" do
     test "success" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
-      assert entry == %Timber.LogEntry{context: %{system: %{hostname: hostname(), pid: "#{pid()}"}},
+      assert entry == %Timber.LogEntry{context: %{system: %{hostname: hostname(), pid: String.to_integer(pid())}},
          dt: "2016-01-21T12:54:56.001234Z",
          event: %Timber.Events.CustomEvent{data: %{}, type: :type},
          level: :info, message: "message"}
@@ -40,27 +40,27 @@ defmodule Timber.Events.LogEntryTest do
                 (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
         """
       entry = LogEntry.new(time(), :info, log_message, [error_logger: true])
-      assert entry.event.__struct__ == Timber.Events.ExceptionEvent
+      assert entry.event.__struct__ == Timber.Events.ErrorEvent
     end
   end
 
-  describe "Timber.LogEntry.to_string!/3" do
+  describe "Timber.LogEntry.to_iodata!/3" do
     test "drops blanks" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
-      result = LogEntry.to_string!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{pid()}\",\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
+      result = LogEntry.to_iodata!(entry, :json)
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{pid()},\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes JSON properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{test: "value"}}])
-      result = LogEntry.to_string!(entry, :json)
-      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":\"#{pid()}\",\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
+      result = LogEntry.to_iodata!(entry, :json)
+      assert String.Chars.to_string(result) == "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{pid()},\"hostname\":\"#{hostname()}\"}},\"$schema\":\"#{LogEntry.schema()}\"}"
     end
 
     test "encodes logfmt properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{a: 1}}])
-      result = LogEntry.to_string!(entry, :logfmt)
-      assert result == [[10, 9, "Context: ", ["system.pid", 61, "#{pid()}", 32, "system.hostname", 61, "#{hostname()}"]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]]]
+      result = LogEntry.to_iodata!(entry, :logfmt)
+      assert result == [[10, 9, "Context: ", ["system.pid", 61, "#{pid()}", 32, "system.hostname", 61, "#{hostname()}"]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]], []]
     end
   end
 

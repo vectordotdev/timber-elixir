@@ -71,6 +71,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   require Logger
 
+  alias Timber.Event
   alias Timber.Events.ControllerCallEvent
   alias Timber.Events.TemplateRenderEvent
 
@@ -97,7 +98,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     )
 
     message = ControllerCallEvent.message(event)
-    metadata = Timber.Utils.Logger.event_to_metadata(event)
+    metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -130,7 +131,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     }
 
     message = TemplateRenderEvent.message(event)
-    metadata = Timber.Utils.Logger.event_to_metadata(event)
+    metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 

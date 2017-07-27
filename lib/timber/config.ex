@@ -1,5 +1,6 @@
 defmodule Timber.Config do
   @application :timber
+  @default_http_body_max_bytes 2048
 
   @doc """
   Your Timber application API key. This can be obtained after you create your
@@ -59,19 +60,17 @@ defmodule Timber.Config do
   def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
 
   @doc """
-  Configuration for the `:body` size limit in the `Timber.Events.HTTP*` events.
-  Bodies that exceed this limit will be truncated to this limit.
-
-  Please take care with this value, increasing it too high can mean very large
-  payloads and very high outgoing network activity.
+  Configuration for the `:body` byte size limit in the `Timber.Events.HTTP*` events.
+  Bodies that exceed this limit will be truncated to this byte limit. The default is
+  `2048` with a maximum allowed value of `8192`.
 
   # Example
 
   ```elixir
-  config :timber, :http_body_size_limit, 5000
+  config :timber, :http_body_size_limit, 2048
   ```
   """
-  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, 2000)
+  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, @default_http_body_max_bytes)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
@@ -87,6 +86,8 @@ defmodule Timber.Config do
 
   @doc """
   Specify a different JSON encoder function. Timber uses `Poison` by default.
+  The specified function must take any data structure and return `iodata`. It
+  should raise on encode failures.
 
   # Example
 
@@ -94,7 +95,25 @@ defmodule Timber.Config do
   config :timber, :json_encoder, fn map -> encode(map) end
   ```
   """
+  @spec json_encoder() :: ((any) -> iodata)
   def json_encoder, do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
+
+  @doc """
+  Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
+  In a high volume system, this can produce logs with matching timestamps, making it
+  impossible to preseve the order of the logs. By enabling this, Timber will discard
+  the default `Elixir.Logger` timestamps and use it's own with nanosecond precision.
+
+  # Example
+
+  ```elixir
+  config :timber, :nanosecond_timestamps, true
+  ```
+  """
+  @spec use_nanosecond_timestamps? :: boolean
+  def use_nanosecond_timestamps? do
+    Application.get_env(@application, :nanosecond_timestamps, true)
+  end
 
   @doc """
   Specify the log level that phoenix log lines write to. Such as template renders.
@@ -109,10 +128,4 @@ defmodule Timber.Config do
   def phoenix_instrumentation_level(default) do
     Application.get_env(@application, :instrumentation_level, default)
   end
-
-  @doc """
-  Gets the transport specificed in the :timber configuration. The default is
-  `Timber.Transports.IODevice`.
-  """
-  def transport, do: Application.get_env(@application, :transport, Timber.Transports.IODevice)
 end

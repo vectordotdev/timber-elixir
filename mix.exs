@@ -3,13 +3,13 @@ defmodule Timber.Mixfile do
 
   @project_description """
   Timber automatically enhances your logs, turning them into rich structured events.
-  Paried with the timber.io service, Timber helps you solve issues fast so you can go back
-  to doing what you do.
+  Paired with the timber.io service, Timber helps you solve issues fast so you can
+  focus on your app, not logging.
   """
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "2.1.8"
+  @version "2.4.5"
 
   # Project manifest for Mix
   #
@@ -69,9 +69,7 @@ defmodule Timber.Mixfile do
 
   # The environment to be configured by default
   defp env() do
-    [
-      transport: Timber.Transports.IODevice,
-    ]
+    []
   end
 
   # Compiler paths switched on the Mix environment
@@ -160,7 +158,7 @@ defmodule Timber.Mixfile do
 
         # Hackney is pinned because other versions are known to have bugs. This is the
         # safest route.
-        {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.0"},
+        {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6"},
         {:msgpax, "~> 1.0"},
         {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
       ]

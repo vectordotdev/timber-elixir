@@ -1,7 +1,9 @@
 defmodule Timber.Events.SQLQueryEvent do
   @moduledoc """
-  The `SQLQueryEvent` tracks *outgoing* SQL queries. This gives you structured insight into
-  SQL query performance within your application.
+  The `SQLQueryEvent` tracks *outgoing* SQL queries as defined by the Timber log event JSON
+  schema: https://github.com/timberio/log-event-json-schema
+
+  This gives you structured insight into SQL query performance within your application.
 
   Timber can automatically track SQL query events if you use `Ecto` and setup
   `Timber.Integrations.EctoLogger`.

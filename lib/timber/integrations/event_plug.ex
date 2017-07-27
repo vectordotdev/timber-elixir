@@ -7,7 +7,7 @@ defmodule Timber.Integrations.EventPlug do
   adding this plug to your pipeline will automatically create events
   for incoming HTTP requests and responses for your log statements.
 
-  Note: If you're using `Timber.Integrations.ContextPlug`, that plug should come before
+  Note: If you're using `Timber.Integrations.HTTPContextPlug`, that plug should come before
   `Timber.Integrations.EventPlug` in any pipeline. This will give you the best results.
 
   ## Adding the Plug
@@ -68,7 +68,9 @@ defmodule Timber.Integrations.EventPlug do
 
   require Logger
 
-  alias Timber.Events.{HTTPServerRequestEvent, HTTPServerResponseEvent}
+  alias Timber.Event
+  alias Timber.Events.HTTPRequestEvent
+  alias Timber.Events.HTTPResponseEvent
   alias Timber.Timer
   alias Timber.Utils.Plug, as: PlugUtils
 
@@ -105,8 +107,11 @@ defmodule Timber.Integrations.EventPlug do
     headers = List.flatten([request_id_header | conn.req_headers])
     query_string = conn.query_string
 
-    event = HTTPServerRequestEvent.new(
-      body: conn.body_params, # the body is normalized and truncated if necessary
+    event = HTTPRequestEvent.new(
+      # Disabled for now since the body can be excessive and the params should be captured
+      # in the controller_call event.
+      # body: conn.body_params,
+      direction: "incoming",
       headers: headers,
       host: host,
       method: method,
@@ -117,8 +122,8 @@ defmodule Timber.Integrations.EventPlug do
       scheme: scheme
     )
 
-    message = HTTPServerRequestEvent.message(event)
-    metadata = Timber.Utils.Logger.event_to_metadata(event)
+    message = HTTPRequestEvent.message(event)
+    metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 
@@ -146,16 +151,16 @@ defmodule Timber.Integrations.EventPlug do
 
     request_id = request_id_from_header(request_id_header)
 
-    event = HTTPServerResponseEvent.new(
-      body: conn.resp_body, # the body is normalized and truncated if necessary
+    event = HTTPResponseEvent.new(
+      direction: "outgoing",
       headers: headers,
       request_id: request_id,
       status: status,
       time_ms: time_ms
     )
 
-    message = HTTPServerResponseEvent.message(event)
-    metadata = Timber.Utils.Logger.event_to_metadata(event)
+    message = HTTPResponseEvent.message(event)
+    metadata = Event.to_metadata(event)
 
     Logger.log(log_level, message, metadata)
 

@@ -28,7 +28,7 @@ defmodule Timber.Integrations.EctoLogger do
   ```
 
   By default, queries are logged at the `:debug` level. If you want
-  to use a custom level, simple add it to the list of arguments.
+  to use a custom level, simply add it to the list of arguments.
   For example, to log every query at the `:info` level:
 
 
@@ -47,6 +47,7 @@ defmodule Timber.Integrations.EctoLogger do
 
   require Logger
 
+  alias Timber.Event
   alias Timber.Events.SQLQueryEvent
 
   @doc """
@@ -80,7 +81,7 @@ defmodule Timber.Integrations.EctoLogger do
         }
 
         message = SQLQueryEvent.message(event)
-        metadata = Timber.Utils.Logger.event_to_metadata(event)
+        metadata = Event.to_metadata(event)
 
         Logger.log(level, message, metadata)
 

@@ -1,9 +1,11 @@
 language: elixir
 elixir:
-- 1.4.0
-- 1.3.0
+- 1.5.0
+- 1.4.5
+- 1.3.4
 otp_release:
-- 19.0
+- 20.0
+- 19.3
 - 18.3
 env:
   matrix:
@@ -13,11 +15,15 @@ env:
   - ECTO_VERSION_CONSTRAINT=2.0.0
   - PHOENIX_VERSION_CONSTRAINT=omit
   - PHOENIX_VERSION_CONSTRAINT=latest
-  - PHOENIX_VERSION_CONSTRAINT=1.3.0-rc.0
+  - PHOENIX_VERSION_CONSTRAINT="~> 1.3.0-rc"
   - PHOENIX_VERSION_CONSTRAINT=1.2.0
   - PHOENIX_VERSION_CONSTRAINT=1.1.0
   - PLUG_VERSION_CONSTRAINT=omit
   - PLUG_VERSION_CONSTRAINT=latest
+matrix:
+  exclude:
+  - elixir: 1.3.4
+    otp_release: 20.0
 script:
 - MIX_ENV=test mix compile && MIX_ENV=test mix test
 notifications:

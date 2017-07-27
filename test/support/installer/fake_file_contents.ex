@@ -203,7 +203,8 @@ defmodule Timber.Installer.FakeFileContents do
         signing_salt: "abfd232"
 
       # Add Timber plugs for capturing HTTP context and events
-      plug Timber.Integrations.ContextPlug
+      plug Timber.Integrations.SessionContextPlug
+      plug Timber.Integrations.HTTPContextPlug
       plug Timber.Integrations.EventPlug
 
       plug TimberElixir.Router
@@ -287,7 +288,7 @@ defmodule Timber.Installer.FakeFileContents do
 
     # Structure Ecto logs
     config :timber_elixir, ElixirPhoenixExampleApp.Repo,
-      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+      loggers: [{Timber.Integrations.EctoLogger, :log, []}]
 
     # Use Timber as the logger backend
     # Feel free to add additional backends if you want to send you logs to multiple devices.
@@ -299,11 +300,11 @@ defmodule Timber.Installer.FakeFileContents do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
     # For the following environments, do not log to the Timber service. Instead, log to STDOUT
     # and format the logs properly so they are human readable.
-    environments_to_exclude = [:dev, :test]
+    environments_to_exclude = [:test]
     if Enum.member?(environments_to_exclude, Mix.env()) do
       # Fall back to the default `:console` backend with the Timber custom formatter
       config :logger,
@@ -312,7 +313,7 @@ defmodule Timber.Installer.FakeFileContents do
 
       config :logger, :console,
         format: {Timber.Formatter, :format},
-        metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+        metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
       config :timber, Timber.Formatter,
         colorize: true,

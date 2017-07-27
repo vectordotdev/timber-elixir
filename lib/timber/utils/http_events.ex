@@ -2,9 +2,11 @@ defmodule Timber.Utils.HTTPEvents do
   @moduledoc false
 
   alias Timber.Config
+  alias Timber.Utils.JSON
 
   @multi_header_delimiter ","
   @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
+  @header_value_byte_limit 256
   @sanitized_value "[sanitized]"
 
   def format_time_ms(time_ms) when is_integer(time_ms),
@@ -41,14 +43,33 @@ defmodule Timber.Utils.HTTPEvents do
 
   def get_request_id_from_headers(_headers), do: nil
 
+  # Move `:headers` (Map.t) into `:headers_json` (String.t) so that all headers are no indexed
+  # within Timber by default.
+  @spec move_headers_to_headers_json(Keyword.t) :: Keyword.t
+  def move_headers_to_headers_json(opts) do
+    if opts[:headers] do
+      headers_json =
+        opts[:headers]
+        |> Timber.Utils.JSON.encode_to_iodata!()
+        |> to_string()
+
+      opts
+      |> Keyword.put(:headers_json, headers_json)
+      |> Keyword.delete(:headers)
+    else
+      opts
+    end
+  end
+
   @doc false
   # Normalizes the body into a truncated string
+  @spec normalize_body(any) :: String.t
   def normalize_body(nil = body), do: body
 
   def normalize_body("" = body), do: body
 
   def normalize_body(body) when is_map(body) do
-    case Config.json_encoder().(body) do
+    case JSON.encode_to_iodata!(body) do
       {:ok, json} -> normalize_body(to_string(json))
       _ -> nil
     end
@@ -61,12 +82,13 @@ defmodule Timber.Utils.HTTPEvents do
   def normalize_body(body) when is_binary(body) do
     limit = Config.http_body_size_limit()
     body
-    |> Timber.Utils.Logger.truncate(limit)
+    |> Timber.Utils.Logger.truncate_bytes(limit)
     |> to_string()
   end
 
   @doc false
   # Normalizes HTTP headers into a structure expected by the Timber API.
+  @spec normalize_headers(Keyword.t | Map.t) :: Map.t
   def normalize_headers(headers) when is_list(headers) do
     headers
     |> List.flatten()
@@ -96,7 +118,7 @@ defmodule Timber.Utils.HTTPEvents do
   defp normalize_header({name, value}) do
     value =
       value
-      |> Timber.Utils.Logger.truncate(255)
+      |> Timber.Utils.Logger.truncate_bytes(@header_value_byte_limit)
       |> to_string()
 
     {String.downcase(name), value}

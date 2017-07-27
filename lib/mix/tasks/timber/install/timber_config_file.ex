@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
       #{timber_portion(application, api)}
       # For the following environments, do not log to the Timber service. Instead, log to STDOUT
       # and format the logs properly so they are human readable.
-      environments_to_exclude = [:dev, :test]
+      environments_to_exclude = [:test]
       if Enum.member?(environments_to_exclude, Mix.env()) do
         # Fall back to the default `:console` backend with the Timber custom formatter
         config :logger,
@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
         config :logger, :console,
           format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+          metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
         config :timber, Timber.Formatter,
           colorize: true,
@@ -62,7 +62,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     # Structure Ecto logs
     config :#{mix_name}, #{repo_module_name},
-      loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
+      loggers: [{Timber.Integrations.EctoLogger, :log, []}]
     """
   end
 
@@ -76,7 +76,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
     """
   end
 

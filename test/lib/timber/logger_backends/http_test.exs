@@ -48,7 +48,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
 
   describe "Timber.LoggerBackends.HTTP.handle_event/2" do
     test ":flush message fails silently without an API key", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
       {:ok, :ok, state} = HTTP.handle_call({:configure, [api_key: nil]}, state)
       {:ok, state} = HTTP.handle_event(entry, state)
@@ -57,7 +57,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test ":flush message issues a request", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
       {:ok, state} = HTTP.handle_event(entry, state)
       HTTP.handle_event(:flush, state)
@@ -77,7 +77,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test ":flush message issues a request with chardata", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
       {:ok, state} = HTTP.handle_event(entry, state)
       HTTP.handle_event(:flush, state)
@@ -91,7 +91,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test "failure of the http client will not cause the :flush message to raise", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
       expected_method = :post
       expected_url = "https://logs.timber.io/frames"
@@ -110,7 +110,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test "message event buffers the message if the buffer is not full", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
 
       {:ok, new_state} = HTTP.handle_event(entry, state)
       assert new_state.buffer == [event_entry_to_log_entry(entry)]
@@ -119,7 +119,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test "flushes if the buffer is full", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
       state = %{state | max_buffer_size: 1}
       HTTP.handle_event(entry, state)
       calls = FakeHTTPClient.get_async_request_calls()
@@ -129,7 +129,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
 
   describe "Timber.LoggerBackends.HTTP.handle_info/2" do
     test "handles the outlet properly", %{state: state} do
-      entry = {:info, self, {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
+      entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
       {:ok, state} = HTTP.handle_event(entry, state)
       {:ok, new_state} = HTTP.handle_info(:outlet, state)
       calls = FakeHTTPClient.get_async_request_calls()

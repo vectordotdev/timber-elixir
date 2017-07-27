@@ -14,7 +14,7 @@ defmodule Timber.Formatter do
   config :logger, backends: [:console]
   config :logger, :console,
     format: {Timber.Formatter, :format},
-    metadata: [:timber_context, :event, :application, :file, :function, :line, :module]
+    metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
   ```
 
   Further configuration options available on this module are documented below.
@@ -161,7 +161,7 @@ defmodule Timber.Formatter do
     metadata =
       if configuration.print_metadata do
         log_entry
-        |> LogEntry.to_string!(configuration.format, only: [:dt, :level, :event, :context])
+        |> LogEntry.to_iodata!(configuration.format, only: [:dt, :level, :event, :context])
         |> wrap_metadata()
       else
         []

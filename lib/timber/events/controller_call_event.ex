@@ -1,7 +1,8 @@
 defmodule Timber.Events.ControllerCallEvent do
   @moduledoc """
   The `ControllerCallEvent` represents a controller being called during the HTTP request
-  cycle.
+  cycle as defined by the Timber log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
   """
 
   @type t :: %__MODULE__{
@@ -18,7 +19,7 @@ defmodule Timber.Events.ControllerCallEvent do
     :pipelines
   ]
 
-  @params_json_limit 5_000
+  @params_json_max_bytes 8_192
 
   @doc """
   Builds a new struct taking care to:
@@ -31,8 +32,8 @@ defmodule Timber.Events.ControllerCallEvent do
     params_json =
       if params && params != %{} do
         params
-        |> Timber.Utils.JSON.encode!()
-        |> Timber.Utils.Logger.truncate(@params_json_limit)
+        |> Timber.Utils.JSON.encode_to_iodata!()
+        |> Timber.Utils.Logger.truncate_bytes(@params_json_max_bytes)
         |> to_string()
       else
         nil
@@ -52,14 +53,5 @@ defmodule Timber.Events.ControllerCallEvent do
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{action: action, controller: controller, pipelines: pipelines}) do
     ["Processing with ", controller, ?., action, ?/, ?2, " Pipelines: ", inspect(pipelines)]
-  end
-
-  @doc """
-  Converts the struct into a map that the Timber API expects. This is the data
-  that is sent to the Timber API.
-  """
-  @spec to_api_map(t) :: map
-  def to_api_map(%__MODULE__{action: action, controller: controller, params_json: params_json}) do
-    %{action: action, controller: controller, params_json: params_json}
   end
 end

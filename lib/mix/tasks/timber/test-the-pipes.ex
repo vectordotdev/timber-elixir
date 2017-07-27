@@ -18,15 +18,15 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     request_id = generate_request_id()
     [
       log_entry(:info, request_id, "The following messages are test messages sent from the installer. They represent a real-world use case to demonstrate the power of context:"),
-      log_entry(:info, request_id, http_server_request(request_id)),
+      log_entry(:info, request_id, http_request(request_id)),
       log_entry(:info, request_id, controller_call()),
       log_entry(:info, request_id, sql_query()),
-      log_entry(:info, request_id, http_client_request_to_stripe(request_id)),
-      log_entry(:info, request_id, http_client_response_from_stripe(request_id)),
+      log_entry(:info, request_id, http_request_to_stripe(request_id)),
+      log_entry(:info, request_id, http_response_from_stripe(request_id)),
       log_entry(:error, request_id, exception_event()),
       log_entry(:error, request_id, custom_event()),
       log_entry(:info, request_id, template_render()),
-      log_entry(:info, request_id, http_server_response(request_id))
+      log_entry(:info, request_id, http_response(request_id))
     ]
   end
 
@@ -92,7 +92,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   defp exception_event do
-    %Events.ExceptionEvent{
+    %Events.ErrorEvent{
       backtrace: [
         %{app_name: "my_app", function: "MyApp.OrderController.create/2", file: "web/controllers/order_controller.ex", line: 23},
         %{app_name: "my_app", function: "MyApp.OrderController.phoenix_controller_pipeline/2", file: "web/controllers/order_controller.ex", line: 1},
@@ -106,9 +106,10 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp http_server_request(request_id) do
-    %Events.HTTPServerRequestEvent{
+  defp http_request(request_id) do
+    %Events.HTTPRequestEvent{
       body: "{\"credit_card_token\": \"abcd1234\"}",
+      direction: "incoming",
       host: "timber-test-events.com",
       headers: %{
         "accept": "application/json",
@@ -126,9 +127,10 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp http_server_response(request_id) do
-    %Events.HTTPServerResponseEvent{
+  defp http_response(request_id) do
+    %Events.HTTPResponseEvent{
       body: "{\"error\": \"Oops we had a problem\"}",
+      direction: "outgoing",
       headers: %{
         "content-type": "application/json",
         "x-request-id": request_id
@@ -139,9 +141,10 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp http_client_request_to_stripe(request_id) do
-    %Events.HTTPClientRequestEvent{
+  defp http_request_to_stripe(request_id) do
+    %Events.HTTPRequestEvent{
       body: "{\"credit_card_token\": \"abcd1234\", \"customer_id\": \"xd45bfd\"}",
+      direction: "outgoing",
       headers: %{
         "accept": "application/json",
         "authorization": "Basic [sanitized]",
@@ -159,9 +162,10 @@ defmodule Mix.Tasks.Timber.TestThePipes do
     }
   end
 
-  defp http_client_response_from_stripe(request_id) do
-    %Events.HTTPClientResponseEvent{
+  defp http_response_from_stripe(request_id) do
+    %Events.HTTPResponseEvent{
       body: "{\"error\": \"credit card has expired\"}",
+      direction: "incoming",
       headers: %{
         "content-type": "application/json",
         "x-request-id": request_id

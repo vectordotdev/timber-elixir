@@ -1,10 +1,14 @@
-defmodule Timber.Events.ExceptionEventTest do
+defmodule Timber.Events.ErrorEventTest do
+  defmodule CustomError do
+    defexception [:message, :key]
+  end
+
   use Timber.TestCase
 
-  alias Timber.Events.ExceptionEvent
+  alias Timber.Events.ErrorEvent
 
-  describe "Timber.Events.ExceptionEvent.new/1" do
-    test "converting to an ExceptionEvent" do
+  describe "Timber.Events.ErrorEvent.from_log_message/1" do
+    test "converting to an ErrorEvent" do
       log_message =
         """
         ** (exit) an exception was raised:
@@ -21,8 +25,8 @@ defmodule Timber.Events.ExceptionEventTest do
                 (plug) lib/plug/adapters/cowboy/handler.ex:15: Plug.Adapters.Cowboy.Handler.upgrade/4
                 (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
         """
-      {:ok, event} = ExceptionEvent.new(log_message)
-      assert event == %Timber.Events.ExceptionEvent{
+      {:ok, event} = ErrorEvent.from_log_message(log_message)
+      assert event == %Timber.Events.ErrorEvent{
         message: "boom",
         name: "RuntimeError",
         backtrace: [
@@ -35,8 +39,7 @@ defmodule Timber.Events.ExceptionEventTest do
           %{app_name: "my_app", file: "lib/plug/error_handler.ex", function: "MyApp.Router.call/2", line: 64},
           %{app_name: "my_app", file: "lib/my_app/endpoint.ex", function: "MyApp.Endpoint.phoenix_pipeline/1", line: 1},
           %{app_name: "my_app", file: "lib/my_app/endpoint.ex", function: "MyApp.Endpoint.call/2", line: 1},
-          %{app_name: "plug", file: "lib/plug/adapters/cowboy/handler.ex", function: "Plug.Adapters.Cowboy.Handler.upgrade/4", line: 15},
-          %{app_name: "cowboy", file: "/Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl", function: ":cowboy_protocol.execute/4", line: 442}
+          %{app_name: "plug", file: "lib/plug/adapters/cowboy/handler.ex", function: "Plug.Adapters.Cowboy.Handler.upgrade/4", line: 15}
         ]
       }
     end
@@ -48,7 +51,7 @@ defmodule Timber.Events.ExceptionEventTest do
             ** (ArgumentError) argument error
                 (stdlib) :ets.lookup(:noproc, 111)
         """
-      result = ExceptionEvent.new(log_message)
+      result = ErrorEvent.from_log_message(log_message)
       assert result == {:error, :could_not_parse_message}
     end
 
@@ -59,12 +62,25 @@ defmodule Timber.Events.ExceptionEventTest do
             ** (RuntimeError) boom
                 (my_app) malformed
         """
-      result = ExceptionEvent.new(log_message)
+      result = ErrorEvent.from_log_message(log_message)
       assert result == {:error, :could_not_parse_message}
     end
 
     test "malformed message" do
-      {:error, :could_not_parse_message} = ExceptionEvent.new("testing")
+      {:error, :could_not_parse_message} = ErrorEvent.from_log_message("testing")
+    end
+  end
+
+  describe "Timber.Events.ErrorEvent.from_exception/1" do
+    test "builds an error event" do
+      error = %CustomError{message: "message", key: "value"}
+      event = ErrorEvent.from_exception(error)
+      assert event == %ErrorEvent{
+        backtrace: nil,
+        message: "message",
+        metadata_json: "{\"key\":\"value\"}",
+        name: "Timber.Events.ErrorEventTest.CustomError"
+      }
     end
   end
 end
