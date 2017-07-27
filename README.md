@@ -119,7 +119,7 @@ Logger.info("My log message")
 </p></details>
 
 
-#### Pro-tips 💪
+### 💪 Pro-tips
 
 <details><summary><strong>Timings & Metrics</strong></summary><p>
 
