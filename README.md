@@ -118,6 +118,9 @@ Logger.info("My log message")
 
 </p></details>
 
+
+### Pro-tips 💪
+
 <details><summary><strong>Metrics</strong></summary><p>
 
 Logging metrics is accomplished by logging custom events. Please see our
