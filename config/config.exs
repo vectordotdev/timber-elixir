@@ -4,12 +4,12 @@
 use Mix.Config
 
 config :logger, :utc_log, true
-config :logger, :handle_otp_reports, false
 
 config :logger, backends: [:console]
 config :logger, :console,
-  format: {Timber.Formatter, :format},
-  metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+  format: {Timber.Formatter, :format}
+  # For whatever reason, ExUnut.CaptureLog does not work when metadata is passed
+  # metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
 config :plug,
   validate_header_keys_during_test: true

@@ -72,8 +72,97 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   require Logger
 
   alias Timber.Event
+  alias Timber.Events.ChannelJoinEvent
+  alias Timber.Events.ChannelReceiveEvent
   alias Timber.Events.ControllerCallEvent
   alias Timber.Events.TemplateRenderEvent
+
+  #
+  # Channels
+  #
+
+  @doc false
+  @spec phoenix_channel_join(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
+  def phoenix_channel_join(:start, _compile, %{socket: socket, params: params}) do
+    log_level = get_log_level(:info)
+    channel = try_atom_inspect(socket.channel)
+    topic = socket.topic
+    transport = try_atom_inspect(socket.transport)
+    serializer = try_atom_inspect(socket.serializer) # atom (module name) | nil
+    protocol_version = if Map.has_key?(socket, :vsn), do: socket.vsn, else: nil
+    filtered_params = filter_params(params)
+
+    metadata =
+      %{
+        transport: transport,
+        serializer: serializer,
+        protocol_version: protocol_version,
+        params: filtered_params
+      }
+
+    metadata_json =
+      case Timber.Utils.JSON.encode_to_iodata(metadata) do
+        {:ok, json} -> IO.iodata_to_binary(json)
+        {:error, _error} -> nil
+      end
+
+    event =
+      ChannelJoinEvent.new(
+        channel: channel,
+        topic: topic,
+        metadata_json: metadata_json
+      )
+
+    message = ChannelJoinEvent.message(event)
+    metadata = Event.to_metadata(event)
+
+    Logger.log(log_level, message, metadata)
+  end
+
+  def phoenix_channel_join(:stop, _compile, :ok),
+    do: :ok
+
+  def phoenix_channel_receive(:start, _compile, meta) do
+    %{socket: socket, params: params, event: event} = meta
+
+    log_level = get_log_level(:info)
+    channel = try_atom_inspect(socket.channel)
+    topic = socket.topic
+    transport = try_atom_inspect(socket.transport)
+    filtered_params = filter_params(params)
+
+    metadata =
+      %{
+        transport: transport,
+        params: filtered_params
+      }
+
+    metadata_json =
+      case Timber.Utils.JSON.encode_to_iodata(metadata) do
+        {:ok, json} -> IO.iodata_to_binary(json)
+        {:error, _error} -> nil
+      end
+
+    event =
+      ChannelReceiveEvent.new(
+        channel: channel,
+        topic: topic,
+        event: event,
+        metadata_json: metadata_json
+      )
+
+    message = ChannelReceiveEvent.message(event)
+    metadata = Event.to_metadata(event)
+
+    Logger.log(log_level, message, metadata)
+  end
+
+  def phoenix_channel_receive(:stop, _compile, :ok),
+    do: :ok
+
+  #
+  # Controllers
+  #
 
   @doc false
   @spec phoenix_controller_call(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
@@ -87,15 +176,16 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
       |> Atom.to_string()
 
     # Phoenix actions are always 2 arity function
-    params = params(conn.params)
+    params = filter_params(conn.params)
     pipelines = conn.private[:phoenix_pipelines]
 
-    event = ControllerCallEvent.new(
-      action: action_name,
-      controller: controller,
-      params: params,
-      pipelines: pipelines
-    )
+    event =
+      ControllerCallEvent.new(
+        action: action_name,
+        controller: controller,
+        params: params,
+        pipelines: pipelines
+      )
 
     message = ControllerCallEvent.message(event)
     metadata = Event.to_metadata(event)
@@ -125,10 +215,11 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
       |> System.convert_time_unit(:native, :milliseconds)
       |> :erlang.float()
 
-    event = %TemplateRenderEvent{
-      name: template_name,
-      time_ms: time_ms
-    }
+    event =
+      %TemplateRenderEvent{
+        name: template_name,
+        time_ms: time_ms
+      }
 
     message = TemplateRenderEvent.message(event)
     metadata = Event.to_metadata(event)
@@ -138,19 +229,32 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     :ok
   end
 
+  #
+  # Utility
+  #
+
   @spec get_log_level(atom) :: atom
   defp get_log_level(default) do
     Timber.Config.phoenix_instrumentation_level(default)
   end
 
-  defp params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}), do: %{}
+  defp filter_params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}),
+    do: %{}
 
-  defp params(params) when is_list(params) or is_map(params) do
+  defp filter_params(params) when is_list(params) or is_map(params) do
     params
     |> Phoenix.Logger.filter_values()
     |> Enum.into(%{})
   end
 
   # Unknown type, convert to a blank map for now
-  defp params(_params), do: %{}
+  defp filter_params(_params),
+    do: %{}
+
+  defp try_atom_inspect(nil),
+    do: nil
+
+  defp try_atom_inspect(atom) do
+    inspect(atom)
+  end
 end

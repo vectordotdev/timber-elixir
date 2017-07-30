@@ -1,0 +1,29 @@
+defmodule Timber.Integrations.PhoenixInstrumenterTest do
+  use Timber.TestCase
+
+  import ExUnit.CaptureLog
+
+  alias Timber.Integrations.PhoenixInstrumenter
+
+  require Logger
+
+  describe "Timber.Integrations.PhoenixInstrumenter.phoenix_channel_join/3" do
+    test "logs phoenix_channel_join as configured by the channel" do
+      log = capture_log(fn ->
+        socket = %Phoenix.Socket{channel: :channel, topic: "topic", private: %{log_join: :info}}
+        PhoenixInstrumenter.phoenix_channel_join(:start, %{}, %{socket: socket, params: %{key: "val"}})
+      end)
+      assert log =~ "Channel :channel joined with \"topic\" @metadata "
+    end
+  end
+
+  describe "Timber.Integrations.PhoenixInstrumenter.phoenix_channel_receive/3" do
+    test "logs phoenix_channel_receive as configured by the channel" do
+      log = capture_log(fn ->
+        socket = %Phoenix.Socket{channel: :channel, topic: "topic", private: %{log_handle_in: :info}}
+        PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, %{socket: socket, event: "e", params: %{}})
+      end)
+      assert log =~ "Incoming \"e\" on topic to :channel @metadata "
+    end
+  end
+end
