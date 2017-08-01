@@ -119,7 +119,7 @@ Logger.info("My log message")
 </p></details>
 
 
-### 💪 Pro-tips
+### Pro-tips 💪
 
 <details><summary><strong>Timings & Metrics</strong></summary><p>
 
@@ -179,6 +179,26 @@ raise(
 * These fields will be available in the `event.error.metadata_json` field.
 * Run the query `type:error` to view all errors.
 * Within the [Timber console](https://app.timber.io) you can click the log to view all of this data.
+
+---
+
+</p></details>
+
+<details><summary><strong>Sharing context between processes</strong></summary><p>
+
+The `Timber.Context` is local to each process, this is by design as it prevents processes from
+conflicting with each other as they maintain their contexts. But many times you'll want to share
+context between processes because they are related (such as processes created by `Task` or `Flow`).
+In these instances copying the context is easy:
+
+```elixir
+current_context = Timber.CurrentContext.load()
+
+Task.async fn ->
+  Timber.CurrentContext.save(current_context)
+  Logger.info("Logs from a separate process")
+end
+```
 
 ---
 
