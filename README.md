@@ -220,8 +220,10 @@ everything from our search syntax to alerting and graphin.
 
 The [`Phoenix` integration](https://hexdocs.pm/timber/Timber.Integrations.PhoenixInstrumenter.html#content)
 structures your existing `Phoenix` logs into
-[`controller_call`](https://timber.io/docs/elixir/events-and-context/controller-call-event/) and
-[`template_render`](https://timber.io/docs/elixir/events-and-context/template-render-event/) events.
+[`controller_call`](https://timber.io/docs/elixir/events-and-context/controller-call-event/),
+[`template_render`](https://timber.io/docs/elixir/events-and-context/template-render-event/),
+[`channel_join`](https://timber.io/docs/elixir/events-and-context/channel-join-event/), and
+[`channel_receive`](https://timber.io/docs/elixir/events-and-context/channel-receive-event/) events.
 
 Pro-tip: this integration captures the parameters sent to your controller, making it easy to
 debug issues by understanding exactly which data was sent to your controller.
