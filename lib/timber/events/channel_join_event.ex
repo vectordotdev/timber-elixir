@@ -49,6 +49,6 @@ defmodule Timber.Events.ChannelJoinEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{channel: channel, topic: topic}) do
-    ["Channel ", to_string(channel), " joined with \"", to_string(topic), "\""]
+    ["Joined channel ", to_string(channel), " with \"", to_string(topic), "\""]
   end
 end

@@ -51,6 +51,6 @@ defmodule Timber.Events.ChannelReceiveEvent do
   """
   @spec message(t) :: IO.chardata
   def message(%__MODULE__{channel: channel, topic: topic, event: event}) do
-    ["Incoming ", inspect(event), " on ", to_string(topic), " to ", to_string(channel)]
+    ["Received ", to_string(event), " on ", to_string(topic), " to ", to_string(channel)]
   end
 end

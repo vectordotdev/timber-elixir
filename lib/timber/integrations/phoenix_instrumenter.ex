@@ -82,13 +82,15 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   #
 
   @doc false
-  @spec phoenix_channel_join(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
+  @spec phoenix_channel_join(:start, compile_metadata :: map, runtime_metadata :: map) :: :ok
+  @spec phoenix_channel_join(:stop, time_diff_native :: non_neg_integer, result_of_before_callback :: :ok) :: :ok
   def phoenix_channel_join(:start, _compile, %{socket: socket, params: params}) do
+    # Any value using try_atom_to_string handles nil values since they are not always present.
     log_level = get_log_level(:info)
-    channel = try_atom_inspect(socket.channel)
+    channel = try_atom_to_string(socket.channel)
     topic = socket.topic
-    transport = try_atom_inspect(socket.transport)
-    serializer = try_atom_inspect(socket.serializer) # atom (module name) | nil
+    transport = try_atom_to_string(socket.transport)
+    serializer = try_atom_to_string(socket.serializer)
     protocol_version = if Map.has_key?(socket, :vsn), do: socket.vsn, else: nil
     filtered_params = filter_params(params)
 
@@ -126,9 +128,9 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     %{socket: socket, params: params, event: event} = meta
 
     log_level = get_log_level(:info)
-    channel = try_atom_inspect(socket.channel)
+    channel = try_atom_to_string(socket.channel)
     topic = socket.topic
-    transport = try_atom_inspect(socket.transport)
+    transport = try_atom_to_string(socket.transport)
     filtered_params = filter_params(params)
 
     metadata =
@@ -165,7 +167,8 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   #
 
   @doc false
-  @spec phoenix_controller_call(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
+  @spec phoenix_controller_call(:start, compile_metadata :: map, runtime_metadata :: map) :: :ok
+  @spec phoenix_controller_call(:stop, time_diff_native :: non_neg_integer, result_of_before_callback :: :ok) :: :ok
   def phoenix_controller_call(:start, %{module: module}, %{conn: conn}) do
     log_level = get_log_level(:info)
 
@@ -251,10 +254,11 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   defp filter_params(_params),
     do: %{}
 
-  defp try_atom_inspect(nil),
-    do: nil
+  defp try_atom_to_string(atom) when is_atom(t) do
+    Atom.to_string(atom)
+  end
 
-  defp try_atom_inspect(atom) do
-    inspect(atom)
+  defp try_atom_to_string(_atom) do
+    nil
   end
 end
