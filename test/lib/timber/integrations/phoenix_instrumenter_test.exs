@@ -14,7 +14,7 @@ if Code.ensure_loaded?(Phoenix) do
           socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
           PhoenixInstrumenter.phoenix_channel_join(:start, %{}, %{socket: socket, params: %{key: "val"}})
         end)
-        assert log =~ "Channel :channel joined with \"topic\" @metadata "
+        assert log =~ "Joined channel channel with \"topic\" @metadata "
       end
     end
 
@@ -24,7 +24,7 @@ if Code.ensure_loaded?(Phoenix) do
           socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
           PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, %{socket: socket, event: "e", params: %{}})
         end)
-        assert log =~ "Incoming \"e\" on topic to :channel @metadata "
+        assert log =~ "Received e on \"topic\" to channel @metadata "
       end
     end
   end
