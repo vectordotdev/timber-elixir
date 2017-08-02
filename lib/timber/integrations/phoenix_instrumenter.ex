@@ -254,7 +254,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   defp filter_params(_params),
     do: %{}
 
-  defp try_atom_to_string(atom) when is_atom(t) do
+  defp try_atom_to_string(atom) when is_atom(atom) do
     Atom.to_string(atom)
   end
 
