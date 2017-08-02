@@ -245,9 +245,13 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     do: %{}
 
   defp filter_params(params) when is_list(params) or is_map(params) do
-    params
-    |> Phoenix.Logger.filter_values()
-    |> Enum.into(%{})
+    if function_exported?(Phoenix.Logger, :filter_values, 1) do
+      params
+      |> Phoenix.Logger.filter_values()
+      |> Enum.into(%{})
+    else
+      params
+    end
   end
 
   # Unknown type, convert to a blank map for now
