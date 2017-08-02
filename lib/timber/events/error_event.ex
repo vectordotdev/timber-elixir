@@ -1,7 +1,9 @@
 defmodule Timber.Events.ErrorEvent do
   @moduledoc """
-  The `ErrorEvent` is used to track errors and exceptions as defined by the Timber log event
-  JSON schema: https://github.com/timberio/log-event-json-schema
+  The `ErrorEvent` is used to track errors and exceptions.
+
+  The defined structure of this data can be found in the log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
 
   Timber automatically tracks and structures errors and exceptions in your application. Giving
   you detailed stack traces, context, and error data.
@@ -24,11 +26,11 @@ defmodule Timber.Events.ErrorEvent do
   @type t :: %__MODULE__{
     backtrace: [backtrace_entry] | [],
     name: String.t,
-    message: String.t,
-    metadata_json: nil | binary
+    message: String.t | nil,
+    metadata_json: binary | nil
   }
 
-  @enforce_keys [:name, :message]
+  @enforce_keys [:name]
   defstruct [:backtrace, :name, :message, :metadata_json]
 
   @app_name_byte_limit 256
@@ -70,12 +72,13 @@ defmodule Timber.Events.ErrorEvent do
           |> to_string()
       end
 
-    %__MODULE__{
+    struct!(
+      __MODULE__,
       name: name,
       message: message,
       backtrace: backtrace,
       metadata_json: metadata_json
-    }
+    )
   end
 
   @doc """

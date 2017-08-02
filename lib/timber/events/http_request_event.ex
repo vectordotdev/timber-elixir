@@ -1,10 +1,12 @@
 defmodule Timber.Events.HTTPRequestEvent do
   @moduledoc """
-  The `HTTPRequestEvent` tracks HTTP requests as defined by the Timber log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+  The `HTTPRequestEvent` tracks HTTP requests.
 
   This gives you structured into the HTTP request
   coming into your app as well as the ones going out (if you choose to track them).
+
+  The defined structure of this data can be found in the log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
 
   Timber can automatically track incoming HTTP requests if you use a `Plug` based framework.
   See the documentation for `Timber.Integerations.EventPlug` for more information. The `README.md`
@@ -16,7 +18,7 @@ defmodule Timber.Events.HTTPRequestEvent do
   @type t :: %__MODULE__{
     body: String.t | nil,
     direction: String.t | nil,
-    host: String.t,
+    host: String.t | nil,
     headers: map | nil,
     headers_json: String.t | nil,
     method: String.t,
@@ -24,7 +26,7 @@ defmodule Timber.Events.HTTPRequestEvent do
     port: pos_integer | nil,
     query_string: String.t | nil,
     request_id: String.t | nil,
-    scheme: String.t,
+    scheme: String.t | nil,
     service_name: nil | String.t
   }
 

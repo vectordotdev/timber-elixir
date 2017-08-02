@@ -7,6 +7,8 @@ defmodule Timber.Event do
   alias Timber.Utils.Map, as: UtilsMap
 
   @type t ::
+    Events.ChannelJoinEvent    |
+    Events.ChannelReceiveEvent |
     Events.ControllerCallEvent |
     Events.CustomEvent         |
     Events.ErrorEvent          |
@@ -67,6 +69,8 @@ defmodule Timber.Event do
   sending to Timber.
   """
   @spec type(t) :: atom()
+  def type(%Events.ChannelJoinEvent{}), do: :channel_join
+  def type(%Events.ChannelReceiveEvent{}), do: :channel_receive
   def type(%Events.ControllerCallEvent{}), do: :controller_call
   def type(%Events.CustomEvent{}), do: :custom
   def type(%Events.ErrorEvent{}), do: :error

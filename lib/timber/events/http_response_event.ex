@@ -1,10 +1,12 @@
 defmodule Timber.Events.HTTPResponseEvent do
   @moduledoc """
   The `HTTPResponseEvent` tracks HTTP responses in your app, both outgoing and
-  incoming from external services (should you choose to track these) as defined by the
-  Timber log event JSON schema: https://github.com/timberio/log-event-json-schema
+  incoming from external services (should you choose to track these).
 
   This gives you structured insight into all of your HTTP response events.
+
+  The defined structure of this data can be found in the log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
 
   Timber can automatically track response events if you use a `Plug` based framework
   through `Timber.Plug`.

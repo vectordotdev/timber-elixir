@@ -1,7 +1,9 @@
 defmodule Timber.Events.ControllerCallEvent do
   @moduledoc """
   The `ControllerCallEvent` represents a controller being called during the HTTP request
-  cycle as defined by the Timber log event JSON schema:
+  cycle.
+
+  The defined structure of this data can be found in the log event JSON schema:
   https://github.com/timberio/log-event-json-schema
   """
 
@@ -9,6 +11,7 @@ defmodule Timber.Events.ControllerCallEvent do
     action: String.t,
     controller: String.t,
     params_json: String.t | nil,
+    pipelines: String.t | nil
   }
 
   @enforce_keys [:action, :controller]
@@ -39,12 +42,12 @@ defmodule Timber.Events.ControllerCallEvent do
         nil
       end
 
-    %__MODULE__{
-      action: Keyword.get(opts, :action),
-      controller: Keyword.get(opts, :controller),
-      params_json: params_json,
-      pipelines: Keyword.get(opts, :pipelines)
-    }
+    new_opts =
+      opts
+      |> Keyword.delete(:params)
+      |> Keyword.put(:params_json, params_json)
+
+    struct!(__MODULE__, new_opts)
   end
 
   @doc """

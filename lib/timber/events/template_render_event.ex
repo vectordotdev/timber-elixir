@@ -1,17 +1,19 @@
 defmodule Timber.Events.TemplateRenderEvent do
   @moduledoc """
-  The `TemplateRenderEvent` trackes template rendering within your app as defined by the Timber
-  log event JSON schema: https://github.com/timberio/log-event-json-schema
+  The `TemplateRenderEvent` trackes template rendering within your app.
 
   Giving you structured insight into template rendering performance.
+
+  The defined structure of this data can be found in the log event JSON schema:
+  https://github.com/timberio/log-event-json-schema
 
   Timber can automatically track template rendering events if you
   use the Phoenix framework and setup the `Timber.Integrations.PhoenixInstrumenter`.
   """
 
   @type t :: %__MODULE__{
-    name: String.t | nil,
-    time_ms: float | nil,
+    name: String.t,
+    time_ms: float,
   }
 
   @enforce_keys [:name, :time_ms]

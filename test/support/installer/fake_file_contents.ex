@@ -262,7 +262,7 @@ defmodule Timber.Installer.FakeFileContents do
 
       def channel do
         quote do
-          use Phoenix.Channel
+          use Phoenix.Channel, log_join: false, log_handle_in: false
 
           alias TimberElixir.Repo
           import Ecto
