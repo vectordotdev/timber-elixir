@@ -11,7 +11,7 @@ if Code.ensure_loaded?(Ecto) do
     describe "Timber.Integrations.EctoLogger.log/2" do
       test "exceeds the query threshold" do
         query = "SELECT * FROM table"
-        timer = :os.system_time(:millisecond)
+        timer = 0
 
         log = capture_log(fn ->
           EctoLogger.log(%{query: query, query_time: timer}, :info)
