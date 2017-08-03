@@ -88,7 +88,7 @@ defmodule Timber.Integrations.EctoLogger do
         time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
         query_time_ms_threshold = get_query_time_ms_threshold()
 
-        if time_ms > query_time_ms_threshold do
+        if time_ms >= query_time_ms_threshold do
           event = %SQLQueryEvent{
             sql: query_text,
             time_ms: time_ms
