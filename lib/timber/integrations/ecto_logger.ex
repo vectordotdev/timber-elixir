@@ -31,7 +31,6 @@ defmodule Timber.Integrations.EctoLogger do
   to use a custom level, simply add it to the list of arguments.
   For example, to log every query at the `:info` level:
 
-
   ```elixir
   config :my_app, MyApp.Repo,
     loggers: [{Timber.Integrations.EctoLogger, :log, [:info]}]
@@ -43,6 +42,19 @@ defmodule Timber.Integrations.EctoLogger do
   took to execute on the database, as measured by Ecto. It does not
   include the time that the query spent in the pool's queue or the
   time spent decoding the response from the database.
+
+  ### Log only slow queries
+
+  If your queries are noisy you can specify a threshold that must be
+  crossed in order for the query to be logged:
+
+  ```elixir
+  config :timber, Timber.Integrations.EctoLogger,
+    query_time_ms_threshold: 2_000 # 2 seconds
+  ```
+
+  In the above example, only queries that exceed 2 seconds in execution
+  time will be logged.
   """
 
   require Logger
@@ -74,16 +86,19 @@ defmodule Timber.Integrations.EctoLogger do
         # The time is given in native units which the VM determines. We have
         # to convert them to the desired unit
         time_ms = System.convert_time_unit(time_native, :native, :milliseconds)
+        query_time_ms_threshold = get_query_time_ms_threshold()
 
-        event = %SQLQueryEvent{
-          sql: query_text,
-          time_ms: time_ms
-        }
+        if time_ms > query_time_ms_threshold do
+          event = %SQLQueryEvent{
+            sql: query_text,
+            time_ms: time_ms
+          }
 
-        message = SQLQueryEvent.message(event)
-        metadata = Event.to_metadata(event)
+          message = SQLQueryEvent.message(event)
+          metadata = Event.to_metadata(event)
 
-        Logger.log(level, message, metadata)
+          Logger.log(level, message, metadata)
+        end
 
         entry
 
@@ -105,4 +120,7 @@ defmodule Timber.Integrations.EctoLogger do
   defp resolve_query(q, entry) when is_function(q), do: {:ok, q.(entry)}
   defp resolve_query(q, _) when is_binary(q), do: {:ok, q}
   defp resolve_query(_q, _entry), do: {:error, :no_query}
+
+  defp config, do: Elixir.Application.get_env(:odin_aws, __MODULE__, [])
+  defp get_query_time_ms_threshold, do: Keyword.get(config(), :query_time_ms_threshold, 0)
 end
