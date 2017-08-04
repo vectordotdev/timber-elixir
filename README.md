@@ -213,6 +213,25 @@ everything from our search syntax to alerting and graphin.
 
 </p></details>
 
+## Configuration
+
+Below are a few popular configuration settings. A comprehensive list can be found in the [Timber.Config documentation](https://hexdocs.pm/timber/Timber.Config.html#content).
+
+<details><summary><strong>Only log slow Ecto SQL queries</strong></summary><p>
+
+Logging SQL queries can be useful but noisy. To reduce the volume of SQL queries you can
+limit your logging to queries that surpass an execution time threshold:
+
+```elixir
+config :timber, Timber.Integrations.EctoLogger,
+  query_time_ms_threshold: 2_000 # 2 seconds
+```
+
+In the above example, only queries that exceed 2 seconds in execution
+time will be logged.
+
+</p></details>
+
 
 ## Integrations
 
