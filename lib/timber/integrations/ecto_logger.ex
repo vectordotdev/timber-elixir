@@ -121,6 +121,6 @@ defmodule Timber.Integrations.EctoLogger do
   defp resolve_query(q, _) when is_binary(q), do: {:ok, q}
   defp resolve_query(_q, _entry), do: {:error, :no_query}
 
-  defp config, do: Elixir.Application.get_env(:odin_aws, __MODULE__, [])
+  defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
   defp get_query_time_ms_threshold, do: Keyword.get(config(), :query_time_ms_threshold, 0)
 end
