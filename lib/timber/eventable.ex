@@ -38,6 +38,14 @@ defprotocol Timber.Eventable do
   def to_event(data)
 end
 
+defimpl Timber.Eventable, for: Timber.Events.ChannelJoinEvent do
+  def to_event(event), do: event
+end
+
+defimpl Timber.Eventable, for: Timber.Events.ChannelReceiveEvent do
+  def to_event(event), do: event
+end
+
 defimpl Timber.Eventable, for: Timber.Events.ControllerCallEvent do
   def to_event(event), do: event
 end
