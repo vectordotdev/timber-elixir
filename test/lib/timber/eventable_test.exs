@@ -1,9 +1,26 @@
 defmodule Timber.EventableTest do
   use Timber.TestCase
 
+  alias Timber.Events
   alias Timber.Eventable
 
   describe "Timber.Eventable.to_event/1" do
+    #
+    # Events
+    #
+
+    test "Timber.Events.ChannelJoinEvent" do
+      base_event = %Events.ChannelJoinEvent{channel: "channel", topic: "topic"}
+      event = Eventable.to_event(base_event)
+      assert event == base_event
+    end
+
+    test "Timber.Events.ChannelReceiveEvent" do
+      base_event = %Events.ChannelReceiveEvent{channel: "channel", topic: "topic", event: "event"}
+      event = Eventable.to_event(base_event)
+      assert event == base_event
+    end
+
     #
     # Map
     #
