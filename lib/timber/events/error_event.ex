@@ -36,6 +36,7 @@ defmodule Timber.Events.ErrorEvent do
   @app_name_byte_limit 256
   @file_byte_limit 1_024
   @function_byte_limit 256
+  @max_backtrace_size 20
   @message_byte_limit 8_192
   @metadata_json_byte_limit 8_192
   @name_byte_limit 256
@@ -58,7 +59,7 @@ defmodule Timber.Events.ErrorEvent do
     backtrace =
       case Keyword.get(opts, :backtrace, nil) do
         nil -> nil
-        backtrace -> Enum.slice(backtrace, 0..9)
+        backtrace -> Enum.slice(backtrace, 0..(@max_backtrace_size - 1))
       end
 
     metadata_json =
