@@ -126,7 +126,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     Once there, create an application. Your API key will be displayed afterwards.
     For more detailed instructions, checkout our docs page:
 
-    https://timber.io/docs/app/obtain-api-key/
+    https://timber.io/docs/app/applications/obtaining-api-key
     """
   end
 
