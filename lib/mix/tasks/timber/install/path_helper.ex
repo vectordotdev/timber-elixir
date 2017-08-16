@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
     missing_file_prompt_message =
       """
       If you prefer, you can skip this and manually install later following
-      these instructions: https://timber.io/docs/elixir/installation/manual-installation/
+      these instructions: https://timber.io/docs/languages/elixir/installation/manual
 
       Please enter the correct relative path for the '#{IOHelper.colorize(file_name, :blue)}' file (or type 'skip' to skip)
       """
