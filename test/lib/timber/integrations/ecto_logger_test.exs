@@ -20,6 +20,16 @@ if Code.ensure_loaded?(Ecto) do
         assert log =~ "Processed SELECT * FROM table in"
         assert log =~ " @metadata "
       end
+
+      test "query_time is nil" do
+        query = "SELECT * FROM table"
+
+        log = capture_log(fn ->
+          EctoLogger.log(%{query: query, query_time: nil}, :info)
+        end)
+
+        assert log == ""
+      end
     end
   end
 end
