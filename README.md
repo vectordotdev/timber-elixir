@@ -13,9 +13,9 @@ It's clean structured logging without the effort. When paired with the
 [Timber console](#the-timber-console), Timber will
 [fundamentally change the way you use your logs](#do-amazing-things-with-your-logs).
 
-1. [**Easy setup** - `bundle exec timber install`](#installation)
+1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
-3. [**Do amazing things with your Ruby logs**](#do-amazing-things-with-your-logs)
+3. [**Do amazing things with your Elixir logs**](#do-amazing-things-with-your-logs)
 
 
 ## Installation
