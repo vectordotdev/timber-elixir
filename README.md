@@ -247,7 +247,7 @@ variable scope is lexical, you can pass the referenced context into the newly cr
 
 ## Configuration
 
-Below are a few popular configuration settings. A comprehensive list can be found in the [Timber.Config documentation](https://hexdocs.pm/timber/Timber.Config.html#content).
+Below are a few popular configuration options, for a comprehensive list see [Timber.Config](https://hexdocs.pm/timber/Timber.Config.html#content).
 
 <details><summary><strong>Capture user context</strong></summary><p>
 
