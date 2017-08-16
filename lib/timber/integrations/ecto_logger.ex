@@ -80,7 +80,7 @@ defmodule Timber.Integrations.EctoLogger do
   which is then logged at the designated level.
   """
   @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
-  def log(%{query: query, query_time: time_native} = entry, level) do
+  def log(%{query: query, query_time: time_native} = entry, level) when is_integer(time_native) do
     case resolve_query(query, entry) do
       {:ok, query_text} ->
         # The time is given in native units which the VM determines. We have
@@ -106,6 +106,13 @@ defmodule Timber.Integrations.EctoLogger do
         entry
     end
   end
+
+  # time_native above is not an integer as expected. This is required and a violation of the
+  # type spec. Queries of this nature will be ignored.
+  def log(entry, _level) do
+    entry
+  end
+
 
   # Interestingly, the query is not necessarily a String.t, it
   # can also be a single-arity function which, given the log entry
