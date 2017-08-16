@@ -1,4 +1,4 @@
-# 🌲 Timber - Log Better. Solve Problems Faster.
+# 🌲 Timber - Great Elixir Logging Made Easy
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 [![Hex.pm](https://img.shields.io/hexpm/v/timber.svg?maxAge=18000=plastic)](https://hex.pm/packages/timber)
