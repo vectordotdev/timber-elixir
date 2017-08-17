@@ -7,11 +7,9 @@
 
 ## Overview
 
-Timber for Elixir is a drop-in upgrade for your Elixir logs that unobtrusively
-[structures your logs through augmentation](https://timber.io/docs/concepts/structuring-through-augmentation).
-It's clean structured logging without the effort. When paired with the
-[Timber console](#the-timber-console), Timber will
-[fundamentally change the way you use your logs](#do-amazing-things-with-your-logs).
+Timber for Elixir is a drop-in solution for your noisy Elixir logs, turning them into insanely useful
+events with context. Solve problems *faster*, produce higher quality apps, and never be left in the
+dark  wondering if your app is performing well for your users.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
@@ -37,6 +35,19 @@ It's clean structured logging without the effort. When paired with the
 2. In your `shell`, run `mix deps.get`.
 
 3. In your `shell`, run `mix timber.install`.
+
+
+## How it works
+
+Timber works by
+[unobtrusively structuring your logs through augmentation](https://timber.io/docs/concepts/structuring-through-augmentation),
+which is a fancy way of saying Timber _appends_ structured data to your original log messages
+instead of replacing them all together. This makes your logs enjoyable to read (and use!) while
+[still offering rich structured data when you need it](https://timber.io/docs/app/console/view-metadata-and-context).
+It does this automatically by replacing your logger and
+[integrating with popular frameworks and libraries](#integrations). When paired with the
+[Timber console](#the-timber-console) it creates a highly productive custom tailored logging
+experience conducive for Elixir app development.
 
 
 ## Usage
