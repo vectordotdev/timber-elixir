@@ -7,9 +7,10 @@
 
 ## Overview
 
-Timber for Elixir is a drop-in solution for your noisy Elixir logs, turning them into insanely useful
-events with context. Solve problems *faster*, produce higher quality apps, and never be left in the
-dark  wondering if your app is performing well for your users.
+Timber for Elixir is a drop-in solution for your noisy Elixir logs, turning them into insanely
+useful events with context. It pairs with the [Timber console](#the-timber-console) to help you
+solve problems *faster*, produce higher quality apps, and never be left in the dark wondering if
+your app is performing well for your users.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
