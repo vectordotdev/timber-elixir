@@ -8,7 +8,7 @@
 ## Overview
 
 Timber for Elixir is an extension for the [Timber logging service](https://timber.io) that instantly
-makes your Elixir logs great. Without changing your logs, it captures crticial metadata and context,
+makes your Elixir logs great. It transparently captures crticial metadata and context,
 providing you with unparalleled insight into your app. Log better, solve problems faster, and
 produce higher quality Elixir apps.
 
