@@ -39,19 +39,6 @@ produce higher quality Elixir apps.
 3. In your `shell`, run `mix timber.install`.
 
 
-## How it works
-
-Timber works by
-[unobtrusively structuring your logs through augmentation](https://timber.io/docs/concepts/structuring-through-augmentation),
-which is a fancy way of saying Timber _appends_ structured data to your original log messages
-instead of replacing them all together. This makes your logs enjoyable to read (and use!) while
-[still offering rich structured data when you need it](https://timber.io/docs/app/console/view-metadata-and-context).
-It does this automatically by working with the Elixir standard `Logger` and
-[integrating with popular frameworks and libraries](#integrations). When paired with the
-[Timber console](#the-timber-console) it creates a highly productive custom tailored logging
-experience conducive for Elixir app development.
-
-
 ## Usage
 
 <details><summary><strong>Basic text logging</strong></summary><p>
