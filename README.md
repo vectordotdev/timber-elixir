@@ -10,13 +10,13 @@ This is our official Elixir library.
 
 ## Overview
 
-Elixir logs are broken. They're noisy, hard to parse, hard to use, and in the context of concurrent
+Elixir logs are noisy, hard to parse, hard to use, and in the context of concurrent
 production environments, unreadable. Current logging systems built for ops engineers didn't help
 us. This is why we built Timber. It takes a different approach to Elixir logging by integrating
-directly with your app. Instead of forcing you to change your log messages, Timber captures
-context and metadata by working directly with the standard Elixir `Logger`. This makes your logs
-easy to search, use, and _read_! Logs have more potential than anything to give you application
-insight, Timber unlocks this.
+directly with your app. Instead of changing your log messages, Timber captures context and metadata
+by working directly with the standard Elixir `Logger`. This makes your logs easy to search, use,
+and _read_! Logs have more potential than anything to give you application insight, Timber unlocks
+this.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Powerful logging**](#usage)
