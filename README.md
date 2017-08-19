@@ -15,8 +15,7 @@ logs are noisy, hard to use, hard to parse, and unreadable. Current logging syst
 engineers didn't help us. This is why we built Timber. It takes a different approach to Elixir
 logging by integrating directly with your app. Instead of changing your log messages, Timber
 captures context and metadata by working directly with the standard Elixir `Logger`. This makes
-your logs easy to search, use, and _read_! Logs have more potential than anything to give you
-application insight, Timber unlocks this.
+your logs easy to search, use, and _read_, giving you unparalleled insight into your Elixir app.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Powerful logging**](#usage)
