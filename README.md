@@ -5,12 +5,18 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
+[Timber.io](https://timber.io) is a simple cloud-based logging platform built for developers.
+This is our official Elixir library.
+
 ## Overview
 
-Timber for Elixir is an extension for the [Timber logging service](https://timber.io) that instantly
-makes your Elixir logs great. It transparently captures crticial metadata and context,
-providing you with unparalleled insight into your app. Log better, solve problems faster, and
-produce higher quality Elixir apps.
+Elixir logs are broken. They're noisy, hard to parse, hard to use, and in the context of concurrent
+production environments, unreadable. Current logging systems built for ops engineers didn't help
+us. This is why we built Timber. It takes a different approach to Elixir logging by integrating
+directly with your app. Instead of forcing you to change your log messages, Timber captures
+context and metadata by working directly with the standard Elixir `Logger`. This makes your logs
+easy to search, use, and _read_! Logs have more potential than anything to give you application
+insight, Timber unlocks this.
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Powerful logging**](#usage)
@@ -302,14 +308,13 @@ support:
 
 ## Do amazing things with your logs
 
-What does all of this mean? Doing amazing things with your logs! Being more productive, solving
-problems faster, and _actually_ enjoying using your logs for application insight:
+Unlock the potential of your logs:
 
-1. [**Live tail users on your app**](https://timber.io/docs/app/console/tail-a-user)
-2. [**Trace HTTP requests**](https://timber.io/docs/app/console/trace-http-requests)
-3. [**Inspect HTTP request parameters**](https://timber.io/docs/app/console/inspect-http-requests)
-4. [**Powerful searching**](https://timber.io/docs/app/console/searching)
-5. [**Threshold based alerting**](https://timber.io/docs/app/alerts)
+1. [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
+2. [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
+3. [**Viw logs per HTTP request.** - See the full story without the noise.](https://timber.io/docs/app/console/trace-http-requests)
+4. [**Inspect HTTP request parameters.** - Quickly reproduce issues.](https://timber.io/docs/app/console/inspect-http-requests)
+5. [**Threshold based alerting.** - Know when things break.](https://timber.io/docs/app/alerts)
 6. ...and more! Checkout our [the Timber application docs](https://timber.io/docs/app)
 
 
