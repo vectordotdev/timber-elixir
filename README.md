@@ -69,7 +69,7 @@ Logger.error("My log statement")
 
 </p></details>
 
-<details><summary><strong>Logging events</strong></summary><p>
+<details><summary><strong>Logging events (structured data)</strong></summary><p>
 
 Custom events allow you to extend beyond events already defined in
 the [`Timber.Events`](https://hexdocs.pm/timber/Timber.Events.html#content) namespace. If you
