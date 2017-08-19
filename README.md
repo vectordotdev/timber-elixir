@@ -94,7 +94,7 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 
 </p></details>
 
-<details><summary><strong>Setting contextc</strong></summary><p>
+<details><summary><strong>Setting context</strong></summary><p>
 
 Custom contexts allow you to extend beyond contexts already defined in the
 [`Timber.Contexts`](https://hexdocs.pm/timber/Timber.Contexts.html#content) namespace. If you
