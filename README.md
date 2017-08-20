@@ -14,8 +14,6 @@ This is our official Elixir library.
 
 This is why we built Timber. It's a different approach to Elixir logging. It integrates directly with your app to capture rich context and metadata without changing your logs. And it pairs with [a console designed specifically for developers](#the-timber-console), making it easy to [search, use, and _read_](#use-your-logs-to-get-things-done) your logs so you can [get things done](#use-your-logs-to-get-things-done).
 
-This is why we built Timber. It's a different, developer focused, approach to Elixir logging. It integrates directly with your app, capturing rich context and metadata without changing your logs. It pairs with the [Timber console](#the-timber-console) which is designed for developers. All of this makes your logs easy to [search, use, and _read_](#do-amazing-things-with-your-logs), unlocking the true purpose of your logs: *complete* frustration-free insight into your Ruby app!
-
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Powerful logging**](#usage)
 3. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
