@@ -10,12 +10,16 @@ This is our official Elixir library.
 
 ## Overview
 
-Elixir is an amazing concurrent language, but in the context of mutliple servers and processes, it's logs are exceptionally difficult to use. They're noisy, unpareseable, hard to read, and hard to access. Current logging systems built for ops engineers haven't helped. This is why we built Timber. It's a different approach to Elixir logging. Instead of prefixing your logs with noisy metadata, Timber integrates directly with your application, capturing rich context and metadata without altering your logs. This makes your logs easy to [search, use, and _read_](#do-amazing-things-with-your-logs), giving you _complete_ insight into your Elixir app.
+**Elixir logging is broken:** First, because Elixir is amazingly concurrent, it's logs are noisy, unreadable, and exceptionally hard to use. Second, current logging systems are clunky, diifuclt to use, hard to setup, and built for ops engineers.
+
+This is why we built Timber. It's a different approach to Elixir logging. It integrates directly with your app to capture rich context and metadata without changing your logs. And it pairs with [a console designed specifically for developers](#the-timber-console), making it easy to [search, use, and _read_](#use-your-logs-to-get-things-done) your logs so you can [get things done](#use-your-logs-to-get-things-done).
+
+This is why we built Timber. It's a different, developer focused, approach to Elixir logging. It integrates directly with your app, capturing rich context and metadata without changing your logs. It pairs with the [Timber console](#the-timber-console) which is designed for developers. All of this makes your logs easy to [search, use, and _read_](#do-amazing-things-with-your-logs), unlocking the true purpose of your logs: *complete* frustration-free insight into your Ruby app!
 
 1. [**Easy setup** - `mix timber.install`](#installation)
 2. [**Powerful logging**](#usage)
 3. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
-4. [**Do amazing things with your Elixir logs**](#do-amazing-things-with-your-logs)
+4. [**Use your logs to get things done**](#use-your-logs-to-get-things-done)
 
 
 ## Installation
@@ -300,9 +304,9 @@ support:
 4. ...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
 
 
-## Do amazing things with your logs
+## Use your logs to get things done
 
-Unlock the potential of your logs:
+Use your logs in ways a developer needs. Be more productive:
 
 1. [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
 2. [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
