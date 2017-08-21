@@ -6,13 +6,13 @@
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
 [Timber](https://timber.io) is a cloud-based logging system that integrates directly with your
-Elixir app to capture context and metadata. This produces clean, readable logs that are easy to
-search and use:
+Elixir app to capture context and metadata without parsing. This produces clean, readable logs that
+are easier to search and use:
 
 1. [**Installation** - One command: `mix timber.install`](#installation)
 2. [**Usage** - Simple yet powerful API](#usage)
 3. [**Integrations** - Automatic context and metadata for your existing logs](#integrations)
-4. [**The Timber Console** - Designed for Elixir developers, not ops people!](#the-timber-console)
+4. [**The Timber Console** - Designed for Elixir developers](#the-timber-console)
 5. [**Get things done with your logs 💪**](#get-things-done-with-your-logs)
 
 
