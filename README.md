@@ -5,19 +5,15 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
-[Timber.io](https://timber.io) is a simple cloud-based logging platform built for developers.
-This is our official Elixir library.
+[Timber](https://timber.io) is a cloud-based logging system that integrates directly with your
+Elixir app to capture context and metadata. This produces clean, readable logs that are easy to
+search and use:
 
-## Overview
-
-**Elixir logging is broken:** First, because Elixir is amazingly concurrent, it's logs are noisy, unreadable, and exceptionally hard to use. Second, current logging systems are clunky, difficult to use, and built for ops engineers.
-
-This is why we built Timber. It's a different approach to Elixir logging. It integrates directly with your app to capture rich context and metadata without changing your logs. And it pairs with [a console designed specifically for Elixir developers](#the-timber-console), making it easy to [search, use, and _read_](#use-your-logs-to-get-things-done) your logs so you can [get things done](#use-your-logs-to-get-things-done).
-
-1. [**Easy setup** - `mix timber.install`](#installation)
-2. [**Powerful logging**](#usage)
-3. [**Seamlessly integrates with popular libraries and frameworks**](#integrations)
-4. [**Use your logs to get things done**](#use-your-logs-to-get-things-done)
+1. [**Installation** - One command: `mix timber.install`](#installation)
+2. [**Usage** - Simple yet powerful API](#usage)
+3. [**Integrations** - Automatic context and metadata for your existing logs](#integrations)
+4. [**The Timber Console** - Designed for Elixir developers, not ops people!](#the-timber-console)
+5. [**Get things done with your logs 💪**](#get-things-done-with-your-logs)
 
 
 ## Installation
@@ -302,9 +298,9 @@ support:
 4. ...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
 
 
-## Use your logs to get things done
+## Get things done with your logs
 
-Use your logs in ways a developer needs. Be more productive:
+Logging features every developer needs:
 
 1. [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
 2. [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
