@@ -168,9 +168,9 @@ monitor your job executions. The most important attribute to capture is the `id`
 %Timber.Contexts.JobContext{queue_name: "my_queue", id: "abcd1234", attempt: 1}
 |> Timber.add_context()
 
-Logger.info("Task execution started")
+Logger.info("Background job execution started")
 # ...
-Logger.info("Task execution completed")
+Logger.info("Background job execution completed")
 ```
 
 1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
