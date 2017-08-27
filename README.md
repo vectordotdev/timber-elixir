@@ -151,7 +151,7 @@ Lastly, metrics aren't limited to timings. You can capture any metric you want:
 
 </p></details>
 
-<details><summary><strong>Tracking background jobs and tasks</strong></summary><p>
+<details><summary><strong>Tracking background jobs</strong></summary><p>
 
 *Note: This tip refers to traditional background jobs backed by a queue. For native Elixir
 processes we capture the `context.runtime.vm_pid` automatically. Calls like `spawn/1` and
@@ -176,7 +176,7 @@ Logger.info("Background job execution completed")
 1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
 2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
 3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
-4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs-and-tasks)
+4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs)
 
 ---
 
