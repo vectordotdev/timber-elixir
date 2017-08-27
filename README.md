@@ -223,9 +223,9 @@ end
 
 ```
 
-*Note: Only `method` is required for `HTTPRequestEvent`, and `status` for `HTTPResponseEvent`.
+<small>*Note: Only `method` is required for `HTTPRequestEvent`, and `status` for `HTTPResponseEvent`.
 `body`, if logged, will be truncated to `2048` bytes for efficiency reasons. This can be adjusted
-with [`Timber.Config.http_body_size_limit/0`](https://hexdocs.pm/timber/Timber.Config.html#http_body_size_limit/0).*
+with [`Timber.Config.http_body_size_limit/0`](https://hexdocs.pm/timber/Timber.Config.html#http_body_size_limit/0).*</small>
 
 1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `http_request.service_name:stripe`
 2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
