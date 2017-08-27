@@ -185,7 +185,8 @@ Logger.info("Task execution completed")
 <details><summary><strong>Track communication with external services</strong></summary><p>
 
 We use this trick internally at Timber to track communication with external services.
-It's gives us insight into response times and failed requests.
+It logs requests and responses to external services, giving us insight into response times and
+failed requests.
 
 ### How to use it
 
