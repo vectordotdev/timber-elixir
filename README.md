@@ -5,9 +5,9 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
-[Timber](https://timber.io) is a cloud-based logging system that integrates directly with your
-Elixir app to capture context and metadata without parsing. This produces clean, readable logs that
-are easier to search and use:
+[Timber](https://timber.io) is a cloud-based logging system that integrates directly with your Elixir
+app through this library, capturing context and metadata without parsing. This produces rich, clean,
+readable logs that are easier to search and use:
 
 1. [**Installation** - One command: `mix timber.install`](#installation)
 2. [**Usage** - Simple yet powerful API](#usage)
@@ -174,6 +174,59 @@ Logger.info("Task execution completed")
 ```
 
 1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
+4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs-and-tasks)
+
+---
+
+</p></details>
+
+<details><summary><strong>Track communication with external services</strong></summary><p>
+
+We use this trick internally at Timber to track communication with external services.
+It's gives us insight into response times and failed requests.
+
+### How to use it
+
+Below is a contrived example of submitting an invoice to Stripe.
+
+```elixir
+alias Timber.Events.HTTPRequestEvent
+alias Timber.Events.HTTPResponseEvent
+
+method = :get
+url = "https://api.stripe.com/v1/invoices"
+body = "{\"customer\": \"cus_BHhZyYRirFrPkz\"}"
+headers = %{}
+
+Logger.info fn ->
+  event = HTTPRequestEvent.new(direction: "outgoing", service_name: "stripe", method: method, url: url, headers: headers, body: body)
+  message = HTTPRequestEvent.message(event)
+  {message, [event: event]}
+end
+
+case :hackney.request(method, url, headers, body, with_body: true) do
+  {:ok, status, resp_headers, resp_body} ->
+    Logger.info fn ->
+      event = HTTPResponseEvent.new(direction: "incoming", service_name: "stripe", status: status, headers: resp_headers, body: resp_body)
+      message = HTTPResponseEvent.message(event)
+      {message, [event: event]}
+    end
+
+  {:error, error} ->
+    message = Exception.message(error)
+    Logger.error(message, event: error)
+    {:error, error}
+end
+
+```
+
+*Note: Only `method` is required for `HTTPRequestEvent`, and `status` for `HTTPResponseEvent`.
+`body`, if logged, will be truncated to `2048` bytes for efficiency reasons. This can be adjusted
+with [`Timber.Config.http_body_size_limit/0`](https://hexdocs.pm/timber/Timber.Config.html#http_body_size_limit/0).*
+
+1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `http_request.service_name:stripe`
 2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
 3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
 4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs-and-tasks)
