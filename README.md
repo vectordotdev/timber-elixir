@@ -346,22 +346,27 @@ couldn't otherwise. This automatically upgrades logs produced by these libraries
 [easier to search and use](#do-amazing-things-with-your-logs). Below is a list of libraries we
 support:
 
-1. [**Phoenix**](https://timber.io/docs/languages/elixir/integrations/phoenix)
-2. [**Ecto**](https://timber.io/docs/languages/elixir/integrations/ecto)
-3. [**Plug**](https://timber.io/docs/languages/elixir/integrations/plug)
-4. ...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
+* Frameworks & Libraries
+  * [**Phoenix**](https://timber.io/docs/languages/elixir/integrations/phoenix)
+  * [**Ecto**](https://timber.io/docs/languages/elixir/integrations/ecto)
+  * [**Plug**](https://timber.io/docs/languages/elixir/integrations/plug)
+* Platforms
+  * [**System / Server**](https://timber.io/docs/languages/elixir/integrations/system)
+
+...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
 
 
 ## Get things done with your logs
 
 Logging features every developer needs:
 
-1. [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
-2. [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
-3. [**Viw logs per HTTP request.** - See the full story without the noise.](https://timber.io/docs/app/console/trace-http-requests)
-4. [**Inspect HTTP request parameters.** - Quickly reproduce issues.](https://timber.io/docs/app/console/inspect-http-requests)
-5. [**Threshold based alerting.** - Know when things break.](https://timber.io/docs/app/alerts)
-6. ...and more! Checkout our [the Timber application docs](https://timber.io/docs/app)
+* [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
+* [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
+* [**Viw logs per HTTP request.** - See the full story without the noise.](https://timber.io/docs/app/console/trace-http-requests)
+* [**Inspect HTTP request parameters.** - Quickly reproduce issues.](https://timber.io/docs/app/console/inspect-http-requests)
+* [**Threshold based alerting.** - Know when things break.](https://timber.io/docs/app/alerts)
+
+...and more! Checkout our [the Timber application docs](https://timber.io/docs/app)
 
 
 ## The Timber Console
