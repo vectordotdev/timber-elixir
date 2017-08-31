@@ -24,9 +24,9 @@ defmodule Timber.LoggerBackends.HTTP do
   """
   use GenEvent
 
-  alias Timber.LogEntry
-  alias Timber.Config
   alias __MODULE__.TimberAPIKeyInvalid
+  alias Timber.Config
+  alias Timber.LogEntry
 
   require Logger
 
@@ -361,16 +361,7 @@ defmodule Timber.LoggerBackends.HTTP do
     buffer
     |> Enum.reverse()
     |> Enum.map(&LogEntry.to_map!/1)
-    |> Enum.map(&prepare_for_msgpax/1)
     |> Msgpax.pack!()
-  end
-
-  # Normalizes the LogEntry.message into a string if it is not.
-  @spec prepare_for_msgpax(LogEntry.t) :: LogEntry.t
-  defp prepare_for_msgpax(%{message: nil} = log_entry), do: log_entry
-
-  defp prepare_for_msgpax(log_entry_map) do
-    Map.put(log_entry_map, :message, IO.chardata_to_string(log_entry_map.message))
   end
 
   # Checks whether the log event level meets or exceeds the

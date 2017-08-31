@@ -161,17 +161,18 @@ defmodule Timber.Formatter do
     metadata =
       if configuration.print_metadata do
         log_entry
-        |> LogEntry.to_iodata!(configuration.format, only: [:dt, :level, :event, :context])
+        |> LogEntry.encode_to_iodata!(configuration.format, except: [:message])
         |> wrap_metadata()
       else
         []
       end
 
+    message = escape_new_lines(message, configuration.escape_new_lines)
+
     line_output =
       [message, metadata]
       |> add_log_level(level_b, configuration.print_log_level)
       |> add_timestamp(log_entry.dt, configuration.print_timestamps)
-      |> escape_new_lines(configuration.escape_new_lines)
 
     # Prevents the final new line from being escaped
     [line_output, ?\n]
@@ -231,9 +232,12 @@ defmodule Timber.Formatter do
   defp log_level_color(_), do: :normal
 
   @spec escape_new_lines(IO.chardata, boolean) :: IO.chardata
-  defp escape_new_lines(msg, false), do: msg
-  defp escape_new_lines(msg, true) do
-    to_string(msg)
+  defp escape_new_lines(message, false),
+    do: message
+
+  defp escape_new_lines(message, true) do
+    message
+    |> to_string()
     |> String.replace("\n", "\\n")
   end
 end
