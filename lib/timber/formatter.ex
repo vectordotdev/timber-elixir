@@ -167,12 +167,11 @@ defmodule Timber.Formatter do
         []
       end
 
-    message = escape_new_lines(message, configuration.escape_new_lines)
-
     line_output =
       [message, metadata]
       |> add_log_level(level_b, configuration.print_log_level)
       |> add_timestamp(log_entry.dt, configuration.print_timestamps)
+      |> escape_new_lines(configuration.escape_new_lines)
 
     # Prevents the final new line from being escaped
     [line_output, ?\n]
