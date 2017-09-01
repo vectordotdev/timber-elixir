@@ -66,6 +66,12 @@ defmodule Timber do
   def start(_type, _opts) do
     import Supervisor.Spec, warn: false
 
+    # Prepare the Phoenix instrumentation blacklist before we finish
+    # starting
+    Timber.Integrations.PhoenixInstrumenter.get_unparsed_blacklist()
+    |> Timber.Integrations.PhoenixInstrumenter.parse_blacklist()
+    |> Timber.Integrations.PhoenixInstrumenter.put_parsed_blacklist()
+
     children = []
 
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
