@@ -67,6 +67,32 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     end
   end
   ```
+
+  ## Ignoring Controller Actions for Instrumentation
+
+  If you have specific controller actions that you don't want to be instrumented,
+  you can add them to the instrumentation blacklist. For example, if your application
+  provides a health controller for external applications, you may want to stop
+  instrumentation on that controller's actions to reduce noise.
+
+  The `:controller_actions_blacklist` configuration key can be used to control which
+  controller actions to suppress instrumentation for. It takes a list of two-element
+  tuples. The first element is the controller name, and the second element is the
+  action.
+
+
+  As an example, here's how we would prevent instrumentation of the `check` action in
+  `TimberClientAPI.HealthController`:
+
+  ```elixir
+  config :timber, Timber.Integrations.PhoenixInstrumenter,
+    controller_actions_blacklist: [
+      {TimberClientAPI.HealthController, :check}
+    ]
+  ```
+
+  Now, when Phoenix calls `check/2` on the `TimberClientAPI.HealthController` module,
+  no log lines will be produced!
   """
 
   require Logger
@@ -76,6 +102,95 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   alias Timber.Events.ChannelReceiveEvent
   alias Timber.Events.ControllerCallEvent
   alias Timber.Events.TemplateRenderEvent
+
+  @typep controller :: module
+  @typep action :: atom
+  @typep controller_action :: {controller, action}
+  @typep unparsed_blacklist :: [controller_action]
+  @typep parsed_blacklist :: MapSet.t(controller_action)
+
+  @doc """
+  Adds a controller action to the blacklist
+
+  This function will update the blacklist of controller actions, following the
+  same conventions as the blacklist described in the application configuration.
+
+  The `controller` should be the qualified name of the Phoenix controller's
+  Elixir module (e.g., `TimberClientAPI.OrganizationController`).
+
+  The `action` should be the name of the action (e.g., `index`).
+  """
+  @spec add_controller_action_to_blacklist(controller, action) :: :ok
+  def add_controller_action_to_blacklist(controller, action) do
+    controller_action = {controller, action}
+    blacklist = get_parsed_blacklist()
+    new_blacklist = MapSet.put(blacklist, controller_action)
+    put_parsed_blacklist(new_blacklist)
+  end
+
+  @doc """
+  Removes controller action from the blacklist
+
+  This function will update the blacklist of controller actions, following the
+  same conventions as the blacklist described in the application configuration.
+
+  The `controller` should be the qualified name of the Phoenix controller's
+  Elixir module (e.g., `TimberClientAPI.OrganizationController`).
+
+  The `action` should be the name of the action (e.g., `index`).
+  """
+  @spec remove_controller_action_from_blacklist(controller, action) :: :ok
+  def remove_controller_action_from_blacklist(controller, action) do
+    controller_action = {controller, action}
+    blacklist = get_parsed_blacklist()
+    new_blacklist = MapSet.delete(blacklist, controller_action)
+    put_parsed_blacklist(new_blacklist)
+  end
+
+  @doc false
+  @spec controller_action_blacklisted?({controller, action}, parsed_blacklist) :: boolean
+  def controller_action_blacklisted?(controller_action, blacklist) do
+    MapSet.member?(blacklist, controller_action)
+  end
+
+  @doc false
+  @spec get_parsed_blacklist() :: parsed_blacklist
+  # The parsed version of the controller actions blacklist is stored in the
+  # application environment at
+  # [:timber, Timber.Integrations.PhoenixInstrumenter, :parsed_controller_actions_blacklist].
+  # This function fetches that value, returning an empty MapSet if the environment
+  # entry does not exist
+  def get_parsed_blacklist() do
+    opts = Application.get_env(:timber, __MODULE__, [])
+    Keyword.get(opts, :parsed_controller_actions_blacklist, [])
+  end
+
+  @doc false
+  @spec put_parsed_blacklist(parsed_blacklist) :: :ok
+  def put_parsed_blacklist(parsed_blacklist) do
+    opts = Application.get_env(:timber, __MODULE__, [])
+    updated_opts = Keyword.put(opts, :parsed_controller_actions_blacklist, parsed_blacklist)
+    Application.put_env(:timber, __MODULE__, updated_opts)
+  end
+
+  @doc false
+  @spec get_unparsed_blacklist() :: unparsed_blacklist
+  # The controller actions blacklist is stored in the application environment at
+  # [:timber, Timber.Integrations.PhoenixInstrumenter, :controller_actions_blacklist].
+  #
+  # This function fetches that list, returning an empty list if the environment entry
+  # does not exist.
+  def get_unparsed_blacklist() do
+    opts = Application.get_env(:timber, __MODULE__, [])
+    Keyword.get(opts, :controller_actions_blacklist, [])
+  end
+
+  @doc false
+  @spec parse_blacklist(unparsed_blacklist) :: parsed_blacklist
+  # Parses a controller action blacklist into a MapSet
+  def parse_blacklist(blacklist) do
+    MapSet.new(blacklist)
+  end
 
   #
   # Channels
@@ -169,31 +284,33 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   @doc false
   @spec phoenix_controller_call(:start, compile_metadata :: map, runtime_metadata :: map) :: :ok
   @spec phoenix_controller_call(:stop, time_diff_native :: non_neg_integer, result_of_before_callback :: :ok) :: :ok
-  def phoenix_controller_call(:start, %{module: module}, %{conn: conn}) do
-    log_level = get_log_level(:info)
+  def phoenix_controller_call(:start, _, %{conn: conn}) do
+    controller_actions_blacklist = get_parsed_blacklist()
 
-    controller = inspect(module)
-    action_name =
-      conn
-      |> Phoenix.Controller.action_name()
-      |> Atom.to_string()
+    controller = Phoenix.Controller.controller_module(conn)
+    action = Phoenix.Controller.action_name(conn)
 
-    # Phoenix actions are always 2 arity function
-    params = filter_params(conn.params)
-    pipelines = conn.private[:phoenix_pipelines]
+    if !controller_action_blacklisted?({controller, action}, controller_actions_blacklist) do
+      "Elixir." <> controller_name = to_string(controller)
+      action_name = to_string(action)
+      log_level = get_log_level(:info)
+      # Phoenix actions are always 2 arity function
+      params = filter_params(conn.params)
+      pipelines = conn.private[:phoenix_pipelines]
 
-    event =
-      ControllerCallEvent.new(
-        action: action_name,
-        controller: controller,
-        params: params,
-        pipelines: pipelines
-      )
+      event =
+        ControllerCallEvent.new(
+          action: action_name,
+          controller: controller_name,
+          params: params,
+          pipelines: pipelines
+        )
 
-    message = ControllerCallEvent.message(event)
-    metadata = Event.to_metadata(event)
+      message = ControllerCallEvent.message(event)
+      metadata = Event.to_metadata(event)
 
-    Logger.log(log_level, message, metadata)
+      Logger.log(log_level, message, metadata)
+    end
 
     :ok
   end
@@ -204,13 +321,26 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   @doc false
   @spec phoenix_controller_render(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
-  def phoenix_controller_render(:start, _compile_metadata, %{template: template_name}) do
-    {:ok, template_name}
+  def phoenix_controller_render(:start, _compile_metadata, %{template: template_name, conn: conn}) do
+    controller_actions_blacklist = get_parsed_blacklist()
+
+    controller = Phoenix.Controller.controller_module(conn)
+    action = Phoenix.Controller.action_name(conn)
+
+    if controller_action_blacklisted?({controller, action}, controller_actions_blacklist) do
+      false
+    else
+      log_level = get_log_level(:info)
+      {:ok, log_level, template_name}
+    end
   end
 
-  def phoenix_controller_render(:stop, time_diff, {:ok, template_name}) do
-    log_level = get_log_level(:info)
+  def phoenix_controller_render(:stop, _time_diff, false) do
+    # The render event should not be logged
+    :ok
+  end
 
+  def phoenix_controller_render(:stop, time_diff, {:ok, log_level, template_name}) do
     # This comes in as native time but is expected to be a float representing
     # milliseconds
     time_ms =
