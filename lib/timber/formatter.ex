@@ -161,7 +161,7 @@ defmodule Timber.Formatter do
     metadata =
       if configuration.print_metadata do
         log_entry
-        |> LogEntry.to_iodata!(configuration.format, only: [:dt, :level, :event, :context])
+        |> LogEntry.encode_to_iodata!(configuration.format, except: [:message])
         |> wrap_metadata()
       else
         []
@@ -231,9 +231,12 @@ defmodule Timber.Formatter do
   defp log_level_color(_), do: :normal
 
   @spec escape_new_lines(IO.chardata, boolean) :: IO.chardata
-  defp escape_new_lines(msg, false), do: msg
-  defp escape_new_lines(msg, true) do
-    to_string(msg)
+  defp escape_new_lines(message, false),
+    do: message
+
+  defp escape_new_lines(message, true) do
+    message
+    |> to_string()
     |> String.replace("\n", "\\n")
   end
 end

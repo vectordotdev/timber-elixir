@@ -1,17 +1,10 @@
 defmodule Timber.LogEntry do
   @moduledoc """
-  The LogEntry module formalizes the structure of every log entry.
-
-  When a log is produced, it is converted to this intermediary form
-  by the `Timber.LoggerBackend` module before being passed on to the desired
-  transport. Each transport implements a `write/2` function as defined
-  by the `Timber.Transport.write/2` behaviour. Inside of this function,
-  the transport is responsible for formatting the data contained in a
-  log entry appropriately.
-
-  Each log entry consists of the log message, its level, the timestamp
-  it was logged at, a context map, and an optional event.
-  See the main `Timber` module for more information.
+  The LogEntry module formalizes the structure of every log entry
+  as defined by Timber's log event JSON schema: https://github.com/timberio/log-event-json-schema.
+  The ensures log lines adhere to a normalized and consistent structure
+  providing for predictability and reliability for downstream consumers
+  of this log data.
   """
 
   alias Timber.Config
@@ -19,7 +12,6 @@ defmodule Timber.LogEntry do
   alias Timber.Contexts.RuntimeContext
   alias Timber.Contexts.SystemContext
   alias Timber.CurrentContext
-  alias Timber.LoggerBackend
   alias Timber.Event
   alias Timber.Eventable
   alias Timber.Utils.JSON
@@ -30,12 +22,10 @@ defmodule Timber.LogEntry do
 
   defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
 
-  @type format :: :json | :logfmt
-
   @type t :: %__MODULE__{
-    dt: IO.chardata,
-    level: LoggerBackend.level,
-    message: LoggerBackend.message,
+    dt: String.t,
+    level: Logger.level,
+    message: iodata,
     context: Context.t,
     event: nil | Event.t,
     meta: nil | Map.t,
@@ -43,7 +33,20 @@ defmodule Timber.LogEntry do
     time_ms: nil | float
   }
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v3.0.7/schema.json"
+  @type m :: %__MODULE__{
+    dt: String.t,
+    level: Logger.level,
+    message: binary,
+    context: Context.m,
+    event: nil | Event.m,
+    meta: nil | Map.t,
+    tags: nil | [String.t],
+    time_ms: nil | float
+  }
+
+  @type format :: :json | :logfmt | :msgpack
+
+  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v3.1.1/schema.json"
 
   @doc """
   Creates a new `LogEntry` struct
@@ -168,62 +171,66 @@ defmodule Timber.LogEntry do
 
   ## Options
 
+  - `:except` - A list of key names. All key names except the ones passed will be encoded.
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
-  @spec to_iodata!(t, format, Keyword.t) :: iodata
-  def to_iodata!(log_entry, format, options \\ []) do
+  @spec encode_to_iodata!(t, format, Keyword.t) :: iodata
+  def encode_to_iodata!(log_entry, format, options \\ []) do
     log_entry
     |> to_map!(options)
-    |> encode_to_iodata!(format)
+    |> encode_map_to_iodata!(format)
   end
 
-  @spec to_map!(t, Keyword.t) :: map()
+  @spec to_map!(t, Keyword.t) :: m
   def to_map!(log_entry, options \\ []) do
-    map =
-      log_entry
-      |> Map.from_struct()
-      |> Map.update(:event, nil, fn existing_event ->
-        if existing_event != nil do
-          Event.to_api_map(existing_event)
-        else
-          existing_event
-        end
-      end)
+    only = Keyword.get(options, :only)
+    except = Keyword.get(options, :except)
 
-    only = Keyword.get(options, :only, false)
-
-    if only do
-      Map.take(map, only)
-    else
-      map
-    end
+    log_entry
+    |> Map.from_struct()
+    |> map_take(only)
+    |> map_drop(except)
+    |> Map.update(:message, nil, &IO.chardata_to_string/1)
+    |> Map.update(:event, nil, fn existing_event ->
+      if existing_event != nil do
+        Event.to_api_map(existing_event)
+      else
+        existing_event
+      end
+    end)
     |> Map.put(:"$schema", @schema)
     |> UtilsMap.recursively_drop_blanks()
   end
 
-  @spec encode_to_iodata!(format, map) :: iodata
-  defp encode_to_iodata!(value, :json) do
-    JSON.encode_to_iodata!(value)
+  defp map_take(map, nil), do: map
+  defp map_take(map, keys), do: Map.take(map, keys)
+
+  defp map_drop(map, nil), do: map
+  defp map_drop(map, keys), do: Map.drop(map, keys)
+
+  @spec encode_map_to_iodata!(map, format) :: iodata
+  defp encode_map_to_iodata!(map, :json) do
+    JSON.encode_to_iodata!(map)
   end
 
   # The logfmt encoding will actually use a pretty-print style
   # of encoding rather than converting the data structure directly to
   # logfmt
-  defp encode_to_iodata!(value, :logfmt) do
+  defp encode_map_to_iodata!(map, :logfmt) do
     context =
-      case Map.get(value, :context) do
+      case Map.get(map, :context) do
         nil -> []
         val -> [?\n, ?\t, "Context: ", LogfmtEncoder.encode!(val)]
       end
 
     event =
-      case Map.get(value, :event) do
+      case Map.get(map, :event) do
         nil -> []
         val -> [?\n, ?\t, "Event: ", LogfmtEncoder.encode!(val)]
       end
 
     meta =
-      case Map.get(value, :meta) do
+      case Map.get(map, :meta) do
         nil -> []
         val -> [?\n, ?\t, "Meta: ", LogfmtEncoder.encode!(val)]
       end

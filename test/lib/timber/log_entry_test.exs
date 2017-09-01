@@ -55,10 +55,10 @@ defmodule Timber.Events.LogEntryTest do
     end
   end
 
-  describe "Timber.LogEntry.to_iodata!/3" do
+  describe "Timber.LogEntry.encode_to_iodata!/3" do
     test "drops blanks" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{}}])
-      result = LogEntry.to_iodata!(entry, :json)
+      result = LogEntry.encode_to_iodata!(entry, :json)
 
       vm_pid =
         self()
@@ -70,7 +70,7 @@ defmodule Timber.Events.LogEntryTest do
 
     test "encodes JSON properly" do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{test: "value"}}])
-      result = LogEntry.to_iodata!(entry, :json)
+      result = LogEntry.encode_to_iodata!(entry, :json)
 
       vm_pid =
         self()
@@ -84,7 +84,7 @@ defmodule Timber.Events.LogEntryTest do
       entry = LogEntry.new(time(), :info, "message", [event: %{type: :type, data: %{a: 1}}])
       system_pid = "#{entry.context.system.pid}"
       vm_pid = entry.context.runtime.vm_pid
-      result = LogEntry.to_iodata!(entry, :logfmt)
+      result = LogEntry.encode_to_iodata!(entry, :logfmt)
       assert result == [[10, 9, "Context: ", ["system.pid", 61, system_pid, 32, "system.hostname", 61, "#{hostname()}", 32, "runtime.vm_pid", 61, vm_pid]], [10, 9, "Event: ", ["custom.type.a", 61, "1"]], []]
     end
   end
