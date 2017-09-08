@@ -146,50 +146,58 @@ defmodule Timber.Mixfile do
   #
   #   - Keep this as the last section in `mix.exs` to make
   #     it easily discoverable
-  #   - Keep this section sorted in alphabetical order
+  #   - Keep deps categorized by direct dependencies, third-party integrations,
+  #     tooling
+  #   - Keep each category sorted in alphabetical order
+  #   - End all declarations in `,` so that they can easily be re-arranged
+  #     and sorted
   defp deps() do
-    deps =
-      [
-        {:credo, "~> 0.4", only: [:dev, :test]},
-        {:dialyxir, "~> 0.3", only: [:dev, :test]},
-        {:earmark, "~> 1.2", only: [:dev, :docs]},
-        {:ex_doc, "~> 0.15", only: [:dev, :docs]},
-        {:excoveralls, "~> 0.5", only: [:test]},
+    deps = [
+      #
+      # Direct dependencies
+      #
 
-        # Hackney is pinned because other versions are known to have bugs. This is the
-        # safest route.
-        {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
-        {:msgpax, "~> 1.0"},
-        {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"}
-      ]
+      # Hackney is pinned to known "safe" versions. While the pinned
+      # versions below are _not_ guaranteed to be bug-free, they are
+      # accepted by the community as stable.
+      {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
+      {:msgpax, "~> 1.0"},
+      {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"},
 
-    # This is used for CI to ensure we can test across multiple versions.
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("ECTO_VERSION_CONSTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:ecto, "~> 2.0", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:ecto, v, optional: true}]
-      end
 
-    # This is used for CI to ensure we can test across multiple versions
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("PHOENIX_VERSION_CONSTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:phoenix, "~> 1.2 or ~> 1.3.0-rc", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:phoenix, v, optional: true}]
-      end
+      #
+      # Tooling
+      #
 
-    # This is used for CI to ensure we can test across multiple versions
-    # It defaults to nil for everything else, which we handle.
-    deps =
-      case System.get_env("PLUG_VERSION_CONTRAINT") do
-        v when v in ["latest", nil] -> deps ++ [{:plug, "~> 1.2", optional: true}]
-        "omit" -> deps
-        v -> deps ++ [{:plug, v, optional: true}]
-      end
+      {:credo, "~> 0.4", only: [:dev, :test]},
+      {:dialyxir, "~> 0.3", only: [:dev, :test]},
+      {:earmark, "~> 1.2", only: [:dev, :docs]},
+      {:ex_doc, "~> 0.15", only: [:dev, :docs]},
+      {:excoveralls, "~> 0.5", only: [:test]},
+    ]
 
-    deps
+    direct_deps = [
+      #
+      # Third-party integrations
+      #
+
+      # Note to users: we specify versions below for the third-party
+      # libraries we integrate in order to provide some guarantee about
+      # code-path compatability. If you must over-ride a dependency's
+      # version requirement, you may run into an issue where code fails.
+
+      # We support Ecto after 2.0.0 but before 2.3.0
+      {:ecto, ">= 2.0.0 and < 2.3.0", optional: true},
+      # We support Phoenix after 1.2.0 but before 1.4.0
+      {:phoenix, ">= 1.2.0 and < 1.4.0", optional: true},
+      # We support Plug after 1.2.0 but before 1.5.0
+      {:plug, ">= 1.2.0 and < 1.5.0", optional: true},
+    ]
+
+    if System.get_env("NO_THIRD_PARTY_INTEGRATION_TEST") == "true" do
+      deps
+    else
+      direct_deps ++ deps
+    end
   end
 end
