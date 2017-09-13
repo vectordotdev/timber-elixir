@@ -139,7 +139,7 @@ Logger.info("Processed background job", event: %{background_job: %{time_ms: 45.6
 Lastly, metrics aren't limited to timings. You can capture any metric you want:
 
 ```elixir
-:ogger.info("Credit card charged", event: %{credit_card_charge: %{amount: 123.23}})
+Logger.info("Credit card charged", event: %{credit_card_charge: %{amount: 123.23}})
 ```
 
 1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
