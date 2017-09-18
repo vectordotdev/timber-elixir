@@ -3,6 +3,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
   alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper}
 
+  @deprioritized_platforms ["linux", "other"]
   @file_name "timber.exs"
   @file_path Path.join(["config", @file_name])
 
@@ -66,21 +67,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
     """
   end
 
-  defp timber_portion(%{platform_type: "heroku"}, _api) do
-    """
-    # For Heroku, use the `:console` backend provided with Logger but customize
-    # it to use Timber's internal formatting system
-    config :logger,
-      backends: [:console],
-      utc_log: true
-
-    config :logger, :console,
-      format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
-    """
-  end
-
-  defp timber_portion(_application, api) do
+  defp timber_portion(%{platform_type: platform_type}, api) when platform_type in @deprioritized_platforms do
     """
     # Deliver logs via HTTP to the Timber API by using the Timber HTTP backend.
     config :logger,
@@ -89,6 +76,20 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     config :timber,
       api_key: #{api_key_portion(api)}
+    """
+  end
+
+  defp timber_portion(_application, _api) do
+    """
+    # Use the `:console` backend provided with Logger but customize
+    # it to use Timber's internal formatting system
+    config :logger,
+      backends: [:console],
+      utc_log: true
+
+    config :logger, :console,
+      format: {Timber.Formatter, :format},
+      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
     """
   end
 

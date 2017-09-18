@@ -5,9 +5,13 @@
 [![Documentation](https://img.shields.io/badge/hexdocs-latest-blue.svg)](https://hexdocs.pm/timber/index.html)
 [![Build Status](https://travis-ci.org/timberio/timber-elixir.svg?branch=master)](https://travis-ci.org/timberio/timber-elixir)
 
-[Timber](https://timber.io) is a cloud-based logging system that integrates directly with your Elixir
-app through this library, capturing context and metadata without parsing. This produces rich, clean,
-readable logs that are easier to search and use:
+
+Timber for Elixir is a drop in backend for the Elixir `Logger` that
+[unobtrusively augments](https://timber.io/docs/concepts/structuring-through-augmentation) your
+logs with [rich metadata and context](https://timber.io/docs/concepts/metadata-context-and-events)
+making them [easier to search, use, and read](#get-things-done-with-your-logs). It pairs with the
+[Timber console](#the-timber-console) to deliver a tailored Elixir logging experience designed to make
+you more productive.
 
 1. [**Installation** - One command: `mix timber.install`](#installation)
 2. [**Usage** - Simple yet powerful API](#usage)
@@ -32,9 +36,7 @@ readable logs that are easier to search and use:
     end
     ```
 
-2. In your `shell`, run `mix deps.get`.
-
-3. In your `shell`, run `mix timber.install`.
+2. In your `shell`, run `mix deps.get && mix timber.install`.
 
 
 ## Usage
@@ -44,11 +46,7 @@ readable logs that are easier to search and use:
 The Timber library works directly with the standard Elixir
 [Logger](https://hexdocs.pm/logger/Logger.html) and installs itself as a
 [backend](https://hexdocs.pm/logger/Logger.html#module-backends) during the setup process.
-In this way, basic logging is no different than logging without Timber.
-
-In fact, standard logging messages are encouraged for debug statements and non-meaningful events.
-Timber does not require you to structure every log!
-
+In this way, basic logging is no different than logging without Timber:
 
 ```elixir
 Logger.debug("My log statement")
@@ -57,30 +55,31 @@ Logger.warn("My log statement")
 Logger.error("My log statement")
 ```
 
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `error message`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this event's metadata and context](https://timber.io/docs/app/console/view-metadata-and-context)
+
+[...read more in our docs](https://timber.io/docs/languages/elixir/usage/basic-logging)
+
+
 ---
 
 </p></details>
 
 <details><summary><strong>Logging events (structured data)</strong></summary><p>
 
-Custom events allow you to extend beyond events already defined in
-the [`Timber.Events`](https://hexdocs.pm/timber/Timber.Events.html#content) namespace. If you
-aren't sure what an event is, please read the
-["Metdata, Context, and Events" doc](https://timber.io/docs/concepts/metadata-context-and-events).
-
-### How to use it
+Log structured data without sacrificing readability:
 
 ```elixir
 event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
 Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 ```
 
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `type:payment_rejected` or `payment_rejected.amount:>100`
-2. [Alert on it](https://timber.io/docs/app/alerts) with threshold based alerts.
-3. [Graph & visualize it](https://timber.io/docs/app/graphs)
-4. [View this event's data and context](https://timber.io/docs/app/console/view-metadata-and-context)
-5. [Facet on this event type](https://timber.io/docs/app/console/faceting-your-logs)
-3. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/custom-events)
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `type:payment_rejected` or `payment_rejected.amount:>100`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this event's data and context](https://timber.io/docs/app/console/view-metadata-and-context)
+
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/custom-events)
 
 ---
 
@@ -88,21 +87,17 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 
 <details><summary><strong>Setting context</strong></summary><p>
 
-Custom contexts allow you to extend beyond contexts already defined in the
-[`Timber.Contexts`](https://hexdocs.pm/timber/Timber.Contexts.html#content) namespace. If you
-aren't sure what context is, please read the
-["Metdata, Context, and Events" doc](/docs/concepts/metadata-context-and-events).
-
-### How to use it
+Add shared structured data across your logs:
 
 ```elixir
 Timber.add_context(build: %{version: "1.0.0"})
 Logger.info("My log message")
 ```
 
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `build.version:1.0.0`
-2. [View this context when viewing a log's metadata](https://timber.io/docs/app/console/view-metdata-and-context)
-3. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/custom-context)
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `job.id:123`
+* [View this context when viewing a log's metadata](https://timber.io/docs/app/console/view-metadata-and-context)
+
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/custom-context)
 
 ---
 
@@ -113,16 +108,7 @@ Logger.info("My log message")
 
 <details><summary><strong>Timings & Metrics</strong></summary><p>
 
-Aggregates destroy details, events tell stories. With Timber, logging metrics and timings is simply
-[logging an event](https://timber.io/docs/languages/elixir/usage/custom-events). Timber is based on
-modern big-data principles and can aggregate inordinately large data sets in seconds. Logging
-events (raw data as it exists), gives you the flexibility in the future to segment and aggregate
-your data any way you see fit. This is superior to choosing specific paradigms before hand, when
-you are unsure how you'll need to use your data in the future.
-
-### How to use it
-
-Below is a contrived example of timing a background job:
+Time code blocks:
 
 ```elixir
 timer = Timber.start_timer()
@@ -130,22 +116,17 @@ timer = Timber.start_timer()
 Logger.info("Processed background job", event: %{background_job: %{time_ms: timer}})
 ```
 
-And of course, `time_ms` can also take a `Float` or `Fixnum`:
+Log generic metrics:
 
 ```elixir
 Logger.info("Processed background job", event: %{background_job: %{time_ms: 45.6}})
 ```
 
-Lastly, metrics aren't limited to timings. You can capture any metric you want:
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
 
-```elixir
-Logger.info("Credit card charged", event: %{credit_card_charge: %{amount: 123.23}})
-```
-
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
-2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
-3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
-4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/metrics-and-timings)
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/metrics-and-timings)
 
 ---
 
@@ -161,9 +142,6 @@ For traditional background jobs backed by a queue you'll want to capture relevan
 job context. This allows you to segement logs by specific jobs, making it easy to debug and
 monitor your job executions. The most important attribute to capture is the `id`:
 
-
-### How to use it
-
 ```elixir
 %Timber.Contexts.JobContext{queue_name: "my_queue", id: "abcd1234", attempt: 1}
 |> Timber.add_context()
@@ -173,10 +151,11 @@ Logger.info("Background job execution started")
 Logger.info("Background job execution completed")
 ```
 
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
-2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
-3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
-4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs)
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
+
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs)
 
 ---
 
@@ -187,8 +166,6 @@ Logger.info("Background job execution completed")
 We use this trick internally at Timber to track communication with external services.
 It logs requests and responses to external services, giving us insight into response times and
 failed requests.
-
-### How to use it
 
 Below is a contrived example of submitting an invoice to Stripe.
 
@@ -227,10 +204,11 @@ end
 `body`, if logged, will be truncated to `2048` bytes for efficiency reasons. This can be adjusted
 with [`Timber.Config.http_body_size_limit/0`](https://hexdocs.pm/timber/Timber.Config.html#http_body_size_limit/0).*
 
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `http_request.service_name:stripe`
-2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
-3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
-4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs-and-tasks)
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
+
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/track-external-service-communication)
 
 ---
 
@@ -242,9 +220,6 @@ By default, Timber will capture and structure all of your errors and exceptions,
 is nothing additional you need to do. You'll get the exception `message`, `name`, and `backtrace`.
 But, in many cases you need additional context and data. Timber supports additional fields
 in your exceptions, simply add fields as you would any other struct.
-
-
-### How to use it
 
 ```elixir
 defmodule StripeCommunicationError do
@@ -260,11 +235,11 @@ raise(
 )
 ```
 
-1. [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
-2. [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
-3. [View this log's metadata in the console](https://timber.io/docs/app/console/view-metdata-and-context)
-4. ...read more in our [docs](https://timber.io/docs/languages/elixir/usage/adding-metadata-to-errors)
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
 
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/adding-metadata-to-errors)
 
 ---
 
@@ -276,8 +251,6 @@ The `Timber.Context` is local to each process, this is by design as it prevents 
 conflicting with each other as they maintain their contexts. But many times you'll want to share
 context between processes because they are related (such as processes created by `Task` or `Flow`).
 In these instances copying the context is easy.
-
-### How to use it
 
 ```elixir
 current_context = Timber.CurrentContext.load()
@@ -291,6 +264,13 @@ end
 `current_context` in the above example is captured in the parent process, and because Elixir's
 variable scope is lexical, you can pass the referenced context into the newly created process.
 `Timber.CurrentContext.save/1` copies that context into the new process dictionary.
+
+* [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
+* [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
+* [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
+
+...[read more in our docs](https://timber.io/docs/languages/elixir/usage/sharing-context-between-processes)
+
 
 ---
 
