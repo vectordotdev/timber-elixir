@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+  - Fixed a bug within the installer where HTTP log delivery was being used on platforms that
+    should use STDOUT / :console.
+
 ### Added
 
   - Support for blacklisting controller actions with

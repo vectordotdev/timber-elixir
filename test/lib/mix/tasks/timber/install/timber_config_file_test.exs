@@ -78,7 +78,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
 
         # Use Timber as the logger backend
         # Feel free to add additional backends if you want to send you logs to multiple devices.
-        # For Heroku, use the `:console` backend provided with Logger but customize
+        # Use the `:console` backend provided with Logger but customize
         # it to use Timber's internal formatting system
         config :logger,
           backends: [:console],
@@ -106,7 +106,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
             format: :logfmt,
             print_timestamps: true,
             print_log_level: true,
-            print_metadata: false # turn this on to view the additiional metadata
+            print_metadata: false # turn this on to view the additional metadata
         end
 
         # Need help?
