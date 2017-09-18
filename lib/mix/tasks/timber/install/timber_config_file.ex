@@ -33,7 +33,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
           format: :logfmt,
           print_timestamps: true,
           print_log_level: true,
-          print_metadata: false # turn this on to view the additiional metadata
+          print_metadata: false # turn this on to view the additional metadata
       end
 
       # Need help?
