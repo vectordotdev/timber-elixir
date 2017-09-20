@@ -32,7 +32,7 @@ you more productive.
     end
 
     def deps do
-      [{:timber, "~> 2.1"}]
+      [{:timber, "~> 2.5"}]
     end
     ```
 
