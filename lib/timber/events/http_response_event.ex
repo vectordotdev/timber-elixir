@@ -25,7 +25,7 @@ defmodule Timber.Events.HTTPResponseEvent do
     time_ms: float
   }
 
-  @enforce_keys [:status, :time_ms]
+  @enforce_keys [:status]
   defstruct [
     :body,
     :direction,
