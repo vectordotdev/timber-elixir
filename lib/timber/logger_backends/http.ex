@@ -22,7 +22,7 @@ defmodule Timber.LoggerBackends.HTTP do
   synchronous mode, waiting for a response before proceeding with the request.
   Synchronous mode will cause any logging calls to block until the request completes.
   """
-  use GenEvent
+  @behaviour :gen_event
 
   alias __MODULE__.TimberAPIKeyInvalid
   alias Timber.Config
