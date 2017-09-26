@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+  - Logger backends now conform to the `:gen_event` behaviour rather than calling
+    the `GenEvent.__using__/1` macro which is deprecated in Elixir 1.5.0 and
+    above. The change is backwards compatible since `:gen_event` is provided by
+    all supported versions of Erlang.
+
 ## [2.5.5] - 2017-09-21
 
 ### Fixed
