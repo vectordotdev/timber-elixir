@@ -179,6 +179,16 @@ if Code.ensure_loaded?(Phoenix) do
           PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
       end
 
+      test ":start returns true when the controller/action is not available" do
+        # This test situation occurs when the route cannot be matched, for example
+        template_name = "404.html"
+
+        conn = Phoenix.ConnTest.build_conn()
+
+        assert {:ok, :info, ^template_name} =
+          PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
+      end
+
       test ":start returns false when the controller/action is blacklisted" do
         controller = Controller
         action = :action
