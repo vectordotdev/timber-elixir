@@ -250,7 +250,7 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.write()
 
     # We manually initialize the backend here and mimic the behavior
-    # of the GenEvent system
+    # of a :gen_event manager
 
     {:ok, http_client} = Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP, [api_key: api_key])
 

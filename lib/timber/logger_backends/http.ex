@@ -22,6 +22,7 @@ defmodule Timber.LoggerBackends.HTTP do
   synchronous mode, waiting for a response before proceeding with the request.
   Synchronous mode will cause any logging calls to block until the request completes.
   """
+
   @behaviour :gen_event
 
   alias __MODULE__.TimberAPIKeyInvalid
@@ -103,7 +104,7 @@ defmodule Timber.LoggerBackends.HTTP do
             ref: nil
 
   @doc false
-  # Initializes the GenEvent system for this module. This
+  # Initializes a :gen_event handler from this module. This
   # will be called by the Elixir `Logger` module when it
   # to add Timber as a logger backend.
   @spec init(__MODULE__, Keyword.t) :: {:ok, t}
@@ -120,7 +121,7 @@ defmodule Timber.LoggerBackends.HTTP do
   #
   # Note that the handle_call/2 defined here has a different return
   # structure than the one used in GenServers. This return structure
-  # is particular to GenEvent modules. See the GenEvent documentation
+  # is particular to :gen_event handlers. See the :gen_event documentation
   # for the handle_call/2 callback for more information.
   @spec handle_call({:configure, Keyword.t}, t) :: {:ok, :ok, t}
   def handle_call({:configure, options}, state) do
@@ -185,6 +186,16 @@ defmodule Timber.LoggerBackends.HTTP do
 
   # Do nothing for everything else.
   def handle_info(_, state) do
+    {:ok, state}
+  end
+
+  # No special handling for termination
+  def terminate(_reason, _state) do
+    :ok
+  end
+
+  # No special handling for code changes
+  def code_change(_old, state, _extra) do
     {:ok, state}
   end
 
