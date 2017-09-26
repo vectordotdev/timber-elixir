@@ -322,16 +322,13 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   @doc false
   @spec phoenix_controller_render(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
   def phoenix_controller_render(:start, _compile_metadata, %{template: template_name, conn: conn}) do
-    controller_actions_blacklist = get_parsed_blacklist()
+    has_controller? = Map.has_key?(conn.private, :phoenix_controller)
+    has_action? = Map.has_key?(conn.private, :phoenix_action)
 
-    controller = Phoenix.Controller.controller_module(conn)
-    action = Phoenix.Controller.action_name(conn)
-
-    if controller_action_blacklisted?({controller, action}, controller_actions_blacklist) do
-      false
+    if has_controller? and has_action? do
+      render_check(conn, template_name)
     else
-      log_level = get_log_level(:info)
-      {:ok, log_level, template_name}
+      handle_render_blacklist(false, template_name)
     end
   end
 
@@ -369,6 +366,29 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   @spec get_log_level(atom) :: atom
   defp get_log_level(default) do
     Timber.Config.phoenix_instrumentation_level(default)
+  end
+
+  # Takes a conn from a render event that definitely has a controller and action
+  # and returns an appropriate response for the phoenix_controller_render :start event
+  defp render_check(conn, template_name) do
+    controller_actions_blacklist = get_parsed_blacklist()
+
+    controller = Phoenix.Controller.controller_module(conn)
+    action = Phoenix.Controller.action_name(conn)
+    blacklisted? = controller_action_blacklisted?({controller, action}, controller_actions_blacklist)
+
+    handle_render_blacklist(blacklisted?, template_name)
+  end
+
+  # Takes a boolean value that determines whether the render call is blacklisted
+  # and returns an appropirate response for the phoenix_controller_render :start event
+  defp handle_render_blacklist(true, _) do
+    false
+  end
+
+  defp handle_render_blacklist(false, template_name) do
+    log_level = get_log_level(:info)
+    {:ok, log_level, template_name}
   end
 
   defp filter_params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}),
