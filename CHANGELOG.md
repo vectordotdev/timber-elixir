@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+  - Fixed an error where `Timber.Integrations.PhoenixInstrumenter` would cause
+    an error during blacklist checks if the blacklist had not been set up.
+
   - Fixed an error where `Timber.Integrations.PhoenixInstrumenter` would fail on render
     events for `conn` structs that did not have a controller or action set. For
     example, when a `conn` did not match listed routes, a `404.html` template

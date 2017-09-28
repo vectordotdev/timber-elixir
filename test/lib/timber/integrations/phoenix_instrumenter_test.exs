@@ -82,6 +82,12 @@ if Code.ensure_loaded?(Phoenix) do
     end
 
     describe "Timber.Integrations.PhoenixInstrumenter.get_parsed_blacklist/0" do
+      test "retrieves empty MapSet when blacklist is not in application environment" do
+        :ok = Application.put_env(:timber, PhoenixInstrumenter, [])
+        blacklist = PhoenixInstrumenter.get_parsed_blacklist()
+        assert match?(%MapSet{}, blacklist)
+      end
+
       test "retrieves the blacklist from the application environment", %{env: env} do
         blacklist = MapSet.new([
           {A, :action},
