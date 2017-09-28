@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.0] - 2017-09-28
+
 ### Changed
 
   - Logger backends now conform to the `:gen_event` behaviour rather than calling
@@ -47,7 +49,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.5.6...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/timberio/timber-elixir/compare/v2.5.6...v2.6.0
 [2.5.6]: https://github.com/timberio/timber-elixir/compare/v2.5.5...v2.5.6
 [2.5.5]: https://github.com/timberio/timber-elixir/compare/v2.5.4...v2.5.5
 [2.5.4]: https://github.com/timberio/timber-elixir/compare/v2.5.3...v2.5.4
