@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.6] - 2017-09-28
+
 ### Fixed
 
   - Fixed an error where `Timber.Integrations.PhoenixInstrumenter` would cause
@@ -38,6 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumentater`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.5.5...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.5.6...HEAD
+[2.5.6]: https://github.com/timberio/timber-elixir/compare/v2.5.5...v2.5.6
 [2.5.5]: https://github.com/timberio/timber-elixir/compare/v2.5.4...v2.5.5
 [2.5.4]: https://github.com/timberio/timber-elixir/compare/v2.5.3...v2.5.4
