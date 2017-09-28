@@ -162,7 +162,7 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   # entry does not exist
   def get_parsed_blacklist() do
     opts = Application.get_env(:timber, __MODULE__, [])
-    Keyword.get(opts, :parsed_controller_actions_blacklist, [])
+    Keyword.get(opts, :parsed_controller_actions_blacklist, MapSet.new())
   end
 
   @doc false
