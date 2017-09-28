@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
   - Logger backends now conform to the `:gen_event` behaviour rather than calling
     the `GenEvent.__using__/1` macro which is deprecated in Elixir 1.5.0 and
     above. The change is backwards compatible since `:gen_event` is provided by
@@ -40,7 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
   - Support for blacklisting controller actions with
-    `Timber.Integrations.PhoenixInstrumentater`. This will suppress log lines
+    `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
 [Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.5.5...HEAD
