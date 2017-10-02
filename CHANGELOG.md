@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
   - Fixed `Timber.Integrations.PhoenixInstrumenter` did not define a
+    fall-through for `phoenix_controller_render/3` during the `:start` event for
+    when the third-parameter is in a different format than expected.
+
+  - Fixed `Timber.Integrations.PhoenixInstrumenter` did not define a
     fall-through when the instrumentation system sends a default state value for
     the `:stop` event on `phoenix_controller_render/3`.
 

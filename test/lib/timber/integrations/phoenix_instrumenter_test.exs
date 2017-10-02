@@ -210,6 +210,10 @@ if Code.ensure_loaded?(Phoenix) do
         assert false == PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
       end
 
+      test ":start returns :ok when an unsupported map is passed" do
+        assert :ok = PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{})
+      end
+
       test ":stop does not log anything when the third param is :ok" do
         log = capture_log(fn ->
           PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, :ok)
