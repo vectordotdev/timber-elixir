@@ -320,7 +320,8 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
   end
 
   @doc false
-  @spec phoenix_controller_render(:start | :stop, map | non_neg_integer, map | :ok) :: :ok
+  @spec phoenix_controller_render(:start, map, map) :: :ok
+  @spec phoenix_controller_render(:stop, non_neg_integer, :ok | {:ok, atom, String.t} | false) :: :ok
   def phoenix_controller_render(:start, _compile_metadata, %{template: template_name, conn: conn}) do
     has_controller? = Map.has_key?(conn.private, :phoenix_controller)
     has_action? = Map.has_key?(conn.private, :phoenix_action)
@@ -330,6 +331,13 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     else
       handle_render_blacklist(false, template_name)
     end
+  end
+
+  def phoenix_controller_render(:start, _, _) do
+    # Absolute fall-through. This catch-all is provided for any scenario that
+    # has not been otherwise accounted for. It sets the return to :ok which will
+    # result in no log being produced
+    :ok
   end
 
   def phoenix_controller_render(:stop, _time_diff, :ok) do
