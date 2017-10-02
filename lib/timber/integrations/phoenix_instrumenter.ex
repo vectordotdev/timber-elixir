@@ -93,6 +93,9 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   Now, when Phoenix calls `check/2` on the `TimberClientAPI.HealthController` module,
   no log lines will be produced!
+
+  _Note_: If you're on a version of Phoenix prior to 1.3, you will still see logs for
+  render events even if the controller is blacklisted.
   """
 
   require Logger
@@ -331,6 +334,10 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     else
       handle_render_blacklist(false, template_name)
     end
+  end
+
+  def phoenix_controller_render(:start, _compile_metadata, %{template: template_name}) do
+    handle_render_blacklist(false, template_name)
   end
 
   def phoenix_controller_render(:start, _, _) do

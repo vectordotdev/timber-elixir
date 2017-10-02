@@ -210,6 +210,14 @@ if Code.ensure_loaded?(Phoenix) do
         assert false == PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
       end
 
+      test ":start returns true when a template name is given but no connection" do
+        # This test situation occurs when the route cannot be matched, for example
+        template_name = "404.html"
+
+        assert {:ok, :info, ^template_name} =
+          PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name})
+      end
+
       test ":start returns :ok when an unsupported map is passed" do
         assert :ok = PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{})
       end

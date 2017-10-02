@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+  - Fixed an error where `Timber.Integrations.PhoenixInstrumenter` would fail
+    on versions of Phoenix prior to 1.3 that do not pass a `:conn` key with the
+    `phoenix_controller_render/3` `:start` event.
+
   - Fixed `Timber.Integrations.PhoenixInstrumenter` did not define a
     fall-through for `phoenix_controller_render/3` during the `:start` event for
     when the third-parameter is in a different format than expected.
