@@ -332,6 +332,15 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     end
   end
 
+  def phoenix_controller_render(:stop, _time_diff, :ok) do
+    # The default return for phoenix_controller_render(:start, _, _) is :ok
+    # If the parameters passed are [:stop, _, :ok], it means that the :start
+    # phase failed and Phoenix is giving us :ok as the default
+    #
+    # In this case, we do nothing
+    :ok
+  end
+
   def phoenix_controller_render(:stop, _time_diff, false) do
     # The render event should not be logged
     :ok

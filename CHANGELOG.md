@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+  - Fixed `Timber.Integrations.PhoenixInstrumenter` did not define a
+    fall-through when the instrumentation system sends a default state value for
+    the `:stop` event on `phoenix_controller_render/3`.
+
 ## [2.6.0] - 2017-09-28
 
 ### Changed
