@@ -210,6 +210,14 @@ if Code.ensure_loaded?(Phoenix) do
         assert false == PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
       end
 
+      test ":stop does not log anything when the third param is :ok" do
+        log = capture_log(fn ->
+          PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, :ok)
+        end)
+
+        assert log == ""
+      end
+
       test ":stop does not log anything when the third param is false" do
         log = capture_log(fn ->
           PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, false)
@@ -218,7 +226,7 @@ if Code.ensure_loaded?(Phoenix) do
         assert log == ""
       end
 
-      test ":stop logs the render time when " do
+      test ":stop logs the render time when it is present" do
         template_name = "index.html"
         log_level = :info
 
