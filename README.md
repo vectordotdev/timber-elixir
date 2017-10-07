@@ -342,7 +342,7 @@ Logging features every developer needs:
 
 * [**Powerful searching.** - Find what you need faster.](https://timber.io/docs/app/console/searching)
 * [**Live tail users.** - Easily solve customer issues.](https://timber.io/docs/app/console/tail-a-user)
-* [**Viw logs per HTTP request.** - See the full story without the noise.](https://timber.io/docs/app/console/trace-http-requests)
+* [**View logs per HTTP request.** - See the full story without the noise.](https://timber.io/docs/app/console/trace-http-requests)
 * [**Inspect HTTP request parameters.** - Quickly reproduce issues.](https://timber.io/docs/app/console/inspect-http-requests)
 * [**Threshold based alerting.** - Know when things break.](https://timber.io/docs/app/alerts)
 
