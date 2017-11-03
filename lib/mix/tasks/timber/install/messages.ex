@@ -180,7 +180,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
     and tail logs for specific users. To install this, please follow the
     appropraite instructions below:
 
-    1. If you're using Gaurdian (an elixir authentication library), checkout
+    1. If you're using Guardian (an elixir authentication library), checkout
        this gist: https://gist.github.com/binarylogic/50901f453587748c3d70295e49f5797a
 
     2. For everything else, simply add the following code immediately after
