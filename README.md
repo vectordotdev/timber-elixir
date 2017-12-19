@@ -184,10 +184,11 @@ Logger.info fn ->
   {message, [event: event]}
 end
 
+timer = Timber.start_timer()
 case :hackney.request(method, url, headers, body, with_body: true) do
   {:ok, status, resp_headers, resp_body} ->
     Logger.info fn ->
-      event = HTTPResponseEvent.new(direction: "incoming", service_name: "stripe", status: status, headers: resp_headers, body: resp_body)
+      event = HTTPResponseEvent.new(direction: "incoming", service_name: "stripe", status: status, headers: resp_headers, body: resp_body, time_ms: Timber.duration_ms(timer))
       message = HTTPResponseEvent.message(event)
       {message, [event: event]}
     end
