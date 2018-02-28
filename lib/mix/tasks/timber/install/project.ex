@@ -85,7 +85,7 @@ defmodule Mix.Tasks.Timber.Install.Project do
   defp get_web_file_path(api) do
     if Code.ensure_loaded?(Phoenix) do
       file_explanation = "We need this to disable the default Phoenix controller logging"
-      PathHelper.find(["web", "web.ex"], file_explanation, api, check_for_umbrella: true,
+      PathHelper.find(["{web,lib}", "*web.ex"], file_explanation, api, check_for_umbrella: true,
         contents_filter: "use Phoenix.Controller")
     else
       nil
