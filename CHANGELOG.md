@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+  - The `Timber.LocalContext` now manages setting and updating the Timber context
+    maintained in the Elixir Logger metadata. This replaces the `Timber.CurrentContext`
+    module. `Timber.LocalContext.get/0` should be used where
+    `Timber.CurrentContext.load/0` was used before, and `Timber.LocalContext.put/1`
+    should be used where `Timber.CurrentContext.save/1` was used.
+
+### Deprecated
+
+  - `Timber.CurrentContext` has been deprecated in favor of `Timber.LocalContext`;
+    the new name better reflects the purpose of the module. Use of
+    `Timber.CurrentContext` will still be supported for the lifetime of v2
+
 ## [2.6.1] - 2017-10-02
 
 ### Fixed

@@ -254,17 +254,17 @@ context between processes because they are related (such as processes created by
 In these instances copying the context is easy.
 
 ```elixir
-current_context = Timber.CurrentContext.load()
+current_context = Timber.LocalContext.get()
 
 Task.async fn ->
-  Timber.CurrentContext.save(current_context)
+  Timber.LocalContext.put(current_context)
   Logger.info("Logs from a separate process")
 end
 ```
 
 `current_context` in the above example is captured in the parent process, and because Elixir's
 variable scope is lexical, you can pass the referenced context into the newly created process.
-`Timber.CurrentContext.save/1` copies that context into the new process dictionary.
+`Timber.LocalContext.put/1` copies that context into the new process dictionary.
 
 * [Search it](https://timber.io/docs/app/console/searching) with queries like: `background_job.time_ms:>500`
 * [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
