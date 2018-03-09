@@ -11,7 +11,8 @@ defmodule Timber.LogEntry do
   alias Timber.Context
   alias Timber.Contexts.RuntimeContext
   alias Timber.Contexts.SystemContext
-  alias Timber.CurrentContext
+  alias Timber.GlobalContext
+  alias Timber.LocalContext
   alias Timber.Event
   alias Timber.Eventable
   alias Timber.Utils.JSON
@@ -51,10 +52,9 @@ defmodule Timber.LogEntry do
   @doc """
   Creates a new `LogEntry` struct
 
-  The metadata from Logger is given as the final parameter. If the
-  `:timber_context` key is present in the metadata, it will be used
-  to fill the context for the log entry. Otherwise, a blank context
-  will be used.
+  This function will merge the global context from `Timber.GlobalContext`
+  with any context present in the `:timber_metadata` key in the
+  metadata parameter.
   """
   @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
   def new(timestamp, level, message, metadata) do
@@ -68,9 +68,13 @@ defmodule Timber.LogEntry do
         |> IO.chardata_to_string()
       end
 
+    global_context = GlobalContext.get()
+
+    metadata_context = LocalContext.extract_from_metadata(metadata)
+
     context =
-      metadata
-      |> CurrentContext.extract_from_metadata()
+      global_context
+      |> Context.add(metadata_context)
       |> add_runtime_context(metadata)
       |> add_system_context()
 

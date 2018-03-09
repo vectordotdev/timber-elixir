@@ -18,7 +18,14 @@ defmodule Timber.Context do
   alias Timber.Contexts
   alias Timber.Utils.Map, as: UtilsMap
 
-  @type context_element ::
+  @typedoc """
+  Deprecated; please use `element` instead
+  """
+  @type context_element :: element
+
+  @type element ::
+    map                             |
+    Keyword.t                       |
     Contexts.CustomContext.t        |
     Contexts.HTTPContext.t          |
     Contexts.JobContext.t           |

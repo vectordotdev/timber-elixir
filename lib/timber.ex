@@ -8,16 +8,14 @@ defmodule Timber do
   use Application
 
   alias Timber.Context
-  alias Timber.CurrentContext
+  alias Timber.LocalContext
 
   @doc """
   Adds a context entry to the stack. See `Timber::Contexts::CustomContext` for examples.
   """
-  @spec add_context(map | Keyword.t | Context.context_element) :: :ok
+  @spec add_context(Context.element) :: :ok
   def add_context(data) do
-    CurrentContext.load()
-    |> Context.add(data)
-    |> CurrentContext.save()
+    LocalContext.add(data)
   end
 
   @doc """
