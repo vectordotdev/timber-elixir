@@ -74,7 +74,7 @@ defmodule Timber.LogEntry do
 
     context =
       global_context
-      |> Context.add(metadata_context)
+      |> Context.merge(metadata_context)
       |> add_runtime_context(metadata)
       |> add_system_context()
 

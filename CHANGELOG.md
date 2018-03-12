@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+  - `Timber.LogEntry.new/4` will fetch the global context and merge it into the
+    local metadata context. The local context will override the global context
+    based on the rules for `Timber.Context.merge/2`
+
 ### Added
 
+  - `Timber.add_context/2` now allows you to set context either locally or globally;
+    `Timber.add_context/1` will default to storing the context locally (consistent
+    with previous versions of the library)
   - The `Timber.LocalContext` now manages setting and updating the Timber context
     maintained in the Elixir Logger metadata. This replaces the `Timber.CurrentContext`
     module. `Timber.LocalContext.get/0` should be used where
