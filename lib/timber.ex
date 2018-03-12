@@ -94,6 +94,10 @@ defmodule Timber do
 
     children = []
 
+    if Timber.Config.disable_tty?() do
+      :error_logger.delete_report_handler(:error_logger_tty_h)
+    end
+
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)
   end
