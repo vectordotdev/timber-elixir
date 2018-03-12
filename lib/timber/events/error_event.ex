@@ -27,11 +27,12 @@ defmodule Timber.Events.ErrorEvent do
     backtrace: [backtrace_entry] | [],
     name: String.t,
     message: String.t | nil,
-    metadata_json: binary | nil
+    metadata_json: binary | nil,
+    type: String.t | nil
   }
 
   @enforce_keys [:name]
-  defstruct [:backtrace, :name, :message, :metadata_json]
+  defstruct [:backtrace, :name, :type, :message, :metadata_json]
 
   @app_name_byte_limit 256
   @file_byte_limit 1_024
@@ -113,6 +114,23 @@ defmodule Timber.Events.ErrorEvent do
   end
 
   @doc """
+  Adds a stacktrace to an event, converting it if necessary
+  """
+  @spec add_backtrace(t, stacktrace_entry | backtrace_entry) :: t
+  def add_backtrace(event, [trace | _] = backtrace) when is_map(trace) do
+    backtrace = Enum.slice(backtrace, 0..(@max_backtrace_size - 1))
+    %{event | backtrace: backtrace}
+  end
+
+  def add_backtrace(event, [stack | _rest] = stacktrace) when is_tuple(stack) do
+    add_backtrace(event, stacktrace_to_backtrace(stacktrace))
+  end
+
+  def add_backtrace(event, []) do
+    event
+  end
+
+  @doc """
   Builds an error from the given log message. This allows us to create Error events
   downstream in the logging flow. Because of the complicated nature around Elixir
   exception handling, this is a reliable catch-all to ensure all error are capture
@@ -135,6 +153,26 @@ defmodule Timber.Events.ErrorEvent do
       _ ->
         {:error, :could_not_parse_message}
     end
+  end
+
+  defp stacktrace_to_backtrace(stacktrace) do
+    # arity is an integer or list of arguments
+    Enum.map(stacktrace, fn({module, function, arity, location}) ->
+      arity = case arity do
+        arity when is_list(arity) -> length(arity)
+        _ -> arity
+      end
+
+      file = Keyword.get(location, :file)
+             |> Kernel.to_string()
+      line = Keyword.get(location, :line)
+
+      %{
+        function: Exception.format_mfa(module, function, arity),
+        file: file,
+        line: line
+      }
+    end)
   end
 
   # ** (exit) an exception was raised:

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+  - `Timber.Integrations.ErrorLogger` allows you to include a new OTP `:error\_logger` handler to better maintain the structure of errors and stacktraces. It also collapses many cases of multi-line logs into a single line.
+
 ## [2.7.0] - 2018-03-22
 
 ### Added
