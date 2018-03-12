@@ -1,8 +1,15 @@
 defmodule Mix.Tasks.Timber.Install.Project do
   @moduledoc false
 
-  defstruct [:config_file_path, :endpoint_file_path, :endpoint_module_name, :mix_name,
-    :module_name, :repo_module_name, :web_file_path]
+  defstruct [
+    :config_file_path,
+    :endpoint_file_path,
+    :endpoint_module_name,
+    :mix_name,
+    :module_name,
+    :repo_module_name,
+    :web_file_path
+  ]
 
   alias Mix.Tasks.Timber.Install.{FileHelper, IOHelper, PathHelper}
 
@@ -38,8 +45,10 @@ defmodule Mix.Tasks.Timber.Install.Project do
         |> String.replace("-", "_")
 
       {:error, _reason} ->
-        IOHelper.ask("What's the name of your application? (please use snake_case, ex: my_app)",
-          api)
+        IOHelper.ask(
+          "What's the name of your application? (please use snake_case, ex: my_app)",
+          api
+        )
     end
   end
 
@@ -51,8 +60,14 @@ defmodule Mix.Tasks.Timber.Install.Project do
   defp get_endpoint_file_path(api) do
     if Code.ensure_loaded?(Phoenix) do
       file_explanation = "We need this so that we can install the Timber plugs."
-      PathHelper.find(["{lib,web}", "**", "endpoint.ex"], file_explanation, api,
-        check_for_umbrella: true, contents_filter: "use Phoenix.Endpoint")
+
+      PathHelper.find(
+        ["{lib,web}", "**", "endpoint.ex"],
+        file_explanation,
+        api,
+        check_for_umbrella: true,
+        contents_filter: "use Phoenix.Endpoint"
+      )
     else
       nil
     end
@@ -68,8 +83,14 @@ defmodule Mix.Tasks.Timber.Install.Project do
   defp get_repo_file_path(api) do
     if Code.ensure_loaded?(Ecto) do
       file_explanation = "We need this to capture Ecto log events"
-      PathHelper.find(["{lib,web}", "**", "repo.ex"], file_explanation, api,
-        check_for_umbrella: true, contents_filter: "use Ecto.Repo")
+
+      PathHelper.find(
+        ["{lib,web}", "**", "repo.ex"],
+        file_explanation,
+        api,
+        check_for_umbrella: true,
+        contents_filter: "use Ecto.Repo"
+      )
     else
       nil
     end
@@ -85,8 +106,14 @@ defmodule Mix.Tasks.Timber.Install.Project do
   defp get_web_file_path(api) do
     if Code.ensure_loaded?(Phoenix) do
       file_explanation = "We need this to disable the default Phoenix controller logging"
-      PathHelper.find(["{web,lib}", "*web.ex"], file_explanation, api, check_for_umbrella: true,
-        contents_filter: "use Phoenix.Controller")
+
+      PathHelper.find(
+        ["{lib,web}", "**", "web.ex"],
+        file_explanation,
+        api,
+        check_for_umbrella: true,
+        contents_filter: "use Phoenix.Controller"
+      )
     else
       nil
     end
