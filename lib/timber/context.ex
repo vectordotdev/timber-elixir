@@ -96,6 +96,27 @@ defmodule Timber.Context do
     Map.put(context, key, new_context)
   end
 
+  @doc """
+  Merges two Context structs
+
+  Entries in the second Context will override entries in the first.
+  The caveat to this is custom context, which will descend into the
+  custom context and merge it there. Even then, custom context entries
+  in the second will override custom context entries in the first.
+  """
+  @spec merge(t, t) :: t
+  def merge(first_context, second_context) do
+    Map.merge(first_context, second_context, &c_merge/3)
+  end
+
+  defp c_merge(:custom, first_context, second_context) do
+    Map.merge(first_context, second_context)
+  end
+
+  defp c_merge(_key, first_context, _second_context) do
+    first_context
+  end
+
   # Converts a context_element into a map the Timber API expects.
   @spec to_api_map(context_element) :: map
   defp to_api_map(%Contexts.CustomContext{type: type, data: data}) do

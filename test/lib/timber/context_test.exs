@@ -67,4 +67,31 @@ defmodule Timber.ContextTest do
       assert result ==  %{user: %{id: "1"}}
     end
   end
+
+  describe "Timber.Context.merge/2" do
+    test "merges with two custom contexts" do
+      first_context = Context.add(%{}, %{build: %{version: "1.0.0"}})
+      second_context = Context.add(%{}, %{build: %{timestamp: "1520867239"}})
+      merged_context = Context.merge(first_context, second_context)
+
+      custom_context = Map.get(merged_context, :custom)
+      assert Map.has_key?(custom_context, :build)
+      build = Map.get(custom_context, :build)
+      assert Map.has_key?(build, :timestamp)
+      refute Map.has_key?(build, :version)
+    end
+
+    test "merges with left-side custom context" do
+      # this test makes sure that the left hand side custom context (the "first" context)
+      # is preserved when there is no right hand side custom context
+      first_context = Context.add(%{}, %{build: %{version: "1.0.0"}})
+      second_context = %{}
+      merged_context = Context.merge(first_context, second_context)
+
+      custom_context = Map.get(merged_context, :custom)
+      assert Map.has_key?(custom_context, :build)
+      build = Map.get(custom_context, :build)
+      assert Map.has_key?(build, :version)
+    end
+  end
 end

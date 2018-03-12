@@ -9,13 +9,35 @@ defmodule Timber do
 
   alias Timber.Context
   alias Timber.LocalContext
+  alias Timber.GlobalContext
 
   @doc """
-  Adds a context entry to the stack. See `Timber::Contexts::CustomContext` for examples.
+  Adds Timber context to the current process
+
+  See `add_context/2`
   """
   @spec add_context(Context.element) :: :ok
-  def add_context(data) do
+  def add_context(data, location \\ :local)
+
+  @doc """
+  Adds context which will be included on log entries
+
+  The second parameter indicates where you want the context to be
+  stored. The available options are:
+
+    - `:global` - This stores the context at a global level, meaning
+      it will be present on every log line, regardless of which process
+      generates the log line.
+    - `:local` - This stores the context in the Logger Metadata which
+      is local to the process
+  """
+  @spec add_context(Context.element, :local | :global) :: :ok
+  def add_context(data, :local) do
     LocalContext.add(data)
+  end
+
+  def add_context(data, :global) do
+    GlobalContext.add(data)
   end
 
   @doc """
