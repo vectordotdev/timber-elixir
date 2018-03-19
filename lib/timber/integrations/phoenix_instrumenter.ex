@@ -437,9 +437,9 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     end
   end
 
-  # Unknown type, convert to a blank map for now
-  defp filter_params(_params) do
-    %{}
+  # Non-structured type, take as-is
+  defp filter_params(params) do
+    filter_values(params)
   end
 
   defp filter_values(params) do
