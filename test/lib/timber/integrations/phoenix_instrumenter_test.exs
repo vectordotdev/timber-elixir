@@ -133,6 +133,70 @@ if Code.ensure_loaded?(Phoenix) do
         end)
         assert log =~ "Received e on \"topic\" to channel @metadata "
       end
+
+      test "accepts a message where the params is a keyword list" do
+        log = capture_log(fn ->
+          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+          params = [name: "Geoffrey"]
+          metadata = %{
+            socket: socket,
+            event: "e",
+            params: params
+          }
+
+          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+        end)
+
+        assert log =~ ~s/Received e on "topic" to channel @metadata /
+      end
+
+      test "accepts a message where the params is a non-Keyword list" do
+        log = capture_log(fn ->
+          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+          params = ["a", "b"]
+          metadata = %{
+            socket: socket,
+            event: "e",
+            params: params
+          }
+
+          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+        end)
+
+        assert log =~ ~s/Received e on "topic" to channel @metadata /
+      end
+
+      test "accepts a message where the params is a string" do
+        log = capture_log(fn ->
+          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+          params = "61cf02ad-9509-48be-9b88-edf5e85219fe"
+          metadata = %{
+            socket: socket,
+            event: "e",
+            params: params
+          }
+
+          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+        end)
+
+        assert log =~ ~s/Received e on "topic" to channel @metadata /
+      end
+
+      test "accept a message where the params ia numeric value" do
+        log = capture_log(fn ->
+          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+          params = 3.14
+          metadata = %{
+            socket: socket,
+            event: "e",
+            params: params
+          }
+
+          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+        end)
+
+        assert log =~ ~s/Received e on "topic" to channel @metadata /
+      end
     end
 
     describe "Timber.Integrations.PhoenixInstrumenter.phoenix_controller_call/3" do

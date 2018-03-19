@@ -415,22 +415,40 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     {:ok, log_level, template_name}
   end
 
-  defp filter_params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}),
-    do: %{}
+  defp filter_params(%{__struct__: :"Elixir.Plug.Conn.Unfetched"}) do
+    %{}
+  end
 
-  defp filter_params(params) when is_list(params) or is_map(params) do
-    if function_exported?(Phoenix.Logger, :filter_values, 1) do
-      params
-      |> Phoenix.Logger.filter_values()
-      |> Enum.into(%{})
+  defp filter_params(params) when is_map(params) do
+    params
+    |> filter_values()
+    |> Enum.into(%{})
+  end
+
+  defp filter_params(params) when is_list(params) do
+    filtered_params = filter_values(params)
+
+    # In practice, it's actually improbable that the payload
+    # will be a Keyword list, but we handle this as a safeguard
+    if Keyword.keyword?(filtered_params) do
+      Enum.into(filtered_params, %{})
     else
-      params
+      filtered_params
     end
   end
 
   # Unknown type, convert to a blank map for now
-  defp filter_params(_params),
-    do: %{}
+  defp filter_params(_params) do
+    %{}
+  end
+
+  defp filter_values(params) do
+    if function_exported?(Phoenix.Logger, :filter_values, 1) do
+      Phoenix.Logger.filter_values(params)
+    else
+      params
+    end
+  end
 
   defp try_atom_to_string(atom) when is_atom(atom) do
     Atom.to_string(atom)
