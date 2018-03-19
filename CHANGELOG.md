@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+  - Phoenix Channels integration with Phoneix 1.3+ will no longer fail if the
+    payload of a channel message is a list
+
 ### Changed
 
   - `Timber.LogEntry.new/4` will fetch the global context and merge it into the
     local metadata context. The local context will override the global context
     based on the rules for `Timber.Context.merge/2`
+  - Phoenix Channels integration will now accept _any_ channel message payload.
+    (Previously, non-map types were dropped and replaced with an empty map.)
 
 ### Added
 
