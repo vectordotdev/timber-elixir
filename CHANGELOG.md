@@ -7,18 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Fixed
-
-  - Phoenix Channels integration with Phoneix 1.3+ will no longer fail if the
-    payload of a channel message is a list
-
-### Changed
-
-  - `Timber.LogEntry.new/4` will fetch the global context and merge it into the
-    local metadata context. The local context will override the global context
-    based on the rules for `Timber.Context.merge/2`
-  - Phoenix Channels integration will now accept _any_ channel message payload.
-    (Previously, non-map types were dropped and replaced with an empty map.)
+## [2.7.0] - 2018-03-22
 
 ### Added
 
@@ -31,11 +20,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.CurrentContext.load/0` was used before, and `Timber.LocalContext.put/1`
     should be used where `Timber.CurrentContext.save/1` was used.
 
+### Changed
+
+  - `Timber.LogEntry.new/4` will fetch the global context and merge it into the
+    local metadata context. The local context will override the global context
+    based on the rules for `Timber.Context.merge/2`
+  - Phoenix Channels integration will now accept _any_ channel message payload.
+    (Previously, non-map types were dropped and replaced with an empty map.)
+
 ### Deprecated
 
   - `Timber.CurrentContext` has been deprecated in favor of `Timber.LocalContext`;
     the new name better reflects the purpose of the module. Use of
     `Timber.CurrentContext` will still be supported for the lifetime of v2
+
+### Fixed
+
+  - Phoenix Channels integration with Phoneix 1.3+ will no longer fail if the
+    payload of a channel message is a list
 
 ## [2.6.1] - 2017-10-02
 
@@ -95,7 +97,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.6.1...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.7.0...HEAD
+[2.6.1]: https://github.com/timberio/timber-elixir/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/timberio/timber-elixir/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/timberio/timber-elixir/compare/v2.5.6...v2.6.0
 [2.5.6]: https://github.com/timberio/timber-elixir/compare/v2.5.5...v2.5.6
