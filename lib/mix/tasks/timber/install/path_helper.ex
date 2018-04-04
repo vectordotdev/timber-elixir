@@ -89,6 +89,7 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
               |> String.trim_trailing()
 
             case IOHelper.ask(prompt, api) do
+              "skip" -> nil
               v -> find([v], file_explanation, api)
             end
         end
