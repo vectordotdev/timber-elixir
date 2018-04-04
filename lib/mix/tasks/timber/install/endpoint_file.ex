@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Timber.Install.EndpointFile do
   alias Mix.Tasks.Timber.Install.FileHelper
 
   def update!(file_path, api) do
-    router_pattern = ~r/( *)plug [^\n\r]*.Router/
+    router_pattern = ~r/( *)plug [^\n\r]*.\.Router/
     router_replacement =
       "\\1# Add Timber plugs for capturing HTTP context and events\n" <>
         "\\1plug Timber.Integrations.SessionContextPlug\n" <>
