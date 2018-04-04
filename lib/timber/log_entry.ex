@@ -110,7 +110,7 @@ defmodule Timber.LogEntry do
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
     vm_pid =
-      self()
+      Keyword.get_lazy(metadata, :pid, self())
       |> :erlang.pid_to_list()
       |> :erlang.iolist_to_binary()
     runtime_context =
