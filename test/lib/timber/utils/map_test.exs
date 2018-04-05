@@ -21,6 +21,13 @@ defmodule Timber.Utils.MapTest do
       iso_8601 = DateTime.to_iso8601(now)
       assert r ==  %{key: iso_8601}
     end
+
+    test "handles tuples" do
+      struct = %TestStruct{key: %TestStruct{key: {1, {2, 3}}}}
+      m = %{a: struct}
+      r = UtilsMap.recursively_drop_blanks(m)
+      assert r == %{a: %{key: %{key: {1, {2, 3}}}}}
+    end
   end
 
   describe "Timber.Utils.Map.recursively_drop_blanks/1" do
@@ -58,13 +65,6 @@ defmodule Timber.Utils.MapTest do
       m = %{a: %{a: %{a: %{}, b: 1, c: nil}}, b: 1}
       r = UtilsMap.recursively_drop_blanks(m)
       assert r == %{b: 1, a: %{a: %{b: 1}}}
-    end
-
-    test "handles structs" do
-      struct = %TestStruct{key: %TestStruct{key: "value"}}
-      m = %{a: struct}
-      r = UtilsMap.recursively_drop_blanks(m)
-      assert r == %{a: %{key: %{key: "value"}}}
     end
   end
 end
