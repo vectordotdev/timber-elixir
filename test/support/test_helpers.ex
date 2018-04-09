@@ -31,4 +31,12 @@ defmodule Timber.TestHelpers do
 
     Msgpax.pack!([map])
   end
+
+  defmacro skip_min_elixir_version(version) do
+    quote do
+      unless(Version.match?(System.version(), "~> #{unquote(version)}")) do
+        @tag :skip
+      end
+    end
+  end
 end

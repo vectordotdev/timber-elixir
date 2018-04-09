@@ -165,7 +165,16 @@ defmodule Timber.Integrations.ErrorLogger do
     end
   end
 
-  def get_metadata(_, _) do
+  def get_metadata({_format, [_module, _pid, reason]}, :warn) do
+    case handle_error_info({reason, []}) do
+      {:ok, event} ->
+        Timber.Event.to_metadata(event)
+      {:error, _} ->
+        []
+    end
+  end
+
+  def get_metadata(_data, _level) do
     []
   end
 
@@ -217,6 +226,14 @@ defmodule Timber.Integrations.ErrorLogger do
     {:reply, :ok, state}
   end
 
+  def code_change(_old, state, _extra) do
+    {:ok, state}
+  end
+
+  def terminate(_reason, _state) do
+    :ok
+  end
+
   defp handle_error_info({{%{__exception__: true} = error, stacktrace}, _stack}) when is_list(stacktrace) do
     {:ok, build_error_event(error, stacktrace, :error)}
   end
@@ -260,26 +277,6 @@ defmodule Timber.Integrations.ErrorLogger do
 
     # %{e | type: to_string(type)}
     e
-  end
-
-  @spec handle_process_dictionary(any) :: map
-  defp handle_process_dictionary([]) do
-    %{}
-  end
-
-  defp handle_process_dictionary(dictionary) when is_list(dictionary) do
-    with {:ok, {true, metadata}} <- Keyword.fetch(dictionary, :logger_metadata),
-         {:ok, context} <- Keyword.fetch(metadata, :timber_context)
-    do
-      context
-    else
-      _ ->
-        %{}
-    end
-  end
-
-  defp handle_process_dictionary(_) do
-    %{}
   end
 
   defp check_threshold(%{skip_count: 0, keep_count: keep_count, max_count: max_count} = state) do
@@ -327,6 +324,25 @@ defmodule Timber.Integrations.ErrorLogger do
     end
   end
 
+  # Elixir 1.6 stopped using :io_lib.format/2 in favor of :io_lib.build_text/1
+  # This also included an internal replacement of Logger.Utils.inspect/3
+  # with Logger.Utils.scan_inspect/3
+  defmacrop build_text(format, args, truncate) do
+    if(Version.match?(System.version(), "~> 1.6")) do
+      quote do
+        msg = Logger.Utils.scan_inspect(unquote(format), unquote(args), unquote(truncate))
+              |> :io_lib.build_text()
+
+      {:ok, msg}
+      end
+    else
+      quote do
+        {format, args} = Logger.Utils.inspect(unquote(format), unquote(args), unquote(truncate))
+        {:ok, :io_lib.format(format, args)}
+      end
+    end
+  end
+
   defp translate([{mod, fun} | t], min_level, level, kind, data, truncate) do
     case apply(mod, fun, [min_level, level, kind, data]) do
       {:ok, chardata} -> {:ok, chardata}
@@ -336,12 +352,7 @@ defmodule Timber.Integrations.ErrorLogger do
   end
 
   defp translate([], _min_level, _level, :format, {format, args}, truncate) do
-    msg =
-      format
-      |> Logger.Utils.scan_inspect(args, truncate)
-      |> :io_lib.build_text()
-
-    {:ok, msg}
+    build_text(format, args, truncate)
   end
 
   defp translate([], _min_level, _level, :report, {_type, data}, _truncate) do

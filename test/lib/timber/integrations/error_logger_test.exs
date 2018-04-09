@@ -47,8 +47,9 @@ defmodule Timber.Integrations.ErrorLoggerTest do
 
     assert %ErrorEvent{
       name: "ErlangError",
-      message: "Erlang error: \"I am throwing\"",
+      message: message,
     } = Keyword.get(metadata, :event)
+    assert message =~ ~r/Erlang error: "I am throwing"/i
 
     assert Keyword.get(metadata, :pid) == pid
   end
@@ -65,9 +66,10 @@ defmodule Timber.Integrations.ErrorLoggerTest do
 
     [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
     assert %ErrorEvent{
-      message: "Erlang error: :bad_exit",
       name: "ErlangError",
+      message: message,
     } = Keyword.get(metadata, :event)
+    assert message =~ ~r/Erlang error: :bad_exit/i
     assert Keyword.get(metadata, :pid) == pid
   end
 
@@ -128,6 +130,7 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     assert Keyword.get(metadata, :pid) == pid
   end
 
+  skip_min_elixir_version("1.4")
   test "logs errors from GenServer unexpected message in handle_info/2" do
     add_timber_error_logger()
     add_test_logger_backend(self())
@@ -136,7 +139,7 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     send(pid, :unexpected)
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{_level, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
 
     assert Keyword.get(metadata, :pid) == pid
   end

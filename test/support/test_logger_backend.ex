@@ -49,6 +49,14 @@ defmodule Timber.TestLoggerBackend do
     {:ok, state}
   end
 
+  def code_change(_old, state, _extra) do
+    {:ok, state}
+  end
+
+  def terminate(_reason, _state) do
+    :ok
+  end
+
   defp send_confirmation(nil), do: nil
 
   defp send_confirmation(pid) do
