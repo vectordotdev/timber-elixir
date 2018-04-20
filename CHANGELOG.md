@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     stacktraces. It also collapses many cases of multi-line logs into a single
     line.
 
+### Fixed
+
+  - Fixed Logger metadata to use the pid from the Logger event and fall back
+    to `self()`.
+
+  - Fix an issue with the regular expression that detects the Router during
+    installation.
+
+  - Fix an issue with being able to skip files during installation when multiple
+    files match.
+
 ## [2.7.0] - 2018-03-22
 
 ### Added
