@@ -5,8 +5,8 @@ defmodule Timber.Integrations.ErrorLogger do
   Timber can automatically log the exceptions that occur in your
   application as exception events with all the necessary metadata
   by registering as an `:error_logger` handler. To activate Timber's
-  error logging system, you just need to add a few configuration
-  lines:
+  error logging system, you need to add a few configuration
+  lines and add the `ErrorLogger` handler during application start:
 
   ```
   # Enable Timber's error capturing system
@@ -14,6 +14,34 @@ defmodule Timber.Integrations.ErrorLogger do
 
   # Disable Elixir's default error capturing system
   config :logger, :handle_otp_reports, false
+  ```
+
+  ```
+  def start(_type, _opts) do
+    children = [
+      supervisor(MyApp.Repo, []),
+      supervisor(MyAppWeb.Endpoint, [])
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+
+    :ok = :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
+
+    Supervisor.start_link(children, opts)
+  end
+  ```
+
+  Users should be aware that report handlers can be added multiple times,
+  which can result in duplicated logs. This concern is most relevant to
+  umbrella applications or applications with multiple entry-points. To solve
+  this, the handler should be added only at the primary application entry-point.
+  If that is not feasible, the other solution is to check if the handler
+  exists before adding it. Example:
+
+  ```
+  if !(Timber.Integrations.ErrorLogger in :gen_event.which_handlers(:error_logger)) do
+    :ok = :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
+  end
   ```
 
   ## Elixir Logger's OTP Report Handler
