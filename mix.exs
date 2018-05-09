@@ -192,8 +192,8 @@ defmodule Timber.Mixfile do
       {:ecto, ">= 2.0.0 and < 2.3.0", optional: true},
       # We support Phoenix after 1.2.0 but before 1.4.0
       {:phoenix, ">= 1.2.0 and < 1.4.0", optional: true},
-      # We support Plug after 1.2.0 but before 1.5.0
-      {:plug, ">= 1.2.0 and < 1.5.0", optional: true},
+      # We support Plug after 1.2.0 but before 1.6.0
+      {:plug, "~> 1.2", optional: true},
     ]
 
     if System.get_env("NO_THIRD_PARTY_INTEGRATION_TEST") == "true" do
