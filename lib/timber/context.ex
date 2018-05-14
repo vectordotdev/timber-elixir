@@ -36,14 +36,14 @@ defmodule Timber.Context do
     Contexts.UserContext.t
 
   @type t :: %{
-    optional(:custom) => Context.CustomContext.m,
-    optional(:http) => Context.HTTPContext.m,
-    optional(:job) => Context.JobContext.m,
-    optional(:organization) => Context.OrganizationContext.m,
-    optional(:runtime) => Context.RuntimeContext.m,
-    optional(:session) => Context.SessionContext.m,
-    optional(:system) => Context.SystemContext.m,
-    optional(:user) => Context.UserContext.m
+    optional(:custom) => Contexts.CustomContext.m,
+    optional(:http) => Contexts.HTTPContext.m,
+    optional(:job) => Contexts.JobContext.m,
+    optional(:organization) => Contexts.OrganizationContext.m,
+    optional(:runtime) => Contexts.RuntimeContext.m,
+    optional(:session) => Contexts.SessionContext.m,
+    optional(:system) => Contexts.SystemContext.m,
+    optional(:user) => Contexts.UserContext.m
   }
 
   @doc false
@@ -52,7 +52,7 @@ defmodule Timber.Context do
   @doc """
   Takes an existing context element and inserts it into the provided context.
   """
-  @spec add(t, context_element) :: t
+  @spec add(t, element) :: t
   def add(context, %Contexts.CustomContext{type: type} = context_element) when is_binary(type) do
     new_context_element = %{context_element | type: String.to_atom(type)}
     add(context, new_context_element)
@@ -82,7 +82,7 @@ defmodule Timber.Context do
   end
 
   # Inserts the context_element into the main context map
-  @spec insert(map, t, atom) :: map
+  @spec insert(t, atom, t) :: map
   defp insert(context, _key, new_context) when map_size(new_context) == 0 do
     context
   end
@@ -118,7 +118,7 @@ defmodule Timber.Context do
   end
 
   # Converts a context_element into a map the Timber API expects.
-  @spec to_api_map(context_element) :: map
+  @spec to_api_map(element) :: map
   defp to_api_map(%Contexts.CustomContext{type: type, data: data}) do
     %{type => data}
     |> UtilsMap.recursively_drop_blanks()
@@ -157,7 +157,7 @@ defmodule Timber.Context do
   end
 
   # Determines the key name for the context_element that the Timber API expects.
-  @spec type(context_element) :: atom
+  @spec type(element) :: atom
   defp type(%Contexts.CustomContext{}), do: :custom
   defp type(%Contexts.HTTPContext{}), do: :http
   defp type(%Contexts.JobContext{}), do: :job

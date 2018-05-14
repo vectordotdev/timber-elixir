@@ -13,7 +13,7 @@ defmodule Timber.Utils.HTTPEventsTest do
     end
 
     test "blank map" do
-      assert HTTPEvents.normalize_body(%{}) == nil
+      assert HTTPEvents.normalize_body(%{}) == "{}"
     end
 
     test "blank list" do

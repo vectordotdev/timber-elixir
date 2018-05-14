@@ -24,7 +24,7 @@ defmodule Timber.Events.ErrorEvent do
   }
 
   @type t :: %__MODULE__{
-    backtrace: [backtrace_entry] | [],
+    backtrace: [backtrace_entry] | nil,
     name: String.t,
     message: String.t | nil,
     metadata_json: binary | nil,
@@ -97,7 +97,7 @@ defmodule Timber.Events.ErrorEvent do
       |> Map.delete(:__struct__)
       |> Map.delete(:message)
     metadata_json =
-      if metadata_map == nil || metadata_map == %{} do
+      if metadata_map == %{} do
         nil
       else
         case Timber.Utils.JSON.encode_to_iodata(metadata_map) do
@@ -116,7 +116,7 @@ defmodule Timber.Events.ErrorEvent do
   @doc """
   Adds a stacktrace to an event, converting it if necessary
   """
-  @spec add_backtrace(t, stacktrace_entry | backtrace_entry) :: t
+  @spec add_backtrace(t, [stacktrace_entry] | [backtrace_entry]) :: t
   def add_backtrace(event, [trace | _] = backtrace) when is_map(trace) do
     backtrace = Enum.slice(backtrace, 0..(@max_backtrace_size - 1))
     %{event | backtrace: backtrace}
@@ -155,6 +155,7 @@ defmodule Timber.Events.ErrorEvent do
     end
   end
 
+  @spec stacktrace_to_backtrace(list) :: [backtrace_entry]
   defp stacktrace_to_backtrace(stacktrace) do
     # arity is an integer or list of arguments
     Enum.map(stacktrace, fn({module, function, arity, location}) ->

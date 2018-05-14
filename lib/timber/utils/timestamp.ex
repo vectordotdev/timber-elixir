@@ -1,7 +1,7 @@
 defmodule Timber.Utils.Timestamp do
   @moduledoc false
 
-  alias Timber.LoggerBackend
+  alias Timber.LoggerBackends.HTTP, as: LoggerBackend
 
   @doc """
   Returns the current date and time in UTC including fractional portions of a second

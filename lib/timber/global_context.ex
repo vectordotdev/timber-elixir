@@ -16,7 +16,7 @@ defmodule Timber.GlobalContext do
   @doc """
   Merges the provided context into the existing context
   """
-  @spec add(Context.t) :: :ok
+  @spec add(Context.element) :: :ok
   def add(context) do
     load()
     |> Context.add(context)

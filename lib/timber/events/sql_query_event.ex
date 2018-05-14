@@ -13,7 +13,7 @@ defmodule Timber.Events.SQLQueryEvent do
 
   @type t :: %__MODULE__{
     sql: String.t,
-    time_ms: float
+    time_ms: integer
   }
 
   @enforce_keys [:sql, :time_ms]

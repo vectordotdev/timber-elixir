@@ -126,6 +126,8 @@ defmodule Timber.Formatter do
   _Defaults to `false`._
   """
 
+  alias Timber.LoggerBackends.HTTP, as: LoggerBackend
+
   @default_colorize true
   @default_escape_new_lines false
   @default_format :json
@@ -208,7 +210,7 @@ defmodule Timber.Formatter do
     [@metadata_delimiter, metadata]
   end
 
-  @spec add_log_level(IO.chardata, IO.charadata, boolean) :: IO.chardata
+  @spec add_log_level(IO.chardata, IO.chardata, boolean) :: IO.chardata
   defp add_log_level(message, _, false), do: message
   defp add_log_level(message, log_level, true) do
     ["[", log_level, "] " | message ]

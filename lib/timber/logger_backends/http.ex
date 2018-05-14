@@ -42,15 +42,17 @@ defmodule Timber.LoggerBackends.HTTP do
   """
   @type t :: %__MODULE__{
     min_level: level | nil,
-    api_key: String.t,
+    api_key: String.t | nil,
     buffer_size: non_neg_integer,
     buffer: buffer,
     flush_interval: non_neg_integer,
+    http_client: http_client,
     max_buffer_size: pos_integer,
-    ref: reference
+    ref: reference | nil
   }
 
-  @type buffer :: [] | [IO.chardata]
+  @type buffer :: [] | [LogEntry.t]
+  @type http_client :: module() | nil
 
 
   @typedoc """
@@ -202,7 +204,7 @@ defmodule Timber.LoggerBackends.HTTP do
   # Called both during initialization of the event handler and when the
   # `{:config, _}` message is sent with configuration updates. Configuration
   # is modified by changing the state.
-  @spec configure(Keyword.t, t) :: t
+  @spec configure(Keyword.t, t) :: {:ok, t}
   defp configure(options, state) do
     api_key = Keyword.get(options, :api_key, Timber.Config.api_key())
     flush_interval = Keyword.get(options, :flush_interval, state.flush_interval)
@@ -235,7 +237,7 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   # Outputs the event to the transport, first converting it to a LogEvent
-  @spec output_event(timestamp, level, IO.chardata, Keyword.t, t) :: t
+  @spec output_event(timestamp, level, iodata(), Keyword.t, t) :: {:ok, t}
   defp output_event(ts, level, message, metadata, state) do
     log_entry = LogEntry.new(ts, level, message, metadata)
     state = write_buffer(log_entry, state)

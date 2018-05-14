@@ -104,7 +104,9 @@ defmodule Timber.Mixfile do
   # Dialyzer configuration
   defp dialyzer() do
     [
-      plt_add_deps: true
+      plt_add_deps: true,
+      plt_add_apps: [:mix, :ssl, :inets],
+      ignore_warnings: "dialyzer.ignore-warnings"
     ]
   end
 

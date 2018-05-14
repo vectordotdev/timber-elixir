@@ -69,7 +69,7 @@ defmodule Timber.Utils.HTTPEvents do
   def normalize_body("" = body), do: body
 
   def normalize_body(body) when is_map(body) do
-    case JSON.encode_to_iodata!(body) do
+    case JSON.encode_to_iodata(body) do
       {:ok, json} -> normalize_body(to_string(json))
       _ -> nil
     end
@@ -88,7 +88,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @doc false
   # Normalizes HTTP headers into a structure expected by the Timber API.
-  @spec normalize_headers(Keyword.t | Map.t) :: Map.t
+  @spec normalize_headers(Keyword.t | map) :: map
   def normalize_headers(headers) when is_list(headers) do
     headers
     |> List.flatten()

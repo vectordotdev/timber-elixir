@@ -20,6 +20,7 @@ defmodule Timber.LogEntry do
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
+  alias Timber.LoggerBackends.HTTP, as: LoggerBackend
 
   defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
 
@@ -29,7 +30,7 @@ defmodule Timber.LogEntry do
     message: iodata,
     context: Context.t,
     event: nil | Event.t,
-    meta: nil | Map.t,
+    meta: nil | map,
     tags: nil | [String.t],
     time_ms: nil | float
   }
@@ -38,9 +39,9 @@ defmodule Timber.LogEntry do
     dt: String.t,
     level: Logger.level,
     message: binary,
-    context: Context.m,
-    event: nil | Event.m,
-    meta: nil | Map.t,
+    context: Context.t,
+    event: nil | Event.t,
+    meta: nil | map,
     tags: nil | [String.t],
     time_ms: nil | float
   }
@@ -127,11 +128,8 @@ defmodule Timber.LogEntry do
   end
 
   defp add_system_context(context) do
-    hostname =
-      case :inet.gethostname() do
-        {:ok, hostname} -> to_string(hostname)
-        _else -> nil
-      end
+    {:ok, hostname} =:inet.gethostname()
+    hostname = to_string(hostname)
 
     pid =
       case Integer.parse(System.get_pid()) do
