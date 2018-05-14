@@ -33,7 +33,7 @@ defprotocol Timber.Contextable do
   @doc """
   Converts the data structure into a `Timber.Event.t`.
   """
-  @spec to_context(any) :: Timber.Context.t
+  @spec to_context(map() | list()) :: Timber.Context.element
   def to_context(data)
 end
 

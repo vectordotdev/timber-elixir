@@ -7,15 +7,15 @@ defmodule Timber.Event do
   alias Timber.Utils.Map, as: UtilsMap
 
   @type t ::
-    Events.ChannelJoinEvent    |
-    Events.ChannelReceiveEvent |
-    Events.ControllerCallEvent |
-    Events.CustomEvent         |
-    Events.ErrorEvent          |
-    Events.HTTPRequestEvent    |
-    Events.HTTPResponseEvent   |
-    Events.SQLQueryEvent       |
-    Events.TemplateRenderEvent
+    Events.ChannelJoinEvent.t    |
+    Events.ChannelReceiveEvent.t |
+    Events.ControllerCallEvent.t |
+    Events.CustomEvent.t         |
+    Events.ErrorEvent.t          |
+    Events.HTTPRequestEvent.t    |
+    Events.HTTPResponseEvent.t   |
+    Events.SQLQueryEvent.t       |
+    Events.TemplateRenderEvent.t
 
   @doc false
   @spec extract_from_metadata(Keyword.t) :: nil | t
@@ -24,7 +24,7 @@ defmodule Timber.Event do
   end
 
   @doc false
-  @spec to_metadata(Timber.Event.t) :: Keyword.t
+  @spec to_metadata(t) :: Keyword.t
   def to_metadata(event) do
     Keyword.put([], Timber.Config.event_key(), event)
   end

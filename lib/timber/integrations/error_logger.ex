@@ -251,7 +251,7 @@ defmodule Timber.Integrations.ErrorLogger do
   end
 
   def handle_call(_, state) do
-    {:reply, :ok, state}
+    {:ok, :ok, state}
   end
 
   def code_change(_old, state, _extra) do
@@ -270,15 +270,7 @@ defmodule Timber.Integrations.ErrorLogger do
     {:ok, build_error_event(error, stacktrace, :error)}
   end
 
-  defp handle_error_info({type, {reason, stacktrace}, _stack}) when is_list(stacktrace) do
-    {:ok, build_error_event(reason, stacktrace, type)}
-  end
-
   defp handle_error_info({{type, reason}, stacktrace}) when is_list(stacktrace) do
-    {:ok, build_error_event(reason, stacktrace, type)}
-  end
-
-  defp handle_error_info({type, reason, stacktrace}) when is_list(stacktrace) do
     {:ok, build_error_event(reason, stacktrace, type)}
   end
 

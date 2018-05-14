@@ -79,7 +79,7 @@ defmodule Timber.Integrations.EctoLogger do
   entry struct and parses it into a `Timber.Event.SQLQueryEvent`
   which is then logged at the designated level.
   """
-  @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
+  @spec log(Ecto.LogEntry.t, Logger.level) :: Ecto.LogEntry.t
   def log(%{query: query, query_time: time_native} = entry, level) when is_integer(time_native) do
     case resolve_query(query, entry) do
       {:ok, query_text} ->
