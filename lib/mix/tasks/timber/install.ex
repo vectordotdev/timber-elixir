@@ -3,8 +3,17 @@ defmodule Mix.Tasks.Timber.Install do
 
   use Mix.Task
 
-  alias __MODULE__.{API, Application, EndpointFile, IOHelper, Messages, Project, TimberConfigFile,
-    WebFile}
+  alias __MODULE__.{
+    API,
+    Application,
+    EndpointFile,
+    IOHelper,
+    Messages,
+    Project,
+    TimberConfigFile,
+    WebFile
+  }
+
   alias Mix.Tasks.Timber.Install.HTTPClient.InvalidAPIKeyError
   alias Mix.Tasks.Timber.TestThePipes
 
@@ -41,16 +50,13 @@ defmodule Mix.Tasks.Timber.Install do
       add_plugs!(project, api)
       disable_default_phoenix_logging!(project, api)
 
-      IOHelper.puts ""
+      IOHelper.puts("")
 
       install_user_context!(api)
-      #install_http_client_context!(session_id, api_key)
+      # install_http_client_context!(session_id, api_key)
       platform_install!(API.has_logs?(api), api, application)
 
       API.event!(api, :success)
-
-      Messages.free_data()
-      |> IOHelper.puts()
 
       """
       #{Messages.separator()}
@@ -66,7 +72,6 @@ defmodule Mix.Tasks.Timber.Install do
       |> IOHelper.puts()
 
       collect_feedback(api)
-
     rescue
       e in InvalidAPIKeyError ->
         message = Exception.message(e)
@@ -189,7 +194,7 @@ defmodule Mix.Tasks.Timber.Install do
 
         answer = IOHelper.ask_yes_no("Ready to proceed?", api)
 
-        IOHelper.puts ""
+        IOHelper.puts("")
 
         case answer do
           :yes -> :ok
@@ -238,7 +243,10 @@ defmodule Mix.Tasks.Timber.Install do
     |> IOHelper.puts(:green)
   end
 
-  defp platform_install!(false, api, %{platform_type: "heroku", heroku_drain_url: heroku_drain_url}) do
+  defp platform_install!(false, api, %{
+         platform_type: "heroku",
+         heroku_drain_url: heroku_drain_url
+       }) do
     Messages.heroku_drain_instructions(heroku_drain_url)
     |> IOHelper.puts()
 
@@ -252,7 +260,8 @@ defmodule Mix.Tasks.Timber.Install do
     # We manually initialize the backend here and mimic the behavior
     # of a :gen_event manager
 
-    {:ok, http_client} = Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP, [api_key: api_key])
+    {:ok, http_client} =
+      Timber.LoggerBackends.HTTP.init(Timber.LoggerBackends.HTTP, api_key: api_key)
 
     log_entries = TestThePipes.log_entries()
 
@@ -304,7 +313,11 @@ defmodule Mix.Tasks.Timber.Install do
         end
 
       v ->
-        IOHelper.puts("#{inspect(v)} is not a valid option. Please enter a number between 1 and 5.\n", :red)
+        IOHelper.puts(
+          "#{inspect(v)} is not a valid option. Please enter a number between 1 and 5.\n",
+          :red
+        )
+
         collect_feedback(api)
     end
   end

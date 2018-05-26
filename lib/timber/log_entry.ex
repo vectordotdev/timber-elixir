@@ -1,10 +1,9 @@
 defmodule Timber.LogEntry do
   @moduledoc """
-  The LogEntry module formalizes the structure of every log entry
-  as defined by Timber's log event JSON schema: https://github.com/timberio/log-event-json-schema.
-  The ensures log lines adhere to a normalized and consistent structure
-  providing for predictability and reliability for downstream consumers
-  of this log data.
+  The LogEntry module formalizes the structure of every log entry as defined by Timber's
+  log event JSON schema: https://github.com/timberio/log-event-json-schema. The ensures log
+  lines adhere to a normalized and consistent structure providing for predictability and
+  reliability for downstream consumers of this log data.
   """
 
   alias Timber.Config
@@ -25,26 +24,26 @@ defmodule Timber.LogEntry do
   defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
 
   @type t :: %__MODULE__{
-    dt: String.t,
-    level: Logger.level,
-    message: iodata,
-    context: Context.t,
-    event: nil | Event.t,
-    meta: nil | map,
-    tags: nil | [String.t],
-    time_ms: nil | float
-  }
+          dt: String.t(),
+          level: Logger.level(),
+          message: iodata,
+          context: Context.t(),
+          event: nil | Event.t(),
+          meta: nil | map,
+          tags: nil | [String.t()],
+          time_ms: nil | float
+        }
 
   @type m :: %__MODULE__{
-    dt: String.t,
-    level: Logger.level,
-    message: binary,
-    context: Context.t,
-    event: nil | Event.t,
-    meta: nil | map,
-    tags: nil | [String.t],
-    time_ms: nil | float
-  }
+          dt: String.t(),
+          level: Logger.level(),
+          message: binary,
+          context: Context.t(),
+          event: nil | Event.t(),
+          meta: nil | map,
+          tags: nil | [String.t()],
+          time_ms: nil | float
+        }
 
   @type format :: :json | :logfmt | :msgpack
 
@@ -57,10 +56,10 @@ defmodule Timber.LogEntry do
   with any context present in the `:timber_metadata` key in the
   metadata parameter.
   """
-  @spec new(LoggerBackend.timestamp, Logger.level, Logger.message, Keyword.t) :: t
+  @spec new(LoggerBackend.timestamp(), Logger.level(), Logger.message(), Keyword.t()) :: t
   def new(timestamp, level, message, metadata) do
     dt_iso8601 =
-      if Config.use_nanosecond_timestamps? do
+      if Config.use_nanosecond_timestamps?() do
         DateTime.utc_now()
         |> DateTime.to_iso8601()
       else
@@ -70,12 +69,13 @@ defmodule Timber.LogEntry do
       end
 
     global_context = GlobalContext.get()
-
-    metadata_context = LocalContext.extract_from_metadata(metadata)
+    local_context = LocalContext.extract_from_metadata(metadata)
+    inline_context = Keyword.get(metadata, :context)
 
     context =
       global_context
-      |> Context.merge(metadata_context)
+      |> Context.merge(local_context)
+      |> Context.merge(inline_context)
       |> add_runtime_context(metadata)
       |> add_system_context()
 
@@ -100,6 +100,7 @@ defmodule Timber.LogEntry do
   defp add_runtime_context(context, metadata) do
     application = Keyword.get(metadata, :application)
     module_name = Keyword.get(metadata, :module)
+
     module_name =
       if module_name do
         UtilsModule.name(module_name)
@@ -110,25 +111,26 @@ defmodule Timber.LogEntry do
     fun = Keyword.get(metadata, :function)
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
+
     vm_pid =
       Keyword.get(metadata, :pid, self())
       |> :erlang.pid_to_list()
       |> :erlang.iolist_to_binary()
-    runtime_context =
-      %RuntimeContext{
-        application: application,
-        module_name: module_name,
-        function: fun,
-        file: file,
-        line: line,
-        vm_pid: vm_pid
-      }
+
+    runtime_context = %RuntimeContext{
+      application: application,
+      module_name: module_name,
+      function: fun,
+      file: file,
+      line: line,
+      vm_pid: vm_pid
+    }
 
     Context.add(context, runtime_context)
   end
 
   defp add_system_context(context) do
-    {:ok, hostname} =:inet.gethostname()
+    {:ok, hostname} = :inet.gethostname()
     hostname = to_string(hostname)
 
     pid =
@@ -176,14 +178,14 @@ defmodule Timber.LogEntry do
   - `:except` - A list of key names. All key names except the ones passed will be encoded.
   - `:only` - A list of key names. Only the key names passed will be encoded.
   """
-  @spec encode_to_iodata!(t, format, Keyword.t) :: iodata
+  @spec encode_to_iodata!(t, format, Keyword.t()) :: iodata
   def encode_to_iodata!(log_entry, format, options \\ []) do
     log_entry
     |> to_map!(options)
     |> encode_map_to_iodata!(format)
   end
 
-  @spec to_map!(t, Keyword.t) :: m
+  @spec to_map!(t, Keyword.t()) :: m
   def to_map!(log_entry, options \\ []) do
     only = Keyword.get(options, :only)
     except = Keyword.get(options, :except)

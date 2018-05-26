@@ -28,7 +28,7 @@ defmodule Timber.Installer.FakeFileContents do
 
     # Import environment specific config. This must remain at the bottom
     # of this file so it overrides the configuration defined above.
-    import_config "#{Mix.env}.exs"
+    import_config "#{Mix.env()}.exs"
     """
   end
 
@@ -300,7 +300,7 @@ defmodule Timber.Installer.FakeFileContents do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+      metadata: #{logger_console_metadata_portion()}
 
     # For the following environments, do not log to the Timber service. Instead, log to STDOUT
     # and format the logs properly so they are human readable.
@@ -313,7 +313,7 @@ defmodule Timber.Installer.FakeFileContents do
 
       config :logger, :console,
         format: {Timber.Formatter, :format},
-        metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+        metadata: #{logger_console_metadata_portion()}
 
       config :timber, Timber.Formatter,
         colorize: true,
@@ -327,5 +327,21 @@ defmodule Timber.Installer.FakeFileContents do
     # Email us: support@timber.io
     # Or, file an issue: https://github.com/timberio/timber-elixir/issues
     """
+  end
+
+  defp logger_console_metadata_portion do
+    current_elixir_version = System.version() |> Version.parse!()
+    all_metadata_elixir_version = Version.parse!("1.6.0")
+
+    case Version.compare(current_elixir_version, all_metadata_elixir_version) do
+      :gt ->
+        ":all"
+
+      :eq ->
+        ":all"
+
+      :lt ->
+        "[:timber_context, :event, :context, :application, :file, :function, :line, :module, :meta]"
+    end
   end
 end

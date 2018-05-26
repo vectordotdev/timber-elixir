@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+  - Add support for inline context via the `:context` `Logger` metadata key.
+
 ## [2.8.0] - 2018-04-16
 
 ### Added
