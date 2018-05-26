@@ -64,7 +64,7 @@ defmodule Timber.Integrations.EventPlug do
   accepted by the router.
   """
 
-  #@behaviour Plug
+  # @behaviour Plug
 
   require Logger
 
@@ -82,7 +82,7 @@ defmodule Timber.Integrations.EventPlug do
   passed on to the plug on every call. The options accepted
   by this function are the same as defined by `call/2`.
   """
-  @spec init(Plug.opts) :: Plug.opts
+  @spec init(Plug.opts()) :: Plug.opts()
   def init(opts) do
     opts
   end
@@ -91,7 +91,7 @@ defmodule Timber.Integrations.EventPlug do
   Logs the HTTP request as soon as the Plug is called and will log
   the response when it is sent
   """
-  @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
+  @spec call(Plug.Conn.t(), Plug.opts()) :: Plug.Conn.t()
   def call(conn, opts) do
     timer = Timer.start()
     log_level = Keyword.get(opts, :log_level, :info)
@@ -107,20 +107,21 @@ defmodule Timber.Integrations.EventPlug do
     headers = List.flatten([request_id_header | conn.req_headers])
     query_string = conn.query_string
 
-    event = HTTPRequestEvent.new(
-      # Disabled for now since the body can be excessive and the params should be captured
-      # in the controller_call event.
-      # body: conn.body_params,
-      direction: "incoming",
-      headers: headers,
-      host: host,
-      method: method,
-      path: path,
-      port: port,
-      query_string: query_string,
-      request_id: request_id,
-      scheme: scheme
-    )
+    event =
+      HTTPRequestEvent.new(
+        # Disabled for now since the body can be excessive and the params should be captured
+        # in the controller_call event.
+        # body: conn.body_params,
+        direction: "incoming",
+        headers: headers,
+        host: host,
+        method: method,
+        path: path,
+        port: port,
+        query_string: query_string,
+        request_id: request_id,
+        scheme: scheme
+      )
 
     message = HTTPRequestEvent.message(event)
     metadata = Event.to_metadata(event)
@@ -132,7 +133,7 @@ defmodule Timber.Integrations.EventPlug do
     |> Plug.Conn.register_before_send(&log_response_event/1)
   end
 
-  @spec log_response_event(Plug.Conn.t) :: Plug.Conn.t
+  @spec log_response_event(Plug.Conn.t()) :: Plug.Conn.t()
   defp log_response_event(conn) do
     time_ms = Timber.duration_ms(conn.private.timber_timer)
     opts = conn.private.timber_opts
@@ -147,17 +148,21 @@ defmodule Timber.Integrations.EventPlug do
     # to be a binary
     bytes = body_bytes(conn.resp_body)
 
-    headers = [{"content-length", Integer.to_string(bytes)}, request_id_header | conn.resp_headers]
+    headers = [
+      {"content-length", Integer.to_string(bytes)},
+      request_id_header | conn.resp_headers
+    ]
 
     request_id = request_id_from_header(request_id_header)
 
-    event = HTTPResponseEvent.new(
-      direction: "outgoing",
-      headers: headers,
-      request_id: request_id,
-      status: status,
-      time_ms: time_ms
-    )
+    event =
+      HTTPResponseEvent.new(
+        direction: "outgoing",
+        headers: headers,
+        request_id: request_id,
+        status: status,
+        time_ms: time_ms
+      )
 
     message = HTTPResponseEvent.message(event)
     metadata = Event.to_metadata(event)

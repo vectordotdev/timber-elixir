@@ -9,10 +9,10 @@ defmodule Timber.Utils.TimestampTest do
       expected_format = "2005-05-07T00:15:35.928Z"
 
       timestamp = {{2005, 05, 07}, {00, 15, 35, 928}}
+
       formatted_timestamp =
         Timestamp.format_timestamp(timestamp)
         |> IO.chardata_to_string()
-
 
       assert formatted_timestamp == expected_format
     end
@@ -21,7 +21,8 @@ defmodule Timber.Utils.TimestampTest do
       # 2016-12-23 09h 06m 11m 102919 µ-seconds at 0 precision
       expected_format = "2016-12-23T09:06:11Z"
 
-      timestamp = {{2016, 12, 23}, {09, 06, 11, {102919, 0}}}
+      timestamp = {{2016, 12, 23}, {09, 06, 11, {102_919, 0}}}
+
       formatted_timestamp =
         Timestamp.format_timestamp(timestamp)
         |> IO.chardata_to_string()
@@ -33,7 +34,8 @@ defmodule Timber.Utils.TimestampTest do
       # 2016-12-23 09h 06m 11m 102919 µ-seconds at 2 precision
       expected_format = "2016-12-23T09:06:11.102919Z"
 
-      timestamp = {{2016, 12, 23}, {09, 06, 11, {102919, 2}}}
+      timestamp = {{2016, 12, 23}, {09, 06, 11, {102_919, 2}}}
+
       formatted_timestamp =
         Timestamp.format_timestamp(timestamp)
         |> IO.chardata_to_string()

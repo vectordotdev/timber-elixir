@@ -107,11 +107,12 @@ defmodule Timber.Integrations.ErrorLogger do
     # crashing when sending messages to a named process.
 
     max_message_count = Keyword.get(opts, :max_message_count, 300)
+
     state = %{
       logger: Process.whereis(Logger),
       skip_count: 0,
       max_count: max_message_count,
-      keep_count: trunc(max_message_count * 0.75),
+      keep_count: trunc(max_message_count * 0.75)
     }
 
     {:ok, state}
@@ -123,7 +124,7 @@ defmodule Timber.Integrations.ErrorLogger do
     {:ok, state}
   end
 
-  def handle_event(event , state) do
+  def handle_event(event, state) do
     state = check_threshold(state)
     log_event(event, state)
 
@@ -134,15 +135,18 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({error, stacktrace}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
   end
 
-  def get_metadata({_format, [_pid, _last_message, _state, {error, stacktrace}]}, :error) when is_list(stacktrace) do
+  def get_metadata({_format, [_pid, _last_message, _state, {error, stacktrace}]}, :error)
+      when is_list(stacktrace) do
     case handle_error_info({error, stacktrace}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -152,6 +156,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({reason, []}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -161,6 +166,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({error, stacktrace}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -170,6 +176,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({error, []}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -179,6 +186,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({error, stack}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -188,6 +196,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({error, stacktrace}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -197,6 +206,7 @@ defmodule Timber.Integrations.ErrorLogger do
     case handle_error_info({reason, []}) do
       {:ok, event} ->
         Timber.Event.to_metadata(event)
+
       {:error, _} ->
         []
     end
@@ -212,7 +222,7 @@ defmodule Timber.Integrations.ErrorLogger do
   defp log_event({:error_report, gl, {pid, :std_error, format}}, state),
     do: do_log_event(:error, :report, gl, pid, {:std_error, format}, state)
 
-    defp log_event({:warning_msg, gl, {pid, format, data}}, state),
+  defp log_event({:warning_msg, gl, {pid, format, data}}, state),
     do: do_log_event(:warn, :format, gl, pid, {format, data}, state)
 
   defp log_event({:warning_report, gl, {pid, :std_warning, format}}, state),
@@ -232,14 +242,15 @@ defmodule Timber.Integrations.ErrorLogger do
       level: min_level,
       utc_log: utc_log?,
       truncate: truncate,
-      translators: translators,
+      translators: translators
     } = Logger.Config.__data__()
 
     with true <- Logger.compare_levels(level, min_level) != :lt and mode != :discard,
          {:ok, message} <- translate(translators, min_level, level, kind, data, truncate) do
+      meta =
+        get_metadata(data, level)
+        |> Keyword.put(:pid, pid)
 
-      meta = get_metadata(data, level)
-             |> Keyword.put(:pid, pid)
       message = Logger.Utils.truncate(message, truncate)
       event = {Logger, message, Logger.Utils.timestamp(utc_log?), meta}
       :gen_event.notify(state.logger, {level, gl, event})
@@ -262,7 +273,8 @@ defmodule Timber.Integrations.ErrorLogger do
     :ok
   end
 
-  defp handle_error_info({{%{__exception__: true} = error, stacktrace}, _stack}) when is_list(stacktrace) do
+  defp handle_error_info({{%{__exception__: true} = error, stacktrace}, _stack})
+       when is_list(stacktrace) do
     {:ok, build_error_event(error, stacktrace, :error)}
   end
 
@@ -283,17 +295,19 @@ defmodule Timber.Integrations.ErrorLogger do
   end
 
   defp build_error_event(%{__exception__: true} = error, stacktrace, _type) do
-    e = ErrorEvent.from_exception(error)
-        |> ErrorEvent.add_backtrace(stacktrace)
+    e =
+      ErrorEvent.from_exception(error)
+      |> ErrorEvent.add_backtrace(stacktrace)
 
     # %{e | type: to_string(type)}
     e
   end
 
   defp build_error_event(error, stacktrace, _type) do
-    e = ErlangError.normalize(error, stacktrace)
-        |> ErrorEvent.from_exception()
-        |> ErrorEvent.add_backtrace(stacktrace)
+    e =
+      ErlangError.normalize(error, stacktrace)
+      |> ErrorEvent.from_exception()
+      |> ErrorEvent.add_backtrace(stacktrace)
 
     # %{e | type: to_string(type)}
     e
@@ -350,10 +364,11 @@ defmodule Timber.Integrations.ErrorLogger do
   defmacrop build_text(format, args, truncate) do
     if(Version.match?(System.version(), "~> 1.6")) do
       quote do
-        msg = Logger.Utils.scan_inspect(unquote(format), unquote(args), unquote(truncate))
-              |> :io_lib.build_text()
+        msg =
+          Logger.Utils.scan_inspect(unquote(format), unquote(args), unquote(truncate))
+          |> :io_lib.build_text()
 
-      {:ok, msg}
+        {:ok, msg}
       end
     else
       quote do

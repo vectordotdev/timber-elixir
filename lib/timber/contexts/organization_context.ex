@@ -14,14 +14,14 @@ defmodule Timber.Contexts.OrganizationContext do
   """
 
   @type t :: %__MODULE__{
-    id: String.t,
-    name: String.t
-  }
+          id: String.t(),
+          name: String.t()
+        }
 
   @type m :: %{
-    id: String.t,
-    name: String.t
-  }
+          id: String.t(),
+          name: String.t()
+        }
 
   defstruct [:id, :name]
 end

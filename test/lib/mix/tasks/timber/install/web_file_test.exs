@@ -14,9 +14,14 @@ defmodule Mix.Tasks.Timber.Install.WebFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      FakeHTTPClient.stub(:request, fn
-        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
-          {:ok, 204, ""}
+      FakeHTTPClient.stub(:request, fn :post,
+                                       [
+                                         {'Authorization', 'Basic YXBpX2tleQ=='},
+                                         {'X-Installer-Session-Id', _session_id}
+                                       ],
+                                       "https://api.timber.io/installer/events",
+                                       _opts ->
+        {:ok, 204, ""}
       end)
 
       api = %API{api_key: "api_key", session_id: "session_id"}
@@ -34,9 +39,14 @@ defmodule Mix.Tasks.Timber.Install.WebFileTest do
       FakeIO.stub(:binwrite, fn "file device", ^expected_contents -> :ok end)
       FakeFile.stub(:close, fn "file device" -> {:ok, "file device"} end)
 
-      FakeHTTPClient.stub(:request, fn
-        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
-          {:ok, 204, ""}
+      FakeHTTPClient.stub(:request, fn :post,
+                                       [
+                                         {'Authorization', 'Basic YXBpX2tleQ=='},
+                                         {'X-Installer-Session-Id', _session_id}
+                                       ],
+                                       "https://api.timber.io/installer/events",
+                                       _opts ->
+        {:ok, 204, ""}
       end)
 
       api = %API{api_key: "api_key", session_id: "session_id"}

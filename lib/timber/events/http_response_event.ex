@@ -15,15 +15,15 @@ defmodule Timber.Events.HTTPResponseEvent do
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @type t :: %__MODULE__{
-    body: String.t | nil,
-    direction: String.t | nil,
-    headers: map | nil,
-    headers_json: String.t | nil,
-    request_id: String.t | nil,
-    service_name: String.t | nil,
-    status: pos_integer,
-    time_ms: float
-  }
+          body: String.t() | nil,
+          direction: String.t() | nil,
+          headers: map | nil,
+          headers_json: String.t() | nil,
+          request_id: String.t() | nil,
+          service_name: String.t() | nil,
+          status: pos_integer,
+          time_ms: float
+        }
 
   @enforce_keys [:status]
   defstruct [
@@ -43,14 +43,16 @@ defmodule Timber.Events.HTTPResponseEvent do
   * Normalize header values so they are consistent.
   * Removes "" or nil values.
   """
-  @spec new(Keyword.t) :: t
+  @spec new(Keyword.t()) :: t
   def new(opts) do
     opts =
       opts
       |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
-      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Keyword.update(:headers, nil, fn headers ->
+        UtilsHTTPEvents.normalize_headers(headers)
+      end)
       |> Keyword.update(:service_name, nil, &to_string/1)
-      |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+      |> Enum.filter(fn {_k, v} -> !(v in [nil, ""]) end)
       |> UtilsHTTPEvents.move_headers_to_headers_json()
 
     struct!(__MODULE__, opts)
@@ -59,23 +61,36 @@ defmodule Timber.Events.HTTPResponseEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{direction: "incoming"} = event) do
     message =
       if event.request_id do
         truncated_request_id = String.slice(event.request_id, 0..5)
-        ["Received ", Integer.to_string(event.status), " response (", truncated_request_id, "...)"]
+
+        [
+          "Received ",
+          Integer.to_string(event.status),
+          " response (",
+          truncated_request_id,
+          "...)"
+        ]
       else
         ["Received ", Integer.to_string(event.status), " response"]
       end
 
-    message = if event.service_name,
-      do: [message, " from ", event.service_name],
-      else: message
+    message =
+      if event.service_name,
+        do: [message, " from ", event.service_name],
+        else: message
 
     [message, " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
   end
 
   def message(%__MODULE__{} = event),
-    do: ["Sent ", Integer.to_string(event.status), " response in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
+    do: [
+      "Sent ",
+      Integer.to_string(event.status),
+      " response in ",
+      UtilsHTTPEvents.format_time_ms(event.time_ms)
+    ]
 end

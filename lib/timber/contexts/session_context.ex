@@ -8,12 +8,12 @@ defmodule Timber.Contexts.SessionContext do
   """
 
   @type t :: %__MODULE__{
-    id: String.t
-  }
+          id: String.t()
+        }
 
   @type m :: %{
-    id: String.t
-  }
+          id: String.t()
+        }
 
   defstruct [:id]
 end

@@ -32,7 +32,7 @@ if Code.ensure_loaded?(Plug) do
       end
 
       test "captures remote address", %{conn: conn} do
-        conn = %Plug.Conn{ conn | remote_ip: {127, 0, 0, 1} }
+        conn = %Plug.Conn{conn | remote_ip: {127, 0, 0, 1}}
 
         HTTPContextPlug.call(conn, [])
 
@@ -61,7 +61,7 @@ if Code.ensure_loaded?(Plug) do
 
         new_conn = Plug.Conn.put_req_header(conn, request_id_header, request_id)
 
-        HTTPContextPlug.call(new_conn, [request_id_header: request_id_header])
+        HTTPContextPlug.call(new_conn, request_id_header: request_id_header)
 
         context = get_request_context()
 

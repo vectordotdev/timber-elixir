@@ -10,16 +10,16 @@ defmodule Timber.Contexts.JobContext do
   """
 
   @type t :: %__MODULE__{
-    attempt: nil | pos_integer,
-    id: String.t,
-    queue_name: nil | String.t
-  }
+          attempt: nil | pos_integer,
+          id: String.t(),
+          queue_name: nil | String.t()
+        }
 
   @type m :: %{
-    attempt: nil | pos_integer,
-    id: String.t,
-    queue_name: nil | String.t
-  }
+          attempt: nil | pos_integer,
+          id: String.t(),
+          queue_name: nil | String.t()
+        }
 
   @enforce_keys [:id]
   defstruct [:attempt, :id, :queue_name]

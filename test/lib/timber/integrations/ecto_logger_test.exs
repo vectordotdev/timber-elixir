@@ -13,9 +13,10 @@ if Code.ensure_loaded?(Ecto) do
         query = "SELECT * FROM table"
         timer = 0
 
-        log = capture_log(fn ->
-          EctoLogger.log(%{query: query, query_time: timer}, :info)
-        end)
+        log =
+          capture_log(fn ->
+            EctoLogger.log(%{query: query, query_time: timer}, :info)
+          end)
 
         assert log =~ "Processed SELECT * FROM table in"
         assert log =~ " @metadata "
@@ -24,9 +25,10 @@ if Code.ensure_loaded?(Ecto) do
       test "query_time is nil" do
         query = "SELECT * FROM table"
 
-        log = capture_log(fn ->
-          EctoLogger.log(%{query: query, query_time: nil}, :info)
-        end)
+        log =
+          capture_log(fn ->
+            EctoLogger.log(%{query: query, query_time: nil}, :info)
+          end)
 
         assert log == ""
       end

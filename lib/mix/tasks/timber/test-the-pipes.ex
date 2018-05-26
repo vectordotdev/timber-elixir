@@ -11,13 +11,17 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   end
 
   def run([_api_key]) do
-
   end
 
   def log_entries do
     request_id = generate_request_id()
+
     [
-      log_entry(:info, request_id, "The following messages are test messages sent from the installer. They represent a real-world use case to demonstrate the power of context:"),
+      log_entry(
+        :info,
+        request_id,
+        "The following messages are test messages sent from the installer. They represent a real-world use case to demonstrate the power of context:"
+      ),
       log_entry(:info, request_id, http_request(request_id)),
       log_entry(:info, request_id, controller_call()),
       log_entry(:info, request_id, sql_query()),
@@ -94,12 +98,37 @@ defmodule Mix.Tasks.Timber.TestThePipes do
   defp exception_event do
     %Events.ErrorEvent{
       backtrace: [
-        %{app_name: "my_app", function: "MyApp.OrderController.create/2", file: "web/controllers/order_controller.ex", line: 23},
-        %{app_name: "my_app", function: "MyApp.OrderController.phoenix_controller_pipeline/2", file: "web/controllers/order_controller.ex", line: 1},
-        %{app_name: "my_app", function: "MyApp.Endpoint.instrument/4", file: "lib/my_app/endpoint.ex", line: 1},
-        %{app_name: "my_app", function: "MyApp.Router.dispatch/2", file: "lib/phoenix/router.ex", line: 261},
+        %{
+          app_name: "my_app",
+          function: "MyApp.OrderController.create/2",
+          file: "web/controllers/order_controller.ex",
+          line: 23
+        },
+        %{
+          app_name: "my_app",
+          function: "MyApp.OrderController.phoenix_controller_pipeline/2",
+          file: "web/controllers/order_controller.ex",
+          line: 1
+        },
+        %{
+          app_name: "my_app",
+          function: "MyApp.Endpoint.instrument/4",
+          file: "lib/my_app/endpoint.ex",
+          line: 1
+        },
+        %{
+          app_name: "my_app",
+          function: "MyApp.Router.dispatch/2",
+          file: "lib/phoenix/router.ex",
+          line: 261
+        },
         %{app_name: "my_app", function: "MyApp.Router.do_call/1", file: "web/router.ex", line: 1},
-        %{app_name: "my_app", function: "MyApp.Endpoint.call/2", file: "lib/my_app/endpoint.ex", line: 1}
+        %{
+          app_name: "my_app",
+          function: "MyApp.Endpoint.call/2",
+          file: "lib/my_app/endpoint.ex",
+          line: 1
+        }
       ],
       name: "CaseClauseError",
       message: "no case clause matching: {:ok, 422}"
@@ -112,10 +141,11 @@ defmodule Mix.Tasks.Timber.TestThePipes do
       direction: "incoming",
       host: "timber-test-events.com",
       headers: %{
-        "accept": "application/json",
-        "authorization": "Bearer [sanitized]",
+        accept: "application/json",
+        authorization: "Bearer [sanitized]",
         "content-type": "application/json",
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
         "x-request-id": request_id
       },
       method: "POST",
@@ -146,8 +176,8 @@ defmodule Mix.Tasks.Timber.TestThePipes do
       body: "{\"credit_card_token\": \"abcd1234\", \"customer_id\": \"xd45bfd\"}",
       direction: "outgoing",
       headers: %{
-        "accept": "application/json",
-        "authorization": "Basic [sanitized]",
+        accept: "application/json",
+        authorization: "Basic [sanitized]",
         "content-type": "application/json",
         "user-agent": "Stripe Elixir Client v1.2",
         "x-request-id": request_id

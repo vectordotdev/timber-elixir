@@ -201,7 +201,11 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   @doc false
   @spec phoenix_channel_join(:start, compile_metadata :: map, runtime_metadata :: map) :: :ok
-  @spec phoenix_channel_join(:stop, time_diff_native :: non_neg_integer, result_of_before_callback :: :ok) :: :ok
+  @spec phoenix_channel_join(
+          :stop,
+          time_diff_native :: non_neg_integer,
+          result_of_before_callback :: :ok
+        ) :: :ok
   def phoenix_channel_join(:start, _compile, %{socket: socket, params: params}) do
     # Any value using try_atom_to_string handles nil values since they are not always present.
     log_level = get_log_level(:info)
@@ -212,13 +216,12 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     protocol_version = if Map.has_key?(socket, :vsn), do: socket.vsn, else: nil
     filtered_params = filter_params(params)
 
-    metadata =
-      %{
-        transport: transport,
-        serializer: serializer,
-        protocol_version: protocol_version,
-        params: filtered_params
-      }
+    metadata = %{
+      transport: transport,
+      serializer: serializer,
+      protocol_version: protocol_version,
+      params: filtered_params
+    }
 
     metadata_json =
       case Timber.Utils.JSON.encode_to_iodata(metadata) do
@@ -251,11 +254,10 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
     transport = try_atom_to_string(socket.transport)
     filtered_params = filter_params(params)
 
-    metadata =
-      %{
-        transport: transport,
-        params: filtered_params
-      }
+    metadata = %{
+      transport: transport,
+      params: filtered_params
+    }
 
     metadata_json =
       case Timber.Utils.JSON.encode_to_iodata(metadata) do
@@ -286,7 +288,11 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   @doc false
   @spec phoenix_controller_call(:start, compile_metadata :: map, runtime_metadata :: map) :: :ok
-  @spec phoenix_controller_call(:stop, time_diff_native :: non_neg_integer, result_of_before_callback :: :ok) :: :ok
+  @spec phoenix_controller_call(
+          :stop,
+          time_diff_native :: non_neg_integer,
+          result_of_before_callback :: :ok
+        ) :: :ok
   def phoenix_controller_call(:start, _, %{conn: conn}) do
     controller_actions_blacklist = get_parsed_blacklist()
 
@@ -324,7 +330,8 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
   @doc false
   @spec phoenix_controller_render(:start, map, map) :: :ok
-  @spec phoenix_controller_render(:stop, non_neg_integer, :ok | {:ok, atom, String.t} | false) :: :ok
+  @spec phoenix_controller_render(:stop, non_neg_integer, :ok | {:ok, atom, String.t()} | false) ::
+          :ok
   def phoenix_controller_render(:start, _compile_metadata, %{template: template_name, conn: conn}) do
     has_controller? = Map.has_key?(conn.private, :phoenix_controller)
     has_action? = Map.has_key?(conn.private, :phoenix_action)
@@ -369,11 +376,10 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
       |> System.convert_time_unit(:native, :milliseconds)
       |> :erlang.float()
 
-    event =
-      %TemplateRenderEvent{
-        name: template_name,
-        time_ms: time_ms
-      }
+    event = %TemplateRenderEvent{
+      name: template_name,
+      time_ms: time_ms
+    }
 
     message = TemplateRenderEvent.message(event)
     metadata = Event.to_metadata(event)
@@ -399,7 +405,9 @@ defmodule Timber.Integrations.PhoenixInstrumenter do
 
     controller = Phoenix.Controller.controller_module(conn)
     action = Phoenix.Controller.action_name(conn)
-    blacklisted? = controller_action_blacklisted?({controller, action}, controller_actions_blacklist)
+
+    blacklisted? =
+      controller_action_blacklisted?({controller, action}, controller_actions_blacklist)
 
     handle_render_blacklist(blacklisted?, template_name)
   end

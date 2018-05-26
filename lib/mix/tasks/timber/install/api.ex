@@ -1,8 +1,13 @@
 defmodule Mix.Tasks.Timber.Install.API do
   @moduledoc false
 
-  alias __MODULE__.{InvalidAPIKeyError, BadResponseError, CommunicationError,
-    MalformedAPIResponseError}
+  alias __MODULE__.{
+    InvalidAPIKeyError,
+    BadResponseError,
+    CommunicationError,
+    MalformedAPIResponseError
+  }
+
   alias Mix.Tasks.Timber.Install.{Config, IOHelper, Messages}
 
   @enforce_keys [:api_key, :session_id]
@@ -99,17 +104,21 @@ defmodule Mix.Tasks.Timber.Install.API do
     headers =
       [{'X-Installer-Session-Id', String.to_charlist(session_id)}]
       |> add_authorization_header(api_key)
+
     url = Config.api_url() <> path
 
     case Config.http_client().request(method, headers, url, opts) do
       {:ok, status, body} when status in 200..299 ->
         {status, decode_body("#{body}", url)}
 
-      {:ok, status, _body} when status in [401, 403] -> raise(InvalidAPIKeyError)
+      {:ok, status, _body} when status in [401, 403] ->
+        raise(InvalidAPIKeyError)
 
-      {:ok, status, body} -> raise(BadResponseError, url: url, body: body, status: status)
+      {:ok, status, body} ->
+        raise(BadResponseError, url: url, body: body, status: status)
 
-      {:error, reason} -> raise(CommunicationError, url: url, reason: reason)
+      {:error, reason} ->
+        raise(CommunicationError, url: url, reason: reason)
     end
   end
 
@@ -141,13 +150,13 @@ defmodule Mix.Tasks.Timber.Install.API do
       body = Keyword.fetch!(opts, :body)
       status = Keyword.fetch!(opts, :status)
 
-      message =
-        """
-        Uh oh! We got a bad response (#{status}) from #{url}.
-        The response received was:
+      message = """
+      Uh oh! We got a bad response (#{status}) from #{url}.
+      The response received was:
 
-        #{body}
-        """
+      #{body}
+      """
+
       %__MODULE__{message: message}
     end
   end
@@ -159,13 +168,13 @@ defmodule Mix.Tasks.Timber.Install.API do
       url = Keyword.fetch!(opts, :url)
       error = Keyword.fetch!(opts, :error)
 
-      message =
-        """
-        Uh oh! We encountered an error communicating with #{url}.
-        The error is:
+      message = """
+      Uh oh! We encountered an error communicating with #{url}.
+      The error is:
 
-        #{error}
-        """
+      #{error}
+      """
+
       %__MODULE__{message: message}
     end
   end
@@ -174,13 +183,13 @@ defmodule Mix.Tasks.Timber.Install.API do
     defexception [:message]
 
     def exception(_opts) do
-      message =
-        """
-        Uh oh! The API key supplied is invalid. Please ensure
-        that you copied the key properly.
+      message = """
+      Uh oh! The API key supplied is invalid. Please ensure
+      that you copied the key properly.
 
-        #{Messages.obtain_key_instructions()}
-        """
+      #{Messages.obtain_key_instructions()}
+      """
+
       %__MODULE__{message: message}
     end
   end
@@ -191,15 +200,16 @@ defmodule Mix.Tasks.Timber.Install.API do
     def exception(opts) do
       url = Keyword.fetch!(opts, :url)
       body = Keyword.fetch!(opts, :body)
-      message =
-        """
-        We received a malformed response from #{url}.
-        The response we received was:
 
-        #{inspect(body)}
+      message = """
+      We received a malformed response from #{url}.
+      The response we received was:
 
-        Please try again.
-        """
+      #{inspect(body)}
+
+      Please try again.
+      """
+
       %__MODULE__{message: message}
     end
   end

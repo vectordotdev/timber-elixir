@@ -25,15 +25,15 @@ defmodule Timber.Mixfile do
       name: "Timber",
       version: @version,
       elixir: "~> 1.3",
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env()),
       description: @project_description,
       source_url: @source_url,
       homepage_url: @homepage_url,
       package: package(),
       deps: deps(),
       docs: docs(),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       preferred_cli_env: preferred_cli_env(),
       test_coverage: test_coverage(),
       dialyzer: dialyzer()
@@ -53,7 +53,7 @@ defmodule Timber.Mixfile do
     [
       mod: {Timber, []},
       env: env(),
-      applications: apps(Mix.env)
+      applications: apps(Mix.env())
     ]
   end
 
@@ -85,7 +85,7 @@ defmodule Timber.Mixfile do
   # Defines the preferred environment for Mix tasks
   defp preferred_cli_env() do
     [
-      "coveralls": :test,
+      coveralls: :test,
       "coveralls.details": :test,
       "coveralls.circle": :test,
       "coveralls.html": :test
@@ -166,7 +166,6 @@ defmodule Timber.Mixfile do
       {:msgpax, "~> 1.0"},
       {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"},
 
-
       #
       # Tooling
       #
@@ -175,7 +174,7 @@ defmodule Timber.Mixfile do
       {:dialyxir, "~> 0.3", only: [:dev, :test]},
       {:earmark, "~> 1.2", only: [:dev, :docs]},
       {:ex_doc, "~> 0.15", only: [:dev, :docs]},
-      {:excoveralls, "~> 0.5", only: [:test]},
+      {:excoveralls, "~> 0.5", only: [:test]}
     ]
 
     direct_deps = [
@@ -193,7 +192,7 @@ defmodule Timber.Mixfile do
       # We support Phoenix after 1.2.0 but before 1.4.0
       {:phoenix, ">= 1.2.0 and < 1.4.0", optional: true},
       # We support Plug after 1.2.0 but before 1.6.0
-      {:plug, "~> 1.2", optional: true},
+      {:plug, "~> 1.2", optional: true}
     ]
 
     if System.get_env("NO_THIRD_PARTY_INTEGRATION_TEST") == "true" do

@@ -14,7 +14,7 @@ defmodule Timber.Integrations.ContextPlug do
   @doc """
   Deprecated
   """
-  @spec init(Plug.opts) :: Plug.opts
+  @spec init(Plug.opts()) :: Plug.opts()
   def init(opts) do
     opts
     |> Timber.Integrations.SessionContextPlug.init()
@@ -24,7 +24,7 @@ defmodule Timber.Integrations.ContextPlug do
   @doc """
   Deprecated
   """
-  @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
+  @spec call(Plug.Conn.t(), Plug.opts()) :: Plug.Conn.t()
   def call(conn, opts) do
     conn
     |> Timber.Integrations.SessionContextPlug.call(opts)

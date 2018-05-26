@@ -63,9 +63,9 @@ defmodule Timber.Events.CustomEvent do
   """
 
   @type t :: %__MODULE__{
-    type: atom(),
-    data: map() | nil
-  }
+          type: atom(),
+          data: map() | nil
+        }
 
   defmacro __using__(opts) do
     quote do

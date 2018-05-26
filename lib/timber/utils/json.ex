@@ -15,8 +15,8 @@ defmodule Timber.Utils.JSON do
   JSON encoded set in `Timber.Config`.
   """
   @spec encode_to_iodata(any) ::
-    {:ok, iodata} |
-    {:error, Exception.t}
+          {:ok, iodata}
+          | {:error, Exception.t()}
   def encode_to_iodata(value) do
     iodata = Timber.Config.json_encoder().(value)
     {:ok, iodata}

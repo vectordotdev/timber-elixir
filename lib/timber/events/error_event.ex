@@ -10,26 +10,26 @@ defmodule Timber.Events.ErrorEvent do
   """
 
   @type stacktrace_entry :: {
-    module,
-    atom,
-    arity,
-    [file: IO.chardata, line: non_neg_integer] | []
-  }
+          module,
+          atom,
+          arity,
+          [file: IO.chardata(), line: non_neg_integer] | []
+        }
 
   @type backtrace_entry :: %{
-    app_name: String.t | nil,
-    function: String.t,
-    file: String.t | nil,
-    line: non_neg_integer | nil
-  }
+          app_name: String.t() | nil,
+          function: String.t(),
+          file: String.t() | nil,
+          line: non_neg_integer | nil
+        }
 
   @type t :: %__MODULE__{
-    backtrace: [backtrace_entry] | nil,
-    name: String.t,
-    message: String.t | nil,
-    metadata_json: binary | nil,
-    type: String.t | nil
-  }
+          backtrace: [backtrace_entry] | nil,
+          name: String.t(),
+          message: String.t() | nil,
+          metadata_json: binary | nil,
+          type: String.t() | nil
+        }
 
   @enforce_keys [:name]
   defstruct [:backtrace, :name, :type, :message, :metadata_json]
@@ -86,16 +86,18 @@ defmodule Timber.Events.ErrorEvent do
   @doc """
   Builds a new error event from an error / exception.
   """
-  @spec from_exception(Exception.t) :: t
+  @spec from_exception(Exception.t()) :: t
   def from_exception(%{__exception__: true, __struct__: module} = error) do
     message = Exception.message(error)
     module_name = Timber.Utils.Module.name(module)
+
     metadata_map =
       error
       |> Map.from_struct()
       |> Map.delete(:__exception__)
       |> Map.delete(:__struct__)
       |> Map.delete(:message)
+
     metadata_json =
       if metadata_map == %{} do
         nil
@@ -136,14 +138,14 @@ defmodule Timber.Events.ErrorEvent do
   exception handling, this is a reliable catch-all to ensure all error are capture
   and processed properly.
   """
-  @spec from_log_message(String.t) ::
-    {:ok, t} |
-    {:error, atom}
+  @spec from_log_message(String.t()) ::
+          {:ok, t}
+          | {:error, atom}
   def from_log_message(log_message) do
     lines =
       log_message
       |> String.split("\n")
-      |> Enum.map(&({&1, String.trim(&1)}))
+      |> Enum.map(&{&1, String.trim(&1)})
 
     case do_from_log_message({nil, "", []}, lines) do
       {:ok, {name, message, backtrace}} when is_binary(name) and length(backtrace) > 0 ->
@@ -158,14 +160,17 @@ defmodule Timber.Events.ErrorEvent do
   @spec stacktrace_to_backtrace(list) :: [backtrace_entry]
   defp stacktrace_to_backtrace(stacktrace) do
     # arity is an integer or list of arguments
-    Enum.map(stacktrace, fn({module, function, arity, location}) ->
-      arity = case arity do
-        arity when is_list(arity) -> length(arity)
-        _ -> arity
-      end
+    Enum.map(stacktrace, fn {module, function, arity, location} ->
+      arity =
+        case arity do
+          arity when is_list(arity) -> length(arity)
+          _ -> arity
+        end
 
-      file = Keyword.get(location, :file)
-             |> Kernel.to_string()
+      file =
+        Keyword.get(location, :file)
+        |> Kernel.to_string()
+
       line = Keyword.get(location, :line)
 
       %{
@@ -177,31 +182,37 @@ defmodule Timber.Events.ErrorEvent do
   end
 
   # ** (exit) an exception was raised:
-  defp do_from_log_message({nil, message, [] = backtrace}, [{_raw_line, ("** (exit) " <> _suffix)} | lines]) do
+  defp do_from_log_message({nil, message, [] = backtrace}, [
+         {_raw_line, "** (exit) " <> _suffix} | lines
+       ]) do
     do_from_log_message({nil, message, backtrace}, lines)
   end
 
   #    ** (RuntimeError) my message
-  defp do_from_log_message({nil, _message, [] = backtrace}, [{_raw_line, ("** (" <> line_suffix)} | lines]) do
+  defp do_from_log_message({nil, _message, [] = backtrace}, [
+         {_raw_line, "** (" <> line_suffix} | lines
+       ]) do
     # Using split since it is more performance with binary scanning
     case String.split(line_suffix, ")", parts: 2) do
       [name, message] ->
         do_from_log_message({name, message, backtrace}, lines)
 
-      _ -> {:error, :malformed_error_message}
+      _ ->
+        {:error, :malformed_error_message}
     end
   end
 
   # Ignore other leading messages
-  defp do_from_log_message({nil, _message, _backtrace} = acc, [_line | lines]), do: do_from_log_message(acc, lines)
+  defp do_from_log_message({nil, _message, _backtrace} = acc, [_line | lines]),
+    do: do_from_log_message(acc, lines)
 
   #      (odin_client_api) web/controllers/page_controller.ex:5: Odin.ClientAPI.PageController.index/2
-  defp do_from_log_message({name, message, backtrace}, [{_raw_line, ("(" <> line_suffix)} | lines]) when not is_nil(name) and not is_nil(message) do
+  defp do_from_log_message({name, message, backtrace}, [{_raw_line, "(" <> line_suffix} | lines])
+       when not is_nil(name) and not is_nil(message) do
     # Using split since it is more performance with binary scanning
     with [app_name, line_suffix] <- String.split(line_suffix, ") ", parts: 2),
          [file, line_suffix] <- String.split(line_suffix, ":", parts: 2),
-         [line_number, function] <- String.split(line_suffix, ":", parts: 2)
-    do
+         [line_number, function] <- String.split(line_suffix, ":", parts: 2) do
       app_name =
         app_name
         |> Timber.Utils.Logger.truncate_bytes(@app_name_byte_limit)
@@ -226,11 +237,11 @@ defmodule Timber.Events.ErrorEvent do
           file: String.trim(file),
           line: parse_line_number(line_number)
         }
+
         do_from_log_message({name, message, [line | backtrace]}, lines)
       else
         {:error, :malformed_stacktrace_line}
       end
-
     else
       _ ->
         {:error, :malformed_stacktrace_line}
@@ -255,6 +266,6 @@ defmodule Timber.Events.ErrorEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{name: name, message: message}), do: [?(, name, ?), ?\s, message]
 end

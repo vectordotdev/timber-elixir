@@ -6,25 +6,58 @@ defmodule Timber.Events.HTTPRequestEventTest do
   describe "Timber.Events.HTTPRequestEvent.new/1" do
     test "normalizes headers from a list" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
-      result = HTTPRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
+
+      result =
+        HTTPRequestEvent.new(
+          headers: headers,
+          host: "host",
+          method: :get,
+          path: "path",
+          port: 12,
+          scheme: "https"
+        )
+
       assert result.headers == nil
       assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\"}"
     end
 
     test "filters headers" do
       headers = [{"x-request-id", "value"}, {"user-agent", "agent"}, {"random-header", "value"}]
-      result = HTTPRequestEvent.new(headers: headers, host: "host", method: :get, path: "path", port: 12, scheme: "https")
+
+      result =
+        HTTPRequestEvent.new(
+          headers: headers,
+          host: "host",
+          method: :get,
+          path: "path",
+          port: 12,
+          scheme: "https"
+        )
+
       assert result.headers == nil
-      assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
+
+      assert result.headers_json ==
+               "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
     end
 
     test "truncates body" do
-      result = HTTPRequestEvent.new(body: String.duplicate("a", 2049), host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      result =
+        HTTPRequestEvent.new(
+          body: String.duplicate("a", 2049),
+          host: "host",
+          method: :get,
+          path: "path",
+          port: 12,
+          scheme: "https"
+        )
+
       assert result.body == String.duplicate("a", 2033) <> " (truncated)"
     end
 
     test "normalizes method" do
-      result = HTTPRequestEvent.new(host: "host", method: :get, path: "path", port: 12, scheme: "https")
+      result =
+        HTTPRequestEvent.new(host: "host", method: :get, path: "path", port: 12, scheme: "https")
+
       assert result.method == "GET"
     end
 
@@ -50,16 +83,40 @@ defmodule Timber.Events.HTTPRequestEventTest do
   describe "Timber.Events.HTTPRequestEvent.message/1" do
     test "outgoing, service name and query string" do
       headers = [{"user-agent", "agent"}, {"x-request-id", "abcd1234"}]
-      event = HTTPRequestEvent.new(direction: "outgoing", headers: headers, host: "host", method: :get,
-        path: "/path", port: 12, query_string: "query", request_id: "abcd1234", scheme: "https", service_name: "service")
+
+      event =
+        HTTPRequestEvent.new(
+          direction: "outgoing",
+          headers: headers,
+          host: "host",
+          method: :get,
+          path: "/path",
+          port: 12,
+          query_string: "query",
+          request_id: "abcd1234",
+          scheme: "https",
+          service_name: "service"
+        )
+
       message = HTTPRequestEvent.message(event)
       assert String.Chars.to_string(message) == "Sent GET /path (abcd12...) to service"
     end
 
     test "outgoing, service name excluded" do
       headers = [{"user-agent", "agent"}]
-      event = HTTPRequestEvent.new(direction: "outgoing", headers: headers, host: "host", method: :get,
-        path: "path", port: 12, query_string: "query", scheme: "https")
+
+      event =
+        HTTPRequestEvent.new(
+          direction: "outgoing",
+          headers: headers,
+          host: "host",
+          method: :get,
+          path: "path",
+          port: 12,
+          query_string: "query",
+          scheme: "https"
+        )
+
       message = HTTPRequestEvent.message(event)
       assert String.Chars.to_string(message) == "Sent GET https://host:12path?query"
     end

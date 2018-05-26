@@ -21,13 +21,12 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
     path = Config.path_client().join(path_parts)
     file_name = Enum.at(path_parts, -1)
 
-    missing_file_prompt_message =
-      """
-      If you prefer, you can skip this and manually install later following
-      these instructions: https://timber.io/docs/languages/elixir/installation/manual
+    missing_file_prompt_message = """
+    If you prefer, you can skip this and manually install later following
+    these instructions: https://timber.io/docs/languages/elixir/installation/manual
 
-      Please enter the correct relative path for the '#{IOHelper.colorize(file_name, :blue)}' file (or type 'skip' to skip)
-      """
+    Please enter the correct relative path for the '#{IOHelper.colorize(file_name, :blue)}' file (or type 'skip' to skip)
+    """
 
     case Config.path_client().wildcard(path) do
       [] ->
@@ -68,7 +67,8 @@ defmodule Mix.Tasks.Timber.Install.PathHelper do
           end
 
         case file_paths do
-          [file_path] -> file_path
+          [file_path] ->
+            file_path
 
           file_paths ->
             API.event!(api, :multiple_files_found, %{path: path})

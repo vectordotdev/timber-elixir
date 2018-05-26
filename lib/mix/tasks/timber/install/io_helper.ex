@@ -22,16 +22,21 @@ defmodule Mix.Tasks.Timber.Install.IOHelper do
           input
         end
 
-      :eof -> raise("Error getting user input: end of file reached")
+      :eof ->
+        raise("Error getting user input: end of file reached")
 
-      {:error, reason} -> raise("Error gettin guser input: #{inspect(reason)}")
+      {:error, reason} ->
+        raise("Error gettin guser input: #{inspect(reason)}")
     end
   end
 
   def ask_yes_no(prompt, api) do
     case ask(prompt <> " (y/n)", api) do
-      v when v in @yeses -> :yes
-      v when v in @nos -> :no
+      v when v in @yeses ->
+        :yes
+
+      v when v in @nos ->
+        :no
 
       v ->
         puts("#{inspect(v)} is not a valid option. Please try again.\n", :red)

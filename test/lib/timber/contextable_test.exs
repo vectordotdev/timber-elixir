@@ -55,10 +55,12 @@ defmodule Timber.ContextableTest do
     #
 
     test "generic list" do
-      assert_raise RuntimeError, "The provided list is not a Keyword.t and therefore cannot be converted to a Timber context", fn ->
-        list = [:key]
-        Contextable.to_context(list)
-      end
+      assert_raise RuntimeError,
+                   "The provided list is not a Keyword.t and therefore cannot be converted to a Timber context",
+                   fn ->
+                     list = [:key]
+                     Contextable.to_context(list)
+                   end
     end
   end
 end
