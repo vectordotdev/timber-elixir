@@ -60,59 +60,58 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
     # end
 
     test "with all module names" do
-      FakeFile.stub(:open, fn
-        "config/timber.exs" = file_path, [:write] -> {:ok, "#{file_path} device"}
+      FakeFile.stub(:open, fn "config/timber.exs" = file_path, [:write] ->
+        {:ok, "#{file_path} device"}
       end)
 
-      expected_file_contents =
-        """
-        use Mix.Config
+      expected_file_contents = """
+      use Mix.Config
 
-        # Update the instrumenters so that we can structure Phoenix logs
-        config :my_project, MyEndpointModule,
-          instrumenters: [Timber.Integrations.PhoenixInstrumenter]
+      # Update the instrumenters so that we can structure Phoenix logs
+      config :my_project, MyEndpointModule,
+        instrumenters: [Timber.Integrations.PhoenixInstrumenter]
 
-        # Structure Ecto logs
-        config :my_project, MyRepoModule,
-          loggers: [{Timber.Integrations.EctoLogger, :log, []}]
+      # Structure Ecto logs
+      config :my_project, MyRepoModule,
+        loggers: [{Timber.Integrations.EctoLogger, :log, []}]
 
-        # Use Timber as the logger backend
-        # Feel free to add additional backends if you want to send you logs to multiple devices.
-        # Use the `:console` backend provided with Logger but customize
-        # it to use Timber's internal formatting system
+      # Use Timber as the logger backend
+      # Feel free to add additional backends if you want to send you logs to multiple devices.
+      # Use the `:console` backend provided with Logger but customize
+      # it to use Timber's internal formatting system
+      config :logger,
+        backends: [:console],
+        utc_log: true
+
+      config :logger, :console,
+        format: {Timber.Formatter, :format},
+        metadata: #{logger_console_metadata_portion()}
+
+      # For the following environments, do not log to the Timber service. Instead, log to STDOUT
+      # and format the logs properly so they are human readable.
+      environments_to_exclude = [:test]
+      if Enum.member?(environments_to_exclude, Mix.env()) do
+        # Fall back to the default `:console` backend with the Timber custom formatter
         config :logger,
           backends: [:console],
           utc_log: true
 
         config :logger, :console,
           format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+          metadata: #{logger_console_metadata_portion()}
 
-        # For the following environments, do not log to the Timber service. Instead, log to STDOUT
-        # and format the logs properly so they are human readable.
-        environments_to_exclude = [:test]
-        if Enum.member?(environments_to_exclude, Mix.env()) do
-          # Fall back to the default `:console` backend with the Timber custom formatter
-          config :logger,
-            backends: [:console],
-            utc_log: true
+        config :timber, Timber.Formatter,
+          colorize: true,
+          format: :logfmt,
+          print_timestamps: true,
+          print_log_level: true,
+          print_metadata: false # turn this on to view the additional metadata
+      end
 
-          config :logger, :console,
-            format: {Timber.Formatter, :format},
-            metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
-
-          config :timber, Timber.Formatter,
-            colorize: true,
-            format: :logfmt,
-            print_timestamps: true,
-            print_log_level: true,
-            print_metadata: false # turn this on to view the additional metadata
-        end
-
-        # Need help?
-        # Email us: support@timber.io
-        # Or, file an issue: https://github.com/timberio/timber-elixir/issues
-        """
+      # Need help?
+      # Email us: support@timber.io
+      # Or, file an issue: https://github.com/timberio/timber-elixir/issues
+      """
 
       FakeIO.stub(:binwrite, fn "config/timber.exs device", contents ->
         assert contents == expected_file_contents
@@ -121,12 +120,22 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
 
       FakeFile.stub(:close, fn "config/timber.exs device" -> :ok end)
 
-      FakeHTTPClient.stub(:request, fn
-        :post, [{'Authorization', 'Basic YXBpX2tleQ=='}, {'X-Installer-Session-Id', _session_id}], "https://api.timber.io/installer/events", _opts ->
-          {:ok, 204, ""}
+      FakeHTTPClient.stub(:request, fn :post,
+                                       [
+                                         {'Authorization', 'Basic YXBpX2tleQ=='},
+                                         {'X-Installer-Session-Id', _session_id}
+                                       ],
+                                       "https://api.timber.io/installer/events",
+                                       _opts ->
+        {:ok, 204, ""}
       end)
 
-      project = %Project{endpoint_module_name: "MyEndpointModule", mix_name: "my_project", repo_module_name: "MyRepoModule"}
+      project = %Project{
+        endpoint_module_name: "MyEndpointModule",
+        mix_name: "my_project",
+        repo_module_name: "MyRepoModule"
+      }
+
       api = %API{api_key: "api_key", session_id: "session_id"}
 
       application = build_application()
@@ -135,9 +144,29 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFileTest do
     end
   end
 
+  defp logger_console_metadata_portion do
+    current_elixir_version = System.version() |> Version.parse!()
+    all_metadata_elixir_version = Version.parse!("1.6.0")
+
+    case Version.compare(current_elixir_version, all_metadata_elixir_version) do
+      :gt ->
+        ":all"
+
+      :eq ->
+        ":all"
+
+      :lt ->
+        "[:timber_context, :event, :context, :application, :file, :function, :line, :module, :meta]"
+    end
+  end
+
   defp build_application do
-    %Application{api_key: "api_key",
-     heroku_drain_url: "drain_url", name: "Timber",
-     platform_type: "heroku", slug: "timber"}
+    %Application{
+      api_key: "api_key",
+      heroku_drain_url: "drain_url",
+      name: "Timber",
+      platform_type: "heroku",
+      slug: "timber"
+    }
   end
 end

@@ -3,10 +3,10 @@ defmodule Timber.Formatter do
   Provides utilities for formatting log lines as text
 
   This formatter is designed for use with the default `:console` backend provided by
-  Elixir Logger. To use is, you'll need to configure the console backend to call
+  Elixir Logger. To use this, you'll need to configure the console backend to call
   the `Timber.Formatter.format/4` function instead of its default formatting function.
   This is done with a simple configuration change. You'll also need to let `:console`
-  know that the metadata keys `:timber_context` and `:event` should be passed on.
+  know that `:all` metadata keys should be passed to the formatter.
 
   The result of the configuration looks like:
 
@@ -14,7 +14,7 @@ defmodule Timber.Formatter do
   config :logger, backends: [:console]
   config :logger, :console,
     format: {Timber.Formatter, :format},
-    metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+    metadata: :all
   ```
 
   Further configuration options available on this module are documented below.
@@ -139,13 +139,13 @@ defmodule Timber.Formatter do
   alias Timber.LogEntry
 
   @type configuration :: %{
-    required(:colorize) => boolean,
-    required(:escape_new_lines) => boolean,
-    required(:format) => :json | :logfmt,
-    required(:print_log_level) => boolean,
-    required(:print_metadata) => boolean,
-    required(:print_timestamps) => boolean
-  }
+          required(:colorize) => boolean,
+          required(:escape_new_lines) => boolean,
+          required(:format) => :json | :logfmt,
+          required(:print_log_level) => boolean,
+          required(:print_metadata) => boolean,
+          required(:print_timestamps) => boolean
+        }
 
   @doc """
   Handles formatting a log for the `Logger` application
@@ -199,25 +199,28 @@ defmodule Timber.Formatter do
     }
   end
 
-  @spec add_timestamp(IO.chardata, IO.chardata, boolean) :: IO.chardata
+  @spec add_timestamp(IO.chardata(), IO.chardata(), boolean) :: IO.chardata()
   defp add_timestamp(message, _, false), do: message
+
   defp add_timestamp(message, timestamp, true) do
-    [timestamp, " " |  message]
+    [timestamp, " " | message]
   end
 
-  @spec wrap_metadata(IO.chardata) :: IO.chardata
+  @spec wrap_metadata(IO.chardata()) :: IO.chardata()
   defp wrap_metadata(metadata) do
     [@metadata_delimiter, metadata]
   end
 
-  @spec add_log_level(IO.chardata, IO.chardata, boolean) :: IO.chardata
+  @spec add_log_level(IO.chardata(), IO.chardata(), boolean) :: IO.chardata()
   defp add_log_level(message, _, false), do: message
+
   defp add_log_level(message, log_level, true) do
-    ["[", log_level, "] " | message ]
+    ["[", log_level, "] " | message]
   end
 
-  @spec colorize_log_level(LoggerBackend.level, boolean) :: IO.chardata
+  @spec colorize_log_level(LoggerBackend.level(), boolean) :: IO.chardata()
   defp colorize_log_level(level_a, false), do: Atom.to_string(level_a)
+
   defp colorize_log_level(level_a, true) do
     color = log_level_color(level_a)
     level_b = Atom.to_string(level_a)
@@ -226,13 +229,13 @@ defmodule Timber.Formatter do
     |> IO.ANSI.format(true)
   end
 
-  @spec log_level_color(LoggerBackend.level) :: atom
+  @spec log_level_color(LoggerBackend.level()) :: atom
   defp log_level_color(:debug), do: :cyan
   defp log_level_color(:warn), do: :yellow
   defp log_level_color(:error), do: :red
   defp log_level_color(_), do: :normal
 
-  @spec escape_new_lines(IO.chardata, boolean) :: IO.chardata
+  @spec escape_new_lines(IO.chardata(), boolean) :: IO.chardata()
   defp escape_new_lines(message, false),
     do: message
 

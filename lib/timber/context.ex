@@ -24,27 +24,27 @@ defmodule Timber.Context do
   @type context_element :: element
 
   @type element ::
-    map                             |
-    Keyword.t                       |
-    Contexts.CustomContext.t        |
-    Contexts.HTTPContext.t          |
-    Contexts.JobContext.t           |
-    Contexts.OrganizationContext.t  |
-    Contexts.RuntimeContext.t       |
-    Contexts.SessionContext.t       |
-    Contexts.SystemContext.t        |
-    Contexts.UserContext.t
+          map
+          | Keyword.t()
+          | Contexts.CustomContext.t()
+          | Contexts.HTTPContext.t()
+          | Contexts.JobContext.t()
+          | Contexts.OrganizationContext.t()
+          | Contexts.RuntimeContext.t()
+          | Contexts.SessionContext.t()
+          | Contexts.SystemContext.t()
+          | Contexts.UserContext.t()
 
   @type t :: %{
-    optional(:custom) => Contexts.CustomContext.m,
-    optional(:http) => Contexts.HTTPContext.m,
-    optional(:job) => Contexts.JobContext.m,
-    optional(:organization) => Contexts.OrganizationContext.m,
-    optional(:runtime) => Contexts.RuntimeContext.m,
-    optional(:session) => Contexts.SessionContext.m,
-    optional(:system) => Contexts.SystemContext.m,
-    optional(:user) => Contexts.UserContext.m
-  }
+          optional(:custom) => Contexts.CustomContext.m(),
+          optional(:http) => Contexts.HTTPContext.m(),
+          optional(:job) => Contexts.JobContext.m(),
+          optional(:organization) => Contexts.OrganizationContext.m(),
+          optional(:runtime) => Contexts.RuntimeContext.m(),
+          optional(:session) => Contexts.SessionContext.m(),
+          optional(:system) => Contexts.SystemContext.m(),
+          optional(:user) => Contexts.UserContext.m()
+        }
 
   @doc false
   def new(), do: %{}
@@ -105,6 +105,8 @@ defmodule Timber.Context do
   in the second will override custom context entries in the first.
   """
   @spec merge(t, t) :: t
+  def merge(context, nil), do: context
+
   def merge(first_context, second_context) do
     Map.merge(first_context, second_context, &c_merge/3)
   end

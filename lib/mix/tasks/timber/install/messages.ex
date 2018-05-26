@@ -7,13 +7,13 @@ defmodule Mix.Tasks.Timber.Install.Messages do
   @docs_url "https://timber.io/docs"
   @repo_url "https://github.com/timberio/timber-elixir"
   @support_email "support@timber.io"
-  @twitter_handle "@timberdotio"
   @website_url "https://timber.io"
 
   def action_starting(message) do
     message_length = String.length(message)
     success_length = String.length(success())
     difference = 80 - success_length - message_length
+
     if difference > 0 do
       message <> String.duplicate(".", difference)
     else
@@ -29,25 +29,6 @@ defmodule Mix.Tasks.Timber.Install.Messages do
         #{IOHelper.colorize("git commit -am 'Install timber'", :blue)}
 
     Push and deploy. 🚀
-    """
-  end
-
-  def free_data() do
-    upgrades =
-      """
-      * Get ✨ 250mb✨ for tweeting your experience to #{@twitter_handle}
-      * Get ✨ 100mb✨ for starring our repo: #{@repo_url}
-      * Get ✨ 50mb✨ for following #{@twitter_handle} on twitter
-      """
-      |> IOHelper.colorize(:yellow)
-
-      """
-
-    #{separator()}
-
-    #{upgrades}
-    (Your account will be credited within 2-3 business days.
-     If you do not notice a credit please contact us: #{@support_email})
     """
   end
 
@@ -86,7 +67,7 @@ defmodule Mix.Tasks.Timber.Install.Messages do
       """
       |> IOHelper.colorize(:green)
 
-      """
+    """
     #{header}
     #{separator()}
     Website:       #{@website_url}

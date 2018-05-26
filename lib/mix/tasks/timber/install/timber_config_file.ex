@@ -9,38 +9,37 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
   # Adds the config/timber.exs file to be linked in config/config.exs
   def create!(application, project, api) do
-    contents =
-      """
-      use Mix.Config
-      #{endpoint_portion(project)}#{repo_portion(project)}
-      # Use Timber as the logger backend
-      # Feel free to add additional backends if you want to send you logs to multiple devices.
-      #{timber_portion(application, api)}
-      # For the following environments, do not log to the Timber service. Instead, log to STDOUT
-      # and format the logs properly so they are human readable.
-      environments_to_exclude = [:test]
-      if Enum.member?(environments_to_exclude, Mix.env()) do
-        # Fall back to the default `:console` backend with the Timber custom formatter
-        config :logger,
-          backends: [:console],
-          utc_log: true
+    contents = """
+    use Mix.Config
+    #{endpoint_portion(project)}#{repo_portion(project)}
+    # Use Timber as the logger backend
+    # Feel free to add additional backends if you want to send you logs to multiple devices.
+    #{timber_portion(application, api)}
+    # For the following environments, do not log to the Timber service. Instead, log to STDOUT
+    # and format the logs properly so they are human readable.
+    environments_to_exclude = [:test]
+    if Enum.member?(environments_to_exclude, Mix.env()) do
+      # Fall back to the default `:console` backend with the Timber custom formatter
+      config :logger,
+        backends: [:console],
+        utc_log: true
 
-        config :logger, :console,
-          format: {Timber.Formatter, :format},
-          metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+      config :logger, :console,
+        format: {Timber.Formatter, :format},
+        metadata: #{logger_console_metadata_portion()}
 
-        config :timber, Timber.Formatter,
-          colorize: true,
-          format: :logfmt,
-          print_timestamps: true,
-          print_log_level: true,
-          print_metadata: false # turn this on to view the additional metadata
-      end
+      config :timber, Timber.Formatter,
+        colorize: true,
+        format: :logfmt,
+        print_timestamps: true,
+        print_log_level: true,
+        print_metadata: false # turn this on to view the additional metadata
+    end
 
-      # Need help?
-      # Email us: support@timber.io
-      # Or, file an issue: https://github.com/timberio/timber-elixir/issues
-      """
+    # Need help?
+    # Email us: support@timber.io
+    # Or, file an issue: https://github.com/timberio/timber-elixir/issues
+    """
 
     FileHelper.write!(@file_path, contents, api)
   end
@@ -56,6 +55,22 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
     """
   end
 
+  defp logger_console_metadata_portion do
+    current_elixir_version = System.version() |> Version.parse!()
+    all_metadata_elixir_version = Version.parse!("1.6.0")
+
+    case Version.compare(current_elixir_version, all_metadata_elixir_version) do
+      :gt ->
+        ":all"
+
+      :eq ->
+        ":all"
+
+      :lt ->
+        "[:timber_context, :event, :context, :application, :file, :function, :line, :module, :meta]"
+    end
+  end
+
   defp repo_portion(%{repo_module_name: nil}), do: ""
 
   defp repo_portion(%{mix_name: mix_name, repo_module_name: repo_module_name}) do
@@ -67,7 +82,8 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
     """
   end
 
-  defp timber_portion(%{platform_type: platform_type}, api) when platform_type in @deprioritized_platforms do
+  defp timber_portion(%{platform_type: platform_type}, api)
+       when platform_type in @deprioritized_platforms do
     """
     # Deliver logs via HTTP to the Timber API by using the Timber HTTP backend.
     config :logger,
@@ -89,7 +105,7 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
 
     config :logger, :console,
       format: {Timber.Formatter, :format},
-      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+      metadata: #{logger_console_metadata_portion()}
     """
   end
 
@@ -103,12 +119,16 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
     |> IOHelper.puts()
 
     case IOHelper.ask("Enter your choice (1/2)", api) do
-      "1" -> "{:system, \"TIMBER_LOGS_KEY\"}"
-      "2" -> "\"#{api_key}\""
+      "1" ->
+        "{:system, \"TIMBER_LOGS_KEY\"}"
+
+      "2" ->
+        "\"#{api_key}\""
 
       other ->
         "Sorry #{inspect(other)} is not a valid input. Please try again."
         |> IOHelper.puts(:red)
+
         api_key_portion(api)
     end
   end
@@ -116,12 +136,11 @@ defmodule Mix.Tasks.Timber.Install.TimberConfigFile do
   def file_path, do: @file_path
 
   def link!(config_file_path, api) do
-    contents =
-      """
+    contents = """
 
-      # Import Timber, structured logging
-      import_config \"#{@file_name}\"
-      """
+    # Import Timber, structured logging
+    import_config \"#{@file_name}\"
+    """
 
     check = "import_config \"#{@file_name}\""
 
