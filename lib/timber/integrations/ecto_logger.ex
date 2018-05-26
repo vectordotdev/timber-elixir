@@ -65,7 +65,7 @@ defmodule Timber.Integrations.EctoLogger do
   @doc """
   Identical to log/2 except that it uses a default level of `:debug`
   """
-  @spec log(Ecto.LogEntry.t) :: Ecto.LogEntry.t
+  @spec log(Ecto.LogEntry.t()) :: Ecto.LogEntry.t()
   def log(event) do
     log(event, :debug)
   end
@@ -79,7 +79,7 @@ defmodule Timber.Integrations.EctoLogger do
   entry struct and parses it into a `Timber.Event.SQLQueryEvent`
   which is then logged at the designated level.
   """
-  @spec log(Ecto.LogEntry.t, Logger.level) :: Ecto.LogEntry.t
+  @spec log(Ecto.LogEntry.t(), Logger.level()) :: Ecto.LogEntry.t()
   def log(%{query: query, query_time: time_native} = entry, level) when is_integer(time_native) do
     case resolve_query(query, entry) do
       {:ok, query_text} ->
@@ -113,7 +113,6 @@ defmodule Timber.Integrations.EctoLogger do
     entry
   end
 
-
   # Interestingly, the query is not necessarily a String.t, it
   # can also be a single-arity function which, given the log entry
   # as a parameter, will return a String.t
@@ -122,8 +121,8 @@ defmodule Timber.Integrations.EctoLogger do
   # return it or resolve the function to get a String.t
   #
   # It's possible this is a hold-over from Ecto 1
-  @spec resolve_query(String.t | (Ecto.LogEntry.t -> String.t), Ecto.LogEntry.t) ::
-    {:ok, String.t} | {:error, :no_query}
+  @spec resolve_query(String.t() | (Ecto.LogEntry.t() -> String.t()), Ecto.LogEntry.t()) ::
+          {:ok, String.t()} | {:error, :no_query}
   defp resolve_query(q, entry) when is_function(q), do: {:ok, q.(entry)}
   defp resolve_query(q, _) when is_binary(q), do: {:ok, q}
   defp resolve_query(_q, _entry), do: {:error, :no_query}

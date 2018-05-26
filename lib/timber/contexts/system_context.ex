@@ -7,14 +7,14 @@ defmodule Timber.Contexts.SystemContext do
   """
 
   @type t :: %__MODULE__{
-    hostname: String.t | nil,
-    pid: String.t | nil
-  }
+          hostname: String.t() | nil,
+          pid: String.t() | nil
+        }
 
   @type m :: %{
-    hostname: String.t | nil,
-    pid: String.t | nil
-  }
+          hostname: String.t() | nil,
+          pid: String.t() | nil
+        }
 
   defstruct [:hostname, :pid]
 end

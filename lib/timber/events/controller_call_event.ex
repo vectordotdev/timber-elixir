@@ -8,11 +8,11 @@ defmodule Timber.Events.ControllerCallEvent do
   """
 
   @type t :: %__MODULE__{
-    action: String.t,
-    controller: String.t,
-    params_json: String.t | nil,
-    pipelines: String.t | nil
-  }
+          action: String.t(),
+          controller: String.t(),
+          params_json: String.t() | nil,
+          pipelines: String.t() | nil
+        }
 
   @enforce_keys [:action, :controller]
   defstruct [
@@ -29,9 +29,10 @@ defmodule Timber.Events.ControllerCallEvent do
 
   * Converts `:params` to `:params_json` that satifies the Timber API requirements
   """
-  @spec new(Keyword.t) :: t
+  @spec new(Keyword.t()) :: t
   def new(opts) do
     params = Keyword.get(opts, :params)
+
     params_json =
       if params && params != %{} do
         params
@@ -53,7 +54,7 @@ defmodule Timber.Events.ControllerCallEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{action: action, controller: controller, pipelines: pipelines}) do
     ["Processing with ", controller, ?., action, ?/, ?2, " Pipelines: ", inspect(pipelines)]
   end

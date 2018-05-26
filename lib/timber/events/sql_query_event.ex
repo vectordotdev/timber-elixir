@@ -12,9 +12,9 @@ defmodule Timber.Events.SQLQueryEvent do
   """
 
   @type t :: %__MODULE__{
-    sql: String.t,
-    time_ms: integer
-  }
+          sql: String.t(),
+          time_ms: integer
+        }
 
   @enforce_keys [:sql, :time_ms]
   defstruct [:sql, :time_ms]
@@ -22,7 +22,7 @@ defmodule Timber.Events.SQLQueryEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{sql: sql, time_ms: time_ms}),
     do: ["Processed ", sql, " in ", to_string(time_ms), "ms"]
 end

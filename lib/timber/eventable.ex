@@ -34,7 +34,7 @@ defprotocol Timber.Eventable do
   @doc """
   Converts the data structure into a `Timber.Event.t`.
   """
-  @spec to_event(any) :: Timber.Event.t
+  @spec to_event(any) :: Timber.Event.t()
   def to_event(data)
 end
 
@@ -85,6 +85,7 @@ defimpl Timber.Eventable, for: Map do
   def to_event(map) when map_size(map) == 1 do
     [type] = Map.keys(map)
     [data] = Map.values(map)
+
     %Timber.Events.CustomEvent{
       type: type,
       data: data

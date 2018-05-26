@@ -34,7 +34,7 @@ defmodule Timber.Integrations.SessionContextPlug do
   passed on to the plug on every call. The options accepted
   by this function are the same as defined by `call/2`.
   """
-  @spec init(Plug.opts) :: Plug.opts
+  @spec init(Plug.opts()) :: Plug.opts()
   def init(opts) do
     opts
   end
@@ -42,12 +42,12 @@ defmodule Timber.Integrations.SessionContextPlug do
   @doc """
   Adds the Request ID to the Timber context data
   """
-  @spec call(Plug.Conn.t, Plug.opts) :: Plug.Conn.t
+  @spec call(Plug.Conn.t(), Plug.opts()) :: Plug.Conn.t()
   def call(conn, _opts) do
     initialize_session_id(conn)
   end
 
-  @spec initialize_session_id(Plug.Conn.t) :: Plug.Conn.t
+  @spec initialize_session_id(Plug.Conn.t()) :: Plug.Conn.t()
   # Attempts to retrieve or initialize the Timber session ID.
   #
   # Timber assigns a unique, 32 character ID to every session. Once assigned, Timber
@@ -75,6 +75,7 @@ defmodule Timber.Integrations.SessionContextPlug do
       case Plug.Conn.get_session(session_conn, @session_id_key) do
         nil ->
           generate_session_id()
+
         id ->
           id
       end

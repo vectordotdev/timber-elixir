@@ -8,18 +8,18 @@ defmodule Timber.Contexts.HTTPContext do
   """
 
   @type t :: %__MODULE__{
-    method: String.t,
-    path: String.t,
-    request_id: String.t | nil,
-    remote_addr: String.t | nil
-  }
+          method: String.t(),
+          path: String.t(),
+          request_id: String.t() | nil,
+          remote_addr: String.t() | nil
+        }
 
   @type m :: %{
-    :method => String.t,
-    :path => String.t,
-    optional(:request_id) => String.t,
-    optional(:remote_addr) => String.t
-  }
+          :method => String.t(),
+          :path => String.t(),
+          optional(:request_id) => String.t(),
+          optional(:remote_addr) => String.t()
+        }
 
   defstruct [:method, :path, :request_id, :remote_addr]
 end

@@ -7,10 +7,10 @@ defmodule Timber.Events.ChannelJoinEvent do
   """
 
   @type t :: %__MODULE__{
-    channel: String.t,
-    topic: String.t,
-    metadata_json: String.t | nil,
-  }
+          channel: String.t(),
+          topic: String.t(),
+          metadata_json: String.t() | nil
+        }
 
   @enforce_keys [:channel, :topic]
   defstruct [
@@ -26,7 +26,7 @@ defmodule Timber.Events.ChannelJoinEvent do
 
   * Converts `:params` to `:params_json` that satifies the Timber API requirements
   """
-  @spec new(Keyword.t) :: t
+  @spec new(Keyword.t()) :: t
   def new(opts) do
     metadata_json =
       case Keyword.get(opts, :metadata_json, nil) do
@@ -47,7 +47,7 @@ defmodule Timber.Events.ChannelJoinEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{channel: channel, topic: topic}) do
     ["Joined channel ", to_string(channel), " with \"", to_string(topic), "\""]
   end

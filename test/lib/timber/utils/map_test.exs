@@ -19,7 +19,7 @@ defmodule Timber.Utils.MapTest do
       m = %{key: now}
       r = UtilsMap.deep_from_struct(m)
       iso_8601 = DateTime.to_iso8601(now)
-      assert r ==  %{key: iso_8601}
+      assert r == %{key: iso_8601}
     end
 
     test "handles tuples" do

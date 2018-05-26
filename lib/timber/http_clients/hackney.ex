@@ -22,8 +22,10 @@ defmodule Timber.HTTPClients.Hackney do
   @behaviour HTTPClient
 
   @default_request_options [
-    connect_timeout: 5_000, # 5 seconds, timeout to connect
-    recv_timeout: 10_000 #  10 seconds, timeout to receive a response
+    # 5 seconds, timeout to connect
+    connect_timeout: 5_000,
+    #  10 seconds, timeout to receive a response
+    recv_timeout: 10_000
   ]
 
   def start() do
@@ -36,10 +38,11 @@ defmodule Timber.HTTPClients.Hackney do
   Issues a HTTP request via hackney.
   """
   def async_request(method, url, headers, body) do
-    req_headers = Enum.map(headers, &(&1))
+    req_headers = Enum.map(headers, & &1)
+
     req_opts =
       get_request_options()
-      |> Keyword.merge([async: true])
+      |> Keyword.merge(async: true)
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
@@ -48,10 +51,11 @@ defmodule Timber.HTTPClients.Hackney do
   Issues a HTTP request via hackney.
   """
   def request(method, url, headers, body) do
-    req_headers = Enum.map(headers, &(&1))
+    req_headers = Enum.map(headers, & &1)
+
     req_opts =
       get_request_options()
-      |> Keyword.merge([with_body: true])
+      |> Keyword.merge(with_body: true)
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
@@ -60,9 +64,10 @@ defmodule Timber.HTTPClients.Hackney do
   # Config
   #
 
-  @spec config :: Keyword.t
+  @spec config :: Keyword.t()
   defp config, do: Application.get_env(:timber, :hackney_client, [])
 
-  @spec get_request_options() :: Keyword.t
-  defp get_request_options(), do: Keyword.get(config(), :request_options, @default_request_options)
+  @spec get_request_options() :: Keyword.t()
+  defp get_request_options(),
+    do: Keyword.get(config(), :request_options, @default_request_options)
 end

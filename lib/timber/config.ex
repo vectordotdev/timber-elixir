@@ -70,7 +70,8 @@ defmodule Timber.Config do
   config :timber, :http_body_size_limit, 2048
   ```
   """
-  def http_body_size_limit, do: Application.get_env(@application, :http_body_size_limit, @default_http_body_max_bytes)
+  def http_body_size_limit,
+    do: Application.get_env(@application, :http_body_size_limit, @default_http_body_max_bytes)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
@@ -95,8 +96,9 @@ defmodule Timber.Config do
   config :timber, :json_encoder, fn map -> encode(map) end
   ```
   """
-  @spec json_encoder() :: ((any) -> iodata)
-  def json_encoder, do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
+  @spec json_encoder() :: (any -> iodata)
+  def json_encoder,
+    do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
 
   @doc """
   Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
@@ -131,5 +133,6 @@ defmodule Timber.Config do
 
   def capture_errors?, do: Application.get_env(@application, :capture_errors, false)
 
-  def disable_tty?, do: Application.get_env(@application, :disable_kernel_error_tty, capture_errors?())
+  def disable_tty?,
+    do: Application.get_env(@application, :disable_kernel_error_tty, capture_errors?())
 end

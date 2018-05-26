@@ -30,12 +30,13 @@ defmodule Timber.TestGenServer do
   end
 
   def handle_call({:divide, dividend, divisor}, _from, state) do
-    {:reply, dividend/divisor, state}
+    {:reply, dividend / divisor, state}
   end
 
   def handle_info({:divide, dividend, divisor}, state) do
-    dividend/divisor
-    |> Float.to_string
+    (dividend / divisor)
+    |> Float.to_string()
+
     {:ok, state}
   end
 
@@ -71,4 +72,3 @@ defmodule Timber.SimpleTestGenServer do
     send(state, :terminating)
   end
 end
-

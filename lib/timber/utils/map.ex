@@ -36,15 +36,24 @@ defmodule Timber.Utils.Map do
     |> Enum.reduce(%{}, fn
       {k, v}, acc when is_map(v) ->
         new_v = recursively_drop_blanks(v)
+
         if map_size(new_v) > 0 do
           Map.put(acc, k, new_v)
         else
           acc
         end
-      {_k, nil}, acc -> acc
-      {_k, ""}, acc -> acc
-      {_k, []}, acc -> acc
-      {k, v}, acc -> Map.put(acc, k, v)
+
+      {_k, nil}, acc ->
+        acc
+
+      {_k, ""}, acc ->
+        acc
+
+      {_k, []}, acc ->
+        acc
+
+      {k, v}, acc ->
+        Map.put(acc, k, v)
     end)
   end
 end

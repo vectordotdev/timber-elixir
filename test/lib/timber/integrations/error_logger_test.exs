@@ -7,6 +7,7 @@ defmodule Timber.Integrations.ErrorLoggerTest do
 
   defp add_timber_error_logger() do
     :ok = :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
+
     ExUnit.Callbacks.on_exit(fn ->
       :error_logger.delete_report_handler(Timber.Integrations.ErrorLogger)
     end)
@@ -15,21 +16,25 @@ defmodule Timber.Integrations.ErrorLoggerTest do
   test "logs errors from crashed Task" do
     add_timber_error_logger()
     add_test_logger_backend(self())
-    {:ok, pid} = Task.start(fn ->
-      Timber.Context.add(%{}, %{a: :b})
-      |> Timber.CurrentContext.save()
-      raise "Task Error"
-    end)
+
+    {:ok, pid} =
+      Task.start(fn ->
+        Timber.Context.add(%{}, %{a: :b})
+        |> Timber.CurrentContext.save()
+
+        raise "Task Error"
+      end)
 
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
 
     assert %ErrorEvent{
-      name: "RuntimeError",
-      message: "Task Error",
-      backtrace: [_line1, _line2, _line3]
-    } = Keyword.get(metadata, :event)
+             name: "RuntimeError",
+             message: "Task Error",
+             backtrace: [_line1, _line2, _line3]
+           } = Keyword.get(metadata, :event)
 
     assert Keyword.get(metadata, :pid) == pid
   end
@@ -43,12 +48,14 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     Timber.TestGenServer.do_throw(pid)
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
 
     assert %ErrorEvent{
-      name: "ErlangError",
-      message: message,
-    } = Keyword.get(metadata, :event)
+             name: "ErlangError",
+             message: message
+           } = Keyword.get(metadata, :event)
+
     assert message =~ ~r/Erlang error: "I am throwing"/i
 
     assert Keyword.get(metadata, :pid) == pid
@@ -59,16 +66,18 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     add_timber_error_logger()
     add_test_logger_backend(self())
 
-
     {:ok, pid} = Timber.TestGenServer.start_link(self())
     Timber.TestGenServer.bad_exit(pid)
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
     assert %ErrorEvent{
-      name: "ErlangError",
-      message: message,
-    } = Keyword.get(metadata, :event)
+             name: "ErlangError",
+             message: message
+           } = Keyword.get(metadata, :event)
+
     assert message =~ ~r/Erlang error: :bad_exit/i
     assert Keyword.get(metadata, :pid) == pid
   end
@@ -83,12 +92,15 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     assert catch_exit(Timber.TestGenServer.divide_call(pid, 1, 0))
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
     assert %ErrorEvent{
-      message: "bad argument in arithmetic expression",
-      name: "ArithmeticError",
-      backtrace: [_, _, _, _]
-    } = Keyword.get(metadata, :event)
+             message: "bad argument in arithmetic expression",
+             name: "ArithmeticError",
+             backtrace: [_, _, _, _]
+           } = Keyword.get(metadata, :event)
+
     assert Keyword.get(metadata, :pid) == pid
   end
 
@@ -102,12 +114,15 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     Timber.TestGenServer.divide(pid, 1, 0)
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
     assert %ErrorEvent{
-      message: "bad argument in arithmetic expression",
-      name: "ArithmeticError",
-      backtrace: [_, _, _, _]
-    } = Keyword.get(metadata, :event)
+             message: "bad argument in arithmetic expression",
+             name: "ArithmeticError",
+             backtrace: [_, _, _, _]
+           } = Keyword.get(metadata, :event)
+
     assert Keyword.get(metadata, :pid) == pid
   end
 
@@ -116,21 +131,24 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     add_timber_error_logger()
     add_test_logger_backend(self())
 
-
     {:ok, pid} = Timber.TestGenServer.start_link(self())
     Timber.TestGenServer.raise(pid)
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
     assert %ErrorEvent{
-      message: "raised error",
-      name: "RuntimeError",
-      backtrace: [_, _, _, _]
-    } = Keyword.get(metadata, :event)
+             message: "raised error",
+             name: "RuntimeError",
+             backtrace: [_, _, _, _]
+           } = Keyword.get(metadata, :event)
+
     assert Keyword.get(metadata, :pid) == pid
   end
 
   skip_min_elixir_version("1.4")
+
   test "logs errors from GenServer unexpected message in handle_info/2" do
     add_timber_error_logger()
     add_test_logger_backend(self())
@@ -139,7 +157,8 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     send(pid, :unexpected)
     assert_receive :ok
 
-    [{_level, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{_level, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
 
     assert Keyword.get(metadata, :pid) == pid
   end
@@ -152,7 +171,9 @@ defmodule Timber.Integrations.ErrorLoggerTest do
 
     assert_receive :ok
 
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
     assert Keyword.get(metadata, :pid) == self()
   end
 
@@ -163,35 +184,41 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     spawn(fn ->
       raise "Error"
     end)
-    assert_receive :ok
-    [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
-    assert %ErrorEvent{
-      backtrace: [
-        %{
-          file: "test/lib/timber/integrations/error_logger_test.exs",
-          function: _,
-          line: _
-        }
-      ],
-      message: "Error",
-      name: "RuntimeError"
 
-    } = Keyword.get(metadata, :event)
+    assert_receive :ok
+
+    [{:error, _pid, {Logger, _msg, _ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
+    assert %ErrorEvent{
+             backtrace: [
+               %{
+                 file: "test/lib/timber/integrations/error_logger_test.exs",
+                 function: _,
+                 line: _
+               }
+             ],
+             message: "Error",
+             name: "RuntimeError"
+           } = Keyword.get(metadata, :event)
   end
 
   test "Logger events are encodable by the HTTP backend" do
-    {:ok, state} = HTTP.init(HTTP, [http_client: FakeHTTPClient])
+    {:ok, state} = HTTP.init(HTTP, http_client: FakeHTTPClient)
     add_timber_error_logger()
     add_test_logger_backend(self())
 
     Task.start(fn ->
       Timber.Context.add(%{}, %{a: :b})
       |> Timber.CurrentContext.save()
+
       raise "Task Error"
     end)
 
     assert_receive :ok
-    [{:error, pid, {Logger, msg, ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
+
+    [{:error, pid, {Logger, msg, ts, metadata}}] =
+      :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
 
     entry = {:error, pid, {Logger, msg, ts, metadata}}
 
@@ -207,7 +234,12 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     assert elem(call, 1) == "https://logs.timber.io/frames"
 
     vsn = Application.spec(:timber, :vsn)
-    assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
+
+    assert elem(call, 2) == %{
+             "Authorization" => "Basic YXBpX2tleQ==",
+             "Content-Type" => "application/msgpack",
+             "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"
+           }
 
     encoded_body = event_entry_to_msgpack(entry)
     assert elem(call, 3) == encoded_body

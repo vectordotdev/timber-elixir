@@ -48,23 +48,33 @@ defmodule Timber.Utils.HTTPEventsTest do
     end
 
     test "array value" do
-      assert HTTPEvents.normalize_headers([{"key", ["value1", "value2"]}]) == %{"key" => "value1,value2"}
+      assert HTTPEvents.normalize_headers([{"key", ["value1", "value2"]}]) == %{
+               "key" => "value1,value2"
+             }
     end
 
     test "authorization header" do
-      assert HTTPEvents.normalize_headers([{"Authorization", "value"}]) == %{"authorization" => "[sanitized]"}
+      assert HTTPEvents.normalize_headers([{"Authorization", "value"}]) == %{
+               "authorization" => "[sanitized]"
+             }
     end
 
     test "x-amz-security-token header" do
-      assert HTTPEvents.normalize_headers([{"x-amz-security-token", "value"}]) == %{"x-amz-security-token" => "[sanitized]"}
+      assert HTTPEvents.normalize_headers([{"x-amz-security-token", "value"}]) == %{
+               "x-amz-security-token" => "[sanitized]"
+             }
     end
 
     test "custom sensitive header" do
-      assert HTTPEvents.normalize_headers([{"Sensitive-Key", "value"}]) == %{"sensitive-key" => "[sanitized]"}
+      assert HTTPEvents.normalize_headers([{"Sensitive-Key", "value"}]) == %{
+               "sensitive-key" => "[sanitized]"
+             }
     end
 
     test "headers list" do
-      assert HTTPEvents.normalize_headers([{"This-IS-my-HEADER", "value"}]) == %{"this-is-my-header" => "value"}
+      assert HTTPEvents.normalize_headers([{"This-IS-my-HEADER", "value"}]) == %{
+               "this-is-my-header" => "value"
+             }
     end
   end
 end

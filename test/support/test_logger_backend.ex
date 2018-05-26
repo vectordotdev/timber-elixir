@@ -36,9 +36,12 @@ defmodule Timber.TestLoggerBackend do
     {:ok, :ok, Map.put(state, :callback_pid, callback_pid)}
   end
 
-  def handle_event({_level, _gl, {Logger, _msg, _ts, _md}} = event, %{events: events, callback_pid: pid} = state) do
+  def handle_event(
+        {_level, _gl, {Logger, _msg, _ts, _md}} = event,
+        %{events: events, callback_pid: pid} = state
+      ) do
     send_confirmation(pid)
-    {:ok, %{ state | events: [ event | events]}}
+    {:ok, %{state | events: [event | events]}}
   end
 
   def handle_event(:flush, state) do

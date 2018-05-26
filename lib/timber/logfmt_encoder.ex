@@ -2,19 +2,19 @@ defmodule Timber.LogfmtEncoder do
   @moduledoc false
   # Internal module for encoding maps to the logfmt standard
 
-  @spec encode!(map) :: IO.chardata
+  @spec encode!(map) :: IO.chardata()
   def encode!(value) when is_map(value) do
     Enum.reduce(value, [], &encode_pair/2)
   end
 
   defp encode_pair({k1, value_map}, acc) when is_map(value_map) do
-    Enum.reduce(value_map, acc, fn ({k2, v}, a) ->
+    Enum.reduce(value_map, acc, fn {k2, v}, a ->
       encode_pair({[to_string(k1), ?., to_string(k2)], v}, a)
     end)
   end
 
   defp encode_pair({key, values}, acc) when is_list(values) do
-    Enum.reduce(values, acc, fn (value, a)->
+    Enum.reduce(values, acc, fn value, a ->
       encode_pair({key, value}, a)
     end)
   end

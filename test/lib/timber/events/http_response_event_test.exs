@@ -15,7 +15,9 @@ defmodule Timber.Events.HTTPResponseEventTest do
       headers = [{"x-request-id", "value"}, {"content_type", "type"}, {"random-header", "value"}]
       result = HTTPResponseEvent.new(headers: headers, status: 200, time_ms: 502)
       assert result.headers == nil
-      assert result.headers_json == "{\"x-request-id\":\"value\",\"random-header\":\"value\",\"content_type\":\"type\"}"
+
+      assert result.headers_json ==
+               "{\"x-request-id\":\"value\",\"random-header\":\"value\",\"content_type\":\"type\"}"
     end
 
     test "truncates body" do
@@ -26,9 +28,19 @@ defmodule Timber.Events.HTTPResponseEventTest do
 
   describe "Timber.Events.HTTPResponseEvent.message/1" do
     test "incoming, includes the service name" do
-      event = HTTPResponseEvent.new(direction: "incoming", request_id: "abcd1234", service_name: "timber", status: 200, time_ms: 502.2)
+      event =
+        HTTPResponseEvent.new(
+          direction: "incoming",
+          request_id: "abcd1234",
+          service_name: "timber",
+          status: 200,
+          time_ms: 502.2
+        )
+
       message = HTTPResponseEvent.message(event)
-      assert String.Chars.to_string(message) == "Received 200 response (abcd12...) from timber in 502.20ms"
+
+      assert String.Chars.to_string(message) ==
+               "Received 200 response (abcd12...) from timber in 502.20ms"
     end
 
     test "incoming, integer time_ms" do

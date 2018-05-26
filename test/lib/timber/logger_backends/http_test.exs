@@ -6,7 +6,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
   alias Timber.LoggerBackends.HTTP
 
   setup do
-    {:ok, state} = HTTP.init(HTTP, [http_client: FakeHTTPClient])
+    {:ok, state} = HTTP.init(HTTP, http_client: FakeHTTPClient)
 
     {:ok, state: state}
   end
@@ -18,9 +18,12 @@ defmodule Timber.LoggerBackends.HTTPTest do
     end
 
     test "starts the flusher" do
-      FakeHTTPClient.stub :request, fn :get, "https://api.timber.io/installer/application", %{"Authorization" => "Basic YXBpX2tleQ=="}, _ ->
-          {:ok, 204, %{}, ""}
-      end
+      FakeHTTPClient.stub(:request, fn :get,
+                                       "https://api.timber.io/installer/application",
+                                       %{"Authorization" => "Basic YXBpX2tleQ=="},
+                                       _ ->
+        {:ok, 204, %{}, ""}
+      end)
 
       HTTP.init(HTTP)
       assert_receive(:outlet, 1100)
@@ -69,7 +72,12 @@ defmodule Timber.LoggerBackends.HTTPTest do
       assert elem(call, 1) == "https://logs.timber.io/frames"
 
       vsn = Application.spec(:timber, :vsn)
-      assert elem(call, 2) == %{"Authorization" => "Basic YXBpX2tleQ==", "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
+
+      assert elem(call, 2) == %{
+               "Authorization" => "Basic YXBpX2tleQ==",
+               "Content-Type" => "application/msgpack",
+               "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"
+             }
 
       encoded_body = event_entry_to_msgpack(entry)
       assert elem(call, 3) == encoded_body
@@ -95,14 +103,21 @@ defmodule Timber.LoggerBackends.HTTPTest do
       expected_method = :post
       expected_url = "https://logs.timber.io/frames"
       vsn = Application.spec(:timber, :vsn)
-      expected_headers = %{"Authorization" => "Basic YXBpX2tleQ==",
-        "Content-Type" => "application/msgpack", "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"}
+
+      expected_headers = %{
+        "Authorization" => "Basic YXBpX2tleQ==",
+        "Content-Type" => "application/msgpack",
+        "User-Agent" => "Timber Elixir/#{vsn} (HTTP)"
+      }
 
       expected_body = event_entry_to_msgpack(entry)
 
-      FakeHTTPClient.stub :async_request, fn ^expected_method, ^expected_url, ^expected_headers, ^expected_body ->
+      FakeHTTPClient.stub(:async_request, fn ^expected_method,
+                                             ^expected_url,
+                                             ^expected_headers,
+                                             ^expected_body ->
         {:error, :connect_timeout}
-      end
+      end)
 
       {:ok, state} = HTTP.handle_event(entry, state)
       {:ok, _} = HTTP.handle_event(:flush, state)
@@ -137,7 +152,9 @@ defmodule Timber.LoggerBackends.HTTPTest do
       assert_receive(:outlet, 1100)
     end
 
-    test "handles successful status response message from Hackney for ongoing request", %{state: state} do
+    test "handles successful status response message from Hackney for ongoing request", %{
+      state: state
+    } do
       ref = make_ref()
       state = %{state | ref: ref}
       {:ok, new_state} = HTTP.handle_info({:hackney_response, ref, {:ok, 200, ""}}, state)
@@ -146,7 +163,9 @@ defmodule Timber.LoggerBackends.HTTPTest do
       assert new_state.ref == ref
     end
 
-    test "handles unauthorized status response message from Hackney for ongoing request", %{state: state} do
+    test "handles unauthorized status response message from Hackney for ongoing request", %{
+      state: state
+    } do
       ref = make_ref()
       state = %{state | ref: ref}
 

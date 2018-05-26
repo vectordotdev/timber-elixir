@@ -40,14 +40,14 @@ defmodule Timber.Contexts.CustomContext do
   """
 
   @type t :: %__MODULE__{
-    type: atom(),
-    data: %{String.t => any}
-  }
+          type: atom(),
+          data: %{String.t() => any}
+        }
 
   @type m :: %{
-    type: atom(),
-    data: %{String.t => any}
-  }
+          type: atom(),
+          data: %{String.t() => any}
+        }
 
   @enforce_keys [:type]
   defstruct [:type, :data]

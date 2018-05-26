@@ -18,6 +18,7 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
   def request(method, headers, url, opts \\ []) when method in [:get, :post] do
     vsn = Application.spec(:timber, :vsn)
     headers = headers ++ [{'User-Agent', 'Timber Elixir/#{vsn} (HTTP)'}]
+
     body =
       Keyword.get(opts, :body, "")
       |> encode_body()
@@ -26,7 +27,8 @@ defmodule Mix.Tasks.Timber.Install.HTTPClient do
       {:ok, {{_protocol, status, _status_name}, _headers, body}} ->
         {:ok, status, body}
 
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

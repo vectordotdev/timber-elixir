@@ -11,9 +11,22 @@ defmodule Timber.EventTest do
     end
 
     test "controller call event" do
-      event = %Timber.Events.ControllerCallEvent{action: "action", controller: "controller", params_json: "{\"key\": \"value\"}", pipelines: [1]}
+      event = %Timber.Events.ControllerCallEvent{
+        action: "action",
+        controller: "controller",
+        params_json: "{\"key\": \"value\"}",
+        pipelines: [1]
+      }
+
       map = Event.to_api_map(event)
-      assert map == %{controller_call: %{action: "action", controller: "controller", params_json: "{\"key\": \"value\"}"}}
+
+      assert map == %{
+               controller_call: %{
+                 action: "action",
+                 controller: "controller",
+                 params_json: "{\"key\": \"value\"}"
+               }
+             }
     end
   end
 end

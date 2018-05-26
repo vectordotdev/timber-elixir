@@ -13,10 +13,10 @@ if Code.ensure_loaded?(Phoenix) do
     setup do
       env = Application.get_env(:timber, PhoenixInstrumenter, [])
 
-      on_exit fn ->
+      on_exit(fn ->
         # Restore the saved environment
         Application.put_env(:timber, PhoenixInstrumenter, env)
-      end
+      end)
 
       {:ok, env: env}
     end
@@ -28,7 +28,9 @@ if Code.ensure_loaded?(Phoenix) do
           {B, :action}
         ]
 
-        Application.put_env(:timber, PhoenixInstrumenter, [{:controller_actions_blacklist, blacklist}])
+        Application.put_env(:timber, PhoenixInstrumenter, [
+          {:controller_actions_blacklist, blacklist}
+        ])
 
         assert [{A, :action}, {B, :action}] = PhoenixInstrumenter.get_unparsed_blacklist()
       end
@@ -51,26 +53,34 @@ if Code.ensure_loaded?(Phoenix) do
 
     describe "Timber.Integrations.PhoenixInstrumenter.add_controller_action_to_blacklist/2" do
       test "adds controller action to the blacklist" do
-        PhoenixInstrumenter.put_parsed_blacklist(MapSet.new([
-          {A, :action},
-          {B, :action}
-        ]))
+        PhoenixInstrumenter.put_parsed_blacklist(
+          MapSet.new([
+            {A, :action},
+            {B, :action}
+          ])
+        )
 
         PhoenixInstrumenter.add_controller_action_to_blacklist(Controller, :action)
         blacklist = PhoenixInstrumenter.get_parsed_blacklist()
 
         assert PhoenixInstrumenter.controller_action_blacklisted?({A, :action}, blacklist)
         assert PhoenixInstrumenter.controller_action_blacklisted?({B, :action}, blacklist)
-        assert PhoenixInstrumenter.controller_action_blacklisted?({Controller, :action}, blacklist)
+
+        assert PhoenixInstrumenter.controller_action_blacklisted?(
+                 {Controller, :action},
+                 blacklist
+               )
       end
     end
 
     describe "Timber.Integrations.PhoenixInstrumenter.remove_controller_action_from_blacklist/2" do
       test "removes controller action from blacklist" do
-        PhoenixInstrumenter.put_parsed_blacklist(MapSet.new([
-          {A, :action},
-          {B, :action}
-        ]))
+        PhoenixInstrumenter.put_parsed_blacklist(
+          MapSet.new([
+            {A, :action},
+            {B, :action}
+          ])
+        )
 
         PhoenixInstrumenter.remove_controller_action_from_blacklist(B, :action)
 
@@ -89,10 +99,11 @@ if Code.ensure_loaded?(Phoenix) do
       end
 
       test "retrieves the blacklist from the application environment", %{env: env} do
-        blacklist = MapSet.new([
-          {A, :action},
-          {B, :action}
-        ])
+        blacklist =
+          MapSet.new([
+            {A, :action},
+            {B, :action}
+          ])
 
         new_env = Keyword.put(env, :parsed_controller_actions_blacklist, blacklist)
         :ok = Application.put_env(:timber, PhoenixInstrumenter, new_env)
@@ -103,10 +114,11 @@ if Code.ensure_loaded?(Phoenix) do
 
     describe "Timber.Integrations.PhoenixInstrumenter.put_parsed_blacklist/1" do
       test "puts the blacklist in the application environment" do
-        blacklist = MapSet.new([
-          {A, :action},
-          {B, :action}
-        ])
+        blacklist =
+          MapSet.new([
+            {A, :action},
+            {B, :action}
+          ])
 
         PhoenixInstrumenter.put_parsed_blacklist(blacklist)
 
@@ -117,83 +129,104 @@ if Code.ensure_loaded?(Phoenix) do
 
     describe "Timber.Integrations.PhoenixInstrumenter.phoenix_channel_join/3" do
       test "logs phoenix_channel_join as configured by the channel" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          PhoenixInstrumenter.phoenix_channel_join(:start, %{}, %{socket: socket, params: %{key: "val"}})
-        end)
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+
+            PhoenixInstrumenter.phoenix_channel_join(:start, %{}, %{
+              socket: socket,
+              params: %{key: "val"}
+            })
+          end)
+
         assert log =~ "Joined channel channel with \"topic\" @metadata "
       end
     end
 
     describe "Timber.Integrations.PhoenixInstrumenter.phoenix_channel_receive/3" do
       test "logs phoenix_channel_receive as configured by the channel" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, %{socket: socket, event: "e", params: %{}})
-        end)
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+
+            PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, %{
+              socket: socket,
+              event: "e",
+              params: %{}
+            })
+          end)
+
         assert log =~ "Received e on \"topic\" to channel @metadata "
       end
 
       test "accepts a message where the params is a keyword list" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          params = [name: "Geoffrey"]
-          metadata = %{
-            socket: socket,
-            event: "e",
-            params: params
-          }
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+            params = [name: "Geoffrey"]
 
-          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
-        end)
+            metadata = %{
+              socket: socket,
+              event: "e",
+              params: params
+            }
+
+            PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+          end)
 
         assert log =~ ~s/Received e on "topic" to channel @metadata /
       end
 
       test "accepts a message where the params is a non-Keyword list" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          params = ["a", "b"]
-          metadata = %{
-            socket: socket,
-            event: "e",
-            params: params
-          }
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+            params = ["a", "b"]
 
-          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
-        end)
+            metadata = %{
+              socket: socket,
+              event: "e",
+              params: params
+            }
+
+            PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+          end)
 
         assert log =~ ~s/Received e on "topic" to channel @metadata /
       end
 
       test "accepts a message where the params is a string" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          params = "61cf02ad-9509-48be-9b88-edf5e85219fe"
-          metadata = %{
-            socket: socket,
-            event: "e",
-            params: params
-          }
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+            params = "61cf02ad-9509-48be-9b88-edf5e85219fe"
 
-          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
-        end)
+            metadata = %{
+              socket: socket,
+              event: "e",
+              params: params
+            }
+
+            PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+          end)
 
         assert log =~ ~s/Received e on "topic" to channel @metadata /
       end
 
       test "accept a message where the params ia numeric value" do
-        log = capture_log(fn ->
-          socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
-          params = 3.14
-          metadata = %{
-            socket: socket,
-            event: "e",
-            params: params
-          }
+        log =
+          capture_log(fn ->
+            socket = %Phoenix.Socket{channel: :channel, topic: "topic"}
+            params = 3.14
 
-          PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
-        end)
+            metadata = %{
+              socket: socket,
+              event: "e",
+              params: params
+            }
+
+            PhoenixInstrumenter.phoenix_channel_receive(:start, %{}, metadata)
+          end)
 
         assert log =~ ~s/Received e on "topic" to channel @metadata /
       end
@@ -203,14 +236,16 @@ if Code.ensure_loaded?(Phoenix) do
       test "logs phoenix controller calls" do
         controller = Controller
         action = :action
+
         conn =
           Phoenix.ConnTest.build_conn()
           |> Plug.Conn.put_private(:phoenix_controller, controller)
           |> Plug.Conn.put_private(:phoenix_action, action)
 
-        log = capture_log(fn ->
-          PhoenixInstrumenter.phoenix_controller_call(:start, %{}, %{conn: conn})
-        end)
+        log =
+          capture_log(fn ->
+            PhoenixInstrumenter.phoenix_controller_call(:start, %{}, %{conn: conn})
+          end)
 
         assert log =~ "Processing with Controller.action/2"
       end
@@ -226,9 +261,10 @@ if Code.ensure_loaded?(Phoenix) do
           |> Plug.Conn.put_private(:phoenix_controller, controller)
           |> Plug.Conn.put_private(:phoenix_action, action)
 
-        log = capture_log(fn ->
-          PhoenixInstrumenter.phoenix_controller_call(:start, %{}, %{conn: conn})
-        end)
+        log =
+          capture_log(fn ->
+            PhoenixInstrumenter.phoenix_controller_call(:start, %{}, %{conn: conn})
+          end)
 
         assert log == ""
       end
@@ -246,7 +282,10 @@ if Code.ensure_loaded?(Phoenix) do
           |> Plug.Conn.put_private(:phoenix_action, action)
 
         assert {:ok, :info, ^template_name} =
-          PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
+                 PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{
+                   template: template_name,
+                   conn: conn
+                 })
       end
 
       test ":start returns true when the controller/action is not available" do
@@ -256,7 +295,10 @@ if Code.ensure_loaded?(Phoenix) do
         conn = Phoenix.ConnTest.build_conn()
 
         assert {:ok, :info, ^template_name} =
-          PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
+                 PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{
+                   template: template_name,
+                   conn: conn
+                 })
       end
 
       test ":start returns false when the controller/action is blacklisted" do
@@ -271,7 +313,11 @@ if Code.ensure_loaded?(Phoenix) do
           |> Plug.Conn.put_private(:phoenix_controller, controller)
           |> Plug.Conn.put_private(:phoenix_action, action)
 
-        assert false == PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name, conn: conn})
+        assert false ==
+                 PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{
+                   template: template_name,
+                   conn: conn
+                 })
       end
 
       test ":start returns true when a template name is given but no connection" do
@@ -279,7 +325,9 @@ if Code.ensure_loaded?(Phoenix) do
         template_name = "404.html"
 
         assert {:ok, :info, ^template_name} =
-          PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{template: template_name})
+                 PhoenixInstrumenter.phoenix_controller_render(:start, %{}, %{
+                   template: template_name
+                 })
       end
 
       test ":start returns :ok when an unsupported map is passed" do
@@ -287,17 +335,19 @@ if Code.ensure_loaded?(Phoenix) do
       end
 
       test ":stop does not log anything when the third param is :ok" do
-        log = capture_log(fn ->
-          PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, :ok)
-        end)
+        log =
+          capture_log(fn ->
+            PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, :ok)
+          end)
 
         assert log == ""
       end
 
       test ":stop does not log anything when the third param is false" do
-        log = capture_log(fn ->
-          PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, false)
-        end)
+        log =
+          capture_log(fn ->
+            PhoenixInstrumenter.phoenix_controller_render(:stop, %{}, false)
+          end)
 
         assert log == ""
       end
@@ -306,9 +356,14 @@ if Code.ensure_loaded?(Phoenix) do
         template_name = "index.html"
         log_level = :info
 
-        log = capture_log(fn ->
-          PhoenixInstrumenter.phoenix_controller_render(:stop, 0, {:ok, log_level, template_name})
-        end)
+        log =
+          capture_log(fn ->
+            PhoenixInstrumenter.phoenix_controller_render(
+              :stop,
+              0,
+              {:ok, log_level, template_name}
+            )
+          end)
 
         assert log =~ "Rendered \"index.html\" in 0.0ms"
       end

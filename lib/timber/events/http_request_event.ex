@@ -16,19 +16,19 @@ defmodule Timber.Events.HTTPRequestEvent do
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @type t :: %__MODULE__{
-    body: String.t | nil,
-    direction: String.t | nil,
-    host: String.t | nil,
-    headers: map | nil,
-    headers_json: String.t | nil,
-    method: String.t,
-    path: String.t | nil,
-    port: pos_integer | nil,
-    query_string: String.t | nil,
-    request_id: String.t | nil,
-    scheme: String.t | nil,
-    service_name: nil | String.t
-  }
+          body: String.t() | nil,
+          direction: String.t() | nil,
+          host: String.t() | nil,
+          headers: map | nil,
+          headers_json: String.t() | nil,
+          method: String.t(),
+          path: String.t() | nil,
+          port: pos_integer | nil,
+          query_string: String.t() | nil,
+          request_id: String.t() | nil,
+          scheme: String.t() | nil,
+          service_name: nil | String.t()
+        }
 
   @enforce_keys [:method]
   defstruct [
@@ -54,17 +54,19 @@ defmodule Timber.Events.HTTPRequestEvent do
   * Normalize the method.
   * Removes "" or nil values.
   """
-  @spec new(Keyword.t) :: t
+  @spec new(Keyword.t()) :: t
   def new(opts) do
     opts =
       opts
       |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
-      |> Keyword.update(:headers, nil, fn headers -> UtilsHTTPEvents.normalize_headers(headers) end)
+      |> Keyword.update(:headers, nil, fn headers ->
+        UtilsHTTPEvents.normalize_headers(headers)
+      end)
       |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
       |> Keyword.update(:service_name, nil, &to_string/1)
       |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))
       |> Keyword.delete(:url)
-      |> Enum.filter(fn {_k,v} -> !(v in [nil, ""]) end)
+      |> Enum.filter(fn {_k, v} -> !(v in [nil, ""]) end)
       |> UtilsHTTPEvents.move_headers_to_headers_json()
 
     struct!(__MODULE__, opts)
@@ -73,13 +75,21 @@ defmodule Timber.Events.HTTPRequestEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{direction: "outgoing"} = event) do
     message =
       if event.service_name do
         ["Sent ", event.method, " ", event.path]
       else
-        full_url = UtilsHTTPEvents.full_url(event.scheme, event.host, event.path, event.port, event.query_string)
+        full_url =
+          UtilsHTTPEvents.full_url(
+            event.scheme,
+            event.host,
+            event.path,
+            event.port,
+            event.query_string
+          )
+
         ["Sent ", event.method, " ", full_url]
       end
 

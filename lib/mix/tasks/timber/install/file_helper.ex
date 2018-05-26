@@ -19,11 +19,13 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
 
               result
 
-            {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
+            {:error, reason} ->
+              raise(FileWritingError, path: path, reason: reason)
           end
         end
 
-      {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
+      {:error, reason} ->
+        raise(FileWritingError, path: path, reason: reason)
     end
   end
 
@@ -45,7 +47,6 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
   def replace_once!(contents, pattern, replacement, contains_pattern) do
     if String.contains?(contents, contains_pattern) do
       contents
-
     else
       new_contents = String.replace(contents, pattern, replacement)
 
@@ -68,10 +69,12 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
             API.event!(api, :file_written, %{path: path})
             :ok
 
-          {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
+          {:error, reason} ->
+            raise(FileWritingError, path: path, reason: reason)
         end
 
-      {:error, reason} -> raise(FileWritingError, path: path, reason: reason)
+      {:error, reason} ->
+        raise(FileWritingError, path: path, reason: reason)
     end
   end
 
@@ -84,11 +87,12 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
 
     def exception(opts) do
       pattern = Keyword.fetch!(opts, :pattern)
-      message =
-        """
-        Uh oh! We had a problem updating a file. The pattern
-        #{pattern} was not found after writing!
-        """
+
+      message = """
+      Uh oh! We had a problem updating a file. The pattern
+      #{pattern} was not found after writing!
+      """
+
       %__MODULE__{message: message}
     end
   end
@@ -99,12 +103,13 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     def exception(opts) do
       path = Keyword.fetch!(opts, :path)
       reason = Keyword.fetch!(opts, :reason)
-      message =
-        """
-        Uh oh! We had a problem reading #{path}:
 
-        #{reason}
-        """
+      message = """
+      Uh oh! We had a problem reading #{path}:
+
+      #{reason}
+      """
+
       %__MODULE__{message: message}
     end
   end
@@ -115,12 +120,13 @@ defmodule Mix.Tasks.Timber.Install.FileHelper do
     def exception(opts) do
       path = Keyword.fetch!(opts, :path)
       reason = Keyword.fetch!(opts, :reason)
-      message =
-        """
-        Uh oh! We had a problem writing to #{path}:
 
-        #{reason}
-        """
+      message = """
+      Uh oh! We had a problem writing to #{path}:
+
+      #{reason}
+      """
+
       %__MODULE__{message: message}
     end
   end

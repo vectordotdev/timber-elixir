@@ -12,9 +12,9 @@ defmodule Timber.Events.TemplateRenderEvent do
   """
 
   @type t :: %__MODULE__{
-    name: String.t,
-    time_ms: float,
-  }
+          name: String.t(),
+          time_ms: float
+        }
 
   @enforce_keys [:name, :time_ms]
   defstruct [
@@ -25,7 +25,7 @@ defmodule Timber.Events.TemplateRenderEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{name: name, time_ms: time_ms}),
     do: ["Rendered ", ?", name, ?", " in ", Float.to_string(time_ms), "ms"]
 end

@@ -45,7 +45,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   # Move `:headers` (Map.t) into `:headers_json` (String.t) so that all headers are no indexed
   # within Timber by default.
-  @spec move_headers_to_headers_json(Keyword.t) :: Keyword.t
+  @spec move_headers_to_headers_json(Keyword.t()) :: Keyword.t()
   def move_headers_to_headers_json(opts) do
     if opts[:headers] do
       headers_json =
@@ -63,7 +63,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @doc false
   # Normalizes the body into a truncated string
-  @spec normalize_body(any) :: String.t
+  @spec normalize_body(any) :: String.t()
   def normalize_body(nil = body), do: body
 
   def normalize_body("" = body), do: body
@@ -81,6 +81,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   def normalize_body(body) when is_binary(body) do
     limit = Config.http_body_size_limit()
+
     body
     |> Timber.Utils.Logger.truncate_bytes(limit)
     |> to_string()
@@ -88,7 +89,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @doc false
   # Normalizes HTTP headers into a structure expected by the Timber API.
-  @spec normalize_headers(Keyword.t | map) :: map
+  @spec normalize_headers(Keyword.t() | map) :: map
   def normalize_headers(headers) when is_list(headers) do
     headers
     |> List.flatten()
@@ -107,7 +108,7 @@ defmodule Timber.Utils.HTTPEvents do
 
   @doc false
   # Normalizes an individual header
-  @spec normalize_header({String.t, String.t}) :: {String.t, String.t}
+  @spec normalize_header({String.t(), String.t()}) :: {String.t(), String.t()}
 
   # Normalizes headers with multiple values in a comma delimited string as defined by the
   # HTTP spec RFC 2616
@@ -153,6 +154,7 @@ defmodule Timber.Utils.HTTPEvents do
   # Normalizes a URL into a Keyword.t that maps to our HTTP event fields.
   def normalize_url(url) when is_binary(url) do
     uri = URI.parse(url)
+
     [
       host: uri.authority,
       path: uri.path,

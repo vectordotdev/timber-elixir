@@ -25,7 +25,7 @@ defmodule Timber.Utils.Plug do
   it doesn't think the request ID is valid. See
   [request_id.ex](https://github.com/elixir-lang/plug/blob/v1.2.2/lib/plug/request_id.ex#L62).
   """
-  @spec get_request_id(Plug.Conn.t, String.t) :: [{String.t, String.t}] | []
+  @spec get_request_id(Plug.Conn.t(), String.t()) :: [{String.t(), String.t()}] | []
   def get_request_id(conn, header_name) do
     case Plug.Conn.get_req_header(conn, header_name) do
       [] -> Plug.Conn.get_resp_header(conn, header_name)
@@ -36,7 +36,7 @@ defmodule Timber.Utils.Plug do
 
   # Helper function to take the result of the header retrieval function
   # and change it to the desired response format for get_request_id/2
-  @spec handle_request_id([] | [String.t]) :: [{String.t, String.t}] | []
+  @spec handle_request_id([] | [String.t()]) :: [{String.t(), String.t()}] | []
   defp handle_request_id([]) do
     []
   end
@@ -45,7 +45,7 @@ defmodule Timber.Utils.Plug do
     [{"x-request-id", request_id}]
   end
 
-  @spec get_client_ip(Plug.Conn.t) :: String.t | nil
+  @spec get_client_ip(Plug.Conn.t()) :: String.t() | nil
   def get_client_ip(%{remote_ip: nil}) do
     nil
   end

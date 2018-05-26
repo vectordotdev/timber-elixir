@@ -111,8 +111,9 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     do: nil
 
   defp log_request(true, service_name, method, url, body, headers) do
-    Logger.debug fn ->
+    Logger.debug(fn ->
       body = if capture_bodies?(), do: body, else: nil
+
       event =
         HTTPRequestEvent.new(
           direction: "outgoing",
@@ -122,9 +123,10 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
           headers: headers,
           service_name: service_name
         )
+
       message = HTTPRequestEvent.message(event)
       {message, event: event}
-    end
+    end)
   end
 
   defp log_response(should_log, service_name, status, headers, timer, opts \\ [])
@@ -133,10 +135,11 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
     do: nil
 
   defp log_response(true, service_name, status, headers, timer, opts) do
-    Logger.debug fn ->
+    Logger.debug(fn ->
       time_ms = Timber.duration_ms(timer)
       body = Keyword.get(opts, :body)
       body = if capture_bodies?(), do: body, else: nil
+
       event =
         HTTPResponseEvent.new(
           direction: "incoming",
@@ -146,9 +149,10 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
           service_name: service_name,
           time_ms: time_ms
         )
+
       message = HTTPResponseEvent.message(event)
       {message, event: event}
-    end
+    end)
   end
 
   #
@@ -157,5 +161,7 @@ defmodule Timber.Integrations.ExAwsHTTPClient do
 
   defp config, do: Elixir.Application.get_env(:timber, __MODULE__, [])
   defp capture_bodies?, do: Keyword.get(config(), :capture_bodies, false)
-  defp http_methods_to_log, do: Keyword.get(config(), :http_methods_to_log, @http_methods_to_log_default)
+
+  defp http_methods_to_log,
+    do: Keyword.get(config(), :http_methods_to_log, @http_methods_to_log_default)
 end

@@ -7,11 +7,11 @@ defmodule Timber.Events.ChannelReceiveEvent do
   """
 
   @type t :: %__MODULE__{
-    channel: String.t,
-    topic: String.t,
-    event: String.t,
-    metadata_json: String.t | nil,
-  }
+          channel: String.t(),
+          topic: String.t(),
+          event: String.t(),
+          metadata_json: String.t() | nil
+        }
 
   @enforce_keys [:channel, :topic, :event]
   defstruct [
@@ -28,7 +28,7 @@ defmodule Timber.Events.ChannelReceiveEvent do
 
   * Converts `:params` to `:params_json` that satifies the Timber API requirements
   """
-  @spec new(Keyword.t) :: t
+  @spec new(Keyword.t()) :: t
   def new(opts) do
     metadata_json =
       case Keyword.get(opts, :metadata_json, nil) do
@@ -49,7 +49,7 @@ defmodule Timber.Events.ChannelReceiveEvent do
   @doc """
   Message to be used when logging.
   """
-  @spec message(t) :: IO.chardata
+  @spec message(t) :: IO.chardata()
   def message(%__MODULE__{channel: channel, topic: topic, event: event}) do
     ["Received ", to_string(event), " on \"", to_string(topic), "\" to ", to_string(channel)]
   end
