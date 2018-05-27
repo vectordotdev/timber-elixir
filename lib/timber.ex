@@ -11,19 +11,8 @@ defmodule Timber do
   alias Timber.LocalContext
   alias Timber.GlobalContext
 
-  @doc """
-  Adds Timber context to the current process
-
-  See `add_context/2`
-  """
-  @spec add_context(Context.element) :: :ok
-  def add_context(data, location \\ :local)
-
-  @doc """
-  Adds context which will be included on log entries
-
-  The second parameter indicates where you want the context to be
-  stored. The available options are:
+  @typedoc """
+  The target context to perform the operation.
 
     - `:global` - This stores the context at a global level, meaning
       it will be present on every log line, regardless of which process
@@ -31,13 +20,51 @@ defmodule Timber do
     - `:local` - This stores the context in the Logger Metadata which
       is local to the process
   """
-  @spec add_context(Context.element, :local | :global) :: :ok
+  @type context_location :: :local | :global
+
+  @doc """
+  Adds Timber context to the current process
+
+  See `add_context/2`
+  """
+  @spec add_context(Context.element()) :: :ok
+  def add_context(data, location \\ :local)
+
+  @doc """
+  Adds context which will be included on log entries
+
+  The second parameter indicates where you want the context to be
+  stored. See `context_location` for more details.
+  """
+  @spec add_context(Context.element(), context_location) :: :ok
   def add_context(data, :local) do
     LocalContext.add(data)
   end
 
   def add_context(data, :global) do
     GlobalContext.add(data)
+  end
+
+  @doc """
+  Removes a key from Timber context on the current process.
+
+  See `remove_context_key/2`
+  """
+  @spec remove_context_key(atom) :: :ok
+  def remove_context_key(key, location \\ :local)
+
+  @doc """
+  Removes a context key.
+
+  The second parameter indicates which context you want the key to be removed from.
+  """
+  @spec remove_context_key(atom, context_location) :: :ok
+  def remove_context_key(key, :local) do
+    LocalContext.remove_key(key)
+  end
+
+  def remove_context_key(key, :global) do
+    GlobalContext.remove_key(key)
   end
 
   @doc """
@@ -69,7 +96,7 @@ defmodule Timber do
 
   @doc false
   def debug(nil, _message_fun) do
-     false
+    false
   end
 
   def debug(io_device, message_fun) when is_function(message_fun) do

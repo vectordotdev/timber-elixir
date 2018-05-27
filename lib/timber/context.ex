@@ -119,6 +119,14 @@ defmodule Timber.Context do
     first_context
   end
 
+  @doc """
+  Removes a key from the provided context structure.
+  """
+  @spec remove_key(t, atom) :: t
+  def remove_key(context, key) do
+    Map.delete(context, key)
+  end
+
   # Converts a context_element into a map the Timber API expects.
   @spec to_api_map(element) :: map
   defp to_api_map(%Contexts.CustomContext{type: type, data: data}) do
