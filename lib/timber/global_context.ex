@@ -16,7 +16,7 @@ defmodule Timber.GlobalContext do
   @doc """
   Merges the provided context into the existing context
   """
-  @spec add(Context.element) :: :ok
+  @spec add(Context.element()) :: :ok
   def add(context) do
     load()
     |> Context.add(context)
@@ -29,7 +29,7 @@ defmodule Timber.GlobalContext do
   This function is provided as a convenience to see the current global
   context.
   """
-  @spec get() :: Context.t
+  @spec get() :: Context.t()
   def get() do
     load()
   end
@@ -37,19 +37,29 @@ defmodule Timber.GlobalContext do
   @doc """
   Sets the global context, overriding any existing context
   """
-  @spec put(Context.t) :: :ok
+  @spec put(Context.t()) :: :ok
   def put(context) do
     save(context)
   end
 
   @doc false
-  @spec load() :: Context.t
+  @spec load() :: Context.t()
   def load() do
     Application.get_env(:timber, :global_context, Context.new())
   end
 
+  @doc """
+  Removes the key from the existing context.
+  """
+  @spec remove_key(atom) :: :ok
+  def remove_key(key) do
+    load()
+    |> Context.remove_key(key)
+    |> save()
+  end
+
   @doc false
-  @spec save(Context.t) :: :ok
+  @spec save(Context.t()) :: :ok
   def save(context) do
     Application.put_env(:timber, :global_context, context)
   end

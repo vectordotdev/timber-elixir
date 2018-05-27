@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
   - Add support for inline context via the `:context` `Logger` metadata key.
+  - Add `Timber.remove_context_key` for removing an individual keys off of context structures.
 
 ## [2.8.0] - 2018-04-16
 
