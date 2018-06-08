@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.8.1] - 2018-06-07
+
 ### Added
 
   - Add support for inline context via the `:context` `Logger` metadata key.
   - Add `Timber.remove_context_key` for removing an individual keys off of context structures.
+
+### Changed
+
+  - Relax the `:plug` dependency to allow for more plug versions.
 
 ## [2.8.0] - 2018-04-16
 
@@ -122,7 +128,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.0...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.1...HEAD
+[2.8.1]: https://github.com/timberio/timber-elixir/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/timberio/timber-elixir/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/timberio/timber-elixir/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/timberio/timber-elixir/compare/v2.6.0...v2.6.1
