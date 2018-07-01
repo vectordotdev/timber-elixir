@@ -163,7 +163,7 @@ defmodule Timber.Mixfile do
       # versions below are _not_ guaranteed to be bug-free, they are
       # accepted by the community as stable.
       {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
-      {:msgpax, "~> 1.0"},
+      {:msgpax, "~> 1.0 or ~> 2.0"},
       {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"},
 
       #
