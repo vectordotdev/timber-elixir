@@ -39,6 +39,10 @@ defmodule Timber.Event do
   end
 
   def to_api_map(%Events.CustomEvent{type: type, data: data}) do
+    if !is_map(data) do
+      raise ArgumentError, message: "Custom Event data must be a map"
+    end
+
     data = normalize_data(data)
     %{custom: %{type => data}}
   end
@@ -60,7 +64,7 @@ defmodule Timber.Event do
     %{type => map}
   end
 
-  defp normalize_data(data) do
+  defp normalize_data(data) when is_map(data) do
     data
     |> UtilsMap.deep_from_struct()
     |> UtilsMap.recursively_drop_blanks()

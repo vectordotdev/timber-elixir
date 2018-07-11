@@ -135,6 +135,14 @@ defmodule Timber.Events.LogEntryTest do
                []
              ]
     end
+
+    test "encodes raises ArgumentError when event is not a map" do
+      entry = LogEntry.new(get_time(), :info, "message", event: %{type: 1})
+
+      assert_raise ArgumentError, fn ->
+        LogEntry.encode_to_iodata!(entry, :json)
+      end
+    end
   end
 
   defp get_vm_pid do
