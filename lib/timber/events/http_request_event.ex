@@ -106,6 +106,11 @@ defmodule Timber.Events.HTTPRequestEvent do
       else: message
   end
 
-  def message(%__MODULE__{} = event),
-    do: ["Received ", event.method, " ", event.path]
+  def message(%__MODULE__{} = event) do
+    if(event.path) do
+      ["Received ", event.method, " ", event.path]
+    else
+      ["Received ", event.method]
+    end
+  end
 end
