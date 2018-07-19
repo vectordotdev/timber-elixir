@@ -111,11 +111,7 @@ defmodule Timber.LogEntry do
     fun = Keyword.get(metadata, :function)
     file = Keyword.get(metadata, :file)
     line = Keyword.get(metadata, :line)
-
-    vm_pid =
-      Keyword.get(metadata, :pid, self())
-      |> :erlang.pid_to_list()
-      |> :erlang.iolist_to_binary()
+    vm_pid = vm_pid_from_metadata(metadata)
 
     runtime_context = %RuntimeContext{
       application: application,
@@ -240,5 +236,18 @@ defmodule Timber.LogEntry do
       end
 
     [context, event, meta]
+  end
+
+  defp vm_pid_from_metadata(metadata) do
+    vm_pid = Keyword.get(metadata, :pid, self())
+
+    case vm_pid do
+      vm_pid when is_pid(vm_pid) ->
+        vm_pid
+        |> :erlang.pid_to_list()
+        |> :erlang.iolist_to_binary()
+      vm_pid ->
+        to_string(vm_pid)
+    end
   end
 end
