@@ -1,10 +1,5 @@
 use Mix.Config
 
-config :sasl, :sasl_error_logger, false
-
-config :logger, level: :info,
-  handle_otp_reports: false
-
 config :timber,
   api_key: "api_key",
   capture_errors: true
