@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+  - Cache system hostname
+
 ## [2.8.2] - 2018-07-01
 
 ### Changed
