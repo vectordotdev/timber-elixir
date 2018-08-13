@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-  - Cache system hostname
+## [2.8.3] - 2018-08-13
+
+### Changed
+
+  - The system hostname is now cached after it is fetched the first time.
+    Previously, the hostname was fetched every time a log line was formatted for
+    output (whether by formatting occured in the console formatter or during
+    HTTP transport). This reduces the overhead caused by fetching the hostname.
 
 ## [2.8.2] - 2018-07-01
 
@@ -136,7 +143,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.1...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.3...HEAD
+[2.8.3]: https://github.com/timberio/timber-elixir/compare/v2.8.2...v2.8.3
+[2.8.2]: https://github.com/timberio/timber-elixir/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/timberio/timber-elixir/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/timberio/timber-elixir/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/timberio/timber-elixir/compare/v2.6.1...v2.7.0
