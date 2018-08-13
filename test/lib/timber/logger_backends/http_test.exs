@@ -6,7 +6,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
   alias Timber.LoggerBackends.HTTP
 
   setup do
-    {:ok, state} = HTTP.init(HTTP, http_client: FakeHTTPClient)
+    {:ok, state} = HTTP.init(HTTP, http_client: FakeHTTPClient, flush_interval: 0)
 
     {:ok, state: state}
   end
@@ -26,7 +26,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       end)
 
       HTTP.init(HTTP)
-      assert_receive(:outlet, 1100)
+      assert_receive(:outlet)
     end
   end
 
@@ -149,7 +149,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
       assert length(new_state.buffer) == 0
-      assert_receive(:outlet, 1100)
+      assert_receive(:outlet)
     end
 
     test "handles successful status response message from Hackney for ongoing request", %{
