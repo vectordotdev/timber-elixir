@@ -86,7 +86,7 @@ defmodule Mix.Tasks.Timber.Install do
 
       e ->
         message = Exception.message(e)
-        stacktrace = Exception.format_stacktrace(System.stacktrace())
+        stacktrace = Exception.format_stacktrace(__STACKTRACE__)
 
         """
 
