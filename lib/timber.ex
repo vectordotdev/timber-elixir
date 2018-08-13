@@ -125,6 +125,8 @@ defmodule Timber do
       :error_logger.delete_report_handler(:error_logger_tty_h)
     end
 
+    Timber.Cache.init()
+
     opts = [strategy: :one_for_one, name: Timber.Supervisor]
     Supervisor.start_link(children, opts)
   end
