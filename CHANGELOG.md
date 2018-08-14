@@ -153,7 +153,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     `Timber.Integrations.PhoenixInstrumenter`. This will suppress log lines
     from being written for any controller/action pair.
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.3...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.8.3...v2.x
+[2.8.4]: https://github.com/timberio/timber-elixir/compare/v2.8.3...v2.8.4
 [2.8.3]: https://github.com/timberio/timber-elixir/compare/v2.8.2...v2.8.3
 [2.8.2]: https://github.com/timberio/timber-elixir/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/timberio/timber-elixir/compare/v2.8.0...v2.8.1
