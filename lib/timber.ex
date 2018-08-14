@@ -121,10 +121,6 @@ defmodule Timber do
 
     children = []
 
-    if Timber.Config.disable_tty?() do
-      :error_logger.delete_report_handler(:error_logger_tty_h)
-    end
-
     Timber.Cache.init()
 
     opts = [strategy: :one_for_one, name: Timber.Supervisor]

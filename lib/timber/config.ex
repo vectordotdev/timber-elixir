@@ -130,9 +130,4 @@ defmodule Timber.Config do
   def phoenix_instrumentation_level(default) do
     Application.get_env(@application, :instrumentation_level, default)
   end
-
-  def capture_errors?, do: Application.get_env(@application, :capture_errors, false)
-
-  def disable_tty?,
-    do: Application.get_env(@application, :disable_kernel_error_tty, capture_errors?())
 end

@@ -1,4 +1,4 @@
-defmodule Timber.Integrations.ErrorLoggerTest do
+defmodule Timber.Integrations.TranslatorTest do
   use Timber.TestCase
   import Timber.TestHelpers
   alias Timber.FakeHTTPClient
@@ -6,10 +6,10 @@ defmodule Timber.Integrations.ErrorLoggerTest do
   alias Timber.Events.ErrorEvent
 
   defp add_timber_error_logger() do
-    :ok = :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
+    :ok = Logger.add_translator({Timber.Integrations.Translator, :translate})
 
     ExUnit.Callbacks.on_exit(fn ->
-      :error_logger.delete_report_handler(Timber.Integrations.ErrorLogger)
+      Logger.remove_translator({Timber.Integrations.Translator, :translate})
     end)
   end
 
@@ -193,7 +193,7 @@ defmodule Timber.Integrations.ErrorLoggerTest do
     assert %ErrorEvent{
              backtrace: [
                %{
-                 file: "test/lib/timber/integrations/error_logger_test.exs",
+                 file: "test/lib/timber/integrations/translator_test.exs",
                  function: _,
                  line: _
                }
