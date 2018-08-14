@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.8.4] - 2018-08-14
+
+### Fixed
+
+  - The hostname caching released in v2.8.3 had the potential to crash the
+    Logger if an application was started between `:logger` and `:timber` _and_
+    made Logger calls. This was because the ETS table holding the cache had not
+    been started by Timber yet. To fix this, the hostname is now cached in the
+    application environment which is guaranteed to be available by that point.
+
 ## [2.8.3] - 2018-08-13
 
 ### Changed
