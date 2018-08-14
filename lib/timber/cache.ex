@@ -3,14 +3,11 @@ defmodule Timber.Cache do
   This module is responsible for caching values that are
   expensive to get or compute.
   """
-  @table_name :timber_cache
 
   @doc """
   Creates the ets table and inserts initial values.
   """
   def init do
-    :ets.new(@table_name, [:named_table, :set, :public, read_concurrency: true])
-
     update_hostname()
     :ok
   end
@@ -19,17 +16,14 @@ defmodule Timber.Cache do
   Fetches the cached system hostname.
   """
   def hostname do
-    case :ets.lookup(@table_name, :hostname) do
-      [{:hostname, hostname}] -> hostname
-      _ -> nil
-    end
+    Application.get_env(:timber, :hostname)
   end
 
   @doc """
   Updates the cached system hostname from inets
   """
   def update_hostname do
-    :ets.insert(@table_name, {:hostname, inet_hostname()})
+    Application.put_env(:timber, :hostname, inet_hostname())
   end
 
   defp inet_hostname do
