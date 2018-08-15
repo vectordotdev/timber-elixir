@@ -17,7 +17,7 @@ you more productive.
 2. [**Usage** - Simple yet powerful API](#usage)
 3. [**Integrations** - Automatic context and metadata for your existing logs](#integrations)
 4. [**The Timber Console** - Designed for Elixir developers](#the-timber-console)
-5. [**Get things done with your logs 💪**](#get-things-done-with-your-logs)
+5. [**Get things done with your logs**](#get-things-done-with-your-logs)
 
 
 ## Installation
@@ -32,21 +32,22 @@ you more productive.
     end
 
     def deps do
-      [{:timber, "~> 2.7"}]
+      [{:timber, "~> 3.0-dev"}]
     end
     ```
 
-2. In your `shell`, run `mix deps.get && mix timber.install`.
+2. In your shell, run `mix deps.get && mix timber.install`.
 
 
 ## Usage
 
-<details><summary><strong>Basic text logging</strong></summary><p>
+### Basic text logging
 
 The Timber library works directly with the standard Elixir
 [Logger](https://hexdocs.pm/logger/Logger.html) and installs itself as a
-[backend](https://hexdocs.pm/logger/Logger.html#module-backends) during the setup process.
-In this way, basic logging is no different than logging without Timber:
+[backend](https://hexdocs.pm/logger/Logger.html#module-backends) during the
+setup process. In this way, basic logging is no different than logging without
+Timber:
 
 ```elixir
 Logger.debug("My log statement")
@@ -61,12 +62,7 @@ Logger.error("My log statement")
 
 [...read more in our docs](https://timber.io/docs/languages/elixir/usage/basic-logging)
 
-
----
-
-</p></details>
-
-<details><summary><strong>Logging events (structured data)</strong></summary><p>
+### Logging events (structured data)
 
 Log structured data without sacrificing readability:
 
@@ -81,11 +77,7 @@ Logger.info("Payment rejected", event: %{payment_rejected: event_data})
 
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/custom-events)
 
----
-
-</p></details>
-
-<details><summary><strong>Setting context</strong></summary><p>
+### Setting context
 
 Add shared structured data across your logs:
 
@@ -99,14 +91,9 @@ Logger.info("My log message")
 
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/custom-context)
 
----
-
-</p></details>
-
-
 ### Pro-tips 💪
 
-<details><summary><strong>Timings & Metrics</strong></summary><p>
+Timings & Metrics
 
 Time code blocks:
 
@@ -128,15 +115,12 @@ Logger.info("Processed background job", event: %{background_job: %{time_ms: 45.6
 
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/metrics-and-timings)
 
----
+### Tracking background jobs
 
-</p></details>
-
-<details><summary><strong>Tracking background jobs</strong></summary><p>
-
-*Note: This tip refers to traditional background jobs backed by a queue. For native Elixir
-processes we capture the `context.runtime.vm_pid` automatically. Calls like `spawn/1` and
-`Task.async/1` will automatially have their `pid` included in the context.*
+*Note: This tip refers to traditional background jobs backed by a queue. For
+native Elixir processes we capture the `context.runtime.vm_pid` automatically.
+Calls like `spawn/1` and `Task.async/1` will automatially have their `pid`
+included in the context.*
 
 For traditional background jobs backed by a queue you'll want to capture relevant
 job context. This allows you to segement logs by specific jobs, making it easy to debug and
@@ -157,11 +141,7 @@ Logger.info("Background job execution completed")
 
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/tracking-background-jobs)
 
----
-
-</p></details>
-
-<details><summary><strong>Track communication with external services</strong></summary><p>
+### Track communication with external services
 
 We use this trick internally at Timber to track communication with external services.
 It logs requests and responses to external services, giving us insight into response times and
@@ -211,11 +191,7 @@ with [`Timber.Config.http_body_size_limit/0`](https://hexdocs.pm/timber/Timber.C
 
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/track-external-service-communication)
 
----
-
-</p></details>
-
-<details><summary><strong>Adding metadata to errors</strong></summary><p>
+### Adding metadata to errors
 
 By default, Timber will capture and structure all of your errors and exceptions, there
 is nothing additional you need to do. You'll get the exception `message`, `name`, and `backtrace`.
@@ -240,13 +216,7 @@ raise(
 * [Alert on it](https://timber.io/docs/app/console/alerts) with threshold based alerts
 * [View this log's metadata in the console](https://timber.io/docs/app/console/view-metadata-and-context)
 
-...[read more in our docs](https://timber.io/docs/languages/elixir/usage/adding-metadata-to-errors)
-
----
-
-</p></details>
-
-<details><summary><strong>Sharing context between processes</strong></summary><p>
+### Sharing context between processes
 
 The `Timber.Context` is local to each process, this is by design as it prevents processes from
 conflicting with each other as they maintain their contexts. But many times you'll want to share
@@ -273,23 +243,18 @@ variable scope is lexical, you can pass the referenced context into the newly cr
 ...[read more in our docs](https://timber.io/docs/languages/elixir/usage/sharing-context-between-processes)
 
 
----
-
-</p></details>
-
-
 ## Configuration
 
 Below are a few popular configuration options, for a comprehensive list see [Timber.Config](https://hexdocs.pm/timber/Timber.Config.html#content).
 
-<details><summary><strong>Capture user context</strong></summary><p>
+### Capture user context
 
 Capturing `user context` is a powerful feature that allows you to associate logs with users in
 your application. This is great for support as you can
 [quickly narrow logs to a specific user](https://timber.io/docs/app/console/tail-a-user), making
 it easy to identify user reported issues.
 
-### How to use it
+#### How to use it
 
 Simply add the `UserContext` immediately after you authenticate the user:
 
@@ -300,42 +265,22 @@ Simply add the `UserContext` immediately after you authenticate the user:
 
 All of the `UserContext` attributes are optional, but at least one much be supplied.
 
-</p></details>
-
-<details><summary><strong>Only log slow Ecto SQL queries</strong></summary><p>
-
-Logging SQL queries can be useful but noisy. To reduce the volume of SQL queries you can
-limit your logging to queries that surpass an execution time threshold:
-
-### How to use it
-
-```elixir
-config :timber, Timber.Integrations.EctoLogger,
-  query_time_ms_threshold: 2_000 # 2 seconds
-```
-
-In the above example, only queries that exceed 2 seconds in execution
-time will be logged.
-
-</p></details>
-
 
 ## Integrations
 
-Timber integrates with popular frameworks and libraries to capture context and metadata you
-couldn't otherwise. This automatically upgrades logs produced by these libraries, making them
-[easier to search and use](#do-amazing-things-with-your-logs). Below is a list of libraries we
-support:
+Timber provides integrations with popular libraries to easily capture context
+and metadata. This automatically upgrades logs produced by these libraries,
+making them [easier to search and use](#do-amazing-things-with-your-logs).
 
 * Frameworks & Libraries
-  * [**Phoenix**](https://timber.io/docs/languages/elixir/integrations/phoenix)
-  * [**Ecto**](https://timber.io/docs/languages/elixir/integrations/ecto)
-  * [**Plug**](https://timber.io/docs/languages/elixir/integrations/plug)
+  * [**Phoenix**](https://timber.io/docs/languages/elixir/integrations/phoenix) via [Timber Phoenix](https://hex.pm/packages/timber_phoenix)
+  * [**Ecto**](https://timber.io/docs/languages/elixir/integrations/ecto) via [Timber Ecto](https://hex.pm/packages/timber_ecto)
+  * [**Plug**](https://timber.io/docs/languages/elixir/integrations/plug) via [Timber Plug](https://hex.pm/packages/timber_plug)
 * Platforms
+  * **Exceptions** via [Timber Exceptions](https://hex.pm/packages/timber_excptions)
   * [**System / Server**](https://timber.io/docs/languages/elixir/integrations/system)
 
 ...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
-
 
 ## Get things done with your logs
 
@@ -349,16 +294,8 @@ Logging features every developer needs:
 
 ...and more! Checkout our [the Timber application docs](https://timber.io/docs/app)
 
-
 ## The Timber Console
 
 [![Timber Console](http://files.timber.io/images/readme-interface7.gif)](https://app.timber.io)
 
 [Learn more about our app.](https://timber.io/docs/app)
-
-
-## Your Moment of Zen
-
-<p align="center" style="background: #221f40;">
-<a href="https://timber.io"><img src="http://files.timber.io/images/readme-log-truth.png" height="947" /></a>
-</p>

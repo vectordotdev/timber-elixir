@@ -1,6 +1,7 @@
 ---
 language: elixir
 elixir:
+  - 1.7.2
   - 1.6.6
   - 1.5
   - 1.4
@@ -10,10 +11,6 @@ otp_release:
   - 20.3
   - 19.3
   - 18.3
-env:
-  matrix:
-    - NO_THIRD_PARTY_INTEGRATION_TEST=true
-    - NO_THIRD_PARTY_INTEGRATION_TEST=false
 
 matrix:
   exclude:

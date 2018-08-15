@@ -9,7 +9,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "2.8.3"
+  @version "3.0.0-alpha.1"
 
   # Project manifest for Mix
   #
@@ -51,21 +51,11 @@ defmodule Timber.Mixfile do
   # and are not distributed with the package.
   def application do
     [
-      mod: {Timber, []},
+      mod: {Timber.Application, []},
       env: env(),
-      applications: apps(Mix.env())
+      applications: [:logger, :poison, :msgpax, :hackney]
     ]
   end
-
-  # List of applications to be loaded for the specified
-  # Mix environment.
-  defp apps(:test), do: apps()
-  defp apps(:dev), do: apps()
-  defp apps(_), do: apps()
-
-  # Default list of applications to be loaded regardless
-  # of Mix environment
-  defp apps(), do: [:logger, :poison, :msgpax, :hackney]
 
   # The environment to be configured by default
   defp env() do
@@ -154,11 +144,7 @@ defmodule Timber.Mixfile do
   #   - End all declarations in `,` so that they can easily be re-arranged
   #     and sorted
   defp deps() do
-    deps = [
-      #
-      # Direct dependencies
-      #
-
+    [
       # Hackney is pinned to known "safe" versions. While the pinned
       # versions below are _not_ guaranteed to be bug-free, they are
       # accepted by the community as stable.
@@ -170,35 +156,11 @@ defmodule Timber.Mixfile do
       # Tooling
       #
 
-      {:credo, "~> 0.4", only: [:dev, :test]},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 1.2", only: [:dev, :docs]},
-      {:ex_doc, "~> 0.15", only: [:dev, :docs]},
-      {:excoveralls, "~> 0.5", only: [:test]}
+      {:credo, "~> 0.10", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:earmark, "~> 1.2", only: [:dev]},
+      {:ex_doc, "~> 0.18.0", only: [:dev]},
+      {:excoveralls, "~> 0.5", only: [:dev, :test]}
     ]
-
-    direct_deps = [
-      #
-      # Third-party integrations
-      #
-
-      # Note to users: we specify versions below for the third-party
-      # libraries we integrate in order to provide some guarantee about
-      # code-path compatability. If you must over-ride a dependency's
-      # version requirement, you may run into an issue where code fails.
-
-      # We support Ecto after 2.0.0 but before 2.3.0
-      {:ecto, ">= 2.0.0 and < 2.3.0", optional: true},
-      # We support Phoenix after 1.2.0 but before 1.4.0
-      {:phoenix, ">= 1.2.0 and < 1.4.0", optional: true},
-      # We support Plug after 1.2.0 but before 1.6.0
-      {:plug, "~> 1.2", optional: true}
-    ]
-
-    if System.get_env("NO_THIRD_PARTY_INTEGRATION_TEST") == "true" do
-      deps
-    else
-      direct_deps ++ deps
-    end
   end
 end

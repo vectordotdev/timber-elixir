@@ -243,6 +243,7 @@ defmodule Timber.LogEntry do
         vm_pid
         |> :erlang.pid_to_list()
         |> :erlang.iolist_to_binary()
+
       vm_pid ->
         to_string(vm_pid)
     end
