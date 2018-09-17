@@ -24,7 +24,7 @@ defmodule Timber.Mixfile do
       app: :timber,
       name: "Timber",
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: @project_description,
       source_url: @source_url,
@@ -53,7 +53,7 @@ defmodule Timber.Mixfile do
     [
       mod: {Timber.Application, []},
       env: env(),
-      applications: [:logger, :poison, :msgpax, :hackney]
+      extra_applications: [:logger]
     ]
   end
 
