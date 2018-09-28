@@ -125,6 +125,39 @@ defmodule Timber.Mixfile do
       extras: [
         "README.md": [title: "README"],
         "LICENSE.md": [title: "LICENSE"]
+      ],
+      groups_for_modules: doc_groups_for_modules()
+    ]
+  end
+
+  defp doc_groups_for_modules() do
+    [
+      Contexts: [
+        Timber.Context,
+        Timber.Contextable,
+        Timber.Contexts.CustomContext,
+        Timber.Contexts.HTTPContext,
+        Timber.Contexts.JobContext,
+        Timber.Contexts.OrganizationContext,
+        Timber.Contexts.RuntimeContext,
+        Timber.Contexts.SessionContext,
+        Timber.Contexts.SystemContext,
+        Timber.Contexts.UserContext
+      ],
+      Events: [
+        Timber.Eventable,
+        Timber.Events.ChannelJoinEvent,
+        Timber.Events.ChannelReceiveEvent,
+        Timber.Events.ControllerCallEvent,
+        Timber.Events.CustomEvent,
+        Timber.Events.ErrorEvent,
+        Timber.Events.HTTPRequestEvent,
+        Timber.Events.HTTPResponseEvent,
+        Timber.Events.SQLQueryEvent,
+        Timber.Events.TemplateRenderEvent
+      ],
+      "Logger Backends": [
+        Timber.LoggerBackends.HTTP
       ]
     ]
   end

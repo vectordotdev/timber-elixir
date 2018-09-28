@@ -1,12 +1,11 @@
 defmodule Timber.LocalContext do
-  @moduledoc """
-  Manages Timber context through the `Elixir.Logger` metadata
+  @moduledoc false
+  # Manages Timber context through the `Elixir.Logger` metadata
 
-  This module stores context in the `Elixir.Logger` metadata, so any context is
-  specific to the process.
+  # This module stores context in the `Elixir.Logger` metadata, so any context is
+  # specific to the process.
 
-  For more details about the context data structure, see `Timber.Context`.
-  """
+  # For more details about the context data structure, see `Timber.Context`.
 
   alias Timber.Context
 

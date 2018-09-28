@@ -1,4 +1,6 @@
 defmodule Timber.Application do
+  @moduledoc false
+
   use Application
 
   @doc false

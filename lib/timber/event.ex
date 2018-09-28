@@ -1,7 +1,5 @@
 defmodule Timber.Event do
-  @moduledoc """
-  A common interface for working with structures in the `Timber.Events` namespace.
-  """
+  @moduledoc false
 
   alias Timber.Events
   alias Timber.Utils.Map, as: UtilsMap

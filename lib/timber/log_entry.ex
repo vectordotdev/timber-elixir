@@ -1,10 +1,10 @@
 defmodule Timber.LogEntry do
-  @moduledoc """
-  The LogEntry module formalizes the structure of every log entry as defined by Timber's
-  log event JSON schema: https://github.com/timberio/log-event-json-schema. The ensures log
-  lines adhere to a normalized and consistent structure providing for predictability and
-  reliability for downstream consumers of this log data.
-  """
+  @moduledoc false
+  # The LogEntry module formalizes the structure of every log entry as defined
+  # by Timber's log event JSON schema:
+  # https://github.com/timberio/log-event-json-schema. The ensures log lines
+  # adhere to a normalized and consistent structure providing for predictability
+  # and reliability for downstream consumers of this log data.
 
   alias Timber.Config
   alias Timber.Context

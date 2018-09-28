@@ -1,10 +1,9 @@
 defmodule Timber.GlobalContext do
-  @moduledoc """
-  Manages a globally available Timber Context
+  @moduledoc false
+  # Manages a globally available Timber Context
 
-  This module stores context in Timber's OTP application configuration
-  in order to support global writing and reading with high-throughput.
-  """
+  # This module stores context in Timber's OTP application configuration
+  # in order to support global writing and reading with high-throughput.
 
   # The global context is set and maintained in the OTP application configuration
   # under the :global_context key for ease-of-use. The API in this module does
