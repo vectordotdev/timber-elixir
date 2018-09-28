@@ -18,6 +18,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   - Removed integration with Ecto; use the [`:timber_ecto`](https://hex.pm/packages/timber_ecto) package instead
   - Removed integration with ExAws
   - Removed integration with `:error_logger`; use the [`:timber_exceptions`](https://hex.pm/packages/timber_exceptions) package instead
-
+  - Removed the installer (`mix timber.install`); manual installation is now expected
+  - Removed the test event Mix task
 
 [Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.x...HEAD

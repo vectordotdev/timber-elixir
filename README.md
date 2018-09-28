@@ -13,7 +13,7 @@ making them [easier to search, use, and read](#get-things-done-with-your-logs). 
 [Timber console](#the-timber-console) to deliver a tailored Elixir logging experience designed to make
 you more productive.
 
-1. [**Installation** - One command: `mix timber.install`](#installation)
+1. [**Installation**](#installation)
 2. [**Usage** - Simple yet powerful API](#usage)
 3. [**Integrations** - Automatic context and metadata for your existing logs](#integrations)
 4. [**The Timber Console** - Designed for Elixir developers](#the-timber-console)
@@ -25,19 +25,40 @@ you more productive.
 1. Add `timber` as a dependency in `mix.exs`:
 
     ```elixir
-    # Mix.exs
-
-    def application do
-      [applications: [:timber]]
-    end
-
     def deps do
-      [{:timber, "~> 3.0-dev"}]
+      [
+        {:timber, "~> 3.0.0-alpha.1"},
+        # ...
+      ]
     end
     ```
 
-2. In your shell, run `mix deps.get && mix timber.install`.
+2. In your shell, run `mix deps.get`.
 
+3. Now, add the appropriate Mix configuration.
+
+  - To send your logs over HTTP (recommended and simplest), follow this example:
+
+    ```elixir
+    config :logger,
+      backends: [Timber.LoggerBackends.HTTP],
+      utc_log: true
+
+    config :timber,
+      api_key: "TimberAPIKey"
+    ```
+
+  - Alternatively, if you'd like logs to be printed out to `STDOUT`, follow this example:
+
+    ```elixir
+    config :logger,
+      backends: [:console],
+      utc_log: true
+
+    config :logger, :console,
+      format: {Timber.Formatter, :format},
+      metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
+    ```
 
 ## Usage
 
