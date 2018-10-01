@@ -1,12 +1,4 @@
 defmodule Timber.TestHelpers do
-  def parse_log_line(line) do
-    IO.puts("Splitting #{line}")
-    split_string = String.split(line, "@metadata")
-    [message, metadata] = split_string
-    metadata_map = Poison.decode!(metadata)
-    {message, metadata_map}
-  end
-
   def event_entry_to_log_entry({level, _, {Logger, message, ts, metadata}}) do
     Timber.LogEntry.new(ts, level, message, metadata)
   end
