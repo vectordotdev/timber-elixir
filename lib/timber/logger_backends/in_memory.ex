@@ -1,32 +1,24 @@
-defmodule Timber.TestLoggerBackend do
+defmodule Timber.LoggerBackends.InMemory do
   @moduledoc """
-  A module that implements a custom `Logger` backend for use in testing.
-  This module can be used to verify events sent with `Logger`.
+  Logger backend for testing only
 
-  Due to the asynchronous nature of `Logger`, a pid can be
-  configured, and the backend will send an `:ok` to the configured pid when
-  it receives an event.
+  This implement a custom `Logger` backend for integration testing when
+  implementing code dependent on the Timber library. This module can be used to
+  verify events sent with `Logger`.
 
-  `Timber.TestHelpers.add_test_logger_backend/1` is available to handle most
-  of the boilerplate set up and teardown.
-
-  Example:
-      test "my test" do
-        Timber.TestHelpers.add_test_logger_backend(self())
-
-        Logger.error("hello")
-        assert_receive :ok
-        [{:error, _pid, {Logger, _msg, _ts, metadata}}] = :gen_event.call(Logger, Timber.TestLoggerBackend, :get)
-
-        refute is_nil(Keyword.get(metadata, :pid))
-      end
+  To account for the asynchronous nature of `Logger`, a process ID can be
+  registered with the backend. When an event is received, the message `:ok` will
+  be sent to the corresponding process.
   """
+
   @behaviour :gen_event
 
+  @doc false
   def init(_) do
     {:ok, %{events: []}}
   end
 
+  @doc false
   def handle_call(:get, %{events: events} = state) do
     {:ok, events, state}
   end
@@ -36,6 +28,7 @@ defmodule Timber.TestLoggerBackend do
     {:ok, :ok, Map.put(state, :callback_pid, callback_pid)}
   end
 
+  @doc false
   def handle_event(
         {_level, _gl, {Logger, _msg, _ts, _md}} = event,
         %{events: events, callback_pid: pid} = state
@@ -48,14 +41,17 @@ defmodule Timber.TestLoggerBackend do
     {:ok, state}
   end
 
+  @doc false
   def handle_info(_, state) do
     {:ok, state}
   end
 
+  @doc false
   def code_change(_old, state, _extra) do
     {:ok, state}
   end
 
+  @doc false
   def terminate(_reason, _state) do
     :ok
   end
