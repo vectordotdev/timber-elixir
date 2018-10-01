@@ -2,7 +2,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
   use Timber.TestCase
   import Timber.TestHelpers, only: [event_entry_to_log_entry: 1, event_entry_to_msgpack: 1]
 
-  alias Timber.FakeHTTPClient
+  alias Timber.HTTPClients.Fake, as: FakeHTTPClient
   alias Timber.LoggerBackends.HTTP
 
   setup do
