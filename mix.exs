@@ -9,7 +9,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "3.0.0-alpha.1"
+  @version "3.0.0-alpha.2"
 
   # Project manifest for Mix
   #
