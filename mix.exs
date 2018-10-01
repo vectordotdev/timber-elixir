@@ -158,6 +158,10 @@ defmodule Timber.Mixfile do
       ],
       "Logger Backends": [
         Timber.LoggerBackends.HTTP
+      ],
+      "Test Helpers": [
+        Timber.HTTPClients.Fake,
+        Timber.LoggerBackends.InMemory
       ]
     ]
   end
