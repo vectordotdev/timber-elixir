@@ -187,7 +187,7 @@ defmodule Timber.Mixfile do
       # accepted by the community as stable.
       {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
       {:jason, "~> 1.1"},
-      {:msgpax, "~> 1.0 or ~> 2.0"},
+      {:msgpax, "~> 2.0"},
 
       #
       # Tooling

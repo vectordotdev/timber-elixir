@@ -14,6 +14,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
   - [Jason](https://hex.pm/packages/jason) is now used for JSON encoding. The
     JSON library can no longer be injected via configuration.
+  - [`msgpax`](https://hex.pm/packages/msgpax) 1.x is no longer supported
 
 ### Removed
 
