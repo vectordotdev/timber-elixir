@@ -101,23 +101,4 @@ defmodule Timber.Config do
   def use_nanosecond_timestamps? do
     Application.get_env(@application, :nanosecond_timestamps, true)
   end
-
-  @doc """
-  Specify the log level that phoenix log lines write to. Such as template renders.
-
-  # Example
-
-  ```elixir
-  config :timber, :instrumentation_level, :info
-  ```
-  """
-  @spec phoenix_instrumentation_level(atom) :: atom
-  def phoenix_instrumentation_level(default) do
-    Application.get_env(@application, :instrumentation_level, default)
-  end
-
-  def capture_errors?, do: Application.get_env(@application, :capture_errors, false)
-
-  def disable_tty?,
-    do: Application.get_env(@application, :disable_kernel_error_tty, capture_errors?())
 end
