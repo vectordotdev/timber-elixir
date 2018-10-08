@@ -10,6 +10,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+  - [Jason](https://hex.pm/packages/jason) is now used for JSON encoding. The
+    JSON library can no longer be injected via configuration.
+
 ### Removed
 
   - Removed support for Elixir 1.3 and lower

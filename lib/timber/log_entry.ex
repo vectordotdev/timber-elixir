@@ -14,7 +14,6 @@ defmodule Timber.LogEntry do
   alias Timber.LocalContext
   alias Timber.Event
   alias Timber.Eventable
-  alias Timber.Utils.JSON
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
@@ -207,7 +206,7 @@ defmodule Timber.LogEntry do
 
   @spec encode_map_to_iodata!(map, format) :: iodata
   defp encode_map_to_iodata!(map, :json) do
-    JSON.encode_to_iodata!(map)
+    Jason.encode_to_iodata!(map)
   end
 
   # The logfmt encoding will actually use a pretty-print style

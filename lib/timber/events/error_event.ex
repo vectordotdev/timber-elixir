@@ -99,10 +99,10 @@ defmodule Timber.Events.ErrorEvent do
       |> Map.delete(:message)
 
     metadata_json =
-      if metadata_map == %{} do
+      if map_size(metadata_map) == 0 do
         nil
       else
-        case Timber.Utils.JSON.encode_to_iodata(metadata_map) do
+        case Jason.encode_to_iodata(metadata_map) do
           {:ok, json} -> IO.iodata_to_binary(json)
           {:error, _error} -> nil
         end

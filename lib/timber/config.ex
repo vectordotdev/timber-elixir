@@ -86,21 +86,6 @@ defmodule Timber.Config do
   def http_url, do: Application.get_env(@application, :http_url)
 
   @doc """
-  Specify a different JSON encoder function. Timber uses `Poison` by default.
-  The specified function must take any data structure and return `iodata`. It
-  should raise on encode failures.
-
-  # Example
-
-  ```elixir
-  config :timber, :json_encoder, fn map -> encode(map) end
-  ```
-  """
-  @spec json_encoder() :: (any -> iodata)
-  def json_encoder,
-    do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
-
-  @doc """
   Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
   In a high volume system, this can produce logs with matching timestamps, making it
   impossible to preseve the order of the logs. By enabling this, Timber will discard
