@@ -1,14 +1,10 @@
-# This file is used for configuration during development of the package.
-# To set defaults for users of the package, please use the `env()` function
-# in `mix.exs`.
 use Mix.Config
 
-config :logger, :utc_log, true
+config :logger,
+  backends: [:console],
+  utc_log: true
 
-config :logger, backends: [:console]
 config :logger, :console, format: {Timber.Formatter, :format}
-# For whatever reason, ExUnit.CaptureLog does not work when metadata is passed
-# metadata: [:timber_context, :event, :application, :file, :function, :line, :module, :meta]
 
 config :timber,
   header_keys_to_sanitize: ["sensitive-key"],
