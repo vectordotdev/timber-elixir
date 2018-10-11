@@ -78,7 +78,8 @@ defmodule Timber.Mixfile do
       coveralls: :test,
       "coveralls.details": :test,
       "coveralls.circle": :test,
-      "coveralls.html": :test
+      "coveralls.html": :test,
+      "coveralls.travis": :test
     ]
   end
 
