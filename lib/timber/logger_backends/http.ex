@@ -323,7 +323,7 @@ defmodule Timber.LoggerBackends.HTTP do
     body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
-    user_agent = "Timber Elixir/#{vsn} (HTTP)"
+    user_agent = "timber-elixir/#{vsn}"
 
     headers = %{
       "Authorization" => "Basic #{auth_token}",
