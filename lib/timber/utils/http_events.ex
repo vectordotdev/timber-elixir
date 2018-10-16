@@ -94,10 +94,11 @@ defmodule Timber.Utils.HTTPEvents do
   end
 
   def normalize_headers(headers) when is_map(headers) do
-    headers
-    |> Enum.map(&normalize_header/1)
-    |> Enum.map(&sanitize_header/1)
-    |> Enum.into(%{})
+    Enum.into(headers, %{}, fn header ->
+      header
+      |> normalize_header()
+      |> sanitize_header()
+    end)
   end
 
   def normalize_headers(headers), do: headers

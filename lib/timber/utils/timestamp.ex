@@ -86,8 +86,8 @@ defmodule Timber.Utils.Timestamp do
   @spec pad6(integer) :: IO.chardata()
   defp pad6(int) when int < 10, do: [?0, ?0, ?0, ?0, ?0, Integer.to_string(int)]
   defp pad6(int) when int < 100, do: [?0, ?0, ?0, ?0, Integer.to_string(int)]
-  defp pad6(int) when int < 1000, do: [?0, ?0, ?0, Integer.to_string(int)]
-  defp pad6(int) when int < 10000, do: [?0, ?0, Integer.to_string(int)]
+  defp pad6(int) when int < 1_000, do: [?0, ?0, ?0, Integer.to_string(int)]
+  defp pad6(int) when int < 10_000, do: [?0, ?0, Integer.to_string(int)]
   defp pad6(int) when int < 100_000, do: [?0, Integer.to_string(int)]
   defp pad6(int), do: Integer.to_string(int)
 end

@@ -17,6 +17,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   - [`msgpax`](https://hex.pm/packages/msgpax) 1.x is no longer supported
   - Logs are now sent in batches of 1000 instead of 5000 to comply with the
   Timber library specification
+  - `Timber.LoggerBackends.HTTP.TimberAPIKeyInvalid` is now `Timber.InvalidAPIKeyError`
 
 ### Removed
 

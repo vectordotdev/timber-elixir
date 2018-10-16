@@ -1,4 +1,8 @@
 defmodule Timber.Config do
+  @moduledoc """
+  Configuration helpers for Timber
+  """
+
   @application :timber
   @default_http_body_max_bytes 2048
 

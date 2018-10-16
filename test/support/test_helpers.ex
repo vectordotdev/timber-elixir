@@ -1,4 +1,6 @@
 defmodule Timber.TestHelpers do
+  @moduledoc false
+
   def event_entry_to_log_entry({level, _, {Logger, message, ts, metadata}}) do
     Timber.LogEntry.new(ts, level, message, metadata)
   end

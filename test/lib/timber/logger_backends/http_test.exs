@@ -129,7 +129,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       {:ok, new_state} = HTTP.handle_event(entry, state)
       assert new_state.buffer == [event_entry_to_log_entry(entry)]
       calls = FakeHTTPClient.get_async_request_calls()
-      assert length(calls) == 0
+      assert calls == []
     end
 
     test "flushes if the buffer is full", %{state: state} do
@@ -148,7 +148,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       {:ok, new_state} = HTTP.handle_info(:outlet, state)
       calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
-      assert length(new_state.buffer) == 0
+      assert new_state.buffer == []
       assert_receive(:outlet)
     end
 
@@ -169,7 +169,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       ref = make_ref()
       state = %{state | ref: ref}
 
-      assert_raise Timber.LoggerBackends.HTTP.TimberAPIKeyInvalid, fn ->
+      assert_raise Timber.InvalidAPIKeyError, fn ->
         HTTP.handle_info({:hackney_response, ref, {:ok, 401, ""}}, state)
       end
     end
