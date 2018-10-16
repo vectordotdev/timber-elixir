@@ -90,8 +90,7 @@ defmodule Timber.LoggerBackends.HTTP do
   @type precision :: 0..6
 
   @content_type "application/msgpack"
-  # 5000 log line should be well below 5mb
-  @default_max_buffer_size 5000
+  @default_max_buffer_size 1000
   @default_flush_interval 1000
   @frames_url "https://logs.timber.io/frames"
 
