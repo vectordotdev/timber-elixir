@@ -44,7 +44,7 @@ defmodule Timber.Events.CustomEvent do
     by data structure changes.
 
     ```elixir
-    def PaymentRejectedEvent do
+    defmodule PaymentRejectedEvent do
       use Timber.Events.CustomEvent, type: :payment_rejected
 
       @enforce_keys [:customer_id, :amount, :currency]
