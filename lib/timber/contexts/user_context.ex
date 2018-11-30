@@ -1,7 +1,7 @@
 defmodule Timber.Contexts.UserContext do
   @moduledoc """
   The User context tracks the currently authenticated user and allows you to
-  tail indibidual user in the Timber console.
+  tail an individual user in the Timber console.
 
   You will want to add this context at the time you authenticate the user:
 
