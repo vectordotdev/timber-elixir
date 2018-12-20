@@ -199,7 +199,7 @@ defmodule Timber.Mixfile do
       {:earmark, "~> 1.2", only: [:dev]},
       {:ex_doc, "~> 0.18.0", only: [:dev]},
       {:excoveralls, "~> 0.5", only: [:dev, :test]},
-      {:inch_ex, only: [:dev]}
+      {:inch_ex, "~> 0.5.6", only: [:dev]}
     ]
   end
 end
