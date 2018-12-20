@@ -10,6 +10,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.0] - 2018-12-20
+
 ### Changed
 
   - [Jason](https://hex.pm/packages/jason) is now used for JSON encoding. The
@@ -35,5 +37,3 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   - Removed the installer (`mix timber.install`); manual installation is now
     expected
   - Removed the test event Mix task
-
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v2.x...HEAD

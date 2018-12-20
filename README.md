@@ -27,7 +27,7 @@ you more productive.
     ```elixir
     def deps do
       [
-        {:timber, "~> 3.0.0-alpha.1"},
+        {:timber, "~> 3.0.0"},
         # ...
       ]
     end
