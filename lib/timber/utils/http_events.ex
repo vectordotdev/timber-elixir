@@ -2,7 +2,6 @@ defmodule Timber.Utils.HTTPEvents do
   @moduledoc false
 
   alias Timber.Config
-  alias Timber.Utils.JSON
 
   @multi_header_delimiter ","
   @header_keys_to_sanitize ["authorization", "x-amz-security-token"]
@@ -48,10 +47,7 @@ defmodule Timber.Utils.HTTPEvents do
   @spec move_headers_to_headers_json(Keyword.t()) :: Keyword.t()
   def move_headers_to_headers_json(opts) do
     if opts[:headers] do
-      headers_json =
-        opts[:headers]
-        |> Timber.Utils.JSON.encode_to_iodata!()
-        |> to_string()
+      headers_json = Jason.encode!(opts[:headers])
 
       opts
       |> Keyword.put(:headers_json, headers_json)
@@ -69,7 +65,7 @@ defmodule Timber.Utils.HTTPEvents do
   def normalize_body("" = body), do: body
 
   def normalize_body(body) when is_map(body) do
-    case JSON.encode_to_iodata(body) do
+    case Jason.encode_to_iodata(body) do
       {:ok, json} -> normalize_body(to_string(json))
       _ -> nil
     end
@@ -98,10 +94,11 @@ defmodule Timber.Utils.HTTPEvents do
   end
 
   def normalize_headers(headers) when is_map(headers) do
-    headers
-    |> Enum.map(&normalize_header/1)
-    |> Enum.map(&sanitize_header/1)
-    |> Enum.into(%{})
+    Enum.into(headers, %{}, fn header ->
+      header
+      |> normalize_header()
+      |> sanitize_header()
+    end)
   end
 
   def normalize_headers(headers), do: headers

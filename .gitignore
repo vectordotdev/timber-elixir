@@ -12,6 +12,9 @@
 # Where 3rd-party dependencies like ExDoc output generated docs.
 /doc
 
+# Inchex stores some metadata here
+/docs
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 

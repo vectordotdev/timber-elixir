@@ -74,22 +74,19 @@ defmodule Timber.Events.LogEntryTest do
       entry = LogEntry.new(get_time(), :info, "message", event: %{type: :type, data: %{}})
       result = LogEntry.encode_to_iodata!(entry, :json)
 
-      vm_pid =
-        self()
-        |> :erlang.pid_to_list()
-        |> :erlang.iolist_to_binary()
+      result = Jason.decode!(result)
 
-      assert String.Chars.to_string(result) ==
-               "{\"message\":\"message\",\"level\":\"info\",\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{
-                 get_pid()
-               },\"hostname\":\"#{get_hostname()}\"},\"runtime\":{\"vm_pid\":\"#{vm_pid}\"}},\"$schema\":\"#{
-                 LogEntry.schema()
-               }\"}"
+      # The event should be dropped since it's data key is an empty map
+      refute Map.has_key?(result, "event")
     end
 
     test "encodes JSON properly" do
+      event_type = :type
+      event_data = %{test: "value"}
+      message = "message"
+
       entry =
-        LogEntry.new(get_time(), :info, "message", event: %{type: :type, data: %{test: "value"}})
+        LogEntry.new(get_time(), :info, message, event: %{type: event_type, data: event_data})
 
       result = LogEntry.encode_to_iodata!(entry, :json)
 
@@ -98,12 +95,36 @@ defmodule Timber.Events.LogEntryTest do
         |> :erlang.pid_to_list()
         |> :erlang.iolist_to_binary()
 
-      assert String.Chars.to_string(result) ==
-               "{\"message\":\"message\",\"level\":\"info\",\"event\":{\"custom\":{\"type\":{\"test\":\"value\"}}},\"dt\":\"2016-01-21T12:54:56.001234Z\",\"context\":{\"system\":{\"pid\":#{
-                 get_pid()
-               },\"hostname\":\"#{get_hostname()}\"},\"runtime\":{\"vm_pid\":\"#{vm_pid}\"}},\"$schema\":\"#{
-                 LogEntry.schema()
-               }\"}"
+      # The OS PID is returned as a string from get_pid/0 but represented as an
+      # integer in the JSON
+      {os_pid, _} =
+        get_pid()
+        |> Integer.parse()
+
+      hostname = get_hostname()
+
+      result = Jason.decode!(result)
+
+      assert Map.fetch!(result, "message") == "message"
+      assert Map.fetch!(result, "level") == "info"
+      assert Map.fetch!(result, "$schema") == LogEntry.schema()
+      assert Map.fetch!(result, "dt") == "2016-01-21T12:54:56.001234Z"
+
+      event =
+        result
+        |> Map.fetch!("event")
+        |> Map.fetch!("custom")
+
+      assert Map.fetch!(event, "type") == %{"test" => "value"}
+
+      context = Map.fetch!(result, "context")
+
+      system_context = Map.fetch!(context, "system")
+      assert Map.fetch!(system_context, "pid") == os_pid
+      assert Map.fetch!(system_context, "hostname") == hostname
+
+      runtime_context = Map.fetch!(context, "runtime")
+      assert Map.fetch!(runtime_context, "vm_pid") == vm_pid
     end
 
     test "encodes logfmt properly" do

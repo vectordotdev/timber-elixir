@@ -1,10 +1,10 @@
 defmodule Timber.LogEntry do
-  @moduledoc """
-  The LogEntry module formalizes the structure of every log entry as defined by Timber's
-  log event JSON schema: https://github.com/timberio/log-event-json-schema. The ensures log
-  lines adhere to a normalized and consistent structure providing for predictability and
-  reliability for downstream consumers of this log data.
-  """
+  @moduledoc false
+  # The LogEntry module formalizes the structure of every log entry as defined
+  # by Timber's log event JSON schema:
+  # https://github.com/timberio/log-event-json-schema. The ensures log lines
+  # adhere to a normalized and consistent structure providing for predictability
+  # and reliability for downstream consumers of this log data.
 
   alias Timber.Config
   alias Timber.Context
@@ -14,7 +14,6 @@ defmodule Timber.LogEntry do
   alias Timber.LocalContext
   alias Timber.Event
   alias Timber.Eventable
-  alias Timber.Utils.JSON
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
   alias Timber.Utils.Map, as: UtilsMap
@@ -207,7 +206,7 @@ defmodule Timber.LogEntry do
 
   @spec encode_map_to_iodata!(map, format) :: iodata
   defp encode_map_to_iodata!(map, :json) do
-    JSON.encode_to_iodata!(map)
+    Jason.encode_to_iodata!(map)
   end
 
   # The logfmt encoding will actually use a pretty-print style
@@ -243,6 +242,7 @@ defmodule Timber.LogEntry do
         vm_pid
         |> :erlang.pid_to_list()
         |> :erlang.iolist_to_binary()
+
       vm_pid ->
         to_string(vm_pid)
     end

@@ -25,7 +25,7 @@ defmodule Timber.LoggerBackends.HTTP do
 
   @behaviour :gen_event
 
-  alias __MODULE__.TimberAPIKeyInvalid
+  alias Timber.InvalidAPIKeyError
   alias Timber.Config
   alias Timber.LogEntry
 
@@ -90,8 +90,7 @@ defmodule Timber.LoggerBackends.HTTP do
   @type precision :: 0..6
 
   @content_type "application/msgpack"
-  # 5000 log line should be well below 5mb
-  @default_max_buffer_size 5000
+  @default_max_buffer_size 1000
   @default_flush_interval 1000
   @frames_url "https://logs.timber.io/frames"
 
@@ -185,7 +184,7 @@ defmodule Timber.LoggerBackends.HTTP do
   # Handles responses for asynchronous requests from Hackney for the last request made;
   # note that any other requests will fail the ref=ref pattern match and fall to the next
   # handle_info/2 definition
-  def handle_info(msg = {:hackney_response, ref, _}, state = %{ref: ref}) do
+  def handle_info({:hackney_response, ref, _} = msg, %{ref: ref} = state) do
     handle_hackney_response(msg, state)
   end
 
@@ -292,7 +291,7 @@ defmodule Timber.LoggerBackends.HTTP do
     state
   end
 
-  defp wait_on_request(state = %{ref: ref}) do
+  defp wait_on_request(%{ref: ref} = state) do
     receive do
       {:hackney_response, ^ref, msg} ->
         {:ok, new_state} = handle_hackney_response({:hackney_response, ref, msg}, state)
@@ -324,7 +323,7 @@ defmodule Timber.LoggerBackends.HTTP do
     body = buffer_to_msg_pack(buffer)
     auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
-    user_agent = "Timber Elixir/#{vsn} (HTTP)"
+    user_agent = "timber-elixir/#{vsn}"
 
     headers = %{
       "Authorization" => "Basic #{auth_token}",
@@ -401,7 +400,7 @@ defmodule Timber.LoggerBackends.HTTP do
   defp handle_hackney_response({:hackney_response, ref, {:ok, 401, reason}}, state) do
     Timber.debug(fn -> "HTTP request #{inspect(ref)} received response 401 #{reason}" end)
 
-    raise TimberAPIKeyInvalid, status: 401, api_key: state.api_key
+    raise InvalidAPIKeyError, status: 401, api_key: state.api_key
   end
 
   defp handle_hackney_response({:hackney_response, ref, {:ok, 403, reason}}, state) do
@@ -433,34 +432,5 @@ defmodule Timber.LoggerBackends.HTTP do
 
   defp handle_hackney_response({:hackney_response, _ref, _}, state) do
     {:ok, state}
-  end
-
-  #
-  # Errors
-  #
-
-  defmodule TimberAPIKeyInvalid do
-    defexception [:message]
-
-    def exception(opts) do
-      api_key = Keyword.get(opts, :api_key)
-      status = Keyword.get(opts, :status)
-
-      message = """
-      The Timber service does not recognize your API key. Please check
-      that you have specified your key correctly.
-
-        config :timber, api_key: "my_timber_api_key"
-
-      You can locate your API key in the Timber console by creating or
-      editing your app: https://app.timber.io
-
-      Debug info:
-      API key: #{inspect(api_key)}
-      Status from the Timber API: #{inspect(status)}
-      """
-
-      %__MODULE__{message: message}
-    end
   end
 end

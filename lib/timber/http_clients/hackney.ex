@@ -1,21 +1,19 @@
 defmodule Timber.HTTPClients.Hackney do
-  @moduledoc """
-  An efficient HTTP client that leverages hackney, keep alive connections, and connection
-  pools to communicate with the Timber API.
+  @moduledoc false
+  # An efficient HTTP client that leverages hackney, keep alive connections, and connection
+  # pools to communicate with the Timber API.
 
-  ## Configuration
+  # ## Configuration
 
-  ```elixir
-  config :timber, :hackney_client,
-    request_options: [
-      connect_timeout: 5_000, # 5 seconds, timeout to connect
-      recv_timeout: 20_000 #  20 seconds, timeout to receive a response
-    ]
-  ```
+  # ```elixir
+  # config :timber, :hackney_client,
+  #   request_options: [
+  #     connect_timeout: 5_000, # 5 seconds, timeout to connect
+  #     recv_timeout: 20_000 #  20 seconds, timeout to receive a response
+  #   ]
+  # ```
 
-  * `:request_options` - Passed to `:hackney.request(method, url, headers, body, request_options)`.
-
-  """
+  # * `:request_options` - Passed to `:hackney.request(method, url, headers, body, request_options)`.
 
   alias Timber.HTTPClient
 

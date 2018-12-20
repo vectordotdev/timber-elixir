@@ -1,4 +1,6 @@
 defmodule Timber.TestGenServer do
+  @moduledoc false
+
   use GenServer
 
   def start_link(pid) do
@@ -58,6 +60,7 @@ defmodule Timber.TestGenServer do
 end
 
 defmodule Timber.SimpleTestGenServer do
+  @moduledoc false
   use GenServer
 
   def start_link(pid) do

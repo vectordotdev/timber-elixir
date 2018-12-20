@@ -2,6 +2,10 @@
 
 This documents outlines how to upgrade from major versions of Timber
 
+## 2.x to 3.x
+
+As of 3.x, all integrations have been broken out into their own libraries.
+
 ## 2.0 to 2.1
 
 Custom HTTP clients have been deprecated as of version 2.1.0. You can remove the
@@ -20,7 +24,7 @@ config :timber,
   api_key: "123"
 ```
 
-## 1.x to 2.X
+## 1.x to 2.x
 
 The 2.X introduces a number of enhancements and improvements. You can read more about the
 new 2.X line [here](https://timber.io/changelog/2017/03/31/timber-for-elixir-2-0/).

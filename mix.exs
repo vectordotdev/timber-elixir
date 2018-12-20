@@ -9,7 +9,7 @@ defmodule Timber.Mixfile do
 
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "2.8.3"
+  @version "3.0.0"
 
   # Project manifest for Mix
   #
@@ -24,7 +24,7 @@ defmodule Timber.Mixfile do
       app: :timber,
       name: "Timber",
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: @project_description,
       source_url: @source_url,
@@ -51,21 +51,11 @@ defmodule Timber.Mixfile do
   # and are not distributed with the package.
   def application do
     [
-      mod: {Timber, []},
+      mod: {Timber.Application, []},
       env: env(),
-      applications: apps(Mix.env())
+      extra_applications: [:logger]
     ]
   end
-
-  # List of applications to be loaded for the specified
-  # Mix environment.
-  defp apps(:test), do: apps()
-  defp apps(:dev), do: apps()
-  defp apps(_), do: apps()
-
-  # Default list of applications to be loaded regardless
-  # of Mix environment
-  defp apps(), do: [:logger, :poison, :msgpax, :hackney]
 
   # The environment to be configured by default
   defp env() do
@@ -88,7 +78,8 @@ defmodule Timber.Mixfile do
       coveralls: :test,
       "coveralls.details": :test,
       "coveralls.circle": :test,
-      "coveralls.html": :test
+      "coveralls.html": :test,
+      "coveralls.travis": :test
     ]
   end
 
@@ -135,6 +126,43 @@ defmodule Timber.Mixfile do
       extras: [
         "README.md": [title: "README"],
         "LICENSE.md": [title: "LICENSE"]
+      ],
+      groups_for_modules: doc_groups_for_modules()
+    ]
+  end
+
+  defp doc_groups_for_modules() do
+    [
+      Contexts: [
+        Timber.Context,
+        Timber.Contextable,
+        Timber.Contexts.CustomContext,
+        Timber.Contexts.HTTPContext,
+        Timber.Contexts.JobContext,
+        Timber.Contexts.OrganizationContext,
+        Timber.Contexts.RuntimeContext,
+        Timber.Contexts.SessionContext,
+        Timber.Contexts.SystemContext,
+        Timber.Contexts.UserContext
+      ],
+      Events: [
+        Timber.Eventable,
+        Timber.Events.ChannelJoinEvent,
+        Timber.Events.ChannelReceiveEvent,
+        Timber.Events.ControllerCallEvent,
+        Timber.Events.CustomEvent,
+        Timber.Events.ErrorEvent,
+        Timber.Events.HTTPRequestEvent,
+        Timber.Events.HTTPResponseEvent,
+        Timber.Events.SQLQueryEvent,
+        Timber.Events.TemplateRenderEvent
+      ],
+      "Logger Backends": [
+        Timber.LoggerBackends.HTTP
+      ],
+      "Test Helpers": [
+        Timber.HTTPClients.Fake,
+        Timber.LoggerBackends.InMemory
       ]
     ]
   end
@@ -154,51 +182,24 @@ defmodule Timber.Mixfile do
   #   - End all declarations in `,` so that they can easily be re-arranged
   #     and sorted
   defp deps() do
-    deps = [
-      #
-      # Direct dependencies
-      #
-
+    [
       # Hackney is pinned to known "safe" versions. While the pinned
       # versions below are _not_ guaranteed to be bug-free, they are
       # accepted by the community as stable.
       {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
-      {:msgpax, "~> 1.0 or ~> 2.0"},
-      {:poison, "~> 1.0 or ~> 2.0 or ~> 3.0"},
+      {:jason, "~> 1.1"},
+      {:msgpax, "~> 2.0"},
 
       #
       # Tooling
       #
 
-      {:credo, "~> 0.4", only: [:dev, :test]},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 1.2", only: [:dev, :docs]},
-      {:ex_doc, "~> 0.15", only: [:dev, :docs]},
-      {:excoveralls, "~> 0.5", only: [:test]}
+      {:credo, "~> 0.10", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:earmark, "~> 1.2", only: [:dev]},
+      {:ex_doc, "~> 0.18.0", only: [:dev]},
+      {:excoveralls, "~> 0.5", only: [:dev, :test]},
+      {:inch_ex, "~> 0.5.6", only: [:dev]}
     ]
-
-    direct_deps = [
-      #
-      # Third-party integrations
-      #
-
-      # Note to users: we specify versions below for the third-party
-      # libraries we integrate in order to provide some guarantee about
-      # code-path compatability. If you must over-ride a dependency's
-      # version requirement, you may run into an issue where code fails.
-
-      # We support Ecto after 2.0.0 but before 2.3.0
-      {:ecto, ">= 2.0.0 and < 2.3.0", optional: true},
-      # We support Phoenix after 1.2.0 but before 1.4.0
-      {:phoenix, ">= 1.2.0 and < 1.4.0", optional: true},
-      # We support Plug after 1.2.0 but before 1.6.0
-      {:plug, "~> 1.2", optional: true}
-    ]
-
-    if System.get_env("NO_THIRD_PARTY_INTEGRATION_TEST") == "true" do
-      deps
-    else
-      direct_deps ++ deps
-    end
   end
 end

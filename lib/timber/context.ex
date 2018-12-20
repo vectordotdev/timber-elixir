@@ -1,18 +1,16 @@
 defmodule Timber.Context do
-  @moduledoc """
-  The ContextEntry module formalizes the structure of context stack entries
-
-  Most users will not interact directly with this module and will instead use
-  the helper functions provided by the main `Timber` module. See the `Timber`
-  module for more information.
-
-  The functions in this module work by modifying the Logger metadata store which
-  is unique to every BEAM process. This is convenient in many ways. First and
-  foremost, it does not require you to manually manage the metadata. Second,
-  because we conform to the standard Logger principles, you can utilize Timber
-  alongside other Logger backends without issue. Timber prefixes its contextual
-  metadata keys so as not to interfere with other systems.
-  """
+  @moduledoc false
+  # Most users will not interact directly with this module and will instead use
+  # the helper functions provided by the main `Timber` module. See the `Timber`
+  # module for more information.
+  #
+  # The functions in this module work by modifying the Logger metadata store
+  # which is unique to every BEAM process. This is convenient in many ways.
+  # First and foremost, it does not require you to manually manage the metadata.
+  # Second, because we conform to the standard Logger principles, you can
+  # utilize Timber alongside other Logger backends without issue. Timber
+  # prefixes its contextual metadata keys so as not to interfere with other
+  # systems.
 
   alias Timber.Contextable
   alias Timber.Contexts

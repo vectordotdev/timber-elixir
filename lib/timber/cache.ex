@@ -1,8 +1,5 @@
 defmodule Timber.Cache do
-  @moduledoc """
-  This module is responsible for caching values that are
-  expensive to get or compute.
-  """
+  @moduledoc false
 
   @doc """
   Creates the ets table and inserts initial values.

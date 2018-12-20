@@ -5,7 +5,9 @@ defmodule Timber.Events.HTTPRequestEventTest do
 
   describe "Timber.Events.HTTPRequestEvent.new/1" do
     test "normalizes headers from a list" do
-      headers = [{"x-request-id", "value"}, {"user-agent", "agent"}]
+      request_id = "value"
+      user_agent = "agent"
+      headers = [{"x-request-id", request_id}, {"user-agent", user_agent}]
 
       result =
         HTTPRequestEvent.new(
@@ -18,11 +20,22 @@ defmodule Timber.Events.HTTPRequestEventTest do
         )
 
       assert result.headers == nil
-      assert result.headers_json == "{\"x-request-id\":\"value\",\"user-agent\":\"agent\"}"
+      headers_json = Jason.decode!(result.headers_json)
+
+      assert Map.fetch!(headers_json, "x-request-id") == request_id
+      assert Map.fetch!(headers_json, "user-agent") == user_agent
     end
 
     test "filters headers" do
-      headers = [{"x-request-id", "value"}, {"user-agent", "agent"}, {"random-header", "value"}]
+      request_id = "value"
+      user_agent = "agent"
+      random_header = "value"
+
+      headers = [
+        {"x-request-id", request_id},
+        {"user-agent", user_agent},
+        {"random-header", random_header}
+      ]
 
       result =
         HTTPRequestEvent.new(
@@ -36,8 +49,10 @@ defmodule Timber.Events.HTTPRequestEventTest do
 
       assert result.headers == nil
 
-      assert result.headers_json ==
-               "{\"x-request-id\":\"value\",\"user-agent\":\"agent\",\"random-header\":\"value\"}"
+      headers_json = Jason.decode!(result.headers_json)
+
+      assert Map.fetch!(headers_json, "x-request-id") == request_id
+      assert Map.fetch!(headers_json, "user-agent") == user_agent
     end
 
     test "truncates body" do

@@ -5,8 +5,6 @@ defmodule Timber do
   instead of their deeper counterparts.
   """
 
-  use Application
-
   alias Timber.Context
   alias Timber.LocalContext
   alias Timber.GlobalContext
@@ -101,33 +99,5 @@ defmodule Timber do
 
   def debug(io_device, message_fun) when is_function(message_fun) do
     IO.write(io_device, message_fun.())
-  end
-
-  @doc false
-  # Handles the application callback start/2
-  #
-  # Starts an empty supervisor in order to comply with callback expectations
-  #
-  # This is the function that starts up the error logger listener
-  #
-  def start(_type, _opts) do
-    import Supervisor.Spec, warn: false
-
-    # Prepare the Phoenix instrumentation blacklist before we finish
-    # starting
-    Timber.Integrations.PhoenixInstrumenter.get_unparsed_blacklist()
-    |> Timber.Integrations.PhoenixInstrumenter.parse_blacklist()
-    |> Timber.Integrations.PhoenixInstrumenter.put_parsed_blacklist()
-
-    children = []
-
-    if Timber.Config.disable_tty?() do
-      :error_logger.delete_report_handler(:error_logger_tty_h)
-    end
-
-    Timber.Cache.init()
-
-    opts = [strategy: :one_for_one, name: Timber.Supervisor]
-    Supervisor.start_link(children, opts)
   end
 end

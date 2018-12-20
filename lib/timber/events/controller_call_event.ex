@@ -34,9 +34,9 @@ defmodule Timber.Events.ControllerCallEvent do
     params = Keyword.get(opts, :params)
 
     params_json =
-      if params && params != %{} do
+      if params && map_size(params) != 0 do
         params
-        |> Timber.Utils.JSON.encode_to_iodata!()
+        |> Jason.encode_to_iodata!()
         |> Timber.Utils.Logger.truncate_bytes(@params_json_max_bytes)
         |> to_string()
       else

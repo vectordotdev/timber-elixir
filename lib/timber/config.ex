@@ -1,4 +1,8 @@
 defmodule Timber.Config do
+  @moduledoc """
+  Configuration helpers for Timber
+  """
+
   @application :timber
   @default_http_body_max_bytes 2048
 
@@ -86,21 +90,6 @@ defmodule Timber.Config do
   def http_url, do: Application.get_env(@application, :http_url)
 
   @doc """
-  Specify a different JSON encoder function. Timber uses `Poison` by default.
-  The specified function must take any data structure and return `iodata`. It
-  should raise on encode failures.
-
-  # Example
-
-  ```elixir
-  config :timber, :json_encoder, fn map -> encode(map) end
-  ```
-  """
-  @spec json_encoder() :: (any -> iodata)
-  def json_encoder,
-    do: Application.get_env(@application, :json_encoder, &Poison.encode_to_iodata!/1)
-
-  @doc """
   Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
   In a high volume system, this can produce logs with matching timestamps, making it
   impossible to preseve the order of the logs. By enabling this, Timber will discard
@@ -116,23 +105,4 @@ defmodule Timber.Config do
   def use_nanosecond_timestamps? do
     Application.get_env(@application, :nanosecond_timestamps, true)
   end
-
-  @doc """
-  Specify the log level that phoenix log lines write to. Such as template renders.
-
-  # Example
-
-  ```elixir
-  config :timber, :instrumentation_level, :info
-  ```
-  """
-  @spec phoenix_instrumentation_level(atom) :: atom
-  def phoenix_instrumentation_level(default) do
-    Application.get_env(@application, :instrumentation_level, default)
-  end
-
-  def capture_errors?, do: Application.get_env(@application, :capture_errors, false)
-
-  def disable_tty?,
-    do: Application.get_env(@application, :disable_kernel_error_tty, capture_errors?())
 end
