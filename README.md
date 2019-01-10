@@ -298,7 +298,7 @@ making them [easier to search and use](#do-amazing-things-with-your-logs).
   * [**Ecto**](https://timber.io/docs/languages/elixir/integrations/ecto) via [Timber Ecto](https://hex.pm/packages/timber_ecto)
   * [**Plug**](https://timber.io/docs/languages/elixir/integrations/plug) via [Timber Plug](https://hex.pm/packages/timber_plug)
 * Platforms
-  * **Exceptions** via [Timber Exceptions](https://hex.pm/packages/timber_excptions)
+  * **Exceptions** via [Timber Exceptions](https://hex.pm/packages/timber_exceptions)
   * [**System / Server**](https://timber.io/docs/languages/elixir/integrations/system)
 
 ...more coming soon! Make a request by [opening an issue](https://github.com/timberio/timber-elixir/issues/new)
