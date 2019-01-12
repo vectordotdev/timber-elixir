@@ -186,7 +186,7 @@ defmodule Timber.Mixfile do
       # Hackney is pinned to known "safe" versions. While the pinned
       # versions below are _not_ guaranteed to be bug-free, they are
       # accepted by the community as stable.
-      {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9"},
+      {:hackney, "~> 1.9"},
       {:jason, "~> 1.1"},
       {:msgpax, "~> 2.0"},
 
