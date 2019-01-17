@@ -194,12 +194,12 @@ defmodule Timber.Mixfile do
       # Tooling
       #
 
-      {:credo, "~> 0.10", only: [:dev, :test]},
+      {:credo, "~> 1.0", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
       {:earmark, "~> 1.2", only: [:dev]},
-      {:ex_doc, "~> 0.18.0", only: [:dev]},
+      {:ex_doc, "~> 0.19.0", only: [:dev]},
       {:excoveralls, "~> 0.5", only: [:dev, :test]},
-      {:inch_ex, "~> 0.5.6", only: [:dev]}
+      {:inch_ex, "~> 2.0", only: [:dev]}
     ]
   end
 end

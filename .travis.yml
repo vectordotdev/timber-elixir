@@ -1,7 +1,7 @@
 ---
 language: elixir
 elixir:
-  - 1.7.2
+  - 1.7.4
   - 1.6.6
   - 1.5
   - 1.4
@@ -23,11 +23,11 @@ matrix:
       otp_release: 18.3
 
 script:
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.6" ]; then mix format --check-formatted --dry-run; fi
+  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.7.4" ]; then mix format --check-formatted --dry-run; fi
   - MIX_ENV=test mix compile && mix test
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.6" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix dialyzer; fi
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.6" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix coveralls.travis; fi
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.6" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix credo; fi
+  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.7.4" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix dialyzer; fi
+  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.7.4" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix coveralls.travis; fi
+  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.7.4" ] && [ "$TRAVIS_OTP_RELEASE" = "21.0" ]; then mix credo; fi
 
 cache:
   directories:
