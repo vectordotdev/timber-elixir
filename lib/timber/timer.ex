@@ -23,7 +23,7 @@ defmodule Timber.Timer do
   """
   def duration_ms(timer, precision \\ @precision) do
     (System.monotonic_time() - timer)
-    |> System.convert_time_unit(:native, :nanoseconds)
+    |> System.convert_time_unit(:native, :nanosecond)
     |> divide_by_milliseconds()
     |> Float.round(precision)
   end
