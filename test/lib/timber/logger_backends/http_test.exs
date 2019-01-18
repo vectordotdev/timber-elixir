@@ -1,6 +1,7 @@
 defmodule Timber.LoggerBackends.HTTPTest do
   use Timber.TestCase
   import Timber.TestHelpers, only: [event_entry_to_log_entry: 1, event_entry_to_msgpack: 1]
+  import ExUnit.CaptureLog
 
   alias Timber.HTTPClients.Fake, as: FakeHTTPClient
   alias Timber.LoggerBackends.HTTP
@@ -150,6 +151,24 @@ defmodule Timber.LoggerBackends.HTTPTest do
       assert length(calls) == 1
       assert new_state.buffer == []
       assert_receive(:outlet)
+    end
+
+    test "emits debug log when encoding fails", %{state: state} do
+      bad_tuple = {:bad, :tuple}
+
+      entry =
+        {:info, self(),
+         {Logger, "message", time(), [event: %{type: :type, data: %{tuple: bad_tuple}}]}}
+
+      log_output =
+        capture_log(fn ->
+          {:ok, state} = HTTP.handle_event(entry, state)
+          {:ok, new_state} = HTTP.handle_info(:outlet, state)
+          assert new_state.buffer == []
+        end)
+
+      assert log_output =~ "Log transmission failed. Msgpax.Packer Protocol not implemented"
+      assert log_output =~ "#{inspect(bad_tuple)}"
     end
 
     test "handles successful status response message from Hackney for ongoing request", %{

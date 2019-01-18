@@ -319,45 +319,14 @@ defmodule Timber.LoggerBackends.HTTP do
     state
   end
 
-  defp issue_request(%{api_key: api_key, buffer: buffer, http_client: http_client} = state) do
-    body = buffer_to_msg_pack(buffer)
-    auth_token = Base.encode64(api_key)
-    vsn = Application.spec(:timber, :vsn)
-    user_agent = "timber-elixir/#{vsn}"
+  defp issue_request(%{buffer: buffer} = state) do
+    case buffer_to_msg_pack(buffer) do
+      {:ok, body} ->
+        transmit_buffer(state, body)
 
-    headers = %{
-      "Authorization" => "Basic #{auth_token}",
-      "Content-Type" => @content_type,
-      "User-Agent" => user_agent
-    }
-
-    url = Config.http_url() || @frames_url
-
-    case http_client.async_request(:post, url, headers, body) do
-      {:ok, ref} ->
-        Timber.debug(fn -> "Issued HTTP request with reference #{inspect(ref)}" end)
-
-        new_buffer = clear_buffer(state)
-        %{new_buffer | ref: ref}
-
-      {:error, reason} ->
-        # If the buffer is full and we can't send the request, drop the buffer.
-        if buffer_full?(state) do
-          Timber.debug(fn ->
-            "Error issuing asynchronous HTTP request #{inspect(reason)}. Buffer is full, " <>
-              "dropping messages."
-          end)
-
-          clear_buffer(state)
-        else
-          Timber.debug(fn ->
-            "Error issuing asynchronous HTTP request #{inspect(reason)}. Keeping buffer " <>
-              "for retry next time."
-          end)
-
-          # Ignore errors, keep the buffer, and allow the next attempt to retry.
-          state
-        end
+      {:error, _error} ->
+        # Encoding failed and cannot send the request, so drop the buffer.
+        clear_buffer(state)
     end
   end
 
@@ -373,11 +342,31 @@ defmodule Timber.LoggerBackends.HTTP do
 
   # Encodes the buffer into msgpack
   @spec buffer_to_msg_pack(buffer) :: IO.chardata()
-  defp buffer_to_msg_pack(buffer) do
-    buffer
-    |> Enum.reverse()
-    |> Enum.map(&LogEntry.to_map!/1)
-    |> Msgpax.pack!()
+  def buffer_to_msg_pack(buffer) do
+    try do
+      buffer
+      |> Enum.reverse()
+      |> Enum.map(&LogEntry.to_map!/1)
+      |> Msgpax.pack()
+      |> case do
+        {:ok, binary} ->
+          {:ok, binary}
+
+        {:error, error} ->
+          Logger.debug(fn ->
+            "Log transmission failed. Msgpax encoding error: #{inspect(error)}"
+          end)
+
+          {:error, error}
+      end
+    catch
+      :error, %Protocol.UndefinedError{protocol: Msgpax.Packer, value: value} = e ->
+        Logger.debug(fn ->
+          "Log transmission failed. Msgpax.Packer Protocol not implemented for: #{inspect(value)}"
+        end)
+
+        {:error, e}
+    end
   end
 
   # Checks whether the log event level meets or exceeds the
@@ -432,5 +421,46 @@ defmodule Timber.LoggerBackends.HTTP do
 
   defp handle_hackney_response({:hackney_response, _ref, _}, state) do
     {:ok, state}
+  end
+
+  defp transmit_buffer(%{api_key: api_key, http_client: http_client} = state, body) do
+    auth_token = Base.encode64(api_key)
+    vsn = Application.spec(:timber, :vsn)
+    user_agent = "timber-elixir/#{vsn}"
+
+    headers = %{
+      "Authorization" => "Basic #{auth_token}",
+      "Content-Type" => @content_type,
+      "User-Agent" => user_agent
+    }
+
+    url = Config.http_url() || @frames_url
+
+    case http_client.async_request(:post, url, headers, body) do
+      {:ok, ref} ->
+        Timber.debug(fn -> "Issued HTTP request with reference #{inspect(ref)}" end)
+
+        new_buffer = clear_buffer(state)
+        %{new_buffer | ref: ref}
+
+      {:error, reason} ->
+        # If the buffer is full and we can't send the request, drop the buffer.
+        if buffer_full?(state) do
+          Timber.debug(fn ->
+            "Error issuing asynchronous HTTP request #{inspect(reason)}. Buffer is full, " <>
+              "dropping messages."
+          end)
+
+          clear_buffer(state)
+        else
+          Timber.debug(fn ->
+            "Error issuing asynchronous HTTP request #{inspect(reason)}. Keeping buffer " <>
+              "for retry next time."
+          end)
+
+          # Ignore errors, keep the buffer, and allow the next attempt to retry.
+          state
+        end
+    end
   end
 end
