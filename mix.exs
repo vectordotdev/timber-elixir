@@ -183,9 +183,6 @@ defmodule Timber.Mixfile do
   #     and sorted
   defp deps() do
     [
-      # Hackney is pinned to known "safe" versions. While the pinned
-      # versions below are _not_ guaranteed to be bug-free, they are
-      # accepted by the community as stable.
       {:hackney, "~> 1.9"},
       {:jason, "~> 1.1"},
       {:msgpax, "~> 2.0"},
