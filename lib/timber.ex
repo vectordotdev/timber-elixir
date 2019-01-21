@@ -9,6 +9,10 @@ defmodule Timber do
   alias Timber.LocalContext
   alias Timber.GlobalContext
 
+  #
+  # Typespecs
+  #
+
   @typedoc """
   The target context to perform the operation.
 
@@ -19,6 +23,10 @@ defmodule Timber do
       is local to the process
   """
   @type context_location :: :local | :global
+
+  #
+  # API
+  #
 
   @doc """
   Adds Timber context to the current process
@@ -42,6 +50,12 @@ defmodule Timber do
   def add_context(data, :global) do
     GlobalContext.add(data)
   end
+
+  @doc """
+  Captures the duration in fractional milliseconds since the timer was started. See
+  `start_timer/0`.
+  """
+  defdelegate duration_ms(timer), to: Timber.Timer
 
   @doc """
   Removes a key from Timber context on the current process.
@@ -80,11 +94,11 @@ defmodule Timber do
   """
   defdelegate start_timer, to: Timber.Timer, as: :start
 
-  @doc """
-  Captures the duration in fractional milliseconds since the timer was started. See
-  `start_timer/0`.
-  """
-  defdelegate duration_ms(timer), to: Timber.Timer
+  #
+  # Utilility methods
+  # The following methods are used for internally throughout Timber and it's
+  # dependent integration libraries.
+  #
 
   @doc false
   def debug(message_fun) do
@@ -99,5 +113,23 @@ defmodule Timber do
 
   def debug(io_device, message_fun) when is_function(message_fun) do
     IO.write(io_device, message_fun.())
+  end
+
+  # Convenience function for encoding data to JSON. This is necessary to allow for
+  # configurable JSON parsers.
+  @doc false
+  def encode_to_json(data) do
+    Jason.encode_to_iodata(data)
+  end
+
+  # Convenience function that attempts to encode the provided argument to JSON.
+  # If the encoding fails a `nil` value is returned. If you want the actual error
+  # please use `encode_to_json/1`.
+  @doc false
+  def try_encode_to_json(data) do
+    case encode_to_json(data) do
+      {:ok, json} -> json
+      {:error, _error} -> nil
+    end
   end
 end
