@@ -25,8 +25,8 @@ defmodule Timber.LoggerBackends.HTTP do
 
   @behaviour :gen_event
 
-  alias Timber.InvalidAPIKeyError
   alias Timber.Config
+  alias Timber.Errors.InvalidAPIKeyError
   alias Timber.LogEntry
 
   require Logger

@@ -5,35 +5,52 @@ defmodule Timber.Events.LogEntryTest do
 
   describe "Timber.LogEntry.new/4" do
     test "adds an event" do
-      entry = LogEntry.new(get_time(), :info, "message", event: %{type: %{}})
+      entry = LogEntry.new(get_time(), :info, "message", event: %{order_placed: %{total: 100}})
       vm_pid = get_vm_pid()
 
       assert entry == %Timber.LogEntry{
                context: %{
                  system: %{hostname: get_hostname(), pid: String.to_integer(get_pid())},
-                 runtime: %{vm_pid: vm_pid}
+                 runtime: %{
+                   vm_pid: vm_pid,
+                   application: nil,
+                   file: nil,
+                   function: nil,
+                   line: nil,
+                   module_name: nil
+                 }
                },
                dt: "2016-01-21T12:54:56.001234Z",
-               event: %Timber.Events.CustomEvent{data: %{}, type: :type},
+               event: %{order_placed: %{total: 100}},
                level: :info,
                message: "message"
              }
     end
 
     test "adds inline context" do
-      entry = LogEntry.new(get_time(), :info, "message", context: %{type: %{}})
+      entry = LogEntry.new(get_time(), :info, "message", context: %{job: %{id: "abcd"}})
       vm_pid = get_vm_pid()
 
       assert entry == %Timber.LogEntry{
-               context: %{
-                 system: %{hostname: get_hostname(), pid: String.to_integer(get_pid())},
-                 runtime: %{vm_pid: vm_pid},
-                 type: %{}
-               },
                dt: "2016-01-21T12:54:56.001234Z",
                event: nil,
                level: :info,
-               message: "message"
+               message: "message",
+               meta: nil,
+               tags: nil,
+               time_ms: nil,
+               context: %{
+                 job: %{id: "abcd"},
+                 system: %{hostname: get_hostname(), pid: String.to_integer(get_pid())},
+                 runtime: %{
+                   vm_pid: vm_pid,
+                   application: nil,
+                   file: nil,
+                   function: nil,
+                   line: nil,
+                   module_name: nil
+                 }
+               }
              }
     end
 
@@ -45,27 +62,6 @@ defmodule Timber.Events.LogEntryTest do
     test "adds time_ms" do
       entry = LogEntry.new(get_time(), :info, "message", time_ms: 56.4)
       assert entry.time_ms == 56.4
-    end
-
-    test "adds exceptions" do
-      log_message = """
-      ** (exit) an exception was raised:
-          ** (RuntimeError) boom
-              (my_app) web/controllers/page_controller.ex:5: MyApp.PageController.index/2
-              (my_app) web/controllers/page_controller.ex:1: MyApp.PageController.action/2
-              (my_app) web/controllers/page_controller.ex:1: MyApp.PageController.phoenix_controller_pipeline/2
-              (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.instrument/4
-              (my_app) lib/phoenix/router.ex:261: MyApp.Router.dispatch/2
-              (my_app) web/router.ex:1: MyApp.Router.do_call/2
-              (my_app) lib/plug/error_handler.ex:64: MyApp.Router.call/2
-              (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.phoenix_pipeline/1
-              (my_app) lib/my_app/endpoint.ex:1: MyApp.Endpoint.call/2
-              (plug) lib/plug/adapters/cowboy/handler.ex:15: Plug.Adapters.Cowboy.Handler.upgrade/4
-              (cowboy) /Users/benjohnson/Code/timber/odin/deps/cowboy/src/cowboy_protocol.erl:442: :cowboy_protocol.execute/4
-      """
-
-      entry = LogEntry.new(get_time(), :info, log_message, error_logger: true)
-      assert entry.event.__struct__ == Timber.Events.ErrorEvent
     end
   end
 
@@ -107,15 +103,8 @@ defmodule Timber.Events.LogEntryTest do
 
       assert Map.fetch!(result, "message") == "message"
       assert Map.fetch!(result, "level") == "info"
-      assert Map.fetch!(result, "$schema") == LogEntry.schema()
       assert Map.fetch!(result, "dt") == "2016-01-21T12:54:56.001234Z"
-
-      event =
-        result
-        |> Map.fetch!("event")
-        |> Map.fetch!("custom")
-
-      assert Map.fetch!(event, "type") == %{"test" => "value"}
+      assert Map.fetch!(result, "type") == %{"test" => "value"}
 
       context = Map.fetch!(result, "context")
 
@@ -128,41 +117,18 @@ defmodule Timber.Events.LogEntryTest do
     end
 
     test "encodes logfmt properly" do
-      entry = LogEntry.new(get_time(), :info, "message", event: %{type: :type, data: %{a: 1}})
+      entry = LogEntry.new(get_time(), :info, "message", event: %{order_placed: %{total: 100}})
+      hostname = get_hostname()
       system_pid = "#{entry.context.system.pid}"
       vm_pid = entry.context.runtime.vm_pid
       result = LogEntry.encode_to_iodata!(entry, :logfmt)
 
-      assert result == [
-               [
-                 10,
-                 9,
-                 "Context: ",
-                 [
-                   "system.pid",
-                   61,
-                   system_pid,
-                   32,
-                   "system.hostname",
-                   61,
-                   "#{get_hostname()}",
-                   32,
-                   "runtime.vm_pid",
-                   61,
-                   vm_pid
-                 ]
-               ],
-               [10, 9, "Event: ", ["custom.type.a", 61, "1"]],
-               []
-             ]
-    end
+      assert is_list(result)
 
-    test "encodes raises ArgumentError when event is not a map" do
-      entry = LogEntry.new(get_time(), :info, "message", event: %{type: 1})
-
-      assert_raise ArgumentError, fn ->
-        LogEntry.encode_to_iodata!(entry, :json)
-      end
+      assert to_string(result) ==
+               "\n\tContext: system.pid=#{system_pid} system.hostname=#{hostname} runtime.vm_pid=#{
+                 vm_pid
+               } runtime.module_name= runtime.line= runtime.function= runtime.file= runtime.application="
     end
   end
 

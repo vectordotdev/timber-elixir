@@ -1,14 +1,12 @@
 defmodule Timber.Contexts.UserContext do
-  @moduledoc """
-  The User context tracks the currently authenticated user and allows you to
-  tail an individual user in the Timber console.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  You will want to add this context at the time you authenticate the user:
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
 
-  ```elixir
-  %Timber.Contexts.UserContext{id: "my_user_id", name: "John Doe", email: "john@doe.com"}
-  |> Timber.add_context()
-  ```
+      Timber.add_context(user: %{id: "abcd1234"})
+
   """
 
   @type t :: %__MODULE__{
@@ -24,4 +22,11 @@ defmodule Timber.Contexts.UserContext do
         }
 
   defstruct [:id, :name, :email]
+
+  defimpl Timber.Contextable do
+    def to_context(context) do
+      context = Map.from_struct(context)
+      %{user: context}
+    end
+  end
 end

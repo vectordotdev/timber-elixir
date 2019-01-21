@@ -1,16 +1,19 @@
 defmodule Timber.Events.HTTPRequestEvent do
-  @moduledoc """
-  The `HTTPRequestEvent` tracks HTTP requests.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  This gives you structured into the HTTP request
-  coming into your app as well as the ones going out (if you choose to track them).
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
 
-  The defined structure of this data can be found in the log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+      Logger.info(fn ->
+        message = "Received #{method} #{path}"
+        event = %{http_request_received: %{method: method, path: path}}
+        {message, event: event}
+      end)
 
-  Timber can automatically track incoming HTTP requests if you use a `Plug` based framework.
-  See the documentation for `Timber.Integerations.EventPlug` for more information. The `README.md`
-  also outlines how to set this up.
+  Please note, you can use the official
+  [`:timber_plug`](https://github.com/timberio/timber-elixir-plug) integration to
+  automatically structure this event with metadata.
   """
 
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
@@ -111,6 +114,18 @@ defmodule Timber.Events.HTTPRequestEvent do
       ["Received ", event.method, " ", event.path]
     else
       ["Received ", event.method]
+    end
+  end
+
+  defimpl Timber.Eventable do
+    def to_event(%Timber.Events.HTTPRequestEvent{direction: "outgoing"} = event) do
+      event = Map.from_struct(event)
+      %{http_request_sent: event}
+    end
+
+    def to_event(event) do
+      event = Map.from_struct(event)
+      %{http_request_received: event}
     end
   end
 end

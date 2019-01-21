@@ -188,7 +188,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       ref = make_ref()
       state = %{state | ref: ref}
 
-      assert_raise Timber.InvalidAPIKeyError, fn ->
+      assert_raise Timber.Errors.InvalidAPIKeyError, fn ->
         HTTP.handle_info({:hackney_response, ref, {:ok, 401, ""}}, state)
       end
     end

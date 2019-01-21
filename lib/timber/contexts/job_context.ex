@@ -1,12 +1,12 @@
 defmodule Timber.Contexts.JobContext do
-  @moduledoc """
-  The job context tracks the execution of background jobs or any isolated
-  task with a reference. Add it like:
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  ```elixir
-  %Timber.Contexts.JobContext{attempt: 1, id: "my_job_id", queue_name: "my_job_queue"}
-  |> Timber.add_context()
-  ```
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
+
+      Timber.add_context(job: %{id: "abcd1234"})
+
   """
 
   @type t :: %__MODULE__{
@@ -23,4 +23,11 @@ defmodule Timber.Contexts.JobContext do
 
   @enforce_keys [:id]
   defstruct [:attempt, :id, :queue_name]
+
+  defimpl Timber.Contextable do
+    def to_context(context) do
+      context = Map.from_struct(context)
+      %{job: context}
+    end
+  end
 end

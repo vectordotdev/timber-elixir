@@ -1,10 +1,19 @@
 defmodule Timber.Contexts.SessionContext do
-  @moduledoc """
-  The Session context tracks the current session. It it's a way to track users without the
-  need for authentication.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  Note: Timber can automatically add context information about HTTP requests if
-  you use a `Plug` based framework through the `Timber.Plug.SessionContext`.
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
+
+      Timber.add_context(session: %{id: "abcd1234"})
+
+  In addition, you can use Timber integrations to automatically capture context in `Plug`
+  and `Phoenix`:
+
+  * [`:timber_phoenix`](https://github.com/timberio/timber-elixir-phoenix)
+  * [`:timber_plug`](https://github.com/timberio/timber-elixir-plug)
+
+  Checkout the `README` for a list of all integrations.
   """
 
   @type t :: %__MODULE__{
@@ -16,4 +25,11 @@ defmodule Timber.Contexts.SessionContext do
         }
 
   defstruct [:id]
+
+  defimpl Timber.Contextable do
+    def to_context(context) do
+      context = Map.from_struct(context)
+      %{session: context}
+    end
+  end
 end

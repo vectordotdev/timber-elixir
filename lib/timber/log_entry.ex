@@ -13,14 +13,16 @@ defmodule Timber.LogEntry do
   alias Timber.GlobalContext
   alias Timber.LocalContext
   alias Timber.Event
-  alias Timber.Eventable
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
-  alias Timber.Utils.Map, as: UtilsMap
   alias Timber.LogfmtEncoder
   alias Timber.LoggerBackends.HTTP, as: LoggerBackend
 
   defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
+
+  #
+  # Typespecs
+  #
 
   @type t :: %__MODULE__{
           dt: String.t(),
@@ -28,7 +30,6 @@ defmodule Timber.LogEntry do
           message: iodata,
           context: Context.t(),
           event: nil | Event.t(),
-          meta: nil | map,
           tags: nil | [String.t()],
           time_ms: nil | float
         }
@@ -46,7 +47,9 @@ defmodule Timber.LogEntry do
 
   @type format :: :json | :logfmt | :msgpack
 
-  @schema "https://raw.githubusercontent.com/timberio/log-event-json-schema/v3.1.1/schema.json"
+  #
+  # API
+  #
 
   @doc """
   Creates a new `LogEntry` struct
@@ -79,7 +82,12 @@ defmodule Timber.LogEntry do
       |> add_system_context()
 
     meta = Keyword.get(metadata, :meta)
-    {message, event} = extract_message_and_event(metadata, message)
+
+    event =
+      metadata
+      |> Keyword.get(:event)
+      |> try_to_event()
+
     tags = Keyword.get(metadata, :tags)
     time_ms = Keyword.get(metadata, :time_ms)
 
@@ -94,6 +102,10 @@ defmodule Timber.LogEntry do
       time_ms: time_ms
     }
   end
+
+  #
+  # Util
+  #
 
   # Add the default Elixir Logger runtime metadata as runtime context.
   defp add_runtime_context(context, metadata) do
@@ -121,7 +133,7 @@ defmodule Timber.LogEntry do
       vm_pid: vm_pid
     }
 
-    Context.add(context, runtime_context)
+    Context.merge(context, runtime_context)
   end
 
   defp add_system_context(context) do
@@ -132,35 +144,8 @@ defmodule Timber.LogEntry do
       end
 
     system_context = %SystemContext{hostname: Timber.Cache.hostname(), pid: pid}
-    Context.add(context, system_context)
+    Context.merge(context, system_context)
   end
-
-  # Attemps to extract the message and event from the given logger metadata and message.
-  # We take the message so that we can convert upstream error logger messages into actual
-  # `ErrorEvent.t` events.
-  defp extract_message_and_event(metadata, message) do
-    case Event.extract_from_metadata(metadata) do
-      nil ->
-        if Keyword.has_key?(metadata, :error_logger) do
-          case Timber.Events.ErrorEvent.from_log_message(to_string(message)) do
-            {:ok, event} ->
-              message = Timber.Events.ErrorEvent.message(event)
-              {message, event}
-
-            {:error, _reason} ->
-              {message, nil}
-          end
-        else
-          {message, nil}
-        end
-
-      data ->
-        event = Eventable.to_event(data)
-        {message, event}
-    end
-  end
-
-  def schema, do: @schema
 
   @doc """
   Encodes the log event to chardata
@@ -184,25 +169,42 @@ defmodule Timber.LogEntry do
 
     log_entry
     |> Map.from_struct()
-    |> map_take(only)
-    |> map_drop(except)
+    |> try_map_take(only)
+    |> try_map_drop(except)
+    |> try_move_to_root(:event)
     |> Map.update(:message, nil, &IO.chardata_to_string/1)
-    |> Map.update(:event, nil, fn existing_event ->
-      if existing_event != nil do
-        Event.to_api_map(existing_event)
-      else
-        existing_event
-      end
-    end)
-    |> Map.put(:"$schema", @schema)
-    |> UtilsMap.recursively_drop_blanks()
   end
 
-  defp map_take(map, nil), do: map
-  defp map_take(map, keys), do: Map.take(map, keys)
+  defp try_map_take(map, nil),
+    do: map
 
-  defp map_drop(map, nil), do: map
-  defp map_drop(map, keys), do: Map.drop(map, keys)
+  defp try_map_take(map, keys),
+    do: Map.take(map, keys)
+
+  defp try_map_drop(map, nil),
+    do: map
+
+  defp try_map_drop(map, keys),
+    do: Map.drop(map, keys)
+
+  defp try_move_to_root(map, key) do
+    case Map.get(map, key) do
+      val when is_map(val) ->
+        map
+        |> Map.delete(key)
+        |> Map.merge(val)
+
+      _else ->
+        map
+    end
+  end
+
+  defp try_to_event(nil),
+    do: nil
+
+  defp try_to_event(event) do
+    Event.to_event(event)
+  end
 
   @spec encode_map_to_iodata!(map, format) :: iodata
   defp encode_map_to_iodata!(map, :json) do

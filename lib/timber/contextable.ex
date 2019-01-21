@@ -26,47 +26,28 @@ defprotocol Timber.Contextable do
 
   ## What about custom contexts and structs?
 
-  We recommend defining a struct and calling `use Timber.Contexts.CustomContext` in that module.
-  This takes care of everything automatically. See `Timber.Contexts.CustomContext` for examples.
+  If you decide to get more formal with you event definition strategy you can use this
+  like you would any other protocol:
+
+  ```elixir
+  def OrderPlacedEvent do
+    defstruct [:id, :total]
+
+    defimpl Timber.Contextable do
+      def to_context(event) do
+        Map.from_struct(event)
+      end
+    end
+  end
+  ```
+
   """
 
   @doc """
-  Converts the data structure into a `Timber.Event.t`.
+  Converts the data structure into a `Timber.Context.t`.
   """
   @spec to_context(map() | list()) :: Timber.Context.element()
   def to_context(data)
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.CustomContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.HTTPContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.JobContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.OrganizationContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.RuntimeContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.SessionContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.SystemContext do
-  def to_context(context), do: context
-end
-
-defimpl Timber.Contextable, for: Timber.Contexts.UserContext do
-  def to_context(context), do: context
 end
 
 defimpl Timber.Contextable, for: List do
@@ -84,19 +65,9 @@ end
 
 defimpl Timber.Contextable, for: Map do
   def to_context(%{type: type, data: data}) do
-    %Timber.Contexts.CustomContext{
-      type: type,
-      data: data
-    }
+    %{type => data}
   end
 
-  def to_context(map) when map_size(map) == 1 do
-    [type] = Map.keys(map)
-    [data] = Map.values(map)
-
-    %Timber.Contexts.CustomContext{
-      type: type,
-      data: data
-    }
-  end
+  def to_context(map),
+    do: map
 end

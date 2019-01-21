@@ -1,9 +1,19 @@
 defmodule Timber.Events.ChannelJoinEvent do
-  @moduledoc """
-  The `ChannelJoinEvent` represents a web socket channel topic being joined.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  The defined structure of this data can be found in the log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
+
+      Logger.info(fn ->
+        message = "Joined channel #{channel_name} with #{topic}"
+        event = %{channel_joined: %{channel: channel, topic: topic}}
+        {message, event: event}
+      end)
+
+  Please note, you can use the official
+  [`:timber_phoenix`](https://github.com/timberio/timber-elixir-phoenix) integration to
+  automatically structure this event with metadata.
   """
 
   @type t :: %__MODULE__{
@@ -25,6 +35,13 @@ defmodule Timber.Events.ChannelJoinEvent do
   Builds a new struct taking care to:
 
   * Converts `:params` to `:params_json` that satifies the Timber API requirements
+  """
+  @deprecated """
+  The Timber service no longer requires a strict schema and therefore logging events
+  no long requires structs:
+
+  event = %{channel_joined: %{channel: "channel_name"}}
+  Logger.info("Channel joined", event: event)
   """
   @spec new(Keyword.t()) :: t
   def new(opts) do
@@ -50,5 +67,12 @@ defmodule Timber.Events.ChannelJoinEvent do
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{channel: channel, topic: topic}) do
     ["Joined channel ", to_string(channel), " with \"", to_string(topic), "\""]
+  end
+
+  defimpl Timber.Eventable do
+    def to_event(event) do
+      event = Map.from_struct(event)
+      %{channel_joined: event}
+    end
   end
 end

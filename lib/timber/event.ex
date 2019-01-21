@@ -1,19 +1,21 @@
 defmodule Timber.Event do
   @moduledoc false
+  # This module is internal to the Timber library and should not be called directly
+  # by users.
 
-  alias Timber.Events
-  alias Timber.Utils.Map, as: UtilsMap
+  alias Timber.Eventable
 
-  @type t ::
-          Events.ChannelJoinEvent.t()
-          | Events.ChannelReceiveEvent.t()
-          | Events.ControllerCallEvent.t()
-          | Events.CustomEvent.t()
-          | Events.ErrorEvent.t()
-          | Events.HTTPRequestEvent.t()
-          | Events.HTTPResponseEvent.t()
-          | Events.SQLQueryEvent.t()
-          | Events.TemplateRenderEvent.t()
+  #
+  # Typespecs
+  #
+
+  @type t :: %{required(key) => value}
+  @type key :: atom | String.t()
+  @type value :: %{optional(key) => boolean | number | String.t() | value}
+
+  #
+  # API
+  #
 
   @doc false
   @spec extract_from_metadata(Keyword.t()) :: nil | t
@@ -22,64 +24,13 @@ defmodule Timber.Event do
   end
 
   @doc false
+  def to_event(data) do
+    Eventable.to_event(data)
+  end
+
+  @doc false
   @spec to_metadata(t) :: Keyword.t()
   def to_metadata(event) do
     Keyword.put([], Timber.Config.event_key(), event)
   end
-
-  @doc false
-  @spec to_api_map(t) :: map
-  def to_api_map(%Events.CustomEvent{type: type} = event) when is_binary(type) do
-    atom_type = String.to_atom(type)
-
-    %{event | type: atom_type}
-    |> to_api_map()
-  end
-
-  def to_api_map(%Events.CustomEvent{type: type, data: data}) do
-    if !is_map(data) do
-      raise ArgumentError, message: "Custom Event data must be a map"
-    end
-
-    data = normalize_data(data)
-    %{custom: %{type => data}}
-  end
-
-  def to_api_map(%Events.ControllerCallEvent{} = event) do
-    type = type(event)
-
-    map =
-      event
-      |> normalize_data()
-      |> Map.delete(:pipelines)
-
-    %{type => map}
-  end
-
-  def to_api_map(event) do
-    type = type(event)
-    map = normalize_data(event)
-    %{type => map}
-  end
-
-  defp normalize_data(data) when is_map(data) do
-    data
-    |> UtilsMap.deep_from_struct()
-    |> UtilsMap.recursively_drop_blanks()
-  end
-
-  @doc """
-  Returns the official Timber type for this event. Used as the JSON map key when
-  sending to Timber.
-  """
-  @spec type(t) :: atom()
-  def type(%Events.ChannelJoinEvent{}), do: :channel_join
-  def type(%Events.ChannelReceiveEvent{}), do: :channel_receive
-  def type(%Events.ControllerCallEvent{}), do: :controller_call
-  def type(%Events.CustomEvent{}), do: :custom
-  def type(%Events.ErrorEvent{}), do: :error
-  def type(%Events.HTTPRequestEvent{}), do: :http_request
-  def type(%Events.HTTPResponseEvent{}), do: :http_response
-  def type(%Events.SQLQueryEvent{}), do: :sql_query
-  def type(%Events.TemplateRenderEvent{}), do: :template_render
 end

@@ -185,7 +185,7 @@ defmodule Timber.Mixfile do
     [
       {:hackney, "~> 1.9"},
       {:jason, "~> 1.1"},
-      {:msgpax, "~> 2.0"},
+      {:msgpax, "~> 2.2"},
 
       #
       # Tooling

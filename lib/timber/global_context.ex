@@ -18,7 +18,17 @@ defmodule Timber.GlobalContext do
   @spec add(Context.element()) :: :ok
   def add(context) do
     load()
-    |> Context.add(context)
+    |> Context.merge(context)
+    |> save()
+  end
+
+  @doc """
+  Deletes the key from the existing context.
+  """
+  @spec delete(atom) :: :ok
+  def delete(key) do
+    load()
+    |> Context.delete(key)
     |> save()
   end
 
@@ -47,14 +57,11 @@ defmodule Timber.GlobalContext do
     Application.get_env(:timber, :global_context, Context.new())
   end
 
-  @doc """
-  Removes the key from the existing context.
-  """
+  @doc false
+  @deprecated "Please use delete/1"
   @spec remove_key(atom) :: :ok
   def remove_key(key) do
-    load()
-    |> Context.remove_key(key)
-    |> save()
+    delete(key)
   end
 
   @doc false
