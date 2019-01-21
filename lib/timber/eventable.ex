@@ -6,7 +6,9 @@ defprotocol Timber.Eventable do
   For example, this protocol is how we're able to support maps:
 
   ```elixir
-  event_data = %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+  event_data = %{
+    payment_rejected: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
+  }
   Logger.info "Payment rejected", event: event_data
   ```
 
@@ -38,63 +40,20 @@ defprotocol Timber.Eventable do
   def to_event(data)
 end
 
-defimpl Timber.Eventable, for: Timber.Events.ChannelJoinEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.ChannelReceiveEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.ControllerCallEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.CustomEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.ErrorEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.HTTPRequestEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.HTTPResponseEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.SQLQueryEvent do
-  def to_event(event), do: event
-end
-
-defimpl Timber.Eventable, for: Timber.Events.TemplateRenderEvent do
-  def to_event(event), do: event
-end
-
 defimpl Timber.Eventable, for: Map do
   def to_event(%{type: type, data: data}) do
-    %Timber.Events.CustomEvent{
-      type: type,
-      data: data
-    }
+    %{type => data}
   end
 
-  def to_event(map) when map_size(map) == 1 do
-    [type] = Map.keys(map)
-    [data] = Map.values(map)
-
-    %Timber.Events.CustomEvent{
-      type: type,
-      data: data
-    }
+  def to_event(map) do
+    map
   end
 end
 
 defimpl Timber.Eventable, for: Any do
   def to_event(%{__exception__: true} = error) do
-    Timber.Events.ErrorEvent.from_exception(error)
+    error
+    |> Timber.Events.ErrorEvent.from_exception()
+    |> Timber.Eventable.to_event()
   end
 end

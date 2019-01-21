@@ -1,42 +1,24 @@
 defmodule Timber.Contexts.CustomContext do
-  @moduledoc """
-  The `CustomContext` allows you to track contextual information relevant to your
-  system that is not one of the commonly supported contexts for Timber (`Timber.Contexts.*`).
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  ## Fields
+  This module is deprecated in favor of using simple maps:
 
-    * `type` - (atom, required) This is the type of your context. It should be something unique
-      and unchanging. It will be used to identify this content. Example: `:my_context`.
-    * `data` - (map, optional) A map of data. This can be anything that can be JSON encoded.
-      Example: `%{key: "value"}`.
+      Timber.add_context(build: %{version: "1.0.0"})
 
-  ## Example
+  If you'd like to define your contexts as structs you can implement the `Timber.Contextable`
+  protocol:
 
-  There are 2 ways to log custom events:
+      defmodule BuildContext do
+        defstruct [:version]
 
-  1. Use a map (simplest)
-
-    ```elixir
-    Timber.add_context(build: %{version: "1.0.0"})
-    ```
-
-    The root key `:build` is the `type` and the value is the `data`.
-
-  2. Use a struct (advanced)
-
-    Defining structs for your contexts creates a contract around your data structure.
-    We recommend this approach when you have downstream consumers that will be affected
-    by data structure changes.
-
-    ```elixir
-    defmodule BuildContext do
-      use Timber.Contexts.CustomContext, type: :build
-      @enforce_keys [:version]
-      defstruct [:version]
-    end
-
-    Timber.add_context(%BuildContext{version: "1.0.0"})
-    ```
+        defimpl Timber.Contextable do
+          def to_context(context) do
+            map = Map.from_struct(context)
+            %{build: map}
+          end
+        end
+      end
   """
 
   @type t :: %__MODULE__{
@@ -51,4 +33,10 @@ defmodule Timber.Contexts.CustomContext do
 
   @enforce_keys [:type]
   defstruct [:type, :data]
+
+  defimpl Timber.Contextable do
+    def to_context(context) do
+      %{context.type => context.data}
+    end
+  end
 end

@@ -1,16 +1,12 @@
 defmodule Timber.Contexts.OrganizationContext do
-  @moduledoc """
-  The organization context tracks the organization of the currently
-  authenticated user.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  You will want to add this context at the time you determine
-  the organization a user belongs to, typically in the authentication
-  flow.
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
 
-  ```elixir
-  %Timber.Contexts.OrganizationContext{id: "my_organization_id", name: "Lumberjacks Doe"}
-  |> Timber.add_context()
-  ```
+      Timber.add_context(organization: %{id: "abcd1234"})
+
   """
 
   @type t :: %__MODULE__{
@@ -24,4 +20,11 @@ defmodule Timber.Contexts.OrganizationContext do
         }
 
   defstruct [:id, :name]
+
+  defimpl Timber.Contextable do
+    def to_context(context) do
+      context = Map.from_struct(context)
+      %{organization: context}
+    end
+  end
 end

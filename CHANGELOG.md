@@ -10,6 +10,23 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+  - `Timber.InvalidAPIKeyError` is now `Timber.Errors.InvalidAPIKeyError`
+  - Events are no longer nested under the `event` key.
+  - Custom events are no longer nested under the `event.custom` key, they have simply been moved
+    to the root of the document.
+  - Custom contexts are no longer nested under the `context.custom` key, they have simply been
+    moved to the root of the document.
+  - JSON representations of log events no longer include the `$schema` key since Timber 2.0
+    does not strictly require a schema anymore.
+  - All `Timber.Events.*` and `Timber.Contexts.*` structs have been deprecated in favor of
+    simple maps since Timber 2.0 no longer requires a strict schema. Module docs for each
+    module has been updated accordingly.
+  - Errors are no longer automatically parsed in the logger backend. Please use the
+    [`:timber_exceptions`](https://github.com/timberio/timber-elixir-exceptions) library if you'd
+    like to structure errors. This is a proper approach to structuring these events.
+
 ## 3.0.0 - 2018-12-20
 
 ### Changed

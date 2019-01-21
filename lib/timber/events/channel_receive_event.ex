@@ -1,9 +1,19 @@
 defmodule Timber.Events.ChannelReceiveEvent do
-  @moduledoc """
-  The `ChannelReceiveEvent` represents the reception of an event for a given topic on a channel.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  The defined structure of this data can be found in the log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
+
+      Logger.info(fn ->
+        message = "Received #{event} on #{topic} to #{channel}"
+        event = %{channel_event_received: %{channel: channel, topic: topic, event: event}}
+        {message, event: event}
+      end)
+
+  Please note, you can use the official
+  [`:timber_phoenix`](https://github.com/timberio/timber-elixir-phoenix) integration to
+  automatically structure this event with metadata.
   """
 
   @type t :: %__MODULE__{
@@ -52,5 +62,12 @@ defmodule Timber.Events.ChannelReceiveEvent do
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{channel: channel, topic: topic, event: event}) do
     ["Received ", to_string(event), " on \"", to_string(topic), "\" to ", to_string(channel)]
+  end
+
+  defimpl Timber.Eventable do
+    def to_event(event) do
+      event = Map.from_struct(event)
+      %{channel_event_received: event}
+    end
   end
 end

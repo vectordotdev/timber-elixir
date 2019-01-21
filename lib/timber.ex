@@ -52,31 +52,38 @@ defmodule Timber do
   end
 
   @doc """
+  Deletes a key from Timber context on the current process.
+
+  See `delete_context/2`
+  """
+  @spec delete_context(atom) :: :ok
+  def delete_context(key, location \\ :local)
+
+  @doc """
+  Deletes a context key.
+
+  The second parameter indicates which context you want the key to be removed from.
+  """
+  @spec delete_context(atom, context_location) :: :ok
+  def delete_context(key, :local) do
+    LocalContext.delete(key)
+  end
+
+  def delete_context(key, :global) do
+    GlobalContext.delete(key)
+  end
+
+  @doc """
   Captures the duration in fractional milliseconds since the timer was started. See
   `start_timer/0`.
   """
   defdelegate duration_ms(timer), to: Timber.Timer
 
-  @doc """
-  Removes a key from Timber context on the current process.
-
-  See `remove_context_key/2`
-  """
-  @spec remove_context_key(atom) :: :ok
-  def remove_context_key(key, location \\ :local)
-
-  @doc """
-  Removes a context key.
-
-  The second parameter indicates which context you want the key to be removed from.
-  """
+  @doc false
+  @deprecated "Please use delete_context/1 or delete_context/2"
   @spec remove_context_key(atom, context_location) :: :ok
-  def remove_context_key(key, :local) do
-    LocalContext.remove_key(key)
-  end
-
-  def remove_context_key(key, :global) do
-    GlobalContext.remove_key(key)
+  def remove_context_key(key, location \\ :local) do
+    delete_context(key, location)
   end
 
   @doc """

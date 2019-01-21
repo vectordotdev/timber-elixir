@@ -1,15 +1,19 @@
 defmodule Timber.Events.HTTPResponseEvent do
-  @moduledoc """
-  The `HTTPResponseEvent` tracks HTTP responses in your app, both outgoing and
-  incoming from external services (should you choose to track these).
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  This gives you structured insight into all of your HTTP response events.
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
 
-  The defined structure of this data can be found in the log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+      Logger.info(fn ->
+        message = "Sent #{status} response in #{duration_ms}ms"
+        event = %{http_response_sent: %{status: status, duration_ms: duration_ms}}
+        {message, event: event}
+      end)
 
-  Timber can automatically track response events if you use a `Plug` based framework
-  through `Timber.Plug`.
+  Please note, you can use the official
+  [`:timber_plug`](https://github.com/timberio/timber-elixir-plug) integration to
+  automatically structure this event with metadata.
   """
 
   alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
@@ -93,4 +97,16 @@ defmodule Timber.Events.HTTPResponseEvent do
       " response in ",
       UtilsHTTPEvents.format_time_ms(event.time_ms)
     ]
+
+  defimpl Timber.Eventable do
+    def to_event(%Timber.Events.HTTPResponseEvent{direction: "incoming"} = event) do
+      event = Map.from_struct(event)
+      %{http_response_received: event}
+    end
+
+    def to_event(event) do
+      event = Map.from_struct(event)
+      %{http_response_sent: event}
+    end
+  end
 end

@@ -19,7 +19,19 @@ defmodule Timber.LocalContext do
   @spec add(Context.element()) :: :ok
   def add(context) do
     load()
-    |> Context.add(context)
+    |> Context.merge(context)
+    |> save()
+  end
+
+  @doc """
+  Deletes the key from the existing local context.
+
+  `Timber.Context.delete/2` is called to delete the key.
+  """
+  @spec delete(atom) :: :ok
+  def delete(key) do
+    load()
+    |> Context.delete(key)
     |> save()
   end
 
@@ -58,16 +70,11 @@ defmodule Timber.LocalContext do
     Keyword.get(metadata, :timber_context, Context.new())
   end
 
-  @doc """
-  Removes the key from the existing local context.
-
-  `Timber.Context.remove_key/2` is called to delete the key.
-  """
+  @doc false
+  @deprecated "Please use delete/1"
   @spec remove_key(atom) :: :ok
   def remove_key(key) do
-    load()
-    |> Context.remove_key(key)
-    |> save()
+    delete(key)
   end
 
   @doc false

@@ -1,14 +1,19 @@
 defmodule Timber.Events.SQLQueryEvent do
-  @moduledoc """
-  The `SQLQueryEvent` tracks *outgoing* SQL queries.
+  @moduledoc ~S"""
+  **DEPRECATED**
 
-  This gives you structured insight into SQL query performance within your application.
+  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
+  no long requires a strict schema and therefore simplifies how users set context:
 
-  The defined structure of this data can be found in the log event JSON schema:
-  https://github.com/timberio/log-event-json-schema
+      Logger.info(fn ->
+        message = "Processed #{sql} in #{duration_ms}ms"
+        event = %{sql_query_executed: %{sql: sql, duration_ms: duration_ms}}
+        {message, event: event}
+      end)
 
-  Timber can automatically track SQL query events if you use `Ecto` and setup
-  `Timber.Ecto`.
+  Please note, you can use the official
+  [`:timber_ecto`](https://github.com/timberio/timber-elixir-ecto) integration to
+  automatically structure this event with metadata.
   """
 
   @type t :: %__MODULE__{
@@ -25,4 +30,11 @@ defmodule Timber.Events.SQLQueryEvent do
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{sql: sql, time_ms: time_ms}),
     do: ["Processed ", sql, " in ", to_string(time_ms), "ms"]
+
+  defimpl Timber.Eventable do
+    def to_event(event) do
+      event = Map.from_struct(event)
+      %{sql_query_executed: event}
+    end
+  end
 end

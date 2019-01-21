@@ -1,4 +1,4 @@
-defmodule Timber.InvalidAPIKeyError do
+defmodule Timber.Errors.InvalidAPIKeyError do
   @moduledoc """
   Raised when Timber rejects the provided API key
   """
