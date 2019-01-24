@@ -100,4 +100,15 @@ defmodule Timber do
   def debug(io_device, message_fun) when is_function(message_fun) do
     IO.write(io_device, message_fun.())
   end
+
+  # Formats a duration, in milliseonds, to a human friendly representation
+  @doc false
+  def format_duration_ms(duration_ms) when is_integer(duration_ms),
+    do: [Integer.to_string(duration_ms), "ms"]
+
+  def format_duration_ms(duration_ms) when is_float(duration_ms) and duration_ms >= 1,
+    do: [:erlang.float_to_binary(duration_ms, decimals: 2), "ms"]
+
+  def format_duration_ms(duration_ms) when is_float(duration_ms) and duration_ms < 1,
+    do: [:erlang.float_to_binary(duration_ms * 1000, decimals: 0), "µs"]
 end
