@@ -8,7 +8,7 @@ defmodule Timber.Events.TemplateRenderEvent do
   https://github.com/timberio/log-event-json-schema
 
   Timber can automatically track template rendering events if you
-  use the Phoenix framework and setup the `Timber.Integrations.PhoenixInstrumenter`.
+  use the Phoenix framework and set up `Timber.Phoenix`.
   """
 
   @type t :: %__MODULE__{
