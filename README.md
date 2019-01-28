@@ -51,7 +51,6 @@ and metadata for the logs they emit:
 * [`Phoenix`](https://github.com/timberio/timber-elixir-phoenix) - Add metadata to your `Phoenix` logs.
 * [`Plug`](https://github.com/timberio/timber-elixir-plug) - Capture HTTP context and add metadata to your `Plug` logs.
 * [`Exceptions`](https://github.com/timberio/timber-elixir-exceptions) - Add metadata to your logs when processes crash
-* [Add your own&hellip;][integrating]
 
 ## Principles
 
@@ -66,17 +65,14 @@ tenents of Timber that deliver on this promise are:
 ---
 
 <p align="center">
-<a href="/CONTRIBUTING.md">Contributing</a> &bull;
 <a href="mailto:support@timber.io">Support</a> &bull;
 <a href="https://timber.io">Timber.io</a>
 </p>
 
-[contributing]: /CONTRIBUTING.md
 [docs]: https://docs.timber.io/integrations/elixir
 [pricing]: https://timber.io/pricing
 [setting_context]: /USAGE.md#setting-context
 [structured_logging]: /USAGE.md#logging-structured-data
-[integrating]: /INTEGRATING.md
 [signup]: https://app.timber.io
 [support]: mailto:support@timber.io
 [timber]: https://timber.io
