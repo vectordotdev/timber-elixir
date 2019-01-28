@@ -341,7 +341,10 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   # Encodes the buffer into msgpack
-  @spec buffer_to_msg_pack(buffer) :: IO.chardata()
+  @spec buffer_to_msg_pack(buffer) ::
+          {:ok, IO.chardata()}
+          | {:error, Msgpax.PackError.t()}
+          | {:error, Exception.t()}
   def buffer_to_msg_pack(buffer) do
     try do
       buffer
