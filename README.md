@@ -69,7 +69,7 @@ tenents of Timber that deliver on this promise are:
 <a href="https://timber.io">Timber.io</a>
 </p>
 
-[docs]: https://docs.timber.io/integrations/elixir
+[docs]: https://docs.timber.io/languages/elixir
 [pricing]: https://timber.io/pricing
 [setting_context]: /USAGE.md#setting-context
 [structured_logging]: /USAGE.md#logging-structured-data
