@@ -8,7 +8,7 @@ defmodule Timber.Events.SQLQueryEvent do
   https://github.com/timberio/log-event-json-schema
 
   Timber can automatically track SQL query events if you use `Ecto` and setup
-  `Timber.Integrations.EctoLogger`.
+  `Timber.Ecto`.
   """
 
   @type t :: %__MODULE__{

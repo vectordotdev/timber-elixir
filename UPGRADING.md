@@ -4,7 +4,109 @@ This documents outlines how to upgrade from major versions of Timber
 
 ## 2.x to 3.x
 
-As of 3.x, all integrations have been broken out into their own libraries.
+Timber 3.x ships with a new library structure, including removing all integrations with dependencies like Phoenix, Ecto, and Plug into their own packages.  This will allow for better dependency management and compilation guarantees.  Many of the changes were internal, but upgrading does require a handful changes.
+
+### Update Timber
+To start, simply update your Timber dep in mix.exs:
+```elixir
+{:timber, "~> 3.0"}
+```
+
+### Timber.Phoenix
+
+```elixir
+# mix.exs
+
+{:timber_phoenix, "~> 1.0"}
+```
+```diff
+# config/config.exs
+-   instrumenters: [Timber.Integrations.PhoenixInstrumenter],
++   instrumenters: [Timber.Phoenix],
+```
+
+### Timber.Plug
+
+```elixir
+# mix.exs
+# adding dependency is not required if `:timber_phoenix` has already been added
+{:timber_plug, "~> 1.0"}
+```
+
+```diff
+# endpoint.ex (or wherever your Timber Plug modules are added)
+
+# Add Timber plugs for capturing HTTP context and events
+- plug Timber.Integrations.SessionContextPlug
+- plug Timber.Integrations.HTTPContextPlug
+- plug Timber.Integrations.EventPlug
++ plug Timber.Plug.SessionContext
++ plug Timber.Plug.HTTPContext
++ plug Timber.Plug.Event
+```
+
+### Timber.Ecto
+
+If you are on Ecto 2:
+
+```elixir
+# mix.exs
+
+{:timber_ecto, "~> 1.0"}
+```
+
+```diff
+# config/config.exs
+-   loggers: [{Timber.Integrations.EctoLogger, :log, []}]
++   loggers: [{Timber.Ecto, :log, []}]
+
+-config :timber, Timber.Integrations.EctoLogger,
+-   query_time_ms_threshold: 2_000 # 2 seconds
+
++config :timber_ecto,
++   query_time_ms_threshold: 2_000 # 2 seconds
+```
+
+If you are on Ecto 3:
+```elixir
+# mix.exs
+
+{:timber_ecto, "~> 2.0"}
+```
+
+```diff
+# config/config.exs
+config :my_app, MyApp.Repo,
++   log: false
+```
+
+```diff
+# lib/my_app/repo.ex
+def init(_, opts) do
++  :ok = Telemetry.attach(
++    "timber-ecto-query-handler",
++   [:my_app, :repo, :query],
++   Timber.Ecto,
++   :handle_event,
++   [] # [query_time_ms_threshold: 2_000]
++ )
+  {:ok, opts}
+end
+```
+
+### Timber.Exceptions
+
+```elixir
+# mix.exs
+
+{:timber_exceptions, "~> 1.0"}
+```
+
+```diff
+# application.ex
+-:ok = :error_logger.add_report_handler(Timber.Integrations.ErrorLogger)
++:ok = Logger.add_translator({Timber.Exceptions.Translator, :translate})
+```
 
 ## 2.0 to 2.1
 

@@ -4,7 +4,7 @@ defmodule Timber.Contexts.SessionContext do
   need for authentication.
 
   Note: Timber can automatically add context information about HTTP requests if
-  you use a `Plug` based framework through the `Timber.Integrations.SessionContextPlug`.
+  you use a `Plug` based framework through the `Timber.Plug.SessionContext`.
   """
 
   @type t :: %__MODULE__{
