@@ -82,6 +82,12 @@ Produces the following event:
 }
 ```
 
+Allowing you to run queries like:
+
+* Tail a user: `context.user.id:5c06a0df5f37972e07cb7213`
+* Find orders of a certain value: `order_placed.total:>=100`
+* View logs in the context of the VM process: `context.runtime.vm_pid:"<0.9960.261>"`
+
 See more usage examples in [our Elixir documentation][docs].
 
 ## Integrations
