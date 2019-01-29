@@ -4,7 +4,6 @@ defmodule Timber.Config do
   """
 
   @application :timber
-  @default_http_body_max_bytes 2048
 
   @doc """
   Your Timber application API key. This can be obtained after you create your
@@ -44,38 +43,8 @@ defmodule Timber.Config do
   Logger.info("test", timber_event: my_event)
   ```
   """
-  def event_key, do: Application.get_env(@application, :event_key, :event)
-
-  @doc """
-  Allows for the sanitizations of custom header keys. This should be used to
-  ensure sensitive data, such as API keys, do not get logged.
-
-  **Note, the keys passed must be lowercase!**
-
-  Timber normalizes headers to be downcased before comparing them here. For
-  performance reasons it is advised that you pass lower cased keys.
-
-  # Example
-
-  ```elixir
-  config :timber, :header_keys_to_sanitize, ["my-sensitive-header-name"]
-  ```
-  """
-  def header_keys_to_sanitize, do: Application.get_env(@application, :header_keys_to_sanitize, [])
-
-  @doc """
-  Configuration for the `:body` byte size limit in the `Timber.Events.HTTP*` events.
-  Bodies that exceed this limit will be truncated to this byte limit. The default is
-  `2048` with a maximum allowed value of `8192`.
-
-  # Example
-
-  ```elixir
-  config :timber, :http_body_size_limit, 2048
-  ```
-  """
-  def http_body_size_limit,
-    do: Application.get_env(@application, :http_body_size_limit, @default_http_body_max_bytes)
+  def event_key,
+    do: Application.get_env(@application, :event_key, :event)
 
   @doc """
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
@@ -87,7 +56,8 @@ defmodule Timber.Config do
   config :timber, :http_url, "https://123.123.123.123"
   ```
   """
-  def http_url, do: Application.get_env(@application, :http_url)
+  def http_url,
+    do: Application.get_env(@application, :http_url)
 
   @doc """
   Unfortunately the `Elixir.Logger` produces timestamps with microsecond prevision.
