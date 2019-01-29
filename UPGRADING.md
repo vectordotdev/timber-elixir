@@ -29,7 +29,6 @@ To start, simply update your Timber dep in mix.exs:
 
 ```elixir
 # mix.exs
-# adding dependency is not required if `:timber_phoenix` has already been added
 {:timber_plug, "~> 1.0"}
 ```
 
