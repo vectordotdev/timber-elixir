@@ -31,17 +31,6 @@ defmodule Timber.Utils.HTTPEvents do
     |> URI.to_string()
   end
 
-  @doc false
-  # Attemps to grab the request ID from the headers
-  def get_request_id_from_headers(%{"x-request-id" => request_id}), do: request_id
-
-  def get_request_id_from_headers(%{"request-id" => request_id}), do: request_id
-
-  # Amazon uses their own *special* header
-  def get_request_id_from_headers(%{"x-amzn-requestid" => request_id}), do: request_id
-
-  def get_request_id_from_headers(_headers), do: nil
-
   # Move `:headers` (Map.t) into `:headers_json` (String.t) so that all headers are no indexed
   # within Timber by default.
   @spec move_headers_to_headers_json(Keyword.t()) :: Keyword.t()
