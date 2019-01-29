@@ -125,7 +125,7 @@ defmodule Timber do
 
   def format_duration_ms(duration_ms) when is_float(duration_ms) and duration_ms < 1,
     do: [:erlang.float_to_binary(duration_ms * 1000, decimals: 0), "µs"]
-    
+
   # Convenience function for encoding data to JSON. This is necessary to allow for
   # configurable JSON parsers.
   @doc false
