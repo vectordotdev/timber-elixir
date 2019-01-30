@@ -2,11 +2,11 @@ defmodule Timber.Contexts.CustomContext do
   @moduledoc ~S"""
   **DEPRECATED**
 
-  This module is deprecated in favor of using simple maps:
+  The `Timber.Contexts.CustomContext` module is deprecated in favor of using simple maps:
 
       Timber.add_context(build: %{version: "1.0.0"})
 
-  If you'd like to define your contexts as structs you can implement the `Timber.Contextable`
+  If you'd like, you can define your contexts as structs and implement the `Timber.Contextable`
   protocol:
 
       defmodule BuildContext do

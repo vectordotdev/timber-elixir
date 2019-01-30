@@ -26,9 +26,7 @@ defmodule Timber.EventableTest do
 
       assert event == %{
                error: %{
-                 backtrace: nil,
                  message: "boom",
-                 metadata_json: nil,
                  name: "RuntimeError"
                }
              }

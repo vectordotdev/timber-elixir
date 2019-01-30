@@ -26,12 +26,6 @@ defmodule Timber.HTTPClients.Hackney do
     recv_timeout: 10_000
   ]
 
-  def start() do
-    {:ok, _} = Application.ensure_all_started(:hackney)
-
-    :ok
-  end
-
   @doc """
   Issues a HTTP request via hackney.
   """

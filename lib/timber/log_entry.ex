@@ -18,7 +18,7 @@ defmodule Timber.LogEntry do
   alias Timber.LogfmtEncoder
   alias Timber.LoggerBackends.HTTP, as: LoggerBackend
 
-  defstruct [:dt, :level, :message, :meta, :event, :tags, :time_ms, context: %{}]
+  defstruct [:dt, :level, :message, :event, context: %{}]
 
   #
   # Typespecs
@@ -29,9 +29,7 @@ defmodule Timber.LogEntry do
           level: Logger.level(),
           message: iodata,
           context: Context.t(),
-          event: nil | Event.t(),
-          tags: nil | [String.t()],
-          time_ms: nil | float
+          event: nil | Event.t()
         }
 
   @type m :: %__MODULE__{
@@ -39,10 +37,7 @@ defmodule Timber.LogEntry do
           level: Logger.level(),
           message: binary,
           context: Context.t(),
-          event: nil | Event.t(),
-          meta: nil | map,
-          tags: nil | [String.t()],
-          time_ms: nil | float
+          event: nil | Event.t()
         }
 
   @type format :: :json | :logfmt | :msgpack
@@ -59,7 +54,7 @@ defmodule Timber.LogEntry do
   metadata parameter.
   """
   @spec new(LoggerBackend.timestamp(), Logger.level(), Logger.message(), Keyword.t()) :: t
-  def new(timestamp, level, message, metadata) do
+  def new(timestamp, level, message, metadata \\ []) do
     dt_iso8601 =
       if Config.use_nanosecond_timestamps?() do
         DateTime.utc_now()
@@ -81,25 +76,17 @@ defmodule Timber.LogEntry do
       |> add_runtime_context(metadata)
       |> add_system_context()
 
-    meta = Keyword.get(metadata, :meta)
-
     event =
       metadata
       |> Keyword.get(:event)
       |> try_to_event()
-
-    tags = Keyword.get(metadata, :tags)
-    time_ms = Keyword.get(metadata, :time_ms)
 
     %__MODULE__{
       dt: dt_iso8601,
       level: level,
       message: message,
       context: context,
-      event: event,
-      meta: meta,
-      tags: tags,
-      time_ms: time_ms
+      event: event
     }
   end
 
@@ -227,13 +214,7 @@ defmodule Timber.LogEntry do
         val -> [?\n, ?\t, "Event: ", LogfmtEncoder.encode!(val)]
       end
 
-    meta =
-      case Map.get(map, :meta) do
-        nil -> []
-        val -> [?\n, ?\t, "Meta: ", LogfmtEncoder.encode!(val)]
-      end
-
-    [context, event, meta]
+    [context, event]
   end
 
   defp vm_pid_from_metadata(metadata) do

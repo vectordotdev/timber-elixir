@@ -34,10 +34,6 @@ defmodule Timber.HTTPClients.Fake do
     get_stub(name) || raise("No stub found for #{__MODULE__}.#{name}")
   end
 
-  def start() do
-    :ok
-  end
-
   def async_request(method, url, headers, body) do
     # Track the function call
     add_function_call(:async_request, {method, url, headers, body})

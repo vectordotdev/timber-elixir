@@ -7,7 +7,6 @@ config :logger,
 config :logger, :console, format: {Timber.Formatter, :format}
 
 config :timber,
-  header_keys_to_sanitize: ["sensitive-key"],
   nanosecond_timestamps: false
 
 config :timber, Timber.Formatter, format: :logfmt

@@ -1,34 +1,32 @@
 defprotocol Timber.Eventable do
-  @moduledoc """
-  Converts a data structure into a `Timber.Event.t`. This is called on any data structure passed
-  in the `:event` metadata key passed to `Logger`.
+  @moduledoc ~S"""
+  Protocol that converts a data structure into a `Timber.Event.t`.
 
-  For example, this protocol is how we're able to support maps:
+  This is called on any data structure used in the `:event` metadata key passed to `Logger` calls.
 
-  ```elixir
-  event_data = %{
-    payment_rejected: %{customer_id: "xiaus1934", amount: 1900, currency: "USD"}
-  }
-  Logger.info "Payment rejected", event: event_data
-  ```
+  ## Example
 
-  This is achieved by:
+  For example, you can use this protocol to pass format event structs:
 
-  ```elixir
-  defimpl Timber.Eventable, for: Map do
-    def to_event(%{type: type, data: data}) do
-      %Timber.Events.CustomEvent{
-        type: type,
-        data: data
-      }
-    end
-  end
-  ```
+      defmodule OrderPlacedEvent do
+        defstruct [:order_id, :total]
 
-  ## What about custom events and structs?
+        defimpl Timber.Eventable do
+          def to_event(event) do
+            map = Map.from_struct(event)
+            %{order_placed: map}
+          end
+        end
+      end
 
-  We recommend defining a struct and calling `use Timber.Events.CustomEvent` in that module.
-  This takes care of everything automatically. See `Timber.Events.CustomEvent` for examples.
+    Then you can use it like so:
+
+      Logger.info(fn ->
+        event = %OrderPlacedEvent{order_id: "abcd", total: 100.23}
+        message = "Order #{event.id} placed"
+        {message, event: event}
+      end)
+
   """
 
   @fallback_to_any true
@@ -51,9 +49,15 @@ defimpl Timber.Eventable, for: Map do
 end
 
 defimpl Timber.Eventable, for: Any do
-  def to_event(%{__exception__: true} = error) do
-    error
-    |> Timber.Events.ErrorEvent.from_exception()
-    |> Timber.Eventable.to_event()
+  def to_event(%{__exception__: true, __struct__: module} = error) do
+    message = Exception.message(error)
+    module_name = Timber.Utils.Module.name(module)
+
+    %{
+      error: %{
+        name: module_name,
+        message: message
+      }
+    }
   end
 end

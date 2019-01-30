@@ -1,19 +1,19 @@
 defmodule Timber.Events.TemplateRenderEvent do
+  @deprecated_message ~S"""
+  The `Timber.Events.TemplateRenderEvent` module is deprecated.
+
+  The next evolution of Timber (2.0) no long requires a strict schema and therefore
+  simplifies how users log events.
+
+  To easily migrate, please install the `:timber_phoenix` library:
+
+  https://github.com/timberio/timber-elixir-phoenix
+  """
+
   @moduledoc ~S"""
   **DEPRECATED**
 
-  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
-  no long requires a strict schema and therefore simplifies how users set context:
-
-      Logger.info(fn ->
-        message = "Rendered #{template_name} in #{duration_ms}ms"
-        event = %{template_rendered: %{name: name, duration_ms: duration_ms}}
-        {message, event: event}
-      end)
-
-  Please note, you can use the official
-  [`:timber_phoenix`](https://github.com/timberio/timber-elixir-phoenix) integration to
-  automatically structure this event with metadata.
+  #{@deprecated_message}
   """
 
   @type t :: %__MODULE__{
@@ -27,9 +27,8 @@ defmodule Timber.Events.TemplateRenderEvent do
     :time_ms
   ]
 
-  @doc """
-  Message to be used when logging.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{name: name, time_ms: time_ms}),
     do: ["Rendered ", ?", name, ?", " in ", Float.to_string(time_ms), "ms"]
