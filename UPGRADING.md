@@ -80,16 +80,17 @@ config :my_app, MyApp.Repo,
 ```
 
 ```diff
-# lib/my_app/repo.ex
-def init(_, opts) do
-+  :ok = Telemetry.attach(
+# lib/my_app/application.ex
+def start(_type, _args) do
+  # ...
++  :ok = :telemetry.attach(
 +    "timber-ecto-query-handler",
-+   [:my_app, :repo, :query],
-+   Timber.Ecto,
-+   :handle_event,
-+   [] # [query_time_ms_threshold: 2_000]
-+ )
-  {:ok, opts}
++    [:my_app, :repo, :query],
++    &Timber.Ecto.handle_event/4,
++    []
++  )
+  # ...
+  Supervisor.start_link(children, opts)
 end
 ```
 
