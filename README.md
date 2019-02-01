@@ -19,7 +19,7 @@ The result: Beautiful, fast, powerful Elixir logging.
 * [Usage](#usage)
 * [Configuration](#configuration)
 * [Integrations](#integrations)
-* [Performance & Reliability](#performance-reliability)
+* [Performance & Reliability](#performance--reliability)
 
 ## Installation
 
@@ -53,44 +53,44 @@ The result: Beautiful, fast, powerful Elixir logging.
 
 Timber works directly with the Elixir `Logger`, making it simple to use and adopt:
 
-    ```elixir
-    # Context is automatically included in all logs within the current process
-    Timber.add_context(user: %{id: "5c06a0df5f37972e07cb7213"})
+  ```elixir
+  # Context is automatically included in all logs within the current process
+  Timber.add_context(user: %{id: "5c06a0df5f37972e07cb7213"})
 
-    # The `:event` metadata key allows for the inclusion of structred data
-    Logger.info("Order #1234 placed", event: %{order_placed: %{id: 1234, total: 100.54}})
-    ```
+  # The `:event` metadata key allows for the inclusion of structured data
+  Logger.info("Order #1234 placed", event: %{order_placed: %{id: 1234, total: 100.54}})
+  ```
 
 The end result is a well structured JSON object that's easy to work with:
 
-    ```json
-    {
-      "dt": "2019-01-29T17:11:48.992670Z",
-      "level": "info",
-      "message": "Order #1234 placed",
-      "order_placed": {
-        "id": 1234,
-        "total": 100.54
+  ```json
+  {
+    "dt": "2019-01-29T17:11:48.992670Z",
+    "level": "info",
+    "message": "Order #1234 placed",
+    "order_placed": {
+      "id": 1234,
+      "total": 100.54
+    },
+    "context": {
+      "user": {
+        "id": "5c06a0df5f37972e07cb7213"
       },
-      "context": {
-        "user": {
-          "id": "5c06a0df5f37972e07cb7213"
-        },
-        "system": {
-          "pid": 20643,
-          "hostname": "ec2-44-125-241-8"
-        },
-        "runtime": {
-          "vm_pid": "<0.9960.261>",
-          "module_name": "MyModule",
-          "line": 371,
-          "function": "my_func/2",
-          "file": "lib/my_app/my_module.ex",
-          "application": "my_app"
-        }
+      "system": {
+        "pid": 20643,
+        "hostname": "ec2-44-125-241-8"
+      },
+      "runtime": {
+        "vm_pid": "<0.9960.261>",
+        "module_name": "MyModule",
+        "line": 371,
+        "function": "my_func/2",
+        "file": "lib/my_app/my_module.ex",
+        "application": "my_app"
       }
     }
-    ```
+  }
+  ```
 
 Allowing you to run powerful queries like:
 
