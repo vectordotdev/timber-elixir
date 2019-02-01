@@ -1,22 +1,20 @@
 defmodule Timber.Events.HTTPResponseEvent do
+  @deprecated_message ~S"""
+  The `Timber.Events.HTTPResponseEvent` module is deprecated in favor of using `map`s.
+
+  The next evolution of Timber (2.0) no long requires a strict schema and therefore
+  simplifies how users log events.
+
+  To easily migrate, please install the `:timber_plug` library:
+
+  https://github.com/timberio/timber-elixir-plug
+  """
+
   @moduledoc ~S"""
   **DEPRECATED**
 
-  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
-  no long requires a strict schema and therefore simplifies how users set context:
-
-      Logger.info(fn ->
-        message = "Sent #{status} response in #{duration_ms}ms"
-        event = %{http_response_sent: %{status: status, duration_ms: duration_ms}}
-        {message, event: event}
-      end)
-
-  Please note, you can use the official
-  [`:timber_plug`](https://github.com/timberio/timber-elixir-plug) integration to
-  automatically structure this event with metadata.
+  #{@deprecated_message}
   """
-
-  alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
 
   @type t :: %__MODULE__{
           body: String.t() | nil,
@@ -41,30 +39,20 @@ defmodule Timber.Events.HTTPResponseEvent do
     :time_ms
   ]
 
-  @doc """
-  Builds a new struct taking care to:
-
-  * Normalize header values so they are consistent.
-  * Removes "" or nil values.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec new(Keyword.t()) :: t
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
-      |> Keyword.update(:headers, nil, fn headers ->
-        UtilsHTTPEvents.normalize_headers(headers)
-      end)
-      |> Keyword.update(:service_name, nil, &to_string/1)
-      |> Enum.filter(fn {_k, v} -> !(v in [nil, ""]) end)
-      |> UtilsHTTPEvents.move_headers_to_headers_json()
+      |> Keyword.delete(:body)
+      |> Keyword.delete(:headers)
 
     struct!(__MODULE__, opts)
   end
 
-  @doc """
-  Message to be used when logging.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{direction: "incoming"} = event) do
     message =
@@ -87,7 +75,7 @@ defmodule Timber.Events.HTTPResponseEvent do
         do: [message, " from ", event.service_name],
         else: message
 
-    [message, " in ", UtilsHTTPEvents.format_time_ms(event.time_ms)]
+    [message, " in ", Timber.format_time_ms(event.time_ms)]
   end
 
   def message(%__MODULE__{} = event),
@@ -95,7 +83,7 @@ defmodule Timber.Events.HTTPResponseEvent do
       "Sent ",
       Integer.to_string(event.status),
       " response in ",
-      UtilsHTTPEvents.format_time_ms(event.time_ms)
+      Timber.format_time_ms(event.time_ms)
     ]
 
   defimpl Timber.Eventable do

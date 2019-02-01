@@ -25,11 +25,16 @@ defmodule Timber.LoggerBackends.HTTP do
 
   @behaviour :gen_event
 
+  alias Timber.API
   alias Timber.Config
   alias Timber.Errors.InvalidAPIKeyError
   alias Timber.LogEntry
 
   require Logger
+
+  #
+  # Typespecs
+  #
 
   @typedoc """
   A representation of stateful data for this module
@@ -46,13 +51,11 @@ defmodule Timber.LoggerBackends.HTTP do
           buffer_size: non_neg_integer,
           buffer: buffer,
           flush_interval: non_neg_integer,
-          http_client: http_client,
           max_buffer_size: pos_integer,
           ref: reference | nil
         }
 
   @type buffer :: [] | [LogEntry.t()]
-  @type http_client :: module() | nil
 
   @typedoc """
   The level of a log event is described as an atom
@@ -65,23 +68,21 @@ defmodule Timber.LoggerBackends.HTTP do
   to assume the message will be a `t:String.t/0`
   """
   @type message :: IO.chardata()
+
   @type timestamp :: {date, time}
+
+  #
+  # Timestamp parts
+  #
+
+  @type day :: 0..31
   @type date :: {year, month, day}
-
-  @type year :: pos_integer
-  @type month :: 1..12
-  @type day :: 1..31
-
-  @typedoc """
-  Time is represented both to the millisecond and to the microsecond with precision.
-  """
-  @type time ::
-          {hour, minute, second, millisecond} | {hour, minute, second, {microsecond, precision}}
   @type hour :: 0..23
-  @type minute :: 0..59
-  @type second :: 0..59
-  @type millisecond :: 0..999
   @type microsecond :: 0..999_999
+  @type millisecond :: 0..999
+  @type minute :: 0..59
+  @type month :: 1..12
+
   @typedoc """
   The precision of the microsecond represents the precision with which the fractional seconds are kept.
 
@@ -89,22 +90,42 @@ defmodule Timber.LoggerBackends.HTTP do
   """
   @type precision :: 0..6
 
+  @type second :: 0..59
+
+  @typedoc """
+  Time is represented both to the millisecond and to the microsecond with precision.
+  """
+  @type time ::
+          {hour, minute, second, millisecond} | {hour, minute, second, {microsecond, precision}}
+
+  @type year :: pos_integer
+
+  #
+  # Module vars
+  #
+
   @content_type "application/msgpack"
   @default_max_buffer_size 1000
   @default_flush_interval 1000
-  @frames_url "https://logs.timber.io/frames"
+
+  #
+  # Struct
+  #
 
   # Despite there being an `http_client` field, this is only for testing; the HTTP client is
   # not actually configurable since it's impossible to support clients when we do not understand
   # the response messages in advance
-  defstruct min_level: nil,
-            api_key: nil,
+  defstruct api_key: nil,
             buffer_size: 0,
             buffer: [],
             flush_interval: @default_flush_interval,
-            http_client: nil,
             max_buffer_size: @default_max_buffer_size,
+            min_level: nil,
             ref: nil
+
+  #
+  # API
+  #
 
   @doc false
   # Initializes a :gen_event handler from this module. This
@@ -208,16 +229,14 @@ defmodule Timber.LoggerBackends.HTTP do
   # is modified by changing the state.
   @spec configure(Keyword.t(), t) :: {:ok, t}
   defp configure(options, state) do
-    api_key = Keyword.get(options, :api_key, Timber.Config.api_key())
+    api_key = Keyword.get(options, :api_key, Config.api_key())
     flush_interval = Keyword.get(options, :flush_interval, state.flush_interval)
-    http_client = Keyword.get(options, :http_client, Timber.HTTPClients.Hackney)
     max_buffer_size = Keyword.get(options, :max_buffer_size, state.max_buffer_size)
     min_level = Keyword.get(options, :min_level, state.min_level)
 
     changes = [
       api_key: api_key,
       flush_interval: flush_interval,
-      http_client: http_client,
       max_buffer_size: max_buffer_size,
       min_level: min_level
     ]
@@ -225,15 +244,13 @@ defmodule Timber.LoggerBackends.HTTP do
     new_state = struct!(state, changes)
 
     if new_state.api_key == nil do
-      Timber.debug(fn ->
+      Timber.log(:warn, fn ->
         "The Timber API key is nil! Please check the documentation for how to specify an API key " <>
           "in your configuration file."
       end)
     else
-      Timber.debug(fn -> "The Timber API key is present." end)
+      Timber.log(:debug, fn -> "The Timber API key is present." end)
     end
-
-    new_state.http_client.start()
 
     {:ok, new_state}
   end
@@ -270,7 +287,7 @@ defmodule Timber.LoggerBackends.HTTP do
   # by the specified interval length.
   @spec outlet(t) :: {:ok, t}
   defp outlet(%{flush_interval: flush_interval} = state) do
-    Timber.debug(fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end)
+    Timber.log(:debug, fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end)
     Process.send_after(self(), :outlet, flush_interval)
     {:ok, state}
   end
@@ -299,7 +316,9 @@ defmodule Timber.LoggerBackends.HTTP do
         wait_on_request(new_state)
     after
       5000 ->
-        Timber.debug(fn -> "HTTP request #{inspect(ref)} exceeded timeout; abandoning it." end)
+        Timber.log(:error, fn ->
+          "HTTP request #{inspect(ref)} exceeded timeout; abandoning it."
+        end)
 
         new_state = %{state | ref: nil}
         wait_on_request(new_state)
@@ -315,7 +334,10 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   defp issue_request(%{api_key: nil} = state) do
-    Timber.debug(fn -> "Timber API key is nil! Logs cannot be delivered without an API key." end)
+    Timber.log(:error, fn ->
+      "Timber API key is nil! Logs cannot be delivered without an API key."
+    end)
+
     state
   end
 
@@ -356,7 +378,7 @@ defmodule Timber.LoggerBackends.HTTP do
           {:ok, binary}
 
         {:error, error} ->
-          Logger.debug(fn ->
+          Timber.log(:error, fn ->
             "Log transmission failed. Msgpax encoding error: #{inspect(error)}"
           end)
 
@@ -364,7 +386,7 @@ defmodule Timber.LoggerBackends.HTTP do
       end
     catch
       :error, %Protocol.UndefinedError{protocol: Msgpax.Packer, value: value} = e ->
-        Logger.debug(fn ->
+        Timber.log(:error, fn ->
           "Log transmission failed. Msgpax.Packer Protocol not implemented for: #{inspect(value)}"
         end)
 
@@ -390,33 +412,35 @@ defmodule Timber.LoggerBackends.HTTP do
   # This function assumes that its caller has already matched the reference being given to
   # the one existing in the state
   defp handle_hackney_response({:hackney_response, ref, {:ok, 401, reason}}, state) do
-    Timber.debug(fn -> "HTTP request #{inspect(ref)} received response 401 #{reason}" end)
+    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received response 401 #{reason}" end)
 
     raise InvalidAPIKeyError, status: 401, api_key: state.api_key
   end
 
   defp handle_hackney_response({:hackney_response, ref, {:ok, 403, reason}}, state) do
-    Timber.debug(fn -> "HTTP request #{inspect(ref)} received response 403 #{reason}" end)
+    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received response 403 #{reason}" end)
 
     {:ok, state}
   end
 
   defp handle_hackney_response({:hackney_response, ref, {:ok, status, reason}}, state) do
-    Timber.debug(fn -> "HTTP request #{inspect(ref)} received response #{status} #{reason}" end)
+    Timber.log(:debug, fn ->
+      "HTTP request #{inspect(ref)} received response #{status} #{reason}"
+    end)
 
     {:ok, state}
   end
 
   defp handle_hackney_response({:hackney_response, ref, {:error, error}}, state) do
     # In the event of an error on Hackney's part, we simply clear the reference.
-    Timber.debug(fn -> "HTTP request #{inspect(ref)} received error #{inspect(error)}" end)
+    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received error #{inspect(error)}" end)
 
     new_state = %{state | ref: nil}
     {:ok, new_state}
   end
 
   defp handle_hackney_response({:hackney_response, ref, :done}, state) do
-    Timber.debug(fn -> "HTTP request #{inspect(ref)} done" end)
+    Timber.log(:debug, fn -> "HTTP request #{inspect(ref)} done" end)
 
     new_state = %{state | ref: nil}
     {:ok, new_state}
@@ -426,22 +450,12 @@ defmodule Timber.LoggerBackends.HTTP do
     {:ok, state}
   end
 
-  defp transmit_buffer(%{api_key: api_key, http_client: http_client} = state, body) do
-    auth_token = Base.encode64(api_key)
-    vsn = Application.spec(:timber, :vsn)
-    user_agent = "timber-elixir/#{vsn}"
-
-    headers = %{
-      "Authorization" => "Basic #{auth_token}",
-      "Content-Type" => @content_type,
-      "User-Agent" => user_agent
-    }
-
-    url = Config.http_url() || @frames_url
-
-    case http_client.async_request(:post, url, headers, body) do
+  # This method is public for testing purposes only
+  @doc false
+  def transmit_buffer(state, body) do
+    case API.send_logs(state.api_key, @content_type, body, async: true) do
       {:ok, ref} ->
-        Timber.debug(fn -> "Issued HTTP request with reference #{inspect(ref)}" end)
+        Timber.log(:debug, fn -> "Sent log buffer, HTTP request reference: #{inspect(ref)}" end)
 
         new_buffer = clear_buffer(state)
         %{new_buffer | ref: ref}
@@ -449,14 +463,14 @@ defmodule Timber.LoggerBackends.HTTP do
       {:error, reason} ->
         # If the buffer is full and we can't send the request, drop the buffer.
         if buffer_full?(state) do
-          Timber.debug(fn ->
+          Timber.log(:error, fn ->
             "Error issuing asynchronous HTTP request #{inspect(reason)}. Buffer is full, " <>
               "dropping messages."
           end)
 
           clear_buffer(state)
         else
-          Timber.debug(fn ->
+          Timber.log(:error, fn ->
             "Error issuing asynchronous HTTP request #{inspect(reason)}. Keeping buffer " <>
               "for retry next time."
           end)

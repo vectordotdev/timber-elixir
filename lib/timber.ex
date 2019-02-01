@@ -1,8 +1,10 @@
 defmodule Timber do
   @moduledoc """
-  The functions in this module are high level convenience functions instended to define
-  the broader / public API of the Timber library. It is recommended to use these functions
-  instead of their deeper counterparts.
+  This is the root module for interacting with the `:timber` library.
+
+  It defines the primary public interface. Users should favor the methods
+  defined in this module over their lower level counterparts. For example,
+  instead of `Timber.LocalContact.add/1` use `Timber.add_context/1`.
   """
 
   alias Timber.Context
@@ -77,7 +79,8 @@ defmodule Timber do
   Captures the duration in fractional milliseconds since the timer was started. See
   `start_timer/0`.
   """
-  defdelegate duration_ms(timer), to: Timber.Timer
+  defdelegate duration_ms(timer),
+    to: Timber.Timer
 
   @doc false
   @deprecated "Please use delete_context/1 or delete_context/2"
@@ -86,40 +89,54 @@ defmodule Timber do
     delete_context(key, location)
   end
 
-  @doc """
-  Used to time runtime execution. For example, when timing a `Timber.Events.HTTPResponseEvent`:
+  @doc ~S"""
+  Used to time runtime execution.
 
-  ```elixir
-  timer = Timber.start_timer()
-  # .... make request
-  time_ms = Timber.duration_ms(timer)
-  event = HTTPResponseEvent.new(status: 200, time_ms: time_ms)
-  message = HTTPResponseEvent.message(event)
-  Logger.info(message, event: event)
-  ```
+  We highly recommend using this method as it uses the system monotonic time for
+  accuracy.
+
+  ## Example
+
+      timer = Timber.start_timer()
+      # .... do something
+      duration_ms = Timber.duration_ms(timer)
+      event = %{job_completed: %{duration_ms: duration_ms}}
+      message = "Job completed in #{duration_ms}ms"
+      Logger.info(message, event: event)
 
   """
-  defdelegate start_timer, to: Timber.Timer, as: :start
+  defdelegate start_timer,
+    to: Timber.Timer,
+    as: :start
 
   #
   # Utilility methods
+  #
   # The following methods are used for internally throughout Timber and it's
   # dependent integration libraries.
   #
 
+  # This method should be used for logging internal events.
+  #
+  # Because Timber is a logger it cannot log like a traditional library. This will create
+  # a loop of debug messages. Instead we write to a configurable IO device that the user can
+  # inspect, such as `STDOUT`, `STDERR`, a file.
   @doc false
-  def debug(message_fun) do
+  def log(level, message_fun) do
     Timber.Config.debug_io_device()
-    |> debug(message_fun)
+    |> log(level, message_fun)
   end
 
   @doc false
-  def debug(nil, _message_fun) do
+  def log(nil, _level, _message_fun) do
     false
   end
 
-  def debug(io_device, message_fun) when is_function(message_fun) do
-    IO.write(io_device, message_fun.())
+  def log(io_device, level, message_fun) when is_function(message_fun) do
+    level = level |> Atom.to_string() |> String.upcase()
+    message = message_fun.()
+
+    IO.write(io_device, [level, " ", message])
   end
 
   # Formats a duration, in milliseonds, to a human friendly representation
@@ -139,6 +156,17 @@ defmodule Timber do
   def encode_to_json(data) do
     Jason.encode_to_iodata(data)
   end
+
+  # Convenience function for formatting durations into a human readable string.
+  @doc false
+  def format_time_ms(time_ms) when is_integer(time_ms),
+    do: [Integer.to_string(time_ms), "ms"]
+
+  def format_time_ms(time_ms) when is_float(time_ms) and time_ms >= 1,
+    do: [:erlang.float_to_binary(time_ms, decimals: 2), "ms"]
+
+  def format_time_ms(time_ms) when is_float(time_ms) and time_ms < 1,
+    do: [:erlang.float_to_binary(time_ms * 1000, decimals: 0), "µs"]
 
   # Convenience function that attempts to encode the provided argument to JSON.
   # If the encoding fails a `nil` value is returned. If you want the actual error

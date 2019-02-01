@@ -1,18 +1,19 @@
 defmodule Timber.Events.ErrorEvent do
+  @deprecated_message ~S"""
+  The `Timber.Events.ErrorEvent` module is deprecated in favor of using `map`s.
+
+  The next evolution of Timber (2.0) no long requires a strict schema and therefore simplifies
+  how users log events.
+
+  To easily migrate, please install the `:timber_exceptions` library:
+
+  https://github.com/timberio/timber-elixir-exceptions
+  """
+
   @moduledoc ~S"""
   **DEPRECATED**
 
-  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
-  no long requires a strict schema and therefore simplifies how users set context:
-
-      Logger.info(fn ->
-        message = Exception.message(error)
-        event = %{error: %{name: error.__struct__, backtrace: backtrace}
-        {message, event: event}
-      end)
-
-  Please note, errors can be automatically structured through the
-  [`:timber_exceptions`](https://github.com/timberio/timber-elixir-exceptions) library.
+  #{@deprecated_message}
   """
 
   @type stacktrace_entry :: {
@@ -44,10 +45,8 @@ defmodule Timber.Events.ErrorEvent do
   @metadata_json_byte_limit 8_192
   @name_byte_limit 256
 
-  @doc """
-  Convenience methods for building error events, taking care to normalize values
-  and ensure they meet the validation requirements of the Timber API.
-  """
+  @doc false
+  @deprecated @deprecated_message
   def new(name, message, opts \\ []) do
     name =
       name
@@ -85,9 +84,8 @@ defmodule Timber.Events.ErrorEvent do
     )
   end
 
-  @doc """
-  Builds a new error event from an error / exception.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec from_exception(Exception.t()) :: t
   def from_exception(%{__exception__: true, __struct__: module} = error) do
     message = Exception.message(error)
@@ -117,9 +115,8 @@ defmodule Timber.Events.ErrorEvent do
     }
   end
 
-  @doc """
-  Adds a stacktrace to an event, converting it if necessary
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec add_backtrace(t, [stacktrace_entry] | [backtrace_entry]) :: t
   def add_backtrace(event, [trace | _] = backtrace) when is_map(trace) do
     backtrace = Enum.slice(backtrace, 0..(@max_backtrace_size - 1))
@@ -134,9 +131,8 @@ defmodule Timber.Events.ErrorEvent do
     event
   end
 
-  @doc """
-  Message to be used when logging.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{name: name, message: message}),
     do: [?(, name, ?), ?\s, message]

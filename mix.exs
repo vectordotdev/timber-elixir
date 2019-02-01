@@ -1,12 +1,7 @@
 defmodule Timber.Mixfile do
   use Mix.Project
 
-  @project_description """
-  Timber automatically enhances your logs, turning them into rich structured events.
-  Paired with the timber.io service, Timber helps you solve issues fast so you can
-  focus on your app, not logging.
-  """
-
+  @project_description "🌲 Beautiful, Fast, Powerful Elixir Logging. The official Timber.io Elixir integration."
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
   @version "3.0.0"
@@ -109,7 +104,7 @@ defmodule Timber.Mixfile do
     [
       name: :timber,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
-      maintainers: ["Ben Johnson", "David Antaramian"],
+      maintainers: ["Ben Johnson"],
       licenses: ["ISC"],
       links: %{
         "GitHub" => @source_url
@@ -133,30 +128,6 @@ defmodule Timber.Mixfile do
 
   defp doc_groups_for_modules() do
     [
-      Contexts: [
-        Timber.Context,
-        Timber.Contextable,
-        Timber.Contexts.CustomContext,
-        Timber.Contexts.HTTPContext,
-        Timber.Contexts.JobContext,
-        Timber.Contexts.OrganizationContext,
-        Timber.Contexts.RuntimeContext,
-        Timber.Contexts.SessionContext,
-        Timber.Contexts.SystemContext,
-        Timber.Contexts.UserContext
-      ],
-      Events: [
-        Timber.Eventable,
-        Timber.Events.ChannelJoinEvent,
-        Timber.Events.ChannelReceiveEvent,
-        Timber.Events.ControllerCallEvent,
-        Timber.Events.CustomEvent,
-        Timber.Events.ErrorEvent,
-        Timber.Events.HTTPRequestEvent,
-        Timber.Events.HTTPResponseEvent,
-        Timber.Events.SQLQueryEvent,
-        Timber.Events.TemplateRenderEvent
-      ],
       "Logger Backends": [
         Timber.LoggerBackends.HTTP
       ],

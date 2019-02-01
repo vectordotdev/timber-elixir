@@ -1,22 +1,20 @@
 defmodule Timber.Events.HTTPRequestEvent do
-  @moduledoc ~S"""
-  **DEPRECATED**
+  @deprecated_message ~S"""
+  The `Timber.Events.HTTPRequestEvent` module is deprecated in favor of using `map`s.
 
-  This module is deprecated in favor of using `map`s. The next evolution of Timber (2.0)
-  no long requires a strict schema and therefore simplifies how users set context:
+  The next evolution of Timber (2.0) no long requires a strict schema and therefore
+  simplifies how users log events.
 
-      Logger.info(fn ->
-        message = "Received #{method} #{path}"
-        event = %{http_request_received: %{method: method, path: path}}
-        {message, event: event}
-      end)
+  To easily migrate, please install the `:timber_plug` library:
 
-  Please note, you can use the official
-  [`:timber_plug`](https://github.com/timberio/timber-elixir-plug) integration to
-  automatically structure this event with metadata.
+  https://github.com/timberio/timber-elixir-plug
   """
 
-  alias Timber.Utils.HTTPEvents, as: UtilsHTTPEvents
+  @moduledoc """
+  **DEPRECATED**
+
+  #{@deprecated_message}
+  """
 
   @type t :: %__MODULE__{
           body: String.t() | nil,
@@ -49,35 +47,20 @@ defmodule Timber.Events.HTTPRequestEvent do
     :service_name
   ]
 
-  @doc """
-  Builds a new struct taking care to:
-
-  * Parsing the `:url` and mapping it to the appropriate attributes.
-  * Normalize header values so they are consistent.
-  * Normalize the method.
-  * Removes "" or nil values.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec new(Keyword.t()) :: t
   def new(opts) do
     opts =
       opts
-      |> Keyword.update(:body, nil, fn body -> UtilsHTTPEvents.normalize_body(body) end)
-      |> Keyword.update(:headers, nil, fn headers ->
-        UtilsHTTPEvents.normalize_headers(headers)
-      end)
-      |> Keyword.update(:method, nil, &UtilsHTTPEvents.normalize_method/1)
-      |> Keyword.update(:service_name, nil, &to_string/1)
-      |> Keyword.merge(UtilsHTTPEvents.normalize_url(Keyword.get(opts, :url)))
-      |> Keyword.delete(:url)
-      |> Enum.filter(fn {_k, v} -> !(v in [nil, ""]) end)
-      |> UtilsHTTPEvents.move_headers_to_headers_json()
+      |> Keyword.delete(:body)
+      |> Keyword.delete(:headers)
 
     struct!(__MODULE__, opts)
   end
 
-  @doc """
-  Message to be used when logging.
-  """
+  @doc false
+  @deprecated @deprecated_message
   @spec message(t) :: IO.chardata()
   def message(%__MODULE__{direction: "outgoing"} = event) do
     message =
@@ -85,7 +68,7 @@ defmodule Timber.Events.HTTPRequestEvent do
         ["Sent ", event.method, " ", event.path]
       else
         full_url =
-          UtilsHTTPEvents.full_url(
+          build_full_url(
             event.scheme,
             event.host,
             event.path,
@@ -111,6 +94,11 @@ defmodule Timber.Events.HTTPRequestEvent do
 
   def message(%__MODULE__{} = event),
     do: ["Received ", event.method, " ", event.path]
+
+  defp build_full_url(scheme, host, path, port, query_string) do
+    %URI{scheme: scheme, host: host, path: path, port: port, query: query_string}
+    |> URI.to_string()
+  end
 
   defimpl Timber.Eventable do
     def to_event(%Timber.Events.HTTPRequestEvent{direction: "outgoing"} = event) do

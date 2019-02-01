@@ -15,12 +15,13 @@ tailing, and graphing make using your logs easier than ever.
 
 The result: Beautiful, fast, powerful Elixir logging.
 
-* [Getting started](#getting-started)
+* [Installation](#installation)
 * [Usage](#usage)
+* [Configuration](#configuration)
 * [Integrations](#integrations)
 * [Performance & Reliability](#performance-reliability)
 
-## Getting Started
+## Installation
 
 1. Grab your API key at [Timber.io][signup].
 
@@ -42,47 +43,56 @@ The result: Beautiful, fast, powerful Elixir logging.
       api_key: "{{your-api-key}}"
     ```
 
+4. Test the pipes with:
+
+    ```shell
+    mix timber.test_the_pipes
+    ```
+
 ## Usage
 
-Timber works directly the Elixir `Logger`, making it fast and reliable:
+Timber works directly with the Elixir `Logger`, making it simple to use and adopt:
 
-```elixir
-Timber.add_context(user: %{id: "5c06a0df5f37972e07cb7213"})
-Logger.info("Order #1234 placed", event: %{order_placed: %{id: 1234, total: 100.54}})
-```
+    ```elixir
+    # Context is automatically included in all logs within the current process
+    Timber.add_context(user: %{id: "5c06a0df5f37972e07cb7213"})
 
-Produces the following event:
+    # The `:event` metadata key allows for the inclusion of structred data
+    Logger.info("Order #1234 placed", event: %{order_placed: %{id: 1234, total: 100.54}})
+    ```
 
-```json
-{
-  "dt": "2019-01-29T17:11:48.992670Z",
-  "level": "info",
-  "message": "Order #1234 placed",
-  "order_placed": {
-    "id": 1234,
-    "total": 100.54
-  },
-  "context": {
-    "user": {
-      "id": "5c06a0df5f37972e07cb7213"
-    },
-    "system": {
-      "pid": 20643,
-      "hostname": "ec2-44-125-241-8"
-    },
-    "runtime": {
-      "vm_pid": "<0.9960.261>",
-      "module_name": "MyModule",
-      "line": 371,
-      "function": "my_func/2",
-      "file": "lib/my_app/my_module.ex",
-      "application": "my_app"
+The end result is a well structured JSON object that's easy to work with:
+
+    ```json
+    {
+      "dt": "2019-01-29T17:11:48.992670Z",
+      "level": "info",
+      "message": "Order #1234 placed",
+      "order_placed": {
+        "id": 1234,
+        "total": 100.54
+      },
+      "context": {
+        "user": {
+          "id": "5c06a0df5f37972e07cb7213"
+        },
+        "system": {
+          "pid": 20643,
+          "hostname": "ec2-44-125-241-8"
+        },
+        "runtime": {
+          "vm_pid": "<0.9960.261>",
+          "module_name": "MyModule",
+          "line": 371,
+          "function": "my_func/2",
+          "file": "lib/my_app/my_module.ex",
+          "application": "my_app"
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-Allowing you to run queries like:
+Allowing you to run powerful queries like:
 
 * Tail a user: `context.user.id:5c06a0df5f37972e07cb7213`
 * Find orders of a certain value: `order_placed.total:>=100`
@@ -90,14 +100,24 @@ Allowing you to run queries like:
 
 See more usage examples in [our Elixir documentation][docs].
 
+## Configuration
+
+All configuration options are documented in the `Timber.Config` module. Some highlights are:
+
+* `config :timber, system_context: true` - Automatically capture system context
+* `config :timber, runtime_context: true` - Automatically capture runtime context (Elixir pid, module / file / line number, )
+* `config :timber, heroku_context: true` - Automatically capture Heroku context
+* `config :timber, ec2_context: true` - Automatically capture EC2 metadata context
+* ...see more in the `Timber.Config` docs
+
 ## Integrations
 
-Extend Timber's context and metadata capture into 3rd party libraries:
+Upgrade 3rd party library logs with Timber integrations:
 
-* [`Ecto`](https://github.com/timberio/timber-elixir-ecto) - Augment `Ecto` logs with context and metadata.
-* [`Exceptions`](https://github.com/timberio/timber-elixir-exceptions) - Augment errors with context and metadata.
-* [`Phoenix`](https://github.com/timberio/timber-elixir-phoenix) - Augment `Phoenix` logs with context and metadata.
-* [`Plug`](https://github.com/timberio/timber-elixir-plug) - Augment `Plug` logs with context and metadata.
+* [`:timber_ecto`](https://github.com/timberio/timber-elixir-ecto) - Upgrade `Ecto` logs with context and metadata.
+* [`:timber_exceptions`](https://github.com/timberio/timber-elixir-exceptions) - Upgrade error logs with context and metadata.
+* [`:timber_phoenix`](https://github.com/timberio/timber-elixir-phoenix) - Upgrade `Phoenix` logs with context and metadata.
+* [`:timber_plug`](https://github.com/timberio/timber-elixir-plug) - Upgrade `Plug` logs with context and metadata.
 
 ## Performance & Reliability
 
@@ -106,18 +126,21 @@ Extreme care was taken into the design of Timber to be fast and reliable:
 1. Timber works directly with the [Elixir `Logger`][elixir_logger], automatically assuming all of
    the [stability and performance benefits][elixir_logger_runtime_configuration] this provides,
    such as back pressure, load shedding, and defensability around `Logger` failures.
-2. The Timber HTTP backend uses a [multi-buffer][multi_buffer] design to efficiently ship data
-   to the Timber service.
-3. Delivery failures are retried with an exponential backoff, maximizing successful delivery.
-4. [Msgpack][msgpack] is used for payload encoding for it's superior performance and memory
+2. Log data is buffered and flushed on an interval to optimize performance and delivery.
+3. The Timber HTTP backend uses a controlled [multi-buffer][multi_buffer] design to efficiently
+   ship data to the Timber service.
+4. Connections are re-used and rotated to ensure efficient delivery of log data.
+5. Delivery failures are retried with an exponential backoff, maximizing successful delivery.
+6. [Msgpack][msgpack] is used for payload encoding for it's superior performance and memory
    management.
-5. The Timber service ingest endpoint is HA servce designed to handle extreme fluctuations of
-   volume and responds in under 50ms.
+7. The Timber service ingest endpoint is a HA servce designed to handle extreme fluctuations of
+   volume, it responds in under 50ms to reduce back pressure.
 
 ---
 
 <p align="center">
 <a href="mailto:support@timber.io">Support</a> &bull;
+<a href="https://docs.timber.io/languages/elixir">Docs</a> &bull;
 <a href="https://timber.io">Timber.io</a>
 </p>
 

@@ -36,9 +36,6 @@ defmodule Timber.Events.LogEntryTest do
                event: nil,
                level: :info,
                message: "message",
-               meta: nil,
-               tags: nil,
-               time_ms: nil,
                context: %{
                  job: %{id: "abcd"},
                  system: %{hostname: get_hostname(), pid: String.to_integer(get_pid())},
@@ -52,16 +49,6 @@ defmodule Timber.Events.LogEntryTest do
                  }
                }
              }
-    end
-
-    test "adds tags" do
-      entry = LogEntry.new(get_time(), :info, "message", tags: ["tag1", "tag2"])
-      assert entry.tags == ["tag1", "tag2"]
-    end
-
-    test "adds time_ms" do
-      entry = LogEntry.new(get_time(), :info, "message", time_ms: 56.4)
-      assert entry.time_ms == 56.4
     end
   end
 
