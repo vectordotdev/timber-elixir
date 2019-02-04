@@ -53,6 +53,14 @@ defmodule Timber.HTTPClients.Fake do
     end
   end
 
+  def handle_async_response(_ref, _msg) do
+    :pass
+  end
+
+  def wait_on_response(_ref, _timeout) do
+    :pass
+  end
+
   def request(method, url, headers, body) do
     add_function_call(:request, {method, url, headers, body})
     stub = get_stub(:request)

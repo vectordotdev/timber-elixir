@@ -26,22 +26,54 @@ defmodule Timber.HTTPClients.Hackney do
     recv_timeout: 10_000
   ]
 
-  @doc """
-  Issues a HTTP request via hackney.
-  """
+  @doc false
+  @impl HTTPClient
   def async_request(method, url, headers, body) do
     req_headers = Enum.map(headers, & &1)
 
     req_opts =
       get_request_options()
-      |> Keyword.merge(async: true)
+      |> Keyword.merge(async: :once)
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
 
-  @doc """
-  Issues a HTTP request via hackney.
-  """
+  @doc false
+  @impl HTTPClient
+  # Legacy response structure for older versions of `:hackney`
+  def handle_async_response(ref, {:hackney_response, ref, {:ok, status, body}}) do
+    {:ok, status, body}
+  end
+
+  # New response structure for current versions of `:hackney`
+  def handle_async_response(ref, {:hackney_response, ref, {:status, status, body}}) do
+    {:ok, status, body}
+  end
+
+  # Return errors since that conforms to the spec
+  def handle_async_response(ref, {:hackney_response, ref, {:error, _error} = error_tuple}) do
+    error_tuple
+  end
+
+  # Pass other messages
+  def handle_async_response(_ref, _msg) do
+    :pass
+  end
+
+  @doc false
+  @impl HTTPClient
+  def wait_on_response(ref, timeout) do
+    receive do
+      {:hackney_response, ^ref, _response} = msg ->
+        handle_async_response(ref, msg)
+    after
+      timeout ->
+        :timeout
+    end
+  end
+
+  @doc false
+  @impl HTTPClient
   def request(method, url, headers, body) do
     req_headers = Enum.map(headers, & &1)
 

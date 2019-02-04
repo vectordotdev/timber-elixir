@@ -173,56 +173,6 @@ defmodule Timber.LoggerBackends.HTTPTest do
       assert log_output =~ "#{inspect(bad_tuple)}"
     end
 
-    test "handles successful status response message from Hackney for ongoing request", %{
-      state: state
-    } do
-      ref = make_ref()
-      state = %{state | ref: ref}
-      {:ok, new_state} = HTTP.handle_info({:hackney_response, ref, {:ok, 200, ""}}, state)
-
-      # The state shouldn't change here since we haven't received the :done message
-      assert new_state.ref == ref
-    end
-
-    test "handles unauthorized status response message from Hackney for ongoing request", %{
-      state: state
-    } do
-      ref = make_ref()
-      state = %{state | ref: ref}
-
-      assert_raise Timber.Errors.InvalidAPIKeyError, fn ->
-        HTTP.handle_info({:hackney_response, ref, {:ok, 401, ""}}, state)
-      end
-    end
-
-    test "handles error response message from Hackney for ongoing request", %{state: state} do
-      ref = make_ref()
-      state = %{state | ref: ref}
-      {:ok, new_state} = HTTP.handle_info({:hackney_response, ref, {:error, ""}}, state)
-
-      # The reference should have been dropped due to the error
-      assert is_nil(new_state.ref)
-    end
-
-    test "handles done response message from Hackney for ongoing request", %{state: state} do
-      ref = make_ref()
-      state = %{state | ref: ref}
-      {:ok, new_state} = HTTP.handle_info({:hackney_response, ref, :done}, state)
-
-      # The reference should have been dropped since it is complete
-      assert is_nil(new_state.ref)
-    end
-
-    test "handles response message from Hackney for orphaned request", %{state: state} do
-      orphaned_ref = make_ref()
-      ref = make_ref()
-      state = %{state | ref: ref}
-      {:ok, new_state} = HTTP.handle_info({:hackney_response, orphaned_ref, :done}, state)
-
-      # The reference should stay the same since the orphaned reference does not match
-      assert new_state.ref == ref
-    end
-
     test "ignores everything else", %{state: state} do
       {:ok, new_state} = HTTP.handle_info(:unknown, state)
       assert state == new_state
