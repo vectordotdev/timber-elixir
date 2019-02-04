@@ -49,9 +49,9 @@ defimpl Timber.Eventable, for: Map do
 end
 
 defimpl Timber.Eventable, for: Any do
-  def to_event(%{__exception__: true, __struct__: module} = error) do
+  def to_event(%{__exception__: true} = error) do
     message = Exception.message(error)
-    module_name = Timber.Utils.Module.name(module)
+    module_name = Timber.Utils.Module.name(error.__struct__)
 
     %{
       error: %{
