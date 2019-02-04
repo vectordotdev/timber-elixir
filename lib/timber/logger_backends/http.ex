@@ -176,7 +176,8 @@ defmodule Timber.LoggerBackends.HTTP do
 
   # Informs the transport to flush any buffer it may have
   def handle_event(:flush, state) do
-    {:ok, flush(state)}
+    new_state = flush!(state)
+    {:ok, new_state}
   end
 
   # Ignores unhandled events
@@ -202,16 +203,15 @@ defmodule Timber.LoggerBackends.HTTP do
     {:ok, new_state}
   end
 
-  # Handles responses for asynchronous requests from Hackney for the last request made;
-  # note that any other requests will fail the ref=ref pattern match and fall to the next
-  # handle_info/2 definition
-  def handle_info({:hackney_response, ref, _} = msg, %{ref: ref} = state) do
-    handle_hackney_response(msg, state)
-  end
+  # Delegate other messages to the HTTP client since the HTTP client is abstracted
+  # and message handling should be delegated to the configured HTTP client.
+  def handle_info(msg, state) do
+    new_state =
+      state.ref
+      |> API.handle_async_response(msg)
+      |> handle_async_response!(state)
 
-  # Do nothing for everything else.
-  def handle_info(_, state) do
-    {:ok, state}
+    {:ok, new_state}
   end
 
   # No special handling for termination
@@ -263,17 +263,33 @@ defmodule Timber.LoggerBackends.HTTP do
 
     if buffer_full?(state) do
       # The buffer is full, flush immediately.
-      {:ok, flush(state)}
+      new_state = flush!(state)
+      {:ok, new_state}
     else
       {:ok, state}
     end
   end
 
-  @spec flush(t) :: t
-  defp flush(state) do
-    state
-    |> issue_request()
-    |> wait_on_request()
+  # Flush data to Timber
+  #
+  # Flushing blocks until we have confirmed successful delivery or not, therefore,
+  # flushing should only be used in situations where back pressure is desirable.
+  @spec flush!(t) :: t
+  defp flush!(state) do
+    state = issue_request(state)
+
+    # Wait on the response. Flushing should only respond when data 
+    case API.wait_on_response(state.ref, 5000) do
+      :timeout ->
+        Timber.log(:error, fn ->
+          "HTTP request #{inspect(state.ref)} exceeded timeout; abandoning it."
+        end)
+
+        %{state | ref: nil}
+
+      response ->
+        handle_async_response!(response, state)
+    end
   end
 
   # Writes a log entry into the buffer
@@ -290,39 +306,6 @@ defmodule Timber.LoggerBackends.HTTP do
     Timber.log(:debug, fn -> "Checking for logs to send, buffer size is #{state.buffer_size}" end)
     Process.send_after(self(), :outlet, flush_interval)
     {:ok, state}
-  end
-
-  @spec wait_on_request(t) :: t
-  # Blocks until the last asynchronous request is received
-  #
-  # The function first checks whether there is a reference to a previous request.
-  # If there isn't, it returns immediately.
-  #
-  # If there is an existing request, the function enters a `receive` block to look
-  # for responses from Hackney. If it cannot find a response after 5 seconds, it will
-  # abandon the previous request. If it finds a response, it sends it to the
-  # handle_hackney_response/2 function which modifies the state apropriately based on
-  # the message. It then loops on the new state.
-  #
-  defp wait_on_request(%{ref: nil} = state) do
-    state
-  end
-
-  defp wait_on_request(%{ref: ref} = state) do
-    receive do
-      {:hackney_response, ^ref, msg} ->
-        {:ok, new_state} = handle_hackney_response({:hackney_response, ref, msg}, state)
-
-        wait_on_request(new_state)
-    after
-      5000 ->
-        Timber.log(:error, fn ->
-          "HTTP request #{inspect(ref)} exceeded timeout; abandoning it."
-        end)
-
-        new_state = %{state | ref: nil}
-        wait_on_request(new_state)
-    end
   end
 
   # Delivers the buffer contents to Timber asynchronously using the provided HTTP client.
@@ -406,48 +389,56 @@ defmodule Timber.LoggerBackends.HTTP do
     Logger.compare_levels(lvl, min) != :lt
   end
 
-  @spec handle_hackney_response({:hackney_response, reference, term}, t) :: {:ok, t}
+  @spec handle_async_response!(
+          {:ok, HTTPClient.status(), HTTPClient.body()}
+          | {:error, term}
+          | :pass,
+          t
+        ) :: t
   # Handles responses from Hackney asynchronous requests and modifies the state appropriately
   #
   # This function assumes that its caller has already matched the reference being given to
   # the one existing in the state
-  defp handle_hackney_response({:hackney_response, ref, {:ok, 401, reason}}, state) do
-    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received response 401 #{reason}" end)
+  defp handle_async_response!({:ok, 401, _body}, state) do
+    Timber.log(:error, fn ->
+      # {body}"
+      "HTTP request #{inspect(state.ref)} received a 401 response:"
+    end)
 
     raise InvalidAPIKeyError, status: 401, api_key: state.api_key
   end
 
-  defp handle_hackney_response({:hackney_response, ref, {:ok, 403, reason}}, state) do
-    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received response 403 #{reason}" end)
-
-    {:ok, state}
-  end
-
-  defp handle_hackney_response({:hackney_response, ref, {:ok, status, reason}}, state) do
-    Timber.log(:debug, fn ->
-      "HTTP request #{inspect(ref)} received response #{status} #{reason}"
+  defp handle_async_response!({:ok, 403, body}, state) do
+    Timber.log(:error, fn ->
+      "HTTP request #{inspect(state.ref)} received 403 response: #{body}"
     end)
 
-    {:ok, state}
+    state
   end
 
-  defp handle_hackney_response({:hackney_response, ref, {:error, error}}, state) do
+  defp handle_async_response!({:ok, status, body}, state) do
+    Timber.log(:debug, fn ->
+      "HTTP request #{inspect(state.ref)} received a #{status} response: #{body}"
+    end)
+
+    state
+  end
+
+  defp handle_async_response!({:error, error}, state) do
     # In the event of an error on Hackney's part, we simply clear the reference.
-    Timber.log(:error, fn -> "HTTP request #{inspect(ref)} received error #{inspect(error)}" end)
+    Timber.log(:error, fn ->
+      "HTTP request #{inspect(state.ref)} received an error: #{inspect(error)}"
+    end)
 
-    new_state = %{state | ref: nil}
-    {:ok, new_state}
+    %{state | ref: nil}
   end
 
-  defp handle_hackney_response({:hackney_response, ref, :done}, state) do
-    Timber.log(:debug, fn -> "HTTP request #{inspect(ref)} done" end)
+  defp handle_async_response!(:pass, state) do
+    Timber.log(:debug, fn ->
+      "HTTP request #{inspect(state.ref)} received an unknown response, passing..."
+    end)
 
-    new_state = %{state | ref: nil}
-    {:ok, new_state}
-  end
-
-  defp handle_hackney_response({:hackney_response, _ref, _}, state) do
-    {:ok, state}
+    %{state | ref: nil}
   end
 
   # This method is public for testing purposes only

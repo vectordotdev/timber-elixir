@@ -11,6 +11,16 @@ defmodule Timber.HTTPClient do
               {:ok, reference}
               | {:error, atom}
 
+  @callback handle_async_response(reference, term) ::
+              {:ok, status, body}
+              | {:error, atom}
+              | :pass
+
+  @callback wait_on_response(reference, timeout) ::
+              {:ok, status, body}
+              | {:error, atom}
+              | :timeout
+
   @callback request(method, url, headers, body) ::
               {:ok, integer, map, String.t()}
               | {:error, atom}

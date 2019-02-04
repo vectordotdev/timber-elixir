@@ -13,6 +13,16 @@ defmodule Timber.API do
     request(api_key, :post, url, headers: headers, body: body, async: async)
   end
 
+  def handle_async_response(ref, msg) do
+    http_client = Config.http_client()
+    http_client.handle_async_response(ref, msg)
+  end
+
+  def wait_on_response(ref, timeout) do
+    http_client = Config.http_client()
+    http_client.wait_on_response(ref, timeout)
+  end
+
   #
   # Util
   #

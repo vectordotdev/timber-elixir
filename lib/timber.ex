@@ -136,7 +136,7 @@ defmodule Timber do
     level = level |> Atom.to_string() |> String.upcase()
     message = message_fun.()
 
-    IO.write(io_device, [level, " ", message])
+    IO.puts(io_device, [level, ": ", message])
   end
 
   # Formats a duration, in milliseonds, to a human friendly representation
