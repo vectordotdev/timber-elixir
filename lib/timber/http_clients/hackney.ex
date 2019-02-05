@@ -33,7 +33,7 @@ defmodule Timber.HTTPClients.Hackney do
 
     req_opts =
       get_request_options()
-      |> Keyword.merge(async: :once)
+      |> Keyword.merge(async: true)
 
     :hackney.request(method, url, req_headers, body, req_opts)
   end
@@ -42,12 +42,17 @@ defmodule Timber.HTTPClients.Hackney do
   @impl HTTPClient
   # Legacy response structure for older versions of `:hackney`
   def handle_async_response(ref, {:hackney_response, ref, {:ok, status, body}}) do
-    {:ok, status, body}
+    {:ok, status}
   end
 
   # New response structure for current versions of `:hackney`
   def handle_async_response(ref, {:hackney_response, ref, {:status, status, body}}) do
-    {:ok, status, body}
+    {:ok, status}
+  end
+
+  # New response structure for current versions of `:hackney`
+  def handle_async_response(ref, {:hackney_response, ref, {:status, status}}) do
+    {:ok, status}
   end
 
   # Return errors since that conforms to the spec

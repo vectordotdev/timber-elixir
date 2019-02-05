@@ -384,9 +384,16 @@ defmodule Timber.LoggerBackends.HTTP do
   # This method is public for testing purposes only
   @doc false
   def transmit_buffer(state, body) do
+    Timber.log(:debug, fn ->
+      byte_size = :erlang.iolist_size(body)
+      "Sending buffer, byte size: #{byte_size}, size: #{state.buffer_size}"
+    end)
+
     case API.send_logs(state.api_key, @content_type, body, async: true) do
       {:ok, ref} ->
-        Timber.log(:debug, fn -> "Sent log buffer, HTTP request reference: #{inspect(ref)}" end)
+        Timber.log(:debug, fn ->
+          "Sent log buffer, HTTP request reference: #{inspect(ref)}"
+        end)
 
         new_buffer = clear_buffer(state)
         %{new_buffer | ref: ref}
@@ -471,17 +478,17 @@ defmodule Timber.LoggerBackends.HTTP do
   #
   # This function assumes that its caller has already matched the reference being given to
   # the one existing in the state
-  defp handle_async_response!({:ok, 401, body}, state) do
+  defp handle_async_response!({:ok, 401}, state) do
     Timber.log(:error, fn ->
-      "HTTP request #{inspect(state.ref)} received a 401 response: #{body}"
+      "HTTP request #{inspect(state.ref)} received a 401 response"
     end)
 
     raise InvalidAPIKeyError, status: 401, api_key: state.api_key
   end
 
-  defp handle_async_response!({:ok, status, body}, state) do
+  defp handle_async_response!({:ok, status}, state) do
     Timber.log(:debug, fn ->
-      "HTTP request #{inspect(state.ref)} received a #{status} response: #{body}"
+      "HTTP request #{inspect(state.ref)} received a #{status} response"
     end)
 
     %{state | ref: nil}
