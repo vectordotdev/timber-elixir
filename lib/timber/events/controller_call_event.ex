@@ -16,6 +16,8 @@ defmodule Timber.Events.ControllerCallEvent do
   #{@deprecated_message}
   """
 
+  alias Timber.JSON
+
   @type t :: %__MODULE__{
           action: String.t(),
           controller: String.t(),
@@ -42,7 +44,7 @@ defmodule Timber.Events.ControllerCallEvent do
     params_json =
       if params && map_size(params) != 0 do
         params
-        |> Timber.try_encode_to_json()
+        |> JSON.try_encode_to_binary()
         |> Timber.Utils.Logger.truncate_bytes(@params_json_max_bytes)
         |> to_string()
       else

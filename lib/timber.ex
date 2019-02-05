@@ -150,13 +150,6 @@ defmodule Timber do
   def format_duration_ms(duration_ms) when is_float(duration_ms) and duration_ms < 1,
     do: [:erlang.float_to_binary(duration_ms * 1000, decimals: 0), "µs"]
 
-  # Convenience function for encoding data to JSON. This is necessary to allow for
-  # configurable JSON parsers.
-  @doc false
-  def encode_to_json(data) do
-    Jason.encode_to_iodata(data)
-  end
-
   # Convenience function for formatting durations into a human readable string.
   @doc false
   def format_time_ms(time_ms) when is_integer(time_ms),
@@ -167,15 +160,4 @@ defmodule Timber do
 
   def format_time_ms(time_ms) when is_float(time_ms) and time_ms < 1,
     do: [:erlang.float_to_binary(time_ms * 1000, decimals: 0), "µs"]
-
-  # Convenience function that attempts to encode the provided argument to JSON.
-  # If the encoding fails a `nil` value is returned. If you want the actual error
-  # please use `encode_to_json/1`.
-  @doc false
-  def try_encode_to_json(data) do
-    case encode_to_json(data) do
-      {:ok, json} -> json
-      {:error, _error} -> nil
-    end
-  end
 end

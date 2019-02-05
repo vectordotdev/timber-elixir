@@ -11,6 +11,7 @@ defmodule Timber.LogEntry do
   alias Timber.Contexts.RuntimeContext
   alias Timber.Contexts.SystemContext
   alias Timber.GlobalContext
+  alias Timber.JSON
   alias Timber.LocalContext
   alias Timber.Event
   alias Timber.Utils.Module, as: UtilsModule
@@ -135,7 +136,7 @@ defmodule Timber.LogEntry do
   end
 
   @doc """
-  Encodes the log event to chardata
+  Encodes the log event to `iodata`
 
   ## Options
 
@@ -195,7 +196,7 @@ defmodule Timber.LogEntry do
 
   @spec encode_map_to_iodata!(map, format) :: iodata
   defp encode_map_to_iodata!(map, :json) do
-    Jason.encode_to_iodata!(map)
+    JSON.encode_to_iodata!(map)
   end
 
   # The logfmt encoding will actually use a pretty-print style
