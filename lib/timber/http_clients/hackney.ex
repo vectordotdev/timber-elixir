@@ -57,8 +57,6 @@ defmodule Timber.HTTPClients.Hackney do
 
   # Pass other messages
   def handle_async_response(_ref, msg) do
-    Timber.log(:debug, fn -> "Hackney is passing on: #{inspect(msg)}" end)
-
     :pass
   end
 

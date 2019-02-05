@@ -399,21 +399,12 @@ defmodule Timber.LoggerBackends.HTTP do
   #
   # This function assumes that its caller has already matched the reference being given to
   # the one existing in the state
-  defp handle_async_response!({:ok, 401, _body}, state) do
+  defp handle_async_response!({:ok, 401, body}, state) do
     Timber.log(:error, fn ->
-      # {body}"
-      "HTTP request #{inspect(state.ref)} received a 401 response:"
+      "HTTP request #{inspect(state.ref)} received a 401 response: #{body}"
     end)
 
     raise InvalidAPIKeyError, status: 401, api_key: state.api_key
-  end
-
-  defp handle_async_response!({:ok, 403, body}, state) do
-    Timber.log(:error, fn ->
-      "HTTP request #{inspect(state.ref)} received 403 response: #{body}"
-    end)
-
-    state
   end
 
   defp handle_async_response!({:ok, status, body}, state) do
@@ -421,7 +412,7 @@ defmodule Timber.LoggerBackends.HTTP do
       "HTTP request #{inspect(state.ref)} received a #{status} response: #{body}"
     end)
 
-    state
+    %{state | ref: nil}
   end
 
   defp handle_async_response!({:error, error}, state) do
@@ -438,7 +429,7 @@ defmodule Timber.LoggerBackends.HTTP do
       "HTTP request #{inspect(state.ref)} received an unknown response, passing..."
     end)
 
-    %{state | ref: nil}
+    state
   end
 
   # This method is public for testing purposes only
