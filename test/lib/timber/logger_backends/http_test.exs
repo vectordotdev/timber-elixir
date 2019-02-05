@@ -27,7 +27,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       end)
 
       HTTP.init(HTTP)
-      assert_receive(:outlet)
+      assert_receive(:flush)
     end
   end
 
@@ -143,14 +143,14 @@ defmodule Timber.LoggerBackends.HTTPTest do
   end
 
   describe "Timber.LoggerBackends.HTTP.handle_info/2" do
-    test "handles the outlet properly", %{state: state} do
+    test "handles the `:flush` event properly", %{state: state} do
       entry = {:info, self(), {Logger, "message", time(), [event: %{type: :type, data: %{}}]}}
       {:ok, state} = HTTP.handle_event(entry, state)
-      {:ok, new_state} = HTTP.handle_info(:outlet, state)
+      {:ok, new_state} = HTTP.handle_info(:flush, state)
       calls = FakeHTTPClient.get_async_request_calls()
       assert length(calls) == 1
       assert new_state.buffer == []
-      assert_receive(:outlet)
+      assert_receive(:flush)
     end
 
     test "emits debug log when encoding fails", %{state: state} do
@@ -164,7 +164,7 @@ defmodule Timber.LoggerBackends.HTTPTest do
       log_output =
         capture_io(fn ->
           {:ok, state} = HTTP.handle_event(entry, state)
-          {:ok, new_state} = HTTP.handle_info(:outlet, state)
+          {:ok, new_state} = HTTP.handle_info(:flush, state)
           assert new_state.buffer == []
         end)
 
