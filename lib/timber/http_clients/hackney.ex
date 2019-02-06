@@ -41,12 +41,12 @@ defmodule Timber.HTTPClients.Hackney do
   @doc false
   @impl HTTPClient
   # Legacy response structure for older versions of `:hackney`
-  def handle_async_response(ref, {:hackney_response, ref, {:ok, status, body}}) do
+  def handle_async_response(ref, {:hackney_response, ref, {:ok, status, _body}}) do
     {:ok, status}
   end
 
   # New response structure for current versions of `:hackney`
-  def handle_async_response(ref, {:hackney_response, ref, {:status, status, body}}) do
+  def handle_async_response(ref, {:hackney_response, ref, {:status, status, _body}}) do
     {:ok, status}
   end
 
