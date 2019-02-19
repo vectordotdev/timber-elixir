@@ -82,6 +82,28 @@ defmodule Timber do
   defdelegate duration_ms(timer),
     to: Timber.Timer
 
+  @doc """
+  Gets the current context
+
+  This is a merged representation of the `Timber.LocalContext` and `Timber.GlobalContext`.
+  If you would like local or global context specifically you can pass `:global` or `:local`
+  as the argument to this function.
+  """
+  @spec get_context() :: Context.t()
+  def get_context(type \\ :all)
+
+  def get_context(:all) do
+    Map.merge(GlobalContext.get(), LocalContext.get())
+  end
+
+  def get_context(:local) do
+    LocalContext.get()
+  end
+
+  def get_context(:global) do
+    GlobalContext.get()
+  end
+
   @doc false
   @deprecated "Please use delete_context/1 or delete_context/2"
   @spec remove_context_key(atom, context_location) :: :ok

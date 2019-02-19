@@ -7,14 +7,14 @@ defmodule Timber.HTTPClients.HackneyTest do
     test "handles :ok tuple response structures" do
       ref = make_ref()
 
-      {:ok, 200, ""} =
+      {:ok, 200} =
         HackneyHTTPClient.handle_async_response(ref, {:hackney_response, ref, {:ok, 200, ""}})
     end
 
     test "handles :status tuple response structures" do
       ref = make_ref()
 
-      {:ok, 200, ""} =
+      {:ok, 200} =
         HackneyHTTPClient.handle_async_response(ref, {:hackney_response, ref, {:status, 200, ""}})
     end
 
