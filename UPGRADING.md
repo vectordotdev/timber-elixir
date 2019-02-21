@@ -99,7 +99,7 @@ end
 ```elixir
 # mix.exs
 
-{:timber_exceptions, "~> 1.0"}
+{:timber_exceptions, "~> 2.0"}
 ```
 
 ```diff
