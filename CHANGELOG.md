@@ -29,6 +29,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## 3.0.0 - 2018-12-20
 
+3.0.0 contains breaking changes, for upgrade instructions see [UPGRADING.md](./UPGRADING.md)
+
 ### Changed
 
   - [Jason](https://hex.pm/packages/jason) is now used for JSON encoding. The
