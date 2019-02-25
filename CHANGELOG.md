@@ -12,6 +12,10 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+## [3.1.0] - 2019-02-25
+
+### Changed
+
   - `Timber.InvalidAPIKeyError` is now `Timber.Errors.InvalidAPIKeyError`
   - Events are no longer nested under the `event` key.
   - Custom events are no longer nested under the `event.custom` key, they have simply been moved
@@ -26,6 +30,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   - Errors are no longer automatically parsed in the logger backend. Please use the
     [`:timber_exceptions`](https://github.com/timberio/timber-elixir-exceptions) library if you'd
     like to structure errors. This is a proper approach to structuring these events.
+  - Handle unencodable content
 
 ## 3.0.0 - 2018-12-20
 
@@ -57,4 +62,5 @@ Versioning](http://semver.org/spec/v2.0.0.html).
     expected
   - Removed the test event Mix task
 
-[Unreleased]: https://github.com/timberio/timber-elixir/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/timberio/timber-elixir/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/timberio/timber-elixir/compare/v3.0.0...v3.1.0

@@ -58,7 +58,7 @@ defmodule Timber.HTTPClients.Fake do
   end
 
   def wait_on_response(_ref, _timeout) do
-    :pass
+    {:ok, 200}
   end
 
   def request(method, url, headers, body) do
