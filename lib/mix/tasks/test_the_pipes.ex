@@ -116,7 +116,7 @@ defmodule Mix.Tasks.Timber.TestThePipes do
 
     api_key = Config.api_key()
     message = "Testing the pipes (click the inspect icon to view more details)"
-    log_entry = LogEntry.new(DateTime.utc_now(), "debug", message)
+    log_entry = LogEntry.new(Timber.Utils.Timestamp.now(), :debug, message)
     log_map = LogEntry.to_map!(log_entry)
     body = Msgpax.pack!([log_map])
 

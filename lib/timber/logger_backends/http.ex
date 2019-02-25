@@ -469,7 +469,7 @@ defmodule Timber.LoggerBackends.HTTP do
   end
 
   @spec handle_async_response!(
-          {:ok, HTTPClient.status(), HTTPClient.body()}
+          {:ok, Timber.HTTPClient.status(), Timber.HTTPClient.body()}
           | {:error, term}
           | :pass,
           t
