@@ -29,7 +29,7 @@ The result: Beautiful, fast, powerful Elixir logging.
 
     ```elixir
     defp deps do
-      [{:timber, "~> 3.0"}]
+      [{:timber, "~> 3.1"}]
     end
     ```
 
