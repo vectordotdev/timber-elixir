@@ -60,7 +60,7 @@ defmodule Timber.Config do
   ## Example
 
       config :timber,
-        debug_io_device: :stdout
+        debug_io_device: :stdio
 
   """
   def debug_io_device do
