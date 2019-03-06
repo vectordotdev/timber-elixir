@@ -52,7 +52,8 @@ defmodule Timber.LoggerBackends.HTTP do
           buffer: buffer,
           flush_interval: non_neg_integer,
           max_buffer_size: pos_integer,
-          ref: reference | nil
+          ref: reference | nil,
+          source_id: String.t() | nil
         }
 
   @typedoc """
@@ -128,7 +129,8 @@ defmodule Timber.LoggerBackends.HTTP do
             flush_interval: @default_flush_interval,
             max_buffer_size: @default_max_buffer_size,
             min_level: nil,
-            ref: nil
+            ref: nil,
+            source_id: nil
 
   #
   # API
@@ -295,12 +297,14 @@ defmodule Timber.LoggerBackends.HTTP do
     flush_interval = Keyword.get(options, :flush_interval, state.flush_interval)
     max_buffer_size = Keyword.get(options, :max_buffer_size, state.max_buffer_size)
     min_level = Keyword.get(options, :min_level, state.min_level)
+    source_id = Keyword.get(options, :source_id, Config.source_id())
 
     changes = [
       api_key: api_key,
       flush_interval: flush_interval,
       max_buffer_size: max_buffer_size,
-      min_level: min_level
+      min_level: min_level,
+      source_id: source_id
     ]
 
     new_state = struct!(state, changes)
@@ -389,7 +393,7 @@ defmodule Timber.LoggerBackends.HTTP do
       "Sending buffer, byte size: #{byte_size}, size: #{state.buffer_size}"
     end)
 
-    case API.send_logs(state.api_key, @content_type, body, async: true) do
+    case API.send_logs(state.api_key, state.source_id, @content_type, body, async: true) do
       {:ok, ref} ->
         Timber.log(:debug, fn ->
           "Sent log buffer, HTTP request reference: #{inspect(ref)}"

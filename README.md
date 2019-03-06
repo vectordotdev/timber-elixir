@@ -40,7 +40,8 @@ The result: Beautiful, fast, powerful Elixir logging.
       backends: [Timber.LoggerBackends.HTTP],
 
     config :timber,
-      api_key: "{{your-api-key}}"
+      api_key: "YOUR_API_KEY",
+      source_id: "YOUR_SOURCE_ID"
     ```
 
 4. Test the pipes with:

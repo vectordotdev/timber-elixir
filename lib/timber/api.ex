@@ -6,11 +6,24 @@ defmodule Timber.API do
   #
   # http://docs.api.timber.io/
 
-  def send_logs(api_key, content_type, body, opts \\ []) do
+  # Support the legacy API keys that were source specific and did not require a source ID.
+  def send_logs(api_key, source_id, content_type, body, opts \\ [])
+
+  def send_logs(api_key, nil, content_type, body, opts) do
     async = Keyword.get(opts, :async, false)
-    url = Config.http_url()
-    headers = %{"Content-Type" => content_type}
-    request(api_key, :post, url, headers: headers, body: body, async: async)
+    host = Config.http_host()
+    url = "#{host}/frames"
+    auth_token = Base.encode64(api_key)
+    headers = %{"Authorization" => "Basic #{auth_token}", "Content-Type" => content_type}
+    request(:post, url, headers: headers, body: body, async: async)
+  end
+
+  def send_logs(api_key, source_id, content_type, body, opts) do
+    async = Keyword.get(opts, :async, false)
+    host = Config.http_host()
+    url = "#{host}/sources/#{source_id}/frames"
+    headers = %{"Authorization" => "Bearer #{api_key}", "Content-Type" => content_type}
+    request(:post, url, headers: headers, body: body, async: async)
   end
 
   def handle_async_response(ref, msg) do
@@ -27,16 +40,14 @@ defmodule Timber.API do
   # Util
   #
 
-  defp request(api_key, method, url, opts) do
+  defp request(method, url, opts) do
     http_client = Config.http_client()
-    auth_token = Base.encode64(api_key)
     vsn = Application.spec(:timber, :vsn)
     user_agent = "timber-elixir/#{vsn}"
 
     headers =
       opts
       |> Keyword.get(:headers, %{})
-      |> Map.put("Authorization", "Basic #{auth_token}")
       |> Map.put("User-Agent", user_agent)
 
     body = Keyword.get(opts, :body)
