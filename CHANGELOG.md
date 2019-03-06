@@ -12,6 +12,10 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+  - Added support for the new Timber API keys. The `:source_id` parameter is now supported when
+    configuring `:timber` in addition to the `:api_key`. This does not break backwards
+    compatibility.
+
 ## [3.1.0] - 2019-02-25
 
 ### Changed

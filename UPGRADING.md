@@ -7,7 +7,9 @@ This documents outlines how to upgrade from major versions of Timber
 Timber 3.x ships with a new library structure, including removing all integrations with dependencies like Phoenix, Ecto, and Plug into their own packages.  This will allow for better dependency management and compilation guarantees.  Many of the changes were internal, but upgrading does require a handful changes.
 
 ### Update Timber
+
 To start, simply update your Timber dep in mix.exs:
+
 ```elixir
 {:timber, "~> 3.0"}
 ```

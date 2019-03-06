@@ -22,17 +22,22 @@ defmodule Timber.Config do
   alias Timber.HTTPClients.Hackney, as: HackneyHTTPClient
 
   @application :timber
-  @default_http_url "https://logs.timber.io/frames"
+  @default_host "https://logs.timber.io"
 
   @doc """
   Your Timber application API key.
 
-  This can be obtained after you create your account in https://app.timber.io
+  This can be obtained after you create your account & source in https://app.timber.io
 
   ## Example
 
       config :timber,
         api_key: "abcd1234"
+
+  You can also use a `{:system, "TIMBER_API_KEY"}` tuple if you prefer environment variables.
+
+      config :timber,
+        api_key: {:system, "TIMBER_API_KEY"}
 
   """
   def api_key do
@@ -105,23 +110,54 @@ defmodule Timber.Config do
   Alternate URL for delivering logs. This is helpful if you want to use a proxy,
   for example.
 
-  Default: #{@default_http_url}
+  Default: #{@default_host}
 
   ## Example
 
-      config :timber, :http_url, "#{@default_http_url}"
+      config :timber, :http_host, "#{@default_host}"
+
+  You can also use a `{:system, "TIMBER_HOST"}` tuple if you prefer environment variables.
+
+      config :timber,
+        http_host: {:system, "TIMBER_HOST"}
 
   """
-  def http_url do
-    case Application.get_env(@application, :http_url, @default_http_url) do
+  def http_host do
+    case Application.get_env(@application, :http_host, @default_host) do
       {:system, env_var_name} ->
         get_env_with_warning(env_var_name)
 
-      http_url when is_binary(http_url) ->
-        http_url
+      http_host when is_binary(http_host) ->
+        http_host
 
       _else ->
         nil
+    end
+  end
+
+  @doc """
+  Your Timber source ID.
+
+  This can be obtained after you create your account & source in https://app.timber.io
+
+  ## Example
+
+      config :timber,
+        source_id: "1234"
+
+  You can also use a `{:system, "TIMBER_SOURCE_ID"}` tuple if you prefer environment variables.
+
+      config :timber,
+        source_id: {:system, "TIMBER_SOURCE_ID"}
+
+  """
+  def source_id do
+    case Application.get_env(@application, :source_id) do
+      {:system, env_var_name} ->
+        get_env_with_warning(env_var_name)
+
+      source_id ->
+        source_id
     end
   end
 
