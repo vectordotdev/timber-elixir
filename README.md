@@ -13,8 +13,6 @@ capture in-app context and metadata, turning your text-based logs into rich stru
 Timber integrates with Elixir through this library. And Timber's free-form query tools, real-time
 tailing, and graphing make using your logs easier than ever.
 
-The result: Beautiful, fast, powerful Elixir logging.
-
 * [Installation](#installation)
 * [Usage](#usage)
 * [Configuration](#configuration)
@@ -102,17 +100,11 @@ See more usage examples in [our Elixir documentation][docs].
 
 ## Configuration
 
-All configuration options are documented in the `Timber.Config` module. Some highlights are:
-
-* `config :timber, system_context: true` - Automatically capture system context
-* `config :timber, runtime_context: true` - Automatically capture runtime context (Elixir pid, module / file / line number, )
-* `config :timber, heroku_context: true` - Automatically capture Heroku context
-* `config :timber, ec2_context: true` - Automatically capture EC2 metadata context
-* ...see more in the `Timber.Config` docs
+All configuration options are documented in the [`Timber.Config` module][config].
 
 ## Integrations
 
-Upgrade 3rd party library logs with Timber integrations:
+Timber integrates with 3rd party libraries to structure and enhance the logs they emit:
 
 * [`:timber_ecto`](https://github.com/timberio/timber-elixir-ecto) - Upgrade `Ecto` logs with context and metadata.
 * [`:timber_exceptions`](https://github.com/timberio/timber-elixir-exceptions) - Upgrade error logs with context and metadata.
@@ -144,6 +136,7 @@ Extreme care was taken into the design of Timber to be fast and reliable:
 <a href="https://timber.io">Timber.io</a>
 </p>
 
+[config]: https://hexdocs.pm/timber/Timber.Config.html#content
 [docs]: https://docs.timber.io/languages/elixir
 [elixir_logger]: https://hexdocs.pm/logger/master/Logger.html
 [elixir_logger_runtime_configuration]: https://hexdocs.pm/logger/master/Logger.html#module-runtime-configuration
