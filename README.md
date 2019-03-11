@@ -24,6 +24,7 @@ Timber integrates with Elixir through this library.
 ---
 
 * **[Sign-up](https://app.timber.io)**
+* **[Features](https://docs.timber.io/setup/languages/elixir#features)**
 * **[Installation](https://docs.timber.io/setup/languages/elixir#installation)**
 * **[Configuration](https://docs.timber.io/setup/languages/elixir#configuration)**
 * **[Usage](https://docs.timber.io/setup/languages/elixir#usage)**
@@ -39,12 +40,3 @@ Timber integrates with Elixir through this library.
 <a href="https://timber.io/terms">Security</a> &bull;
 <a href="https://timber.io/privacy">Compliance</a>
 </p>
-
-[config]: https://hexdocs.pm/timber/Timber.Config.html#content
-[docs]: https://docs.timber.io/languages/elixir
-[elixir_logger]: https://hexdocs.pm/logger/master/Logger.html
-[elixir_logger_runtime_configuration]: https://hexdocs.pm/logger/master/Logger.html#module-runtime-configuration
-[msgpack]: https://msgpack.org/index.html
-[multi_buffer]: https://en.wikipedia.org/wiki/Multiple_buffering
-[signup]: https://app.timber.io
-[timber]: https://timber.io
