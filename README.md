@@ -18,8 +18,11 @@
 [any data source](https://docs.timber.io/setup/log_forwarders).
 
 Unlike traditional logging tools, Timber integrates with language runtimes to automatically
-capture in-app context and metadata, turning your text-based logs into rich structured events.
-Timber integrates with Elixir through this library.
+capture in-app context, turning your text-based logs into rich structured events.
+Timber integrates with Elixir through this library. And Timber's
+[rich free-form query tools](https://docs-new.timber.io/usage/live-tailing#query-syntax) and
+[real-time tailing](https://docs-new.timber.io/usage/live-tailing), make drilling down into
+important stats easier than ever.
 
 ---
 
