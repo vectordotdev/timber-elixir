@@ -23,13 +23,13 @@ Timber integrates with Elixir through this library.
 
 ---
 
-* **[Sign-up](https://app.timber.io)**
 * **[Features](https://docs.timber.io/setup/languages/elixir#features)**
 * **[Installation](https://docs.timber.io/setup/languages/elixir#installation)**
 * **[Configuration](https://docs.timber.io/setup/languages/elixir#configuration)**
 * **[Usage](https://docs.timber.io/setup/languages/elixir#usage)**
 * **[Guides](https://docs.timber.io/setup/languages/elixir#guides)**
 * **[Integrations](https://docs.timber.io/setup/languages/elixir/integrations)**
+* **[Performance](https://docs.timber.io/setup/languages/elixir#performance)**
 
 ---
 
