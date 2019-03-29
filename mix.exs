@@ -1,7 +1,7 @@
 defmodule Timber.Mixfile do
   use Mix.Project
 
-  @project_description "🌲 Beautiful, Fast, Powerful Elixir Logging. The official Timber.io Elixir integration."
+  @project_description "🌲 Great Elixir Logging Made Easy. Official Timber.io Integration."
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
   @version "3.1.1"

@@ -10,6 +10,13 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+  - The `Timber.Formatter` no longer prints in a proprietary format with the `@metadata`
+    delimiter. It not just print simple JSON lines. As such, the `Timber.Formatter` is not
+    recommended for use in development or test environment unless you want JSON formatted
+    logs.
+
 ## [3.1.1] - 2019-03-16
 
 ### Changed

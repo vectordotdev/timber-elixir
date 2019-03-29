@@ -16,7 +16,6 @@ defmodule Timber.LogEntry do
   alias Timber.Event
   alias Timber.Utils.Module, as: UtilsModule
   alias Timber.Utils.Timestamp, as: UtilsTimestamp
-  alias Timber.LogfmtEncoder
   alias Timber.LoggerBackends.HTTP, as: LoggerBackend
 
   defstruct [:dt, :level, :message, :event, context: %{}]
@@ -41,7 +40,7 @@ defmodule Timber.LogEntry do
           event: nil | Event.t()
         }
 
-  @type format :: :json | :logfmt | :msgpack
+  @type format :: :json | :msgpack
 
   #
   # API
@@ -136,6 +135,21 @@ defmodule Timber.LogEntry do
   end
 
   @doc """
+  Encodes the log event to `binary`
+
+  ## Options
+
+  - `:except` - A list of key names. All key names except the ones passed will be encoded.
+  - `:only` - A list of key names. Only the key names passed will be encoded.
+  """
+  @spec encode_to_binary!(t, format, Keyword.t()) :: iodata
+  def encode_to_binary!(log_entry, format, options \\ []) do
+    log_entry
+    |> to_map!(options)
+    |> encode_map_to_binary!(format)
+  end
+
+  @doc """
   Encodes the log event to `iodata`
 
   ## Options
@@ -194,28 +208,14 @@ defmodule Timber.LogEntry do
     Event.to_event(event)
   end
 
+  @spec encode_map_to_binary!(map, format) :: iodata
+  defp encode_map_to_binary!(map, :json) do
+    JSON.encode_to_binary!(map)
+  end
+
   @spec encode_map_to_iodata!(map, format) :: iodata
   defp encode_map_to_iodata!(map, :json) do
     JSON.encode_to_iodata!(map)
-  end
-
-  # The logfmt encoding will actually use a pretty-print style
-  # of encoding rather than converting the data structure directly to
-  # logfmt
-  defp encode_map_to_iodata!(map, :logfmt) do
-    context =
-      case Map.get(map, :context) do
-        nil -> []
-        val -> [?\n, ?\t, "Context: ", LogfmtEncoder.encode!(val)]
-      end
-
-    event =
-      case Map.get(map, :event) do
-        nil -> []
-        val -> [?\n, ?\t, "Event: ", LogfmtEncoder.encode!(val)]
-      end
-
-    [context, event]
   end
 
   defp vm_pid_from_metadata(metadata) do

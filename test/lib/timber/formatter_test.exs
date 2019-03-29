@@ -12,7 +12,10 @@ defmodule Timber.FormatterTest do
           Logger.error("log message")
         end)
 
-      assert log_output =~ " @metadata "
+      map = Jason.decode!(log_output)
+
+      assert map["context"]["runtime"]
+      assert map["message"] == "log message"
     end
   end
 end
