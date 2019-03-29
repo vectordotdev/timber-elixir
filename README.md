@@ -26,7 +26,19 @@ important stats easier than ever.
 
 ---
 
-* **[Features](https://docs.timber.io/setup/languages/elixir#features)**
+### Features
+
+* Simple Integration. Installs as an Elixir logger backend.
+* Fast & light-weight. Designed with performance in mind.
+* Support for local and global context.
+* Automatic context capturing.
+* Strong structured logging support.
+* Integrates with popular 3rd party libraries such as Phoenix and Plug.
+
+---
+
+### Get Started
+
 * **[Installation](https://docs.timber.io/setup/languages/elixir#installation)**
 * **[Configuration](https://docs.timber.io/setup/languages/elixir#configuration)**
 * **[Usage](https://docs.timber.io/setup/languages/elixir#usage)**
