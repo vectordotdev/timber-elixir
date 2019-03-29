@@ -102,21 +102,6 @@ defmodule Timber.Events.LogEntryTest do
       runtime_context = Map.fetch!(context, "runtime")
       assert Map.fetch!(runtime_context, "vm_pid") == vm_pid
     end
-
-    test "encodes logfmt properly" do
-      entry = LogEntry.new(get_time(), :info, "message", event: %{order_placed: %{total: 100}})
-      hostname = get_hostname()
-      system_pid = "#{entry.context.system.pid}"
-      vm_pid = entry.context.runtime.vm_pid
-      result = LogEntry.encode_to_iodata!(entry, :logfmt)
-
-      assert is_list(result)
-
-      assert to_string(result) ==
-               "\n\tContext: system.pid=#{system_pid} system.hostname=#{hostname} runtime.vm_pid=#{
-                 vm_pid
-               } runtime.module_name= runtime.line= runtime.function= runtime.file= runtime.application="
-    end
   end
 
   defp get_vm_pid do

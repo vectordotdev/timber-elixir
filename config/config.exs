@@ -4,12 +4,12 @@ config :logger,
   backends: [:console],
   utc_log: true
 
-config :logger, :console, format: {Timber.Formatter, :format}
+config :logger, :console,
+  colors: [enabled: false],
+  format: {Timber.Formatter, :format}
 
 config :timber,
   nanosecond_timestamps: false
-
-config :timber, Timber.Formatter, format: :logfmt
 
 # The file config/config.secret.exs can be used for local
 # configuration
