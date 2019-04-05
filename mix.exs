@@ -4,7 +4,7 @@ defmodule Timber.Mixfile do
   @project_description "🌲 Great Elixir Logging Made Easy. Official Timber.io Integration."
   @source_url "https://github.com/timberio/timber-elixir"
   @homepage_url "https://github.com/timberio/timber-elixir"
-  @version "3.1.1"
+  @version "3.1.2"
 
   # Project manifest for Mix
   #
