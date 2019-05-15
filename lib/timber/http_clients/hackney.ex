@@ -35,7 +35,11 @@ defmodule Timber.HTTPClients.Hackney do
       get_request_options()
       |> Keyword.merge(async: true)
 
-    :hackney.request(method, url, req_headers, body, req_opts)
+    try do
+      :hackney.request(method, url, req_headers, body, req_opts)
+    rescue
+        e in ArgumentError -> {:error, "An ArgumentError occured with hackney: #{inspect e}"}
+    end
   end
 
   @doc false
