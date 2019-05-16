@@ -38,7 +38,7 @@ defmodule Timber.HTTPClients.Hackney do
     try do
       :hackney.request(method, url, req_headers, body, req_opts)
     rescue
-        e in ArgumentError -> {:error, "An ArgumentError occured with hackney: #{inspect e}"}
+      e in ArgumentError -> {:error, "An ArgumentError occured with hackney: #{inspect(e)}"}
     end
   end
 
