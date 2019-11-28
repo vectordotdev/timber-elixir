@@ -1,7 +1,7 @@
 defmodule Timber.EventableTest do
   use Timber.TestCase
 
-  alias Timber.Eventable
+  alias Timber.{Eventable, TestStruct}
 
   describe "Timber.Eventable.to_event/1" do
     test "map with a single root key" do
@@ -29,6 +29,15 @@ defmodule Timber.EventableTest do
                  message: "boom",
                  name: "RuntimeError"
                }
+             }
+    end
+
+    test "struct" do
+      struct = %TestStruct{}
+      event = Eventable.to_event(struct)
+
+      assert event == %{
+               test_struct: %{life: 42}
              }
     end
   end

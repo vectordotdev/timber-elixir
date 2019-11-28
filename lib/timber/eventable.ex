@@ -49,6 +49,8 @@ defimpl Timber.Eventable, for: Map do
 end
 
 defimpl Timber.Eventable, for: Any do
+  @upper_word_regex ~r/(^[A-Z]+$)|[A-Z][a-z0-9]*/
+
   def to_event(%{__exception__: true} = error) do
     message = Exception.message(error)
     module_name = Timber.Utils.Module.name(error.__struct__)
@@ -59,5 +61,20 @@ defimpl Timber.Eventable, for: Any do
         message: message
       }
     }
+  end
+
+  def to_event(%{__struct__: module} = struct) do
+    event_data = struct |> Map.from_struct()
+
+    event_namespace =
+      module
+      |> Module.split()
+      |> List.last()
+      |> String.split(@upper_word_regex, trim: true, include_captures: true)
+      |> Stream.map(&String.downcase/1)
+      |> Enum.join("_")
+      |> String.to_atom()
+
+    Map.new([{event_namespace, event_data}])
   end
 end
