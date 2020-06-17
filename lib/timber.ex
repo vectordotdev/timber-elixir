@@ -35,7 +35,7 @@ defmodule Timber do
 
   See `add_context/2`
   """
-  @spec add_context(map()) :: :ok
+  @spec add_context(map() | keyword()) :: :ok
   def add_context(data, location \\ :local)
 
   @doc """
@@ -44,7 +44,7 @@ defmodule Timber do
   The second parameter indicates where you want the context to be
   stored. See `context_location` for more details.
   """
-  @spec add_context(map(), context_location) :: :ok
+  @spec add_context(map() | keyword(), context_location) :: :ok
   def add_context(data, :local) do
     LocalContext.add(data)
   end
