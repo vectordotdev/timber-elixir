@@ -16,7 +16,7 @@ defmodule Timber.LocalContext do
   `Timber.Context.add/2` is called to merge the existing context
   with the provided context.
   """
-  @spec add(map()) :: :ok
+  @spec add(map() | keyword()) :: :ok
   def add(context) do
     load()
     |> Context.merge(context)
